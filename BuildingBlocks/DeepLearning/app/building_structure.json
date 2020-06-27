@@ -1,0 +1,14 @@
+{
+    "C":{
+        "path":"CNN",
+        "resultname":"_CNN"
+    },
+    "L":{
+        "path":"LSTM",
+        "resultname":"_LSTM"
+    },
+    "R":{
+        "path":"RNN",
+        "resultname":"_RNN"
+    }
+}

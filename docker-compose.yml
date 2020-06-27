@@ -1,0 +1,154 @@
+version: '3'
+services:
+  coordinator: # COORDINATOR
+    build:
+      context: ./ServiceMersh
+      dockerfile: ./Dockerfile
+    ports:
+      - "25000:5555"
+    restart: always
+    networks:
+      - service_mersh
+
+########### BB services ############################
+
+  deep_learning: 
+    build:
+      context: ./BuildingBlocks/DeepLearning
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+
+  preprocessing:
+    build:
+      context: ./BuildingBlocks/Preprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+
+  bb_tps: # tools to clean data
+    build:
+      context: ./BuildingBlocks/TS
+      dockerfile: ./Dockerfile
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
+
+
+###########################################
+############## TPS SERVICES ###############
+###########################################
+
+  tps_manager: #API Gatewaey THE MANAGER
+    container_name: TPS_Manager
+    build:
+      context: ./TPS/Manager/
+      dockerfile: ./Dockerfile
+    environment:      
+      CONFIGPATH: ./CONFIG/ #configuration location
+      SCHEMAPATH: ./SCHEMA/ #data location
+      DATABASE: mongodb #database
+      CENTINEL: none #master watcher (must be active)
+    volumes:
+      - ./TPS/Manager/:/home/ #for debugging
+      - ./TPS/:/home/CONFIG/
+      #- ./TEST/:/home/SCHEMA/
+      #- /tmp/pruebas/TPSSCHEMA/:/home/SCHEMA/ #workflow dagon schema
+    ports:
+      - "54350:5000"
+    expose:
+      - "5000"
+    restart: always
+    networks:
+      - TPS_net
+      - service_mersh
+
+  mongodb: # tps manager mongoDB
+    container_name: DB_TPS_data
+    image: mongo:latest
+    restart: always
+    environment:
+      data-volume: /data/db
+      MONGO_INITDB_DATABASE: TPS_Data
+    volumes:
+      - data-volume:/data/db
+      #- ./Configuration/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    ports:
+      - 27018:27017
+    networks:
+      - TPS_net
+    depends_on:
+      - tps_manager
+
+  clustering: # API Gateway container
+    container_name: TPS_clustering
+    #image: 127.0.0.1:5000/meteots_clustering_w1
+    build:
+      context: ./TPS/Services/Clustering
+      dockerfile: ./Dockerfile
+    networks:
+      - TPS_net
+    restart: always
+
+  summary: # summary
+    container_name: TPS_summary
+    build:
+      context: ./TPS/Services/Summary/
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - TPS_net
+    depends_on:
+      - tps_manager
+
+  clusteringtools: # tools
+    container_name: TPS_clustering_tools
+    build:
+      context: ./TPS/Services/ClusterAnalysis/
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - TPS_net
+    ports:
+      - 3131:80
+    depends_on:
+      - tps_manager
+
+  cleaningtools: # tools to clean data
+    container_name: TPS_cleaning_tools
+    #image: 127.0.0.1:5000/TPS_cleaning_tools
+    build:
+      context: ./TPS/Services/CleaningTools
+      dockerfile: ./Dockerfile
+    networks:
+      - TPS_net
+      - service_mersh
+    restart: always
+
+  graphics: # service to graphic data
+    container_name: TPS_graphics
+    #image: 127.0.0.1:5000/TPS_cleaning_tools
+    build:
+      context: ./TPS/Services/Graficas
+      dockerfile: ./Dockerfile
+    networks:
+      - TPS_net
+    ports:
+      - 3132:80
+    restart: always
+
+
+networks: 
+  service_mersh:
+  TPS_net:
+
+volumes:
+  data-volume:

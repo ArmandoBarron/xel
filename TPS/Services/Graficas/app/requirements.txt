@@ -1,0 +1,7 @@
+flask
+flask-restful
+matplotlib
+flask-cors
+pandas
+numpy
+seaborn

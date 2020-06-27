@@ -1,0 +1,23 @@
+version: '3'
+services:
+
+  ftpd-publisher:
+    container_name: ftpd-publisher
+    image: stilliard/pure-ftpd:hardened
+    network_mode: host
+    ports:
+      - 21:21
+      - 20:20
+      - 30000-30100:30000-30100
+    volumes:
+      - '$FTP_PUBLISHED_FOLDER/:$FTP_PUBLISHED_FOLDER/'
+      #- '/tmp/pruebas/config/:/etc/pure-ftpd/passwd'
+    environment:
+      PUBLICHOST: "$FTP_HOST_LOCATED"
+      FTP_USER_NAME: guess
+      FTP_USER_PASS: guess
+      FTP_USER_HOME: $FTP_PUBLISHED_FOLDER
+      FTP_MAX_CONNECTIONS: 50
+      FTP_MAX_CLIENTS: 50
+      FTP_PASSIVE_PORTS: "30000:30100"
+    restart: always

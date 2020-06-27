@@ -1,0 +1,116 @@
+
+  {
+    "creation_at": "2019-10-28 10:28:24", 
+    "id": "5db6c2c89f25cf000bfeff42", 
+    "name": "wf1-transversal-demo", 
+    "subscribers": [], 
+    "tasks": {
+      "A": {
+        "command": "mkdir output;hostname > output/f1.txt", 
+        "history": [
+          {
+            "datetime": "2019-10-28 10:28:24", 
+            "status": "READY"
+          }, 
+          {
+            "datetime": "2019-10-28 10:28:25", 
+            "status": "WAITING"
+          }, 
+          {
+            "datetime": "2019-10-28 10:28:25", 
+            "status": "RUNNING"
+          }, 
+          {
+            "datetime": "2019-10-28 10:28:35", 
+            "status": "FINISHED"
+          }
+        ], 
+        "name": "A", 
+        "nexts": [
+          "B", 
+          "C"
+        ], 
+        "prevs": [], 
+        "status": "FINISHED", 
+        "type": "batch", 
+        "working_dir": "/tmp/pruebas/1572258505117-A"
+      }, 
+      "B": {
+        "command": "echo $RANDOM > f2.txt; cat workflow:///A/output/f1.txt >> f2.txt;sleep 10", 
+        "history": [
+          {
+            "datetime": "2019-10-28 10:28:24", 
+            "status": "READY"
+          }, 
+          {
+            "datetime": "2019-10-28 10:28:25", 
+            "status": "WAITING"
+          }, 
+          {
+            "datetime": "2019-10-28 10:28:35", 
+            "status": "RUNNING"
+          }
+        ], 
+        "name": "B", 
+        "nexts": [
+          "D"
+        ], 
+        "prevs": [
+          "A"
+        ], 
+        "status": "RUNNING", 
+        "type": "batch", 
+        "working_dir": "/tmp/pruebas/1572258515168-B"
+      }, 
+      "C": {
+        "command": "echo $RANDOM > f2.txt; cat workflow:///A/output/f1.txt >> f2.txt;sleep 10", 
+        "history": [
+          {
+            "datetime": "2019-10-28 10:28:24", 
+            "status": "READY"
+          }, 
+          {
+            "datetime": "2019-10-28 10:28:35", 
+            "status": "RUNNING"
+          }, 
+          {
+            "datetime": "2019-10-28 10:28:47", 
+            "status": "FINISHED"
+          }
+        ], 
+        "name": "C", 
+        "nexts": [
+          "D"
+        ], 
+        "prevs": [
+          "A"
+        ], 
+        "status": "FINISHED", 
+        "type": "batch", 
+        "working_dir": "/tmp/pruebas/1572258515172-C"
+      }, 
+      "D": {
+        "command": "cat workflow:///B/f2.txt >> f3.txt; cat workflow:///C/f2.txt >> f3.txt;sleep 10", 
+        "history": [
+          {
+            "datetime": "2019-10-28 10:28:24", 
+            "status": "READY"
+          }, 
+          {
+            "datetime": "2019-10-28 10:28:47", 
+            "status": "RUNNING"
+          }
+        ], 
+        "name": "D", 
+        "nexts": [], 
+        "prevs": [
+          "B", 
+          "C"
+        ], 
+        "status": "RUNNING", 
+        "type": "batch", 
+        "working_dir": "/tmp/pruebas/1572258527651-D"
+      }
+    }
+  }
+

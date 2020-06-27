@@ -1,0 +1,18 @@
+{
+    "I":{
+        "path":"Imputation",
+        "resultname":"_input"
+    },
+    "N":{
+        "path":"Normalization",
+        "resultname":"_norm"
+    },
+    "O":{
+        "path":"Outliers",
+        "resultname":"_nois"
+    },
+    "S":{
+        "path":"Sampling",
+        "resultname":"_sampling"
+    }
+}

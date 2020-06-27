@@ -1,0 +1,26 @@
+{
+    "config":{
+        "Distribution_Type":"Two Choice"
+    },
+    "services":{
+        "deeplearning":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"deep_learning","port":80}
+                ]
+        },
+        "preprocessing":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"preprocessing","port":80}
+                ]
+        },
+        "TS":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"bb_tps","port":80}
+                ]
+        }
+
+    }
+}
