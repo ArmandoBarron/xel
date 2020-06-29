@@ -2,8 +2,13 @@ import sys,json
 import pandas as pd
 import os
 from random import randint
+import logging #logger
+
+LOGER = logging.getLogger()
+ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 
 def execute(params):
+    LOGER.error(params)
     """
     params:: type(dict)
 
@@ -12,7 +17,7 @@ def execute(params):
     use this space to return a pandas dataframe with the results
     """ 
     filepath = params['inputpath']
-    filename = params['inputfile']
+    filename = params['inputfile']+".csv"
     destination =  params['inputfile']+"_results.csv"
     columns = params['columns']
     trainSize = params['trainSize']
@@ -20,7 +25,7 @@ def execute(params):
     epoch = params['epoch']
     lossFunction = params['lossFunction']
     metric = params['metric']
-    os.system('Rscript T.r "'+filepath+'" "'
+    os.system('Rscript '+ACTUAL_PATH+'T.r "'+filepath+'" "'
                              +filename+'" "'
                              +destination+'" "'
                              +columns+'" "'
@@ -46,13 +51,12 @@ def blackbox(data,params):
     ################## EXTRACT ####################
     ###############################################
 
-    actual_path = os.getcwd()
-    #change workinf dir to blackbox location
-    os.chdir(os.path.dirname(__file__))
-
-    input_folder= "input_data/"
-    if not os.path.exists(input_folder):
-        os.makedirs(input_folder)
+    input_folder= ACTUAL_PATH+"input_data/"
+    try:
+        if not os.path.exists(input_folder):
+            os.makedirs(input_folder)
+    except FileExistsError:
+        pass
 
 
     inputfile_name = "input_%s" % randint(1,1000)
@@ -60,7 +64,7 @@ def blackbox(data,params):
     params['inputfile'] = inputfile_name
 
     #write data on disk
-    destination = input_folder + inputfile_name
+    destination = input_folder + inputfile_name+".csv"
     data.to_csv(destination, index = False, header=True)
 
     ###############################################
@@ -72,7 +76,4 @@ def blackbox(data,params):
     ################## LOAD ####################
     ###############################################
 
-    
-    #return to the base path
-    os.chdir(actual_path)
     return data    #data is a pandas dataframe

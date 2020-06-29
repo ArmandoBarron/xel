@@ -1,12 +1,15 @@
 import sys,os,json
 import pandas as pd
 import importlib
-import RNN.blackbox_middleware
 import logging #logger
 LOG = logging.getLogger()
 
 #import RNN.blackbox_middleware as bb
 ## this is bassicaly the building block ##
+
+dictionary = {}
+with open("building_structure.json", "r") as json_file:
+    dictionary = json.load(json_file) #read all configurations for services
 
 
 def middleware(data,DAG,workParams):
@@ -15,10 +18,6 @@ def middleware(data,DAG,workParams):
     """
     LOG.error("running BB")
     data = pd.DataFrame.from_records(data) #data is now a dataframe
-
-    dictionary = {}
-    with open("building_structure.json", "r") as json_file:
-        dictionary = json.load(json_file) #read all configurations for services
 
 
     for char in DAG:
@@ -47,5 +46,7 @@ def middleware(data,DAG,workParams):
         LOG.error("BLACKBOX FINISHED")
 
         #the same data variable is transformed by all the application
-    
-    return data.to_json(orient='records') #reutrn  json
+    try:
+        return data.to_json(orient='records') #reutrn  json
+    except AttributeError:
+        return json.dumps(data)

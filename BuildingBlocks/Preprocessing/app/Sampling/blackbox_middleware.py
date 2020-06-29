@@ -5,6 +5,7 @@ from random import randint
 import logging #logger
 
 LOGER = logging.getLogger()
+ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 
 def execute(params):
     LOGER.error(params)
@@ -18,7 +19,8 @@ def execute(params):
     filepath = params['inputpath']
     filename = params['inputfile']+".csv"
     destination =  params['inputfile']+"_results.csv"
-    os.system('Rscript T.r "'+filepath+'" "'+filename+'" "'+destination+'"')
+    os.system('Rscript '+ACTUAL_PATH+'T.r "'+filepath+'" "'+filename+'" "'+destination+'"')
+
 
     data = pd.read_csv(destination)
 
@@ -35,14 +37,13 @@ def blackbox(data,params):
     ################## EXTRACT ####################
     ###############################################
 
-    actual_path = os.getcwd()
-    #change workinf dir to blackbox location
-    os.chdir(os.path.dirname(__file__))
 
-    input_folder= "input_data/"
-    if not os.path.exists(input_folder):
-        os.makedirs(input_folder)
-
+    input_folder= ACTUAL_PATH+"input_data/"
+    try:
+        if not os.path.exists(input_folder):
+            os.makedirs(input_folder)
+    except FileExistsError:
+        pass
 
     inputfile_name = "input_%s" % randint(1,1000)
     params['inputpath'] = input_folder
@@ -60,8 +61,4 @@ def blackbox(data,params):
     ###############################################
     ################## LOAD ####################
     ###############################################
-
-    
-    #return to the base path
-    os.chdir(actual_path)
     return data    #data is a pandas dataframe

@@ -92,7 +92,7 @@ print(RES)
 
 
 """
-
+"""
 ###### TPS SERVICES #####
 # dependiendo de los parametros se llama a un servicio diferente
 params ={"service":"cleaningtools","columns":"all","ReplaceWithNa":['None',-99,-99.0,'NaN','nan'],"NaReaplace":"mean"} #calling the cleaning service
@@ -123,3 +123,64 @@ print(RES)
 #siempre es un archivo png
 #with open("grafica.png","wb") as file:
 #        file.write(b64decode(RES['data'].encode('utf-8')))
+"""
+
+
+ #### executing a DAG
+
+preprocessingAction = 'INO'
+imputationMethod = "mean"
+numericColumns = 'latitud,longitud,altitud,dir_rafaga,dir_viento,vel_rafaga,vel_viento,temperatura,humedad,presion_barometrica,precipitacion,radiacion_solar'
+
+
+iParams = {'columns':numericColumns, 'method':imputationMethod}
+nParams = {'columns':numericColumns}
+oParams = {'columns':numericColumns}
+sParams = {}
+preprocessingParams = {'I':iParams, 'N':nParams, 'O':oParams, 'S':sParams}
+
+
+DAG  = [{
+    "id":"s1",
+    "service":"preprocessing",
+    "actions":preprocessingAction,
+    "childrens":[
+        {"id":"s2","service":"TS","childrens":[],"params":{"service":"ANOVA","variables":"vel_viento,temperatura,humedad,presion_barometrica","method":"kendall"}},
+        {"id":"s3","service":"TS","childrens":[],"params":{"service":"clustering","k":3,"alghoritm":"kmeans","variables":"presion_barometrica"}}
+        ],
+    "params":preprocessingParams
+    },
+]
+
+
+#read data
+data = pd.read_csv("content.csv")
+data = data.to_json(orient='records')
+
+ToSend = {'data':data,'DAG':DAG} #no actions, so it will taken the default application A
+
+ToSend=json.dumps(ToSend)
+
+url = 'http://localhost:25000/executeDAG'
+headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+result = api.post(url, data=ToSend,headers=headers)
+RES = result.json()
+
+
+RN = RES['RN'] #get RN to monitoring
+
+Notask = 3
+while True:
+    if Notask <=0: break
+    url = 'http://localhost:25000/monitor/%s' % (RN)
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    result = api.post(url,headers=headers)
+    RES = result.json()
+    if RES['status'] == "OK":
+        print(RES['data'])
+        print("DATA FOUNDED")
+        print(RES['task'])
+        Notask-=1
+    else:
+        print("nothing yet")
+

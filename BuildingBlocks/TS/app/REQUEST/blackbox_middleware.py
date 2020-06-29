@@ -9,12 +9,13 @@ from base64 import b64encode
 
 
 LOGER = logging.getLogger()
+ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
+
 
 def execute(data,params):
     LOGER.error(params)
     #import libraries in this folder
     mod = importlib.import_module('REQUEST.tps_request')
-
 
     """
     params:: type(dict)
@@ -46,14 +47,14 @@ def blackbox(data,params):
     ################## EXTRACT ####################
     ###############################################
 
-    actual_path = os.getcwd()
     #change workinf dir to blackbox location
-    os.chdir(os.path.dirname(__file__))
 
-    input_folder= "input_data/"
-    if not os.path.exists(input_folder):
-        os.makedirs(input_folder)
-
+    input_folder= ACTUAL_PATH+"input_data/"
+    try:
+        if not os.path.exists(input_folder):
+            os.makedirs(input_folder)
+    except FileExistsError:
+        pass
 
     inputfile_name = "input_%s" % randint(1,1000)
     params['inputpath'] = input_folder
@@ -69,7 +70,4 @@ def blackbox(data,params):
     ################## LOAD ####################
     ###############################################
 
-    
-    #return to the base path
-    os.chdir(actual_path)
     return data    #data is a pandas dataframe

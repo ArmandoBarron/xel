@@ -7,6 +7,10 @@ LOG = logging.getLogger()
 #import RNN.blackbox_middleware as bb
 ## this is bassicaly the building block ##
 
+dictionary = {}
+with open("building_structure.json", "r") as json_file:
+    dictionary = json.load(json_file) #read all configurations for services
+
 
 def middleware(data,DAG,workParams):
     """
@@ -14,10 +18,6 @@ def middleware(data,DAG,workParams):
     """
     LOG.error("running BB")
     data = pd.DataFrame.from_records(data) #data is now a dataframe
-
-    dictionary = {}
-    with open("building_structure.json", "r") as json_file:
-        dictionary = json.load(json_file) #read all configurations for services
 
 
     for char in DAG:
