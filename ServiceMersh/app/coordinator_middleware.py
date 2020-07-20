@@ -28,24 +28,36 @@ elif(dictionary['config']['Distribution_Type'] == "Two Choice"):
     from T_i import twoChoice as coordinate
 
 BRANCHES = dict() #dict of all the REQUEST
-
+FINISHED_BRANCH = dict()
 ###### END GLOBAL VARIABLES ##########
 
 def IndexData(RN,id_service,data):
     #data must be a json (dict)
     global INDEXER
+    try:
+        INDEXER.TPSapi.format_single_query("notImportant")
+    except AttributeError:
+        global WORKSPACENAME, TPSHOST
+        INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
+
 
     data_label = "%s_%s" % (RN,id_service) #this is the name of the document (mongo document)
     query = INDEXER.TPSapi.format_single_query("notImportant") #not important line. Well yes but actually no.
     res = INDEXER.TPSapi.TPS(query,"getdata",workload=data,label=data_label) #this service (getdata) let me send json data and save it into a mongo DB
-    LOGER.warning(res)
     return data_label
 
 def GetIndexedData(label):
     #data must be a json (dict)
     global INDEXER
-    query = INDEXER.TPSapi.format_single_query(label)
-    data = INDEXER.TPSapi.TPS(query,"getdata") #this service (getdata) let me send json data and save it into a mongo DB
+    try:
+        INDEXER.TPSapi.format_single_query("notImportant")
+    except AttributeError:
+        global WORKSPACENAME, TPSHOST
+        INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
+
+    data = INDEXER.TPSapi.GetData(label)['DATA']
+    #data = INDEXER.TPSapi.TPS(query,"getdata") #this service (getdata) let me send json data and save it into a mongo DB
+    #LOGER.error(data)
     return data
     
 def readActions(actionsString):
@@ -68,19 +80,21 @@ def EXE_SERVICE(control_number,data,info):
     ToSend = {'data':json.dumps(data),'params':params} #no actions, so it will taken the default application A
     if 'actions' in info: ToSend['actions']= info['actions']
     
-    LOGER.error(type(data))
     data_result = json.loads(execute_service(service,ToSend)) #send request to service
-    LOGER.error(type(data_result))
+    #LOGER.error(data_result)
     label = IndexData(control_number,id_service,data_result) #indexing result data into DB
 
     
     BRANCHES[control_number][id_service]={'status':"FINISHED","label":label,"task":id_service} #update status
 
     #the task fihised, and now we execute the children task
-    DAG = info['childrens']
-    for br in DAG: #for each service in DAG
-        thread1 = Thread(target = EXE_SERVICE, args = (control_number,data_result,br,) )
-        thread1.start()
+    try:
+        DAG = info['childrens']
+        for br in DAG: #for each service in DAG
+            thread1 = Thread(target = EXE_SERVICE, args = (control_number,data_result,br,) )
+            thread1.start()
+    except KeyError as ke:
+        LOGER.error("No more childrens")
 
 
 app = Flask(__name__)
@@ -130,14 +144,17 @@ def execute_service(service,params=None):
 @app.route('/executeDAG', methods=['POST'])
 def execute_DAG():
     global BRANCHES
-    params = request.get_json()
+    global FINISHED_BRANCH
+    params = request.get_json(force=True)
     data = json.loads(params['data']) #data to be transform
-    DAG = params['DAG'] #it have the parameters, the sub dag ,and the secuence of execution (its a json).
+    DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
     #a Resquest No is created. This request number it to monitorin the execution.
     RN = str(randint(100000,900000)) #random number with 6 digits
 
     #execute dag
     BRANCHES[RN]=dict()
+    FINISHED_BRANCH[RN]=dict()
+
     for br in DAG: #for each service in DAG
         thread1 = Thread(target = EXE_SERVICE, args = (RN,data,br,) )
         thread1.start()
@@ -150,6 +167,7 @@ def execute_DAG():
 def monitoring_solution(RN):
     #list of task
     global BRANCHES
+    global FINISHED_BRANCH
     task_dict = BRANCHES[str(RN)]
     sleep(1)
     for key,value in task_dict.items():
@@ -157,9 +175,19 @@ def monitoring_solution(RN):
             BRANCHES[RN][key]['status']="STANDBY" #status stamdby is for a task which already finished and it has been accounted
             label = value['label']
             task = value['task']
-            data = GetIndexedData(label) #get data from label
-            return json.dumps({'status':"OK",'data':data,"task":task})
+            FINISHED_BRANCH[RN][task]=label #to get data in future
+            return json.dumps({"status":"OK","task":task})
     return json.dumps({'status':"ERROR"}) #no task found
+
+
+@app.route('/getdata/<RN>/<task>', methods=['POST'])
+def getdataintask(RN,task):
+    #list of task
+    global FINISHED_BRANCH
+    label = FINISHED_BRANCH[RN][task]
+    data = GetIndexedData(label) #get data from label
+    return json.dumps({'status':"OK","data":data}) #no task found
+
 
 
 if __name__ == '__main__':

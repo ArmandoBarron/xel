@@ -9,6 +9,8 @@ services:
     restart: always
     networks:
       - service_mersh
+    depends_on:
+      - tps_manager
 
 ########### BB services ############################
 
@@ -106,6 +108,8 @@ services:
     restart: always
     networks:
       - TPS_net
+    ports:
+      - 11002:80
     depends_on:
       - tps_manager
 

@@ -44,7 +44,6 @@ def middleware(data,DAG,workParams):
         LOG.error("RUNNING BLACKBOX")
         data = mod.blackbox(data,params) #data is a pandas dataframe
         LOG.error("BLACKBOX FINISHED")
-
         #the same data variable is transformed by all the application
     try:
         return data.to_json(orient='records') #reutrn  json

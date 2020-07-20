@@ -56,6 +56,7 @@ function(data, columns="all") {
 
 	if (columns != "all")
 		numericData <- select(numericData, unlist(strsplit(columns, ',')))
+	column_names = colnames(numericData)
 
 	description <- apply(numericData, 2, describe)
 	list(

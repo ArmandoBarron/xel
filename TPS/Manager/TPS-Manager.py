@@ -215,6 +215,7 @@ def TPS(workspace,tps):
             if label is not None: #label option is for save result in DB
                 WORKSPACE[workspace].Save_DS(TPP,label)
                 return jsonify({"status":"Results saved as %s" % label})
+            Log.error(TPP)
             return jsonify({'result':TPP})
         Factory = ServiceFactory()
         service = Factory.Instance(tps)

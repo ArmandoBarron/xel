@@ -28,11 +28,17 @@ def execute(data,params):
     data = json.loads(data.to_json(orient='records'))
 
     data= mod.call_tps(data,params)
+
     try:
-        data = pd.DataFrame.from_records(data)
+        
+        if params['service']=="ANOVA" or params['service']=="describe":
+            LOGER.error("pass")
+        else:
+            data = pd.DataFrame.from_records(data)
     except TypeError:
         image_bin = b64encode(data)
         data = {'data':image_bin.decode("utf-8")} #if type error then its binary data
+
 
     return data
 
@@ -59,7 +65,7 @@ def blackbox(data,params):
     inputfile_name = "input_%s" % randint(1,1000)
     params['inputpath'] = input_folder
     params['inputfile'] = inputfile_name
-
+    #LOGER.error(data.dtypes)
 
     ###############################################
     ################## TRANSFORM ####################

@@ -2,12 +2,14 @@
 from flask import Flask
 from flask import request, url_for
 import json
+import logging #logger
 
 import numpy as np
 import pandas as pd
 import time
 
 app = Flask(__name__)
+LOGER = logging.getLogger()
 
 
 def NAN_format(replacment_list,df):
@@ -70,6 +72,8 @@ def Basic_cleaning(columns='all',ReplaceWithNa=["NA","NAN","NaN","None"],DropNa=
     if DropNa is not None:
         DF_data=DF_data.dropna(**DropNa)
 
+    LOGER.error("---------------------- HEYY WTF")
+
     #NaReaplace= NaReaplace.lower()
     if columns == "all":
         if NaReaplace =="mode": DF_data= DF_data.fillna(DF_data.mode().iloc[0] )
@@ -77,8 +81,11 @@ def Basic_cleaning(columns='all',ReplaceWithNa=["NA","NAN","NaN","None"],DropNa=
         elif NaReaplace == "interpolate": DF_data=  DF_data.interpolate(method ='linear')
         elif NaReaplace == "": pass
         else: DF_data= DF_data.fillna(NaReaplace)
+
     else:
         for col in columns:
+            LOGER.error(DF_data[col])
+            DF_data[col]= pd.to_numeric(DF_data[col]) #default cast to numeric
             if NaReaplace =="mode": DF_data[col]= DF_data[col].fillna(DF_data[col].mode().iloc[0])
             elif NaReaplace =="mean": DF_data[col]= DF_data[col].fillna(DF_data[col].mean())
             elif NaReaplace == "interpolate": DF_data[col]= DF_data[col].interpolate(method ='linear') 

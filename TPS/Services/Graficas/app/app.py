@@ -72,7 +72,14 @@ def get_scatter():
     json_file = request.get_json(force=True)
     data = pd.DataFrame.from_records(json_file['data']) #Dataframe
     variables = json_file['variables'] #list
-    labels = json_file['labels'] #str
+    if 'labels' in json_file:
+        labels = json_file['labels']
+    else:
+        labels= "group_labels"
+        data['group_labels'] = 'FALSE'
+        color_labels = data[labels].unique()
+
+
     if 'point_label' in json_file:
         point_label = json_file['point_label']
     else:
@@ -84,7 +91,6 @@ def get_scatter():
     if dimensions <=2:
         X = variables[0]
         Y = variables[1]
-        color_labels = data[labels].unique()
         rgb_values = sns.color_palette("Set2", 8)
         # Map label to RGB
         color_map = dict(zip(color_labels, rgb_values))
@@ -105,7 +111,6 @@ def get_scatter():
         X = variables[0]
         Y = variables[1]
         Z = variables[2]
-        color_labels = data[labels].unique()
         rgb_values = sns.color_palette("Set2", 8)
         # Map label to RGB
         color_map = dict(zip(color_labels, rgb_values))
@@ -148,7 +153,12 @@ def get_line():
     json_file = request.get_json(force=True)
     data = pd.DataFrame.from_records(json_file['data']) #Dataframe
     variables = json_file['variables'] #list
-    labels = json_file['labels'] #str
+    if 'labels' in json_file:
+        labels = json_file['labels']
+    else:
+        labels= "group_labels"
+        data['group_labels'] = 'FALSE'
+        color_labels = data[labels].unique()
 
     dimensions = len(variables)
     data= clean_array(data,variables) #cleaning arrarys
@@ -156,7 +166,6 @@ def get_line():
     if dimensions <=2:
         X = variables[0]
         Y = variables[1]
-        color_labels = data[labels].unique()
         rgb_values = sns.color_palette("Set2", 8)
         # Map label to RGB
         color_map = dict(zip(color_labels, rgb_values))
@@ -172,7 +181,6 @@ def get_line():
         X = variables[0]
         Y = variables[1]
         Z = variables[2]
-        color_labels = data[labels].unique()
         rgb_values = sns.color_palette("Set2", 8)
         # Map label to RGB
         color_map = dict(zip(color_labels, rgb_values))
@@ -210,7 +218,12 @@ def get_gral():
     json_file = request.get_json(force=True)
     data = pd.DataFrame.from_records(json_file['data']) #Dataframe
     variables = json_file['variables'] #list
-    labels = json_file['labels'] #str
+    if 'labels' in json_file:
+        labels = json_file['labels']
+    else:
+        labels= "group_labels"
+        data['group_labels'] = 'FALSE'
+        color_labels = data[labels].unique()
 
     dimensions = len(variables)
     clean_array(data,variables) #cleaning arrarys
@@ -227,7 +240,6 @@ def get_gral():
         X = variables[0]
         Y = variables[1]
         Z = variables[2]
-        color_labels = data[labels].unique()
         rgb_values = sns.color_palette("Set2", 8)
         # Map label to RGB
         color_map = dict(zip(color_labels, rgb_values))
@@ -271,12 +283,12 @@ def get_hist():
         variables = data.columns
 
     if 'alpha' in json_file:
-        alp = json_file['alpha'] #list
+        alp = float(json_file['alpha']) #list
     else:
         alp = .25
 
     if 'bins' in json_file:
-        bins = json_file['bins'] #list
+        bins = int(json_file['bins']) #list
     else:
         bins = 25
 

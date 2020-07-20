@@ -53,6 +53,7 @@ def blackbox(data,params):
 
     #write data on disk
     destination = input_folder + inputfile_name+".csv"
+    LOGER.error(data)
     data.to_csv(destination, index = False, header=True)
 
     ###############################################
