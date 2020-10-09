@@ -74,6 +74,7 @@ def get_scatter():
     variables = json_file['variables'] #list
     if 'labels' in json_file:
         labels = json_file['labels']
+        color_labels = data[labels].unique()
     else:
         labels= "group_labels"
         data['group_labels'] = 'FALSE'
@@ -155,6 +156,7 @@ def get_line():
     variables = json_file['variables'] #list
     if 'labels' in json_file:
         labels = json_file['labels']
+        color_labels = data[labels].unique()
     else:
         labels= "group_labels"
         data['group_labels'] = 'FALSE'
@@ -220,6 +222,7 @@ def get_gral():
     variables = json_file['variables'] #list
     if 'labels' in json_file:
         labels = json_file['labels']
+        color_labels = data[labels].unique()
     else:
         labels= "group_labels"
         data['group_labels'] = 'FALSE'

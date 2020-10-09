@@ -19,11 +19,11 @@ def prueba():
 def execute_service():
     os.chdir(BASE_PATH) #in case of error must be set the base path
     params = request.get_json()
-    data = json.loads(params['data']) #data to be transform
+    data = params['data'] #data to be transform
     actions = params['actions'] #dag
     service_params = params['params'] #parameters for the service
     result = BB.middleware(data,actions,service_params) #returns the result as json
-    return json.dumps(result)
+    return result
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80,debug = True)

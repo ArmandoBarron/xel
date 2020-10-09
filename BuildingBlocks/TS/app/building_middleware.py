@@ -4,7 +4,6 @@ import importlib
 import logging #logger
 LOG = logging.getLogger()
 
-#import RNN.blackbox_middleware as bb
 ## this is bassicaly the building block ##
 
 dictionary = {}
@@ -17,8 +16,7 @@ def middleware(data,DAG,workParams):
     data its a dict with records
     """
     LOG.error("running BB")
-    data = pd.DataFrame.from_records(data) #data is now a dataframe
-
+    #data = pd.DataFrame.from_records(data) #data is now a dataframe
 
     for char in DAG:
 
@@ -42,10 +40,15 @@ def middleware(data,DAG,workParams):
 
         #execute application as blackbox
         LOG.error("RUNNING BLACKBOX")
-        data = mod.blackbox(data,params) #data is a pandas dataframe
+        data = mod.blackbox(data,params) #data is a json
         LOG.error("BLACKBOX FINISHED")
+        LOG.error(data['status'])
+
+        if data['status'] == "ERROR":
+            LOG.error(" ERROR DETECTED ---- STOPING BB")
+            return data
+
         #the same data variable is transformed by all the application
-    try:
-        return data.to_json(orient='records') #reutrn  json
-    except AttributeError:
-        return json.dumps(data)
+    
+    LOG.error("STOPING BB")
+    return data #{data:,type}

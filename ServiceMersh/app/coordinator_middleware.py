@@ -77,15 +77,18 @@ def EXE_SERVICE(control_number,data,info):
     service = info['service']
     params = info['params']
     id_service =info['id']
-    ToSend = {'data':json.dumps(data),'params':params} #no actions, so it will taken the default application A
+    ToSend = {'data':data,'params':params} #no actions, so it will taken the default application A
     if 'actions' in info: ToSend['actions']= info['actions']
-    
-    data_result = json.loads(execute_service(service,ToSend)) #send request to service
+    LOGER.error("----------- type:"+data['type'])
+
+    data_result = execute_service(service,ToSend) #send request to service {data:,type:}
     #LOGER.error(data_result)
     label = IndexData(control_number,id_service,data_result) #indexing result data into DB
-
+    # verify error in data
+    status_BB = data_result['status']
+    message_BB = data_result["message"]
     
-    BRANCHES[control_number][id_service]={'status':"FINISHED","label":label,"task":id_service} #update status
+    BRANCHES[control_number][id_service]={'status':status_BB,"message":message_BB,"label":label,"task":id_service} #update status
 
     #the task fihised, and now we execute the children task
     try:
@@ -111,7 +114,7 @@ def execute_service(service,params=None):
     data = params['data'] #data to be transform
     service_params = params['params'] #parameters for the service
     if 'actions' in params:
-        actions=params['actions'] #for the geoportal we just gona use a single set of actions
+        actions=[params['actions']] #for the geoportal we just gona use a single set of actions
     else:
         actions = ['A'] #default exec the first service called A
         service_params = {'A':service_params}
@@ -139,17 +142,20 @@ def execute_service(service,params=None):
         data = C.RestRequest(ip,port,msg)
     return data
 
-
 #service to execute a set of application in a DAG
 @app.route('/executeDAG', methods=['POST'])
 def execute_DAG():
     global BRANCHES
     global FINISHED_BRANCH
     params = request.get_json(force=True)
-    data = json.loads(params['data']) #data to be transform
+    data = json.loads(params['data']) #data to be transform {data:,type:}
+    #LOGER.error("----------- type:"+data['type'])
+
     DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
     #a Resquest No is created. This request number it to monitorin the execution.
     RN = str(randint(100000,900000)) #random number with 6 digits
+
+    #verify if data its a csv or a binary
 
     #execute dag
     BRANCHES[RN]=dict()
@@ -171,13 +177,14 @@ def monitoring_solution(RN):
     task_dict = BRANCHES[str(RN)]
     sleep(1)
     for key,value in task_dict.items():
-        if value['status'] == "FINISHED":
-            BRANCHES[RN][key]['status']="STANDBY" #status stamdby is for a task which already finished and it has been accounted
+        if value['status'] == "OK" or value['status']=="ERROR":
+            st =  value['status']
+            BRANCHES[RN][key]['status']="STANDBY" #status stamdby is for a task which already finished and it has been count
             label = value['label']
             task = value['task']
             FINISHED_BRANCH[RN][task]=label #to get data in future
-            return json.dumps({"status":"OK","task":task})
-    return json.dumps({'status':"ERROR"}) #no task found
+            return json.dumps({"status":st,"task":task,"message":value['message']})
+    return json.dumps({'status':"WAITING"}) #no task found
 
 
 @app.route('/getdata/<RN>/<task>', methods=['POST'])
