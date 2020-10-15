@@ -44,6 +44,25 @@ services:
     depends_on:
       - coordinator
 
+  bb_converters: # tools to convert file formats
+    build:
+      context: ./BuildingBlocks/Converters
+      dockerfile: ./Dockerfile
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
+
+  bb_acquisition: # tools to download data
+    build:
+      context: ./BuildingBlocks/Acq
+      dockerfile: ./Dockerfile
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
 
 ###########################################
 ############## TPS SERVICES ###############

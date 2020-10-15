@@ -20,6 +20,18 @@
             "resources":[
                 {"ip":"bb_tps","port":80}
                 ]
+        },
+        "Converters":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"bb_converters","port":80}
+                ]
+        },
+        "Acquisition":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"bb_acquisition","port":80}
+                ]
         }
 
     }
