@@ -67,9 +67,6 @@ class Handler:
             idfile = self.fs.put(data)
         self.Log.error("----------------------------------")
         self.Log.error(str(idfile))
-
-        data = self.fs.get(idfile)
-
         col_workspace.update({'Workspace': workspace},{'$set':{'DATA': idfile}})
         self.CloseConnection()
     

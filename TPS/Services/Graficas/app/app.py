@@ -1,5 +1,4 @@
 from flask import Flask, request, redirect, Response, send_file
-from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
 from mpl_toolkits.mplot3d import Axes3D
 #from flask_cors import CORS
@@ -13,14 +12,14 @@ from datetime import date
 import pandas as pd
 import numpy as np
 import seaborn as sns
-
-
+from random import randint
+from time import sleep
 
 app = Flask(__name__)
 #CORS(app)
 
 app.config['JSON_AS_ASCII'] = False
-
+queue = False
 FOLDER = 'static/images'
 
 def Numeric(df):
@@ -38,6 +37,16 @@ def clean_array(df,variables):
         df[v] = df[v].fillna(df[v].mean()) #llenar con la media
 
     return df
+
+def door():
+    global queue
+    while(queue):
+        sleep(1)
+    queue = True
+
+def exit_door():
+    global queue
+    queue = False
 
 
 def clean_arrays(arr1, arr2):
@@ -61,6 +70,7 @@ def init():
 
 @app.route('/scatter', methods=['POST'])
 def get_scatter():
+    from matplotlib import pyplot as plt
     """
     json with the next parameters:
 
@@ -134,7 +144,8 @@ def get_scatter():
         threedee.legend()
     today = date.today()
 
-    graphic_name = "scatter_%sd_%s" %( dimensions,today.strftime("%d-%m-%Y"))
+    RN = str(randint(100000,900000)) #random number with 6 digits
+    graphic_name = "scatter_%sd_%s_%s" %( dimensions,today.strftime("%d-%m-%Y"),RN)
     fileDir = FOLDER + '/' + graphic_name +".png"
 
     if os.path.isfile(fileDir):
@@ -144,6 +155,7 @@ def get_scatter():
 
 @app.route('/line', methods=['POST'])
 def get_line():
+    from matplotlib import pyplot as plt
     """
     json with the next parameters:
 
@@ -200,7 +212,8 @@ def get_line():
         threedee.legend()
     today = date.today()
 
-    graphic_name = "line_%sd_%s" %( dimensions,today.strftime("%d-%m-%Y"))
+    RN = str(randint(100000,900000)) #random number with 6 digits
+    graphic_name = "line_%sd_%s_%s" %( dimensions,today.strftime("%d-%m-%Y"),RN)
     fileDir = FOLDER + '/' + graphic_name +".png"
 
     if os.path.isfile(fileDir):
@@ -210,6 +223,7 @@ def get_line():
 
 @app.route('/bar', methods=['POST'])
 def get_gral():
+    from matplotlib import pyplot as plt
     """
     json with the next parameters:
 
@@ -260,7 +274,8 @@ def get_gral():
         threedee.legend()
     today = date.today()
 
-    graphic_name = "bar_%sd_%s" %( dimensions,today.strftime("%d-%m-%Y"))
+    RN = str(randint(100000,900000)) #random number with 6 digits
+    graphic_name = "bar_%sd_%s_%s" %( dimensions,today.strftime("%d-%m-%Y"),RN)
     fileDir = FOLDER + '/' + graphic_name +".png"
 
     if os.path.isfile(fileDir):
@@ -271,6 +286,8 @@ def get_gral():
 
 @app.route('/hist', methods=['POST'])
 def get_hist():
+    from matplotlib import pyplot as plt
+    door()
     """
     json with the next parameters:
 
@@ -300,12 +317,15 @@ def get_hist():
     data[variables].plot.hist(grid=False, figsize=(12,8),alpha=alp,bins=bins)
     today = date.today()
 
-    graphic_name = "hist_%s" %(today.strftime("%d-%m-%Y"))
+    RN = str(randint(100000,900000)) #random number with 6 digits
+    graphic_name = "hist_%s_%s" %(today.strftime("%d-%m-%Y"),RN)
     fileDir = FOLDER + '/' + graphic_name +".png"
 
     if os.path.isfile(fileDir):
         os.remove(fileDir)   # Opt.: os.system("rm "+strFile)
     plt.savefig(fileDir)
+    plt.close()
+    exit_door()
     return json.dumps({"status":"ok","file":graphic_name})
 
 @app.route('/get_images')

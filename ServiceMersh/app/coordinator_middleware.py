@@ -1,18 +1,35 @@
 import sys,os,pandas,ast
 from threading import Thread
 from flask import request, url_for
-from flask import Flask, request,jsonify,Response
+from flask import Flask, request,jsonify,Response,send_file
 from random import randint
 import json
 from time import sleep
 import C
 from TPS.Builder import Builder #TPS API BUILDER
 import logging #logger
+from base64 import b64encode,b64decode
+import io
+import time
 
 ########## GLOBAL VARIABLES ###########
 LOGER = logging.getLogger()
 WORKSPACENAME = "SERVICEMERSH"
 TPSHOST ="http://tps_manager:5000"
+
+#create logs folder
+logs_folder= "./logs/"
+try:
+    if not os.path.exists(logs_folder):
+        os.makedirs(logs_folder)
+except FileExistsError:
+    pass
+
+#fh = logging.FileHandler(logs_folder+'info.log')
+#fh.setLevel(logging.error)
+
+         
+
 
 INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
 
@@ -43,7 +60,7 @@ def IndexData(RN,id_service,data):
 
     data_label = "%s_%s" % (RN,id_service) #this is the name of the document (mongo document)
     query = INDEXER.TPSapi.format_single_query("notImportant") #not important line. Well yes but actually no.
-    res = INDEXER.TPSapi.TPS(query,"getdata",workload=data,label=data_label) #this service (getdata) let me send json data and save it into a mongo DB
+    res = INDEXER.TPSapi.TPS(query,"indexdata",workload=data,label=data_label) #this service (getdata) let me send json data and save it into a mongo DB
     return data_label
 
 def GetIndexedData(label):
@@ -76,19 +93,28 @@ def EXE_SERVICE(control_number,data,info):
     global BRANCHES
     service = info['service']
     params = info['params']
+    index_opt = params['SAVE_DATA']
     id_service =info['id']
     ToSend = {'data':data,'params':params} #no actions, so it will taken the default application A
+    del data
     if 'actions' in info: ToSend['actions']= info['actions']
-    LOGER.error("----------- type:"+data['type'])
 
     data_result = execute_service(service,ToSend) #send request to service {data:,type:}
-    #LOGER.error(data_result)
-    label = IndexData(control_number,id_service,data_result) #indexing result data into DB
-    # verify error in data
-    status_BB = data_result['status']
-    message_BB = data_result["message"]
+    del ToSend
     
-    BRANCHES[control_number][id_service]={'status':status_BB,"message":message_BB,"label":label,"task":id_service} #update status
+
+    if index_opt: 
+        IX_ST = time.time() #<--- time flag
+        f = open(logs_folder+'Times.txt', 'a+') # times log
+        label = IndexData(control_number,id_service,data_result) #indexing result data into DB
+        f.write("index, %s \n" %((time.time() - IX_ST))) #<--- time flag
+        f.close()
+    else:
+        label=False
+        LOGER.info("skiping index process")
+
+    
+    BRANCHES[control_number][id_service]={'status':data_result['status'],"message":data_result["message"],"label":label,"task":id_service,"type":data_result['type'], "index":index_opt} #update status
 
     #the task fihised, and now we execute the children task
     try:
@@ -138,8 +164,12 @@ def execute_service(service,params=None):
             'actions':p_DAG,
             'params':service_params
             }
-
+        BB_ST = time.time() #<--- time flag
+        f = open(logs_folder+'Times.txt', 'a+') # times log
         data = C.RestRequest(ip,port,msg)
+        f.write("BB, %s \n" %((time.time() - BB_ST))) #<--- time flag
+        f.close() 
+
     return data
 
 #service to execute a set of application in a DAG
@@ -150,6 +180,8 @@ def execute_DAG():
     params = request.get_json(force=True)
     data = json.loads(params['data']) #data to be transform {data:,type:}
     #LOGER.error("----------- type:"+data['type'])
+
+    #
 
     DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
     #a Resquest No is created. This request number it to monitorin the execution.
@@ -182,8 +214,10 @@ def monitoring_solution(RN):
             BRANCHES[RN][key]['status']="STANDBY" #status stamdby is for a task which already finished and it has been count
             label = value['label']
             task = value['task']
+            data_type = value['type']
+            idx_opt = value['index']
             FINISHED_BRANCH[RN][task]=label #to get data in future
-            return json.dumps({"status":st,"task":task,"message":value['message']})
+            return json.dumps({"status":st,"task":task,"type":data_type,"message":value['message'],"index":idx_opt })
     return json.dumps({'status':"WAITING"}) #no task found
 
 
@@ -195,7 +229,21 @@ def getdataintask(RN,task):
     data = GetIndexedData(label) #get data from label
     return json.dumps({'status':"OK","data":data}) #no task found
 
+@app.route('/getfile/<RN>/<task>', methods=['GET'])
+def getfileintask(RN,task):
+    #list of task
+    global FINISHED_BRANCH
+    label = FINISHED_BRANCH[RN][task]
+    data = GetIndexedData(label) #get data from label
+    data_ext = data['type']
+    data = b64decode(data['data'].encode())
 
+
+    return send_file(
+                io.BytesIO(data),
+                as_attachment=True,
+                attachment_filename=task+'.'+data_ext
+        )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5555,debug = True)

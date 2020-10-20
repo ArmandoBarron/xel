@@ -6,6 +6,8 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - "25000:5555"
+    volumes:
+      - ./LOGS/coordinator/:/home/app/logs #for debugging
     restart: always
     networks:
       - service_mersh
@@ -19,6 +21,8 @@ services:
       context: ./BuildingBlocks/DeepLearning
       dockerfile: ./Dockerfile
     restart: always
+    volumes:
+      - ./LOGS/deep_learning/:/home/app/logs #for debugging
     networks:
       - service_mersh
     depends_on:
@@ -29,6 +33,8 @@ services:
       context: ./BuildingBlocks/Preprocessing
       dockerfile: ./Dockerfile
     restart: always
+    volumes:
+      - ./LOGS/preprocessing/:/home/app/logs #for debugging
     networks:
       - service_mersh
     depends_on:
@@ -38,6 +44,8 @@ services:
     build:
       context: ./BuildingBlocks/TS
       dockerfile: ./Dockerfile
+    volumes:
+      - ./LOGS/tps/:/home/app/logs #for debugging
     networks:
       - service_mersh
     restart: always
@@ -48,6 +56,8 @@ services:
     build:
       context: ./BuildingBlocks/Converters
       dockerfile: ./Dockerfile
+    volumes:
+      - ./LOGS/converters/:/home/app/logs #for debugging
     networks:
       - service_mersh
     restart: always
@@ -58,6 +68,9 @@ services:
     build:
       context: ./BuildingBlocks/Acq
       dockerfile: ./Dockerfile
+    volumes:
+      - ./LOGS/acquisition/:/home/app/logs #for debugging
+      - ./localdata/:/home/app/REQUEST/input_data
     networks:
       - service_mersh
     restart: always
@@ -162,12 +175,29 @@ services:
     build:
       context: ./TPS/Services/Graficas
       dockerfile: ./Dockerfile
+#    volumes:
+#      - ./imagenes/:/app/static/
     networks:
       - TPS_net
     ports:
       - 3132:80
     restart: always
 
+###########################################
+############## external services ###############
+###########################################
+
+  grobid: # tools to clean data
+    container_name: grobid
+    image: lfoppiano/grobid:0.6.1
+    environment:      
+      GROBID__NB_THREADS: 2 #configuration location
+    networks:
+      - service_mersh
+    restart: always
+    ports:
+      - 3133:8070
+      - 3134:8071
 
 networks: 
   service_mersh:

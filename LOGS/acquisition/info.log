@@ -1,0 +1,250 @@
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 681-456-823
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 218-392-261
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 313-930-355
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 242-408-922
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 826-550-130
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 143-552-051
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 116-481-316
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 225-292-951
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 504-314-261
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 327-688-851
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 205-907-579
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 311-069-935
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 102-054-126
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 275-596-490
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 189-706-544
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 852-654-697
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 124-714-054
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 207-787-225
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 155-693-211
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 155-693-211
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 207-787-225
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 328-069-000
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 124-714-054
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 217-620-940
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 132-504-154
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 104-970-685
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 154-057-215
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+OUTPUT FILE NOT FOUND IN Acquisition 
+BLACKBOX FINISHED
+ERROR
+ ERROR DETECTED ---- STOPING BB
+172.23.0.5 - - [19/Oct/2020 17:59:03] "[37mPOST /execute HTTP/1.1[0m" 200 -
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 243-437-322
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+OUTPUT FILE NOT FOUND IN Acquisition 
+BLACKBOX FINISHED
+ERROR
+ ERROR DETECTED ---- STOPING BB
+172.23.0.5 - - [19/Oct/2020 18:01:47] "[37mPOST /execute HTTP/1.1[0m" 200 -
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 189-110-575
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.23.0.5 - - [19/Oct/2020 18:05:28] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.23.0.5 - - [19/Oct/2020 18:07:25] "[37mPOST /execute HTTP/1.1[0m" 200 -
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 283-844-821
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.23.0.5 - - [19/Oct/2020 18:13:17] "[37mPOST /execute HTTP/1.1[0m" 200 -
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 291-465-609
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 303-999-103
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [19/Oct/2020 18:53:45] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [19/Oct/2020 19:06:56] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [19/Oct/2020 19:51:19] "[37mPOST /execute HTTP/1.1[0m" 200 -
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 153-714-298
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 177-489-102
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.4 - - [20/Oct/2020 15:59:14] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.4 - - [20/Oct/2020 16:03:53] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.4 - - [20/Oct/2020 16:05:01] "[37mPOST /execute HTTP/1.1[0m" 200 -
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 240-305-789
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 812-640-118
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [20/Oct/2020 16:17:56] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [20/Oct/2020 16:23:05] "[37mPOST /execute HTTP/1.1[0m" 200 -

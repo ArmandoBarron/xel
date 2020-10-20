@@ -9,6 +9,7 @@ import shutil
 import urllib.request as request
 from contextlib import closing
 
+LOCAL_FILES = "./FILES/"
 
 def download_file_from_google_drive(id, destination):
         URL = "https://docs.google.com/uc?export=download"
@@ -55,6 +56,8 @@ def download_file(DOWNLOAD_server,OUTPUT_PATH,NAMEFILE,EXT,URL="",ID_FILE="",USE
                 with closing(request.urlopen(final_url)) as r:
                         with open(destination, 'wb') as f:
                                 shutil.copyfileobj(r, f)
+        elif DOWNLOAD_server == "BB_FILES":
+                destination = LOCAL_FILES+NAMEFILE+"."+EXT
         else:
                 return 1
         return 0

@@ -42,7 +42,7 @@ def execute(params):
         elif params['service']=="graphics":
             OUTPUT_DATA_FORMAT = "png"
             image_bin = b64encode(data)
-            data = {'data':image_bin.decode("utf-8"),'type':'png','status':"OK","message":"OK"} #if type error then its binary data
+            data = {'data':image_bin.decode(),'type':'png','status':"OK","message":"OK"} #if type error then its binary data
         else:
             OUTPUT_DATA_FORMAT = "csv"
             data = {'data':data,'type':'csv','status':"OK","message":"OK"}

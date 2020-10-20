@@ -2,8 +2,24 @@ import sys,os,json
 import pandas as pd
 import importlib
 import logging #logger
-LOG = logging.getLogger()
+import time
 
+
+LOG = logging.getLogger()
+LOG.setLevel(logging.DEBUG)
+
+#create logs folder
+logs_folder= "./logs/"
+try:
+    if not os.path.exists(logs_folder):
+        os.makedirs(logs_folder)
+except FileExistsError:
+    pass
+
+
+fh = logging.FileHandler(logs_folder+'info.log')
+fh.setLevel(logging.DEBUG)
+LOG.addHandler(fh)
 ## this is bassicaly the building block ##
 
 dictionary = {}
@@ -12,43 +28,49 @@ with open("building_structure.json", "r") as json_file:
 
 
 def middleware(data,DAG,workParams):
-    """
-    data its a dict with records
-    """
-    LOG.error("running BB")
-    #data = pd.DataFrame.from_records(data) #data is now a dataframe
+    try:
+        LOG.info("running BB")
+        BB_ST = time.time() #<--- time flag
+        f = open(logs_folder+'Times.txt', 'a+') # times log
+         
+        for char in DAG:
+            C_ST = time.time() #<--- time flag
+            LOG.debug(char)
+            char = char.upper()
+            DAG = DAG.replace(char,"",1)
 
-    for char in DAG:
+            #get config for application
+            appconfig = dictionary[char]
+            filepath =appconfig['path'] + '/'
+            #resultname =appconfig['resultname']
 
-        LOG.error(char)
-        char = char.upper()
-        DAG = DAG.replace(char,"",1)
+            #import module
+            LOG.info("importing....."+ appconfig['path']+'.blackbox_middleware')
+            mod = importlib.import_module(appconfig['path']+'.blackbox_middleware')
+            
+            #get params for service
+            params = workParams[char] #it has the character for the application and _params (e.g. A)
 
-        #get config for application
-        appconfig = dictionary[char]
-        filepath =appconfig['path'] + '/'
-        resultname =appconfig['resultname'] #these are not used
+            #execute application as blackbox
+            LOG.info("RUNNING BLACKBOX")
+            data = mod.blackbox(data,params) #data is a json
+            LOG.info("BLACKBOX FINISHED")
+            LOG.error(data['status'])
 
-        #import module
-        LOG.error("importing....."+ appconfig['path']+'.blackbox_middleware')
-        mod = importlib.import_module(appconfig['path']+'.blackbox_middleware')
+            f.write("%s, %s \n" %(char, (time.time() - C_ST))) #<--- time flag
+            if data['status'] == "ERROR":
+                LOG.error(" ERROR DETECTED ---- STOPING BB")
+                return data
 
-        #exec("import %s.blackbox_middleware" % appconfig['path']) #e.g. import RNN.blackbox_middleware
+            #the same data variable is transformed by all the application
         
-        #get params for service
-        params = workParams[char] #it has the character for the application and _params (e.g. A)
-
-        #execute application as blackbox
-        LOG.error("RUNNING BLACKBOX")
-        data = mod.blackbox(data,params) #data is a json
-        LOG.error("BLACKBOX FINISHED")
-        LOG.error(data['status'])
-
-        if data['status'] == "ERROR":
-            LOG.error(" ERROR DETECTED ---- STOPING BB")
-            return data
-
-        #the same data variable is transformed by all the application
-    
-    LOG.error("STOPING BB")
-    return data #{data:,type}
+        LOG.info("STOPING BB")
+        f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
+        f.write("-\n") #<--- time flag
+        f.close() 
+        return data #{data:,type}
+    except Exception as ex: #catch everything
+        f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
+        f.write("-\n") #<--- time flag
+        f.close() 
+        return {'data':'','type':'','status':'ERROR','message':'Unexpected error. '+ex}
