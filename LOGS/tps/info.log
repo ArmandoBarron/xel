@@ -3040,3 +3040,257 @@ STOPING BB
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 286-373-841
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 305-404-647
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 538-893-362
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 169-176-230
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_532', 'outputfile': 'output_252'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 43922
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:41:58] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_146', 'outputfile': 'output_771'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:48:22] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_918', 'outputfile': 'output_319'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:50:02] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_168', 'outputfile': 'output_736'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:50:45] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_881', 'outputfile': 'output_387'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:50:48] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_373', 'outputfile': 'output_139'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:50:51] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_811', 'outputfile': 'output_854'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:50:54] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_887', 'outputfile': 'output_518'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:50:57] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_286', 'outputfile': 'output_60'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:51:24] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_246', 'outputfile': 'output_235'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:51:43] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_17', 'outputfile': 'output_484'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:51:46] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_900', 'outputfile': 'output_301'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:51:49] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_748', 'outputfile': 'output_819'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:51:52] "[37mPOST /execute HTTP/1.1[0m" 200 -
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_73', 'outputfile': 'output_458'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+172.25.0.5 - - [21/Oct/2020 16:51:55] "[37mPOST /execute HTTP/1.1[0m" 200 -
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 415-989-824

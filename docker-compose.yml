@@ -77,6 +77,17 @@ services:
     depends_on:
       - coordinator
 
+  bb_grobid: 
+    build:
+      context: ./BuildingBlocks/Grobid
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./LOGS/grobid/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
 ###########################################
 ############## TPS SERVICES ###############
 ###########################################

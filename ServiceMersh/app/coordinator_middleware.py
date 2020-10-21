@@ -99,15 +99,18 @@ def EXE_SERVICE(control_number,data,info):
     del data
     if 'actions' in info: ToSend['actions']= info['actions']
 
+    BB_ST = time.time(); f = open(logs_folder+'log_'+control_number+'.txt', 'a+');  #<--- time flag
     data_result = execute_service(service,ToSend) #send request to service {data:,type:}
+    f.write("%s, %s \n" %(service,(time.time() - BB_ST))); f.close() #<--- time flag
+    LOGER.error(data_result['status'])
+
     del ToSend
     
-
     if index_opt: 
         IX_ST = time.time() #<--- time flag
-        f = open(logs_folder+'Times.txt', 'a+') # times log
+        f = open(logs_folder+'log_'+control_number+'.txt', 'a+') # times log
         label = IndexData(control_number,id_service,data_result) #indexing result data into DB
-        f.write("index, %s \n" %((time.time() - IX_ST))) #<--- time flag
+        f.write("index_%s, %s \n" %(service,(time.time() - IX_ST))) #<--- time flag
         f.close()
     else:
         label=False
@@ -164,11 +167,7 @@ def execute_service(service,params=None):
             'actions':p_DAG,
             'params':service_params
             }
-        BB_ST = time.time() #<--- time flag
-        f = open(logs_folder+'Times.txt', 'a+') # times log
         data = C.RestRequest(ip,port,msg)
-        f.write("BB, %s \n" %((time.time() - BB_ST))) #<--- time flag
-        f.close() 
 
     return data
 
@@ -244,6 +243,10 @@ def getfileintask(RN,task):
                 as_attachment=True,
                 attachment_filename=task+'.'+data_ext
         )
+
+@app.route('/getlog/<RN>', methods=['GET'])
+def getLogFile(RN):
+    return send_file(logs_folder+'log_'+RN+'.txt',as_attachment=True)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5555,debug = True)

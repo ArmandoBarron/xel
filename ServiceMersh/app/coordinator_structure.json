@@ -32,6 +32,12 @@
             "resources":[
                 {"ip":"bb_acquisition","port":80}
                 ]
+        },
+        "Grobid":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"bb_grobid","port":80}
+                ]
         }
 
     }
