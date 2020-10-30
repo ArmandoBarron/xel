@@ -1,0 +1,10 @@
+{
+    "A":{
+        "path":"REQUEST",
+        "resultname":"_request"
+    },
+    "B":{
+        "path":"EVAL",
+        "resultname":"_request"
+    }
+}

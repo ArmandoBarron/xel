@@ -6,7 +6,7 @@ import time
 
 
 LOG = logging.getLogger()
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.INFO)
 
 #create logs folder
 logs_folder= "./logs/"
@@ -17,9 +17,9 @@ except FileExistsError:
     pass
 
 
-fh = logging.FileHandler(logs_folder+'info.log')
-fh.setLevel(logging.DEBUG)
-LOG.addHandler(fh)
+#fh = logging.FileHandler(logs_folder+'info.log')
+#fh.setLevel(logging.DEBUG)
+#LOG.addHandler(fh)
 ## this is bassicaly the building block ##
 
 dictionary = {}
@@ -73,4 +73,4 @@ def middleware(data,DAG,workParams):
         f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
         f.write("-\n") #<--- time flag
         f.close() 
-        return {'data':'','type':'','status':'ERROR','message':'Unexpected error. '+ex}
+        return {'data':'','type':'','status':'ERROR','message':'Unexpected error. '+str(ex)}

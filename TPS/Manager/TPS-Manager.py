@@ -13,6 +13,7 @@ from Tools.watcher import Centinel
 from Tools.ReadConfigFile import ReadConfig
 from Services.ServiceFacatory import ServiceFactory
 from base64 import b64decode,b64encode
+import pandas as pd
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -214,25 +215,30 @@ def TPS(workspace,tps):
         if tps.lower()=="getdata": 
             if label is not None: #label option is for save result in DB
                 WORKSPACE[workspace].Save_DS(TPP,label)
-                return jsonify({"status":"Results saved as %s" % label})
-            return jsonify({'result':TPP})
+                return json.dumps({"status":"Results saved as %s" % label})
+            DF = pd.DataFrame.from_records(TPP)
+            Log.error(DF)
+            
+            return json.dumps({'result':TPP})
         if tps.lower()=="indexdata": 
             if label is not None: #label option is for save result in DB
                 WORKSPACE[workspace].Save_DS(TPP,label)
-                return jsonify({"status":"Results saved as %s" % label})
-            return jsonify({'result':''})
+                return json.dumps({"status":"Results saved as %s" % label})
+            return json.dumps({'result':''})
         Factory = ServiceFactory()
         service = Factory.Instance(tps)
-        if service is None: return jsonify({"status":"ERROR","message":"service not found"})
+        if service is None: return json.dumps({"status":"ERROR","message":"service not found"})
         TPP = service.format_data(TPP)
         response = service.request(TPP,params,SERVICE[tps])
+
+
         if label is not None: #label option is for save result in DB
             WORKSPACE[workspace].Save_DS(response['result'],label)
-            return jsonify({"status":"Results saved as %s" % label})
+            return json.dumps({"status":"Results saved as %s" % label})
         else:
-            return response
+            return json.dumps(response)
     except KeyError as e:
-        return jsonify({"status":"ERROR","message":"Key error: "+ str(e) + " Not in config.ini"})
+        return json.dumps({"status":"ERROR","message":"Key error: "+ str(e) + " Not in config.ini"})
 
 
 

@@ -88,6 +88,18 @@ services:
     restart: always
     depends_on:
       - coordinator
+
+  bb_glove: 
+    build:
+      context: ./BuildingBlocks/Glove
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./LOGS/glove/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
 ###########################################
 ############## TPS SERVICES ###############
 ###########################################

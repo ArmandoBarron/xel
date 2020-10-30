@@ -93,7 +93,16 @@ def EXE_SERVICE(control_number,data,info):
     global BRANCHES
     service = info['service']
     params = info['params']
-    index_opt = params['SAVE_DATA']
+    if 'SAVE_DATA' in params:        
+        index_opt = params['SAVE_DATA']
+    else:
+        for key in params:
+            if 'SAVE_DATA' in params[key]:
+                index_opt = params[key]['SAVE_DATA']
+                break
+            else:
+                index_opt = False
+                
     id_service =info['id']
     ToSend = {'data':data,'params':params} #no actions, so it will taken the default application A
     del data
@@ -154,6 +163,7 @@ def execute_service(service,params=None):
     
     list_resources = info_service['resources'] #list of dictionaries
 
+    LOGER.error("executing...%s"% service)
     for package in coordinator:
         p_DAG = actions[package] #dag of applications
         res = list_resources[coordinator[package]]
@@ -168,6 +178,8 @@ def execute_service(service,params=None):
             'params':service_params
             }
         data = C.RestRequest(ip,port,msg)
+
+    LOGER.error("finishing execution...%s"% service)
 
     return data
 

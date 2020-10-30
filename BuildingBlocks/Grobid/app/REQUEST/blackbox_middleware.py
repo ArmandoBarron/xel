@@ -6,8 +6,9 @@ import logging #logger
 from base64 import b64encode,b64decode
 
 import importlib
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 import shutil
+from os.path import basename
 
 NAME_APPLICATION = "GROBID"
 INPUT_DATA_FORMAT = ["zip"]
@@ -16,8 +17,14 @@ OUTPUT_DATA_FORMAT = "zip"
 LOGER = logging.getLogger()
 ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 
+def zipdir(path, ziph):
+    # ziph is zipfile handle
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ziph.write(file)
 
 def execute(params):
+
 
     """
     params:: type(dict)
@@ -54,14 +61,18 @@ def execute(params):
                     %(ACTUAL_PATH,ACTUAL_PATH,grobid_inputpath,grobid_outputpath,params["n"],params['process']))
 
     # zip results at destination
+    # create a ZipFile object
     with ZipFile(grobid_outputzip, 'w') as zipObj:
-        # Iterate over all the files in directory
+    # Iterate over all the files in directory
         for folderName, subfolders, filenames in os.walk(grobid_outputpath):
             for filename in filenames:
                 #create complete filepath of file in directory
                 filePath = os.path.join(folderName, filename)
                 # Add file to zip
                 zipObj.write(filePath, basename(filePath))
+    #zipf = ZipFile(grobid_outputzip, 'w', ZIP_DEFLATED)
+    #zipdir(grobid_outputpath, zipf)
+    #zipf.close()
 
     #clean everything
     shutil.rmtree(grobid_inputpath)

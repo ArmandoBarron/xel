@@ -38,6 +38,12 @@
             "resources":[
                 {"ip":"bb_grobid","port":80}
                 ]
+        },
+        "Glove":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"bb_glove","port":80}
+                ]
         }
 
     }

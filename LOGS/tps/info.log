@@ -3294,3 +3294,26 @@ STOPING BB
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 415-989-824
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 530-022-679
+running BB
+A
+importing.....REQUEST.blackbox_middleware
+RUNNING BLACKBOX
+correct input format
+{'columns': ['Temp_max_merra'], 'ReplaceWithNa': ['NA', 'Null'], 'NaReaplace': 'mean', 'SAVE_DATA': True, 'service': 'cleaningtools', 'inputpath': '/home/app/REQUEST/input_data/', 'inputfile': 'input_159', 'outputfile': 'output_366'}
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+TPS API is alive
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "HEAD / HTTP/1.1" 200 0
+Starting new HTTP connection (1): tps_manager:5000
+http://tps_manager:5000 "POST /SERVICEMERSH/TPS/cleaningtools HTTP/1.1" 200 45722
+BLACKBOX FINISHED
+OK
+STOPING BB
+SERVIDOR ENCENDIDO! IP: 172.25.0.8 PORT: 80
+
+
