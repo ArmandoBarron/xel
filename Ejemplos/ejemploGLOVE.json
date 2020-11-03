@@ -1,0 +1,48 @@
+[
+    {
+        "id": "c1-Data_acquisition",
+        "boxid": 1,
+        "type": "Data_acquisition",
+        "service": "Acquisition",
+        "root": false,
+        "columns": {
+            "default": null,
+            "parent": []
+        },
+        "params": {
+            "DOWNLOAD_server": "BB_FILES",
+            "NAMEFILE": "test8",
+            "EXT": "zip",
+            "URL": "",
+            "ID_FILE": "",
+            "USER": "",
+            "PASS": "",
+            "SAVE_DATA": false
+        },
+        "children": [
+            {
+                "id": "c2-Glove_service",
+                "boxid": 2,
+                "type": "Glove_service",
+                "service": "Glove",
+                "root": false,
+                "columns": {
+                    "default": null,
+                    "parent": []
+                },
+                "params": {
+                    "actions": "A",
+                    "vocabfile_name": "vocab.txt",
+                    "vectorsfile_name": "vectors.txt",
+                    "vector_size":15,
+                    "max_iter":10,
+                    "window_size":10,
+                    "SAVE_DATA": false
+                },
+                "children": [],
+                "isModalReady": false
+            }
+        ],
+        "isModalReady": false
+    }
+]

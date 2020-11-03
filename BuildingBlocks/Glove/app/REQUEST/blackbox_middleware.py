@@ -17,12 +17,6 @@ OUTPUT_DATA_FORMAT = "zip"
 LOGER = logging.getLogger()
 ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 
-def zipdir(path, ziph):
-    # ziph is zipfile handle
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            ziph.write(file)
-
 def execute(params):
 
 
@@ -43,8 +37,12 @@ def execute(params):
         names = f.namelist()
     inputfile = names[0]
 
+    VECTOR_SIZE = params['vector_size']
+    MAX_ITER = params['max_iter']
+    WINDOW_SIZE = params['window_size']
+
     # call the application
-    execution_status = os.system('%sdemo.sh %s %s %s' %(glove_path, glove_path, glove_inputzip, inputfile ))
+    execution_status = os.system('%sdemo.sh %s %s %s %s %s %s' %(glove_path, glove_path, glove_inputzip, inputfile,VECTOR_SIZE,MAX_ITER,WINDOW_SIZE ))
 
     # create a ZipFile object
     with ZipFile(glove_outputzip, 'w') as zipObj:
