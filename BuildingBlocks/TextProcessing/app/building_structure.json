@@ -1,0 +1,18 @@
+{
+    "L":{
+        "path":"LDA",
+        "resultname":"_LDA"
+    },
+    "K":{
+        "path":"K-MEANS",
+        "resultname":"_KMEANS"
+    },
+    "H":{
+        "path":"HIERARCHY",
+        "resultname":"_HIERARCHY"
+    },
+    "R":{
+        "path":"REPRESENTATION",
+        "resultname":"_REPRESENTATION"
+    }
+}

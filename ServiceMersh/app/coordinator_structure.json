@@ -9,6 +9,24 @@
                 {"ip":"deep_learning","port":80}
                 ]
         },
+        "text_preprocessing":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"text_preprocessing","port":80}
+                ]
+        },
+        "text_processing":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"text_processing","port":80}
+                ]
+        },
+        "text_classification":{
+            "output_file":"content.csv",
+            "resources":[
+                {"ip":"text_classification","port":80}
+                ]
+        },
         "preprocessing":{
             "output_file":"content.csv",
             "resources":[

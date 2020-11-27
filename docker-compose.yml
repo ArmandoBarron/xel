@@ -28,6 +28,42 @@ services:
     depends_on:
       - coordinator
 
+  text_preprocessing: 
+    build:
+      context: ./BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_preprocessing/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+
+  text_processing: 
+    build:
+      context: ./BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_processing/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+
+  text_classification: 
+    build:
+      context: ./BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_classification/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+
   preprocessing:
     build:
       context: ./BuildingBlocks/Preprocessing

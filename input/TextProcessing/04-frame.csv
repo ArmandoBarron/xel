@@ -1,0 +1,101 @@
+rank,title,cluster,genre,Rank,Title
+0,The Godfather,3,"[u' Crime', u' Drama']",1,The Godfather
+1,The Shawshank Redemption,2,"[u' Crime', u' Drama']",2,The Shawshank Redemption
+2,Schindler's List,1,"[u' Biography', u' Drama', u' History']",3,Schindler's List
+3,Raging Bull,0,"[u' Biography', u' Drama', u' Sport']",4,Raging Bull
+4,Casablanca,1,"[u' Drama', u' Romance', u' War']",5,Casablanca
+5,One Flew Over the Cuckoo's Nest,2,[u' Drama'],6,One Flew Over the Cuckoo's Nest
+6,Gone with the Wind,3,"[u' Drama', u' Romance', u' War']",7,Gone with the Wind
+7,Citizen Kane,0,"[u' Drama', u' Mystery']",8,Citizen Kane
+8,The Wizard of Oz,2,"[u' Adventure', u' Family', u' Fantasy', u' Musical']",9,The Wizard of Oz
+9,Titanic,1,"[u' Drama', u' Romance']",10,Titanic
+10,Lawrence of Arabia,1,"[u' Adventure', u' Biography', u' Drama', u' History', u' War']",11,Lawrence of Arabia
+11,The Godfather: Part II,3,"[u' Crime', u' Drama']",12,The Godfather: Part II
+12,Psycho,2,"[u' Horror', u' Mystery', u' Thriller']",13,Psycho
+13,Sunset Blvd.,2,"[u' Drama', u' Film-Noir']",14,Sunset Blvd.
+14,Vertigo,2,"[u' Mystery', u' Romance', u' Thriller']",15,Vertigo
+15,On the Waterfront,2,"[u' Crime', u' Drama']",16,On the Waterfront
+16,Forrest Gump,2,"[u' Drama', u' Romance']",17,Forrest Gump
+17,The Sound of Music,3,"[u' Biography', u' Drama', u' Family', u' Musical', u' Romance']",18,The Sound of Music
+18,West Side Story,2,"[u' Crime', u' Drama', u' Musical', u' Romance', u' Thriller']",19,West Side Story
+19,Star Wars,1,"[u' Action', u' Adventure', u' Fantasy', u' Sci-Fi']",20,Star Wars
+20,E.T. the Extra-Terrestrial,2,"[u' Adventure', u' Family', u' Sci-Fi']",21,E.T. the Extra-Terrestrial
+21,2001: A Space Odyssey,2,"[u' Mystery', u' Sci-Fi']",22,2001: A Space Odyssey
+22,The Silence of the Lambs,2,"[u' Crime', u' Drama', u' Thriller']",23,The Silence of the Lambs
+23,Chinatown,2,"[u' Drama', u' Mystery', u' Thriller']",24,Chinatown
+24,The Bridge on the River Kwai,1,"[u' Adventure', u' Drama', u' War']",25,The Bridge on the River Kwai
+25,Singin' in the Rain,0,"[u' Comedy', u' Musical', u' Romance']",26,Singin' in the Rain
+26,It's a Wonderful Life,4,"[u' Drama', u' Family', u' Fantasy']",27,It's a Wonderful Life
+27,Some Like It Hot,2,[u' Comedy'],28,Some Like It Hot
+28,12 Angry Men,2,[u' Drama'],29,12 Angry Men
+29,Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb,1,"[u' Comedy', u' War']",30,Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb
+30,Amadeus,2,"[u' Biography', u' Drama', u' Music']",31,Amadeus
+31,Apocalypse Now,1,"[u' Drama', u' War']",32,Apocalypse Now
+32,Gandhi,0,"[u' Biography', u' Drama', u' History']",33,Gandhi
+33,The Lord of the Rings: The Return of the King,1,"[u' Adventure', u' Fantasy']",34,The Lord of the Rings: The Return of the King
+34,Gladiator,1,"[u' Action', u' Drama']",35,Gladiator
+35,From Here to Eternity,1,"[u' Drama', u' Romance', u' War']",36,From Here to Eternity
+36,Saving Private Ryan,1,"[u' Action', u' Drama', u' War']",37,Saving Private Ryan
+37,Unforgiven,2,[u' Western'],38,Unforgiven
+38,Raiders of the Lost Ark,1,"[u' Action', u' Adventure']",39,Raiders of the Lost Ark
+39,Rocky,2,"[u' Drama', u' Sport']",40,Rocky
+40,A Streetcar Named Desire,3,[u' Drama'],41,A Streetcar Named Desire
+41,The Philadelphia Story,4,"[u' Comedy', u' Romance']",42,The Philadelphia Story
+42,To Kill a Mockingbird,0,[u' Drama'],43,To Kill a Mockingbird
+43,An American in Paris,4,"[u' Musical', u' Romance']",44,An American in Paris
+44,The Best Years of Our Lives,3,"[u' Drama', u' Romance', u' War']",45,The Best Years of Our Lives
+45,My Fair Lady,2,"[u' Drama', u' Family', u' Musical', u' Romance']",46,My Fair Lady
+46,Ben-Hur,3,"[u' Adventure', u' Drama']",47,Ben-Hur
+47,Doctor Zhivago,3,"[u' Drama', u' Romance', u' War']",48,Doctor Zhivago
+48,Patton,1,"[u' Biography', u' Drama', u' War']",49,Patton
+49,Jaws,1,"[u' Drama', u' Thriller']",50,Jaws
+50,Braveheart,1,"[u' Action', u' Biography', u' Drama', u' History', u' War']",51,Braveheart
+51,"The Good, the Bad and the Ugly",1,[u' Western'],52,"The Good, the Bad and the Ugly"
+52,Butch Cassidy and the Sundance Kid,2,"[u' Biography', u' Crime', u' Western']",53,Butch Cassidy and the Sundance Kid
+53,The Treasure of the Sierra Madre,1,"[u' Action', u' Adventure', u' Drama', u' Western']",54,The Treasure of the Sierra Madre
+54,The Apartment,3,"[u' Comedy', u' Drama', u' Romance']",55,The Apartment
+55,Platoon,1,"[u' Drama', u' War']",56,Platoon
+56,High Noon,2,[u' Western'],57,High Noon
+57,Dances with Wolves,1,"[u' Adventure', u' Drama', u' Western']",58,Dances with Wolves
+58,The Pianist,3,"[u' Biography', u' Drama', u' War']",59,The Pianist
+59,Goodfellas,3,"[u' Biography', u' Crime', u' Drama']",60,Goodfellas
+60,The Exorcist,2,[u' Horror'],61,The Exorcist
+61,The Deer Hunter,1,"[u' Drama', u' War']",62,The Deer Hunter
+62,All Quiet on the Western Front,1,"[u' Drama', u' War']",63,All Quiet on the Western Front
+63,The French Connection,2,"[u' Action', u' Crime', u' Thriller']",64,The French Connection
+64,City Lights,2,"[u' Comedy', u' Drama', u' Romance']",65,City Lights
+65,The King's Speech,4,"[u' Biography', u' Drama', u' History']",66,The King's Speech
+66,It Happened One Night,2,"[u' Comedy', u' Romance']",67,It Happened One Night
+67,A Place in the Sun,4,"[u' Drama', u' Romance']",68,A Place in the Sun
+68,Midnight Cowboy,2,[u' Drama'],69,Midnight Cowboy
+69,Mr. Smith Goes to Washington,3,[u' Drama'],70,Mr. Smith Goes to Washington
+70,Rain Man,2,[u' Drama'],71,Rain Man
+71,Annie Hall,3,"[u' Comedy', u' Drama', u' Romance']",72,Annie Hall
+72,Out of Africa,3,"[u' Biography', u' Drama', u' Romance']",73,Out of Africa
+73,Good Will Hunting,2,[u' Drama'],74,Good Will Hunting
+74,Terms of Endearment,3,"[u' Comedy', u' Drama']",75,Terms of Endearment
+75,Tootsie,4,"[u' Comedy', u' Drama', u' Romance']",76,Tootsie
+76,Fargo,2,"[u' Crime', u' Drama', u' Thriller']",77,Fargo
+77,Giant,3,"[u' Drama', u' Romance']",78,Giant
+78,The Grapes of Wrath,3,[u' Drama'],79,The Grapes of Wrath
+79,Shane,2,"[u' Drama', u' Romance', u' Western']",80,Shane
+80,The Green Mile,2,"[u' Crime', u' Drama', u' Fantasy', u' Mystery']",81,The Green Mile
+81,Close Encounters of the Third Kind,1,"[u' Drama', u' Sci-Fi']",82,Close Encounters of the Third Kind
+82,Network,2,[u' Drama'],83,Network
+83,Nashville,2,"[u' Drama', u' Music']",84,Nashville
+84,The Graduate,2,"[u' Comedy', u' Drama', u' Romance']",85,The Graduate
+85,American Graffiti,2,"[u' Comedy', u' Drama']",86,American Graffiti
+86,Pulp Fiction,2,"[u' Crime', u' Drama', u' Thriller']",87,Pulp Fiction
+87,The African Queen,2,"[u' Adventure', u' Romance', u' War']",88,The African Queen
+88,Stagecoach,1,"[u' Adventure', u' Western']",89,Stagecoach
+89,Mutiny on the Bounty,1,"[u' Adventure', u' Drama', u' History']",90,Mutiny on the Bounty
+90,The Maltese Falcon,2,"[u' Drama', u' Film-Noir', u' Mystery']",91,The Maltese Falcon
+91,A Clockwork Orange,2,"[u' Crime', u' Drama', u' Sci-Fi']",92,A Clockwork Orange
+92,Taxi Driver,2,"[u' Crime', u' Drama']",93,Taxi Driver
+93,Wuthering Heights,2,"[u' Drama', u' Romance']",94,Wuthering Heights
+94,Double Indemnity,2,"[u' Crime', u' Drama', u' Film-Noir', u' Thriller']",95,Double Indemnity
+95,Rebel Without a Cause,2,[u' Drama'],96,Rebel Without a Cause
+96,Rear Window,2,"[u' Mystery', u' Thriller']",97,Rear Window
+97,The Third Man,2,"[u' Film-Noir', u' Mystery', u' Thriller']",98,The Third Man
+98,North by Northwest,2,"[u' Mystery', u' Thriller']",99,North by Northwest
+99,Yankee Doodle Dandy,0,"[u' Biography', u' Drama', u' Musical']",100,Yankee Doodle Dandy
