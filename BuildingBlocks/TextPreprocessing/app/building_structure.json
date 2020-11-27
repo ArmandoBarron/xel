@@ -1,0 +1,10 @@
+{
+    "S":{
+        "path":"Stemming",
+        "resultname":"_stemming"
+    },
+    "T":{
+        "path":"TF-IDF",
+        "resultname":"_tfidf"
+    }
+}

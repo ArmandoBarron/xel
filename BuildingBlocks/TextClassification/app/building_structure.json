@@ -1,0 +1,22 @@
+{
+    "P":{
+        "path":"Preprocessing",
+        "resultname":"_Preprocessing"
+    },
+    "D":{
+        "path":"DL",
+        "resultname":"_DL"
+    },
+    "N":{
+        "path":"NB",
+        "resultname":"_NB"
+    },
+    "M":{
+        "path":"MLP",
+        "resultname":"_MLP"
+    },
+    "S":{
+        "path":"SVC",
+        "resultname":"_SVC"
+    }
+}
