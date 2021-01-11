@@ -104,7 +104,7 @@ texts = df[params['column_to_process']].tolist()
 # load nltk's SnowballStemmer as variabled 'stemmer'
 from nltk.stem.snowball import SnowballStemmer
 stemmer = SnowballStemmer(params['lang'])
-
+print(">>>>>>>>>> STEAMER LOADED <<<<<<<<<<<<<")
 """Below I define two functions:
 
 <ul>
@@ -129,6 +129,7 @@ def tokenize_and_stem(text):
 
 
 from sklearn.feature_extraction.text import TfidfVectorizer
+print(">>>>>>>>>> TFIDF PROCESS <<<<<<<<<<<<<")
 
 tfidf_vectorizer = TfidfVectorizer(max_df=params['max_df'], max_features=params['max_features'], min_df=params['min_df'], stop_words=params['lang'], use_idf=params['idf'], tokenizer=tokenize_and_stem, ngram_range=(params['min_window_size'],params['max_window_size']))
 
@@ -148,5 +149,6 @@ dist = 1 - cosine_similarity(tfidf_matrix)
 pickle.dump(tfidf_matrix, open(params['matrix_outputfile'], "wb" ))
 
 pickle.dump(dist, open(params['dist_outputfile'], "wb" ))
+print(">>>>>>>>>> PROCESS FINISHED <<<<<<<<<<<<<")
 
 #pickle.dump(terms, open(params['terms_outputfile'], "wb" ))

@@ -147,7 +147,7 @@ cluster_names = {0: 'Family, home, war',
 #titles = pickle.load(open(params['titles_filename'], "rb"))
 #clusters = pickle.load(open(params['clusters_filename'], "rb"))
 
-titles = frame[params['column_identifier']].tolist()
+titles = frame[params['identifier_column']].tolist()
 clusters = frame[params['cluster_column_name']].tolist()
 
 print(frame.head())

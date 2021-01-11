@@ -61,7 +61,7 @@ def execute(params):
     
     
     # call the application
-    execution_status = os.system("python3 "+ACTUAL_PATH+"T.py '"+grobid_inputpath+"' '"+grobid_outputpath+"' '"+params['epoch']+"' '"+params['batch_size']+"'")
+    execution_status = os.system("python3 "+ACTUAL_PATH+"T.py '"+grobid_inputpath+"' '"+grobid_outputpath+"' '"+str(params['epoch'])+"' '"+str(params['batch_size'])+"'")
     
     arr = os.listdir(grobid_outputpath)
     LOGER.error(arr)

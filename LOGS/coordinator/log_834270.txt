@@ -1,0 +1,10 @@
+Acquisition, 0.055552005767822266 
+text_preprocessing_T, 8.662936449050903 
+text_processing_L, 35.64574313163757 
+index_text_processing, 0.19337749481201172 
+text_processing_H, 30.45347762107849 
+index_text_processing, 0.28252267837524414 
+text_processing_K, 32.29736828804016 
+index_text_processing, 0.31329870223999023 
+text_processing_R, 2.969417095184326 
+index_text_processing, 0.2237565517425537 

@@ -59,9 +59,10 @@ def execute(params):
         
     params['representation_filename'] = grobid_inputpath +"/" +params['representation_filename']
     params['input_frame_filename'] = grobid_inputpath +"/" +params['input_frame_filename']
-    params['model_output'] = grobid_outputpath +"/" +'03-doc_cluster.pkl'
-    params['frame_output'] = grobid_outputpath +"/" +'04-frame.csv'
-    
+    params['model_output'] = grobid_outputpath +"/" +'model.pkl'
+    params['frame_output'] = grobid_outputpath +"/" +'frame.csv'
+    params['dist_output'] = grobid_outputpath +"/" +'dist.pkl'
+    shutil.move(grobid_inputpath+"/dist.pkl",params['dist_output'])
     # call the application
     params = json.dumps(params)
     execution_status = os.system("python3 "+ACTUAL_PATH+"T.py '"+params+"'")

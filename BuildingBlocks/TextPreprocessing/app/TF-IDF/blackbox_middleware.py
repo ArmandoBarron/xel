@@ -29,10 +29,10 @@ def execute(params):
 
 
     params['inputfile'] = params['inputpath']+params['inputfile']+".csv"  #where the input data is (without the extension)
-    params['matrix_outputfile'] = ACTUAL_PATH + '01-tfidf_matrix.pkl'
-    params['dist_outputfile'] = ACTUAL_PATH + '05-dist.pkl'
+    params['matrix_outputfile'] = ACTUAL_PATH + 'tfidf_matrix.pkl'
+    params['dist_outputfile'] = ACTUAL_PATH + 'dist.pkl'
     outputfile = params['inputpath']+params['outputfile']+"."+OUTPUT_DATA_FORMAT #where the output data must be4
-    
+    input_filename=  params['inputfile']
     LOGER.error(params)
 
     params = json.dumps(params)
@@ -41,9 +41,9 @@ def execute(params):
     
     # create a ZipFile object
     with ZipFile(outputfile, 'w') as zipObj:
-        zipObj.write(ACTUAL_PATH+'01-tfidf_matrix.pkl', '01-tfidf_matrix.pkl')
-        zipObj.write(ACTUAL_PATH+'05-dist.pkl', '05-dist.pkl')
-        
+        zipObj.write(ACTUAL_PATH+'tfidf_matrix.pkl', 'tfidf_matrix.pkl')
+        zipObj.write(ACTUAL_PATH+'dist.pkl', 'dist.pkl')
+        zipObj.write(input_filename, 'default.csv')
 
 
     #return status

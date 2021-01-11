@@ -39,11 +39,8 @@ text_column = argv[4] #name of the column with the text (e.g a tweet)
 str_query  = argv[5] # query pandas "null"
 
 
-
-
-
-tweet_df= pd.read_csv(inputfile, encoding="ISO-8859-1")
-
+tweet_df= pd.read_csv(inputfile, engine="python")
+print(tweet_df[text_column])
 #load stopwords
 STOPWORDS = set(stopwords.words('english'))
 

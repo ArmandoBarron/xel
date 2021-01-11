@@ -59,7 +59,7 @@ def execute(params):
     params['outputfile']  = params['inputpath']+params['outputfile']+"."+OUTPUT_DATA_FORMAT
     
     # call the application
-    execution_status = os.system("python3 "+ACTUAL_PATH+"T.py '"+grobid_inputpath+"' '"+params['outputfile']+"' '"+params['epoch']+"' '"+params['batch_size']+"'")
+    execution_status = os.system("python3 "+ACTUAL_PATH+"T.py '"+grobid_inputpath+"' '"+params['outputfile']+"' '"+str(params['epoch'])+"' '"+str(params['batch_size'])+"'")
 
 
     # zip results at destination

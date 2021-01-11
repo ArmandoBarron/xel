@@ -1,0 +1,10 @@
+text_classification, 18.380244493484497 
+index_text_classification, 0.46745753288269043 
+text_classification, 2.694997787475586 
+index_text_classification, 0.16475963592529297 
+text_classification, 8.634692668914795 
+index_text_classification, 0.21320247650146484 
+text_classification, 48.12881946563721 
+index_text_classification, 2.349712371826172 
+text_classification, 61.14159107208252 
+index_text_classification, 0.14060759544372559 

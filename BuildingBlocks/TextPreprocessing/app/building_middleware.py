@@ -52,9 +52,9 @@ def middleware(data,DAG,workParams):
             params = workParams[char] #it has the character for the application and _params (e.g. A)
 
             #execute application as blackbox
-            LOG.info("RUNNING BLACKBOX")
+            LOG.error("RUNNING BLACKBOX")
             data = mod.blackbox(data,params) #data is a json
-            LOG.info("BLACKBOX FINISHED")
+            LOG.error("BLACKBOX FINISHED")
             LOG.error(data['status'])
 
             f.write("%s, %s \n" %(char, (time.time() - C_ST))) #<--- time flag
@@ -73,4 +73,4 @@ def middleware(data,DAG,workParams):
         f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
         f.write("-\n") #<--- time flag
         f.close() 
-        return {'data':'','type':'','status':'ERROR','message':'Unexpected error. '+str(ex)}
+        return {'data':'','type':'','status':'ERROR','message':'Unexpected error was capture on BW. '+str(ex)}

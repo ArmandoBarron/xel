@@ -1,0 +1,10 @@
+Acquisition, 2.1847832202911377 
+text_classification_P, 18.93057656288147 
+text_classification_N, 4.396556854248047 
+index_text_classification, 0.21861600875854492 
+text_classification_D, 237.59507751464844 
+index_text_classification, 1.8605389595031738 
+text_classification_M, 252.29898500442505 
+index_text_classification, 0.2125873565673828 
+text_classification_S, 409.7344036102295 
+index_text_classification, 0.2374560832977295 

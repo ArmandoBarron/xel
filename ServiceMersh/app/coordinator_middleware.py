@@ -11,6 +11,9 @@ import logging #logger
 from base64 import b64encode,b64decode
 import io
 import time
+from TwoChoices import loadbalancer
+from Proposer import Paxos
+
 
 ########## GLOBAL VARIABLES ###########
 LOGER = logging.getLogger()
@@ -35,6 +38,9 @@ INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
 
 with open('coordinator_structure.json') as json_file:
     dictionary = json.load(json_file) #read all configurations for services
+
+#select load blaancer
+LOAD_B = loadbalancer(dictionary['services'])
 
 #select distribution algorithm
 if(dictionary['config']['Distribution_Type'] == "Round Robin"):
@@ -92,6 +98,7 @@ def formDLMsg(data,dl_DAG,destinationFolder,destinationFile,filename,workParams)
 def EXE_SERVICE(control_number,data,info):
     global BRANCHES
     service = info['service']
+    service_name = service
     params = info['params']
     if 'SAVE_DATA' in params:        
         index_opt = params['SAVE_DATA']
@@ -106,11 +113,13 @@ def EXE_SERVICE(control_number,data,info):
     id_service =info['id']
     ToSend = {'data':data,'params':params} #no actions, so it will taken the default application A
     del data
-    if 'actions' in info: ToSend['actions']= info['actions']
+    if 'actions' in info: 
+        ToSend['actions']= info['actions']
+        service_name=service_name+"_"+str(info['actions'][0])
 
     BB_ST = time.time(); f = open(logs_folder+'log_'+control_number+'.txt', 'a+');  #<--- time flag
     data_result = execute_service(service,ToSend) #send request to service {data:,type:}
-    f.write("%s, %s \n" %(service,(time.time() - BB_ST))); f.close() #<--- time flag
+    f.write("%s, %s \n" %(service_name,(time.time() - BB_ST))); f.close() #<--- time flag
     LOGER.error(data_result['status'])
 
     del ToSend
@@ -147,6 +156,7 @@ def prueba():
 #service to execute applications
 @app.route('/execute/<service>', methods=['POST'])
 def execute_service(service,params=None):
+    
     if params is None:
         params = request.get_json()
     data = params['data'] #data to be transform
@@ -157,18 +167,29 @@ def execute_service(service,params=None):
         actions = ['A'] #default exec the first service called A
         service_params = {'A':service_params}
     
-    info_service = dictionary['services'][service] #get all the configurations from an specific service
+    #info_service = dictionary['services'][service] #get all the configurations from an specific service
+    #coordinator = coordinate(len(info_service['resources']),actions) #select the resource
+    #list_resources = info_service['resources'] #list of dictionaries
 
-    coordinator = coordinate(len(info_service['resources']),actions) #select the resource
-    
-    list_resources = info_service['resources'] #list of dictionaries
+    ######## paxos ##########
+    acc = dictionary['paxos']["accepters"]
+    proposer = Paxos(acc)
+    proposer.process()
+    #########################
+
+
+
+
 
     LOGER.error("executing...%s"% service)
-    for package in coordinator:
-        p_DAG = actions[package] #dag of applications
-        res = list_resources[coordinator[package]]
+    for package in actions:
+        p_DAG = package #dag of applications
+        #res = list_resources[coordinator[package]]
+        res= LOAD_B.decide(service)
+
         ip = res['ip']
         port = res['port']
+        LOGER.error(res['workload'])
 
         #send message to BB
         # folder is always ./ so its not necessary to add as a parameter

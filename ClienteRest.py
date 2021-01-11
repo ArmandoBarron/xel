@@ -144,9 +144,12 @@ textprocessingAction = 'R'
 #oParams = {'columns':numericColumns,"SAVE_DATA":False}
 #sParams = {}
 sParams = {'lang':'english', 'column_to_process':'synopsis',"SAVE_DATA":False}
-lParams = {'lang':'english', 'column_to_process':'synopsis',"SAVE_DATA":False}
 
 tParams = {'column_to_process':'synopsis', 'lang':'english', 'max_df':0.8,'max_features':200000,'min_df':0.2, 'idf':True, 'min_window_size':1,'max_window_size':3,"SAVE_DATA":False}
+
+
+lParams = {'lang':'english', 'column_to_process':'synopsis',"SAVE_DATA":False}
+
 kParams = {'representation_filename':'01-tfidf_matrix.pkl',
           'num_clusters':5,
           'input_frame_filename':'synopses.csv',"SAVE_DATA":False}
@@ -159,7 +162,7 @@ hParams = {'input_distance_filename':'05-dist.pkl',
 
 rParams = {'clustered_dataframe_filename':'04-frame.csv',
           'cluster_column_name':'cluster',
-          'column_identifier':'title',
+          'identifier_column':'title',
           'input_distance_filename':'05-dist.pkl',
           "SAVE_DATA":False}
 

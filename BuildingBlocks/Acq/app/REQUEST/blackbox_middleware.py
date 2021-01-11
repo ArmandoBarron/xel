@@ -88,7 +88,7 @@ def blackbox(data,params):
     ######################################################################
     try:
         if OUTPUT_DATA_FORMAT=="csv":
-            df_table = pd.read_csv(destination)
+            df_table = pd.read_csv(destination, engine="python")
             output_data = {'data':json.loads(df_table.to_json(orient='records')),'type':OUTPUT_DATA_FORMAT,'status':"OK","message":"OK"}
         else:
             with open(destination,"rb") as file:
