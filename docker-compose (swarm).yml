@@ -1,7 +1,7 @@
 version: '3'
 services:
   coordinator: # COORDINATOR
-    image: sm_coordinator
+    image: 127.0.0.1:7000/SM_coordinator
     build:
       context: ./ServiceMersh
       dockerfile: ./Dockerfile
@@ -22,7 +22,7 @@ services:
 ########### BB services ############################
 
   deep_learning:
-    image: sm_bb_deeplearning
+    image: 127.0.0.1:7000/SM_BB_deeplearning
     build:
       context: ./BuildingBlocks/DeepLearning
       dockerfile: ./Dockerfile
@@ -35,7 +35,7 @@ services:
       - coordinator
 
   text_preprocessing:
-    image: sm_bb_text_preprocessing
+    image: 127.0.0.1:7000/SM_BB_text_preprocessing
     build:
       context: ./BuildingBlocks/TextPreprocessing
       dockerfile: ./Dockerfile
@@ -48,7 +48,7 @@ services:
       - coordinator
 
   text_processing: 
-    image: sm_bb_text_processing
+    image: 127.0.0.1:7000/SM_BB_text_processing
     build:
       context: ./BuildingBlocks/TextProcessing
       dockerfile: ./Dockerfile
@@ -61,7 +61,7 @@ services:
       - coordinator
 
   text_classification:
-    image: sm_bb_calsification
+    image: 127.0.0.1:7000/SM_BB_calsification
     build:
       context: ./BuildingBlocks/TextClassification
       dockerfile: ./Dockerfile
@@ -74,7 +74,7 @@ services:
       - coordinator
 
   preprocessing:
-    image: sm_bb_preprocessing
+    image: 127.0.0.1:7000/SM_BB_preprocessing
     build:
       context: ./BuildingBlocks/Preprocessing
       dockerfile: ./Dockerfile
@@ -87,7 +87,7 @@ services:
       - coordinator
 
   bb_tps: # tools to clean data
-    image: sm_bb_tps
+    image: 127.0.0.1:7000/SM_BB_tps
     build:
       context: ./BuildingBlocks/TS
       dockerfile: ./Dockerfile
@@ -100,7 +100,7 @@ services:
       - coordinator
 
   bb_converters: # tools to convert file formats
-    image: sm_bb_converters
+    image: 127.0.0.1:7000/SM_BB_converters
     build:
       context: ./BuildingBlocks/Converters
       dockerfile: ./Dockerfile
@@ -113,25 +113,7 @@ services:
       - coordinator
 
   bb_acquisition: # tools to download data
-    image: sm_bb_acquisition
-    build:
-      context: ./BuildingBlocks/Acq
-      dockerfile: ./Dockerfile
-    volumes:
-      - ./LOGS/acquisition/:/home/app/logs #for debugging
-      - ./localdata/:/home/app/REQUEST/input_data
-    networks:
-      - service_mersh
-    restart: always
-    depends_on:
-      - coordinator
-    deploy: 
-      placement: 
-        constraints: 
-          - node.role == manager
-
-  bb_acquisition_1: # tools to download data
-    image: sm_bb_acquisition
+    image: 127.0.0.1:7000/SM_BB_acquisition
     build:
       context: ./BuildingBlocks/Acq
       dockerfile: ./Dockerfile
@@ -149,7 +131,7 @@ services:
           - node.role == manager
 
   bb_grobid:
-    image: sm_bb_grobid
+    image: 127.0.0.1:7000/SM_BB_grobid
     build:
       context: ./BuildingBlocks/Grobid
       dockerfile: ./Dockerfile
@@ -162,7 +144,7 @@ services:
       - coordinator
 
   bb_glove:
-    image: sm_bb_glove
+    image: 127.0.0.1:7000/SM_BB_glove
     build:
       context: ./BuildingBlocks/Glove
       dockerfile: ./Dockerfile
@@ -178,7 +160,7 @@ services:
 ###########################################
 
   tps_manager: #API Gatewaey THE MANAGER
-    image: tps_manager
+    image: 127.0.0.1:7000/tps_manager
     container_name: TPS_Manager
     build:
       context: ./TPS/Manager/
@@ -220,7 +202,7 @@ services:
       - tps_manager
 
   clustering: # API Gateway container
-    image: tps_clustering
+    image: 127.0.0.1:7000/tps_clustering
     container_name: TPS_clustering
     #image: 127.0.0.1:5000/meteots_clustering_w1
     build:
@@ -231,7 +213,7 @@ services:
     restart: always
 
   summary: # summary
-    image: tps_summary
+    image: 127.0.0.1:7000/tps_summary
     container_name: TPS_summary
     build:
       context: ./TPS/Services/Summary/
@@ -245,7 +227,7 @@ services:
       - tps_manager
 
   clusteringtools: # tools
-    image: tps_clustering_tools
+    image: 127.0.0.1:7000/tps_clustering_tools
     container_name: TPS_clustering_tools
     build:
       context: ./TPS/Services/ClusterAnalysis/
@@ -259,7 +241,7 @@ services:
       - tps_manager
 
   cleaningtools: # tools to clean data
-    image: tps_cleaning_tools
+    image: 127.0.0.1:7000/tps_cleaning_tools
     container_name: TPS_cleaning_tools
     #image: 127.0.0.1:5000/TPS_cleaning_tools
     build:
@@ -271,7 +253,7 @@ services:
     restart: always
 
   graphics: # service to graphic data
-    image: tps_graphics
+    image: 127.0.0.1:7000/tps_graphics
     container_name: TPS_graphics
     #image: 127.0.0.1:5000/TPS_cleaning_tools
     build:
@@ -306,7 +288,7 @@ services:
 ###########################################
 
   accepter_1: # accepter
-    image: paxos
+    image: 127.0.0.1:7000/paxos
     container_name: accepter1
     build:
       context: ./NonFunctional/Paxos
@@ -318,7 +300,7 @@ services:
       - coordinator
 
   accepter_2: # accepter
-    image: paxos
+    image: 127.0.0.1:7000/paxos
     container_name: accepter2
     build:
       context: ./NonFunctional/Paxos
@@ -330,7 +312,7 @@ services:
       - coordinator
       
   accepter_3: # accepter
-    image: paxos
+    image: 127.0.0.1:7000:7000/paxos
     container_name: accepter3
     build:
       context: ./NonFunctional/Paxos

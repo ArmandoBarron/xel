@@ -166,10 +166,7 @@ def execute_service(service,params=None):
     else:
         actions = ['A'] #default exec the first service called A
         service_params = {'A':service_params}
-    
-    #info_service = dictionary['services'][service] #get all the configurations from an specific service
-    #coordinator = coordinate(len(info_service['resources']),actions) #select the resource
-    #list_resources = info_service['resources'] #list of dictionaries
+
 
     ######## paxos ##########
     acc = dictionary['paxos']["accepters"]
@@ -178,27 +175,38 @@ def execute_service(service,params=None):
     #########################
 
 
-
-
-
     LOGER.error("executing...%s"% service)
+    Tolerant_errors=25 #total of errors that can be tolarated
+    errors_counter=0
+
     for package in actions:
-        p_DAG = package #dag of applications
-        #res = list_resources[coordinator[package]]
-        res= LOAD_B.decide(service)
+        while(True): # AVOID ERRORS
+            p_DAG = package #dag of applications
+            #res = list_resources[coordinator[package]]
+            res= LOAD_B.decide(service)
 
-        ip = res['ip']
-        port = res['port']
-        LOGER.error(res['workload'])
+            ip = res['ip']
+            port = res['port']
+            LOGER.error(res['workload'])
 
-        #send message to BB
-        # folder is always ./ so its not necessary to add as a parameter
-        msg = {
-            'data':data,
-            'actions':p_DAG,
-            'params':service_params
-            }
-        data = C.RestRequest(ip,port,msg)
+            #send message to BB
+            # folder is always ./ so its not necessary to add as a parameter
+            msg = {
+                'data':data,
+                'actions':p_DAG,
+                'params':service_params
+                }
+            data = C.RestRequest(ip,port,msg)
+            if data is not None:
+                LOGER.error(">>>>>>> FINISHING WITH NO ERRORS")
+                errors_counter=0
+                break;
+            else:
+                errors_counter+=1
+                LOGER.error(">>>>>>> NODE FAILED... TRYING AGAIN..%s" % errors_counter)
+                if errors_counter>Tolerant_errors: #we reach the limit
+                    data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
+                    break
 
     LOGER.error("finishing execution...%s"% service)
 
