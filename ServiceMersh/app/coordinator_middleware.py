@@ -17,7 +17,7 @@ from Proposer import Paxos
 
 ########## GLOBAL VARIABLES ###########
 LOGER = logging.getLogger()
-WORKSPACENAME = "SERVICEMERSH"
+WORKSPACENAME = "SERVICEMESH"
 TPSHOST ="http://tps_manager:5000"
 
 #create logs folder
@@ -41,6 +41,8 @@ with open('coordinator_structure.json') as json_file:
 
 #select load blaancer
 LOAD_B = loadbalancer(dictionary['services'])
+Tolerant_errors=25 #total of errors that can be tolarated
+
 
 #select distribution algorithm
 if(dictionary['config']['Distribution_Type'] == "Round Robin"):
@@ -95,56 +97,63 @@ def formDLMsg(data,dl_DAG,destinationFolder,destinationFile,filename,workParams)
     msg = data,destinationFolder,destinationFile,dl_DAG,filename,workParams
     return msg
 
-def EXE_SERVICE(control_number,data,info):
+def Execute_pipe(control_number,data,info):
     global BRANCHES
     service = info['service']
     service_name = service
     params = info['params']
-    if 'SAVE_DATA' in params:        
-        index_opt = params['SAVE_DATA']
-    else:
-        for key in params:
-            if 'SAVE_DATA' in params[key]:
-                index_opt = params[key]['SAVE_DATA']
-                break
-            else:
-                index_opt = False
-                
+    DAG = info['childrens']
     id_service =info['id']
-    ToSend = {'data':data,'params':params} #no actions, so it will taken the default application A
-    del data
-    if 'actions' in info: 
-        ToSend['actions']= info['actions']
-        service_name=service_name+"_"+str(info['actions'][0])
+    info['control_number'] = control_number
 
-    BB_ST = time.time(); f = open(logs_folder+'log_'+control_number+'.txt', 'a+');  #<--- time flag
-    data_result = execute_service(service,ToSend) #send request to service {data:,type:}
-    f.write("%s, %s \n" %(service_name,(time.time() - BB_ST))); f.close() #<--- time flag
-    LOGER.error(data_result['status'])
+
+    ToSend = {'data':data,'DAG':info} #no actions, so it will taken the default application A
+    del data
+
+    execute_service(service,ToSend) #send request to service {data:,type:}
 
     del ToSend
-    
-    if index_opt: 
-        IX_ST = time.time() #<--- time flag
-        f = open(logs_folder+'log_'+control_number+'.txt', 'a+') # times log
-        label = IndexData(control_number,id_service,data_result) #indexing result data into DB
-        f.write("index_%s, %s \n" %(service,(time.time() - IX_ST))) #<--- time flag
-        f.close()
-    else:
-        label=False
-        LOGER.info("skiping index process")
 
-    
-    BRANCHES[control_number][id_service]={'status':data_result['status'],"message":data_result["message"],"label":label,"task":id_service,"type":data_result['type'], "index":index_opt} #update status
+#service to execute applications
+def execute_service(service,msg):
+    global BRANCHES
 
-    #the task fihised, and now we execute the children task
-    try:
-        DAG = info['childrens']
-        for br in DAG: #for each service in DAG
-            thread1 = Thread(target = EXE_SERVICE, args = (control_number,data_result,br,) )
-            thread1.start()
-    except KeyError as ke:
-        LOGER.error("No more childrens")
+    ######## paxos ##########
+    acc = dictionary['paxos']["accepters"]
+    proposer = Paxos(acc)
+    proposer.process()
+    #########################
+
+    LOGER.error("executing...%s"% service)
+    errors_counter=0
+
+    while(True): # AVOID ERRORS
+        res= LOAD_B.decide(service)
+
+        ip = res['ip']
+        port = res['port']
+        LOGER.error(res['workload'])
+
+        #send message to BB
+        # folder is always ./ so its not necessary to add as a parameter
+ 
+        data = C.RestRequest(ip,port,msg)
+
+        if data is not None:
+            LOGER.error(">>>>>>> SENT WITH NO ERRORS")
+            errors_counter=0
+            break;
+        else:
+            errors_counter+=1
+            LOGER.error(">>>>>>> NODE FAILED... TRYING AGAIN..%s" % errors_counter)
+            if errors_counter>Tolerant_errors: #we reach the limit
+                data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
+                BRANCHES[msg['DAG']['control_number']][msg['DAG']['id']]={'status':data['status'],"message":data["message"],"label":"FALSE","task":msg['DAG']['id_service'],"type":data['type'], "index":False} #update status
+                break
+
+    LOGER.error("finishing execution...%s"% service)
+
+
 
 
 app = Flask(__name__)
@@ -153,64 +162,51 @@ app = Flask(__name__)
 def prueba():
     return "Service Mersh"
 
-#service to execute applications
-@app.route('/execute/<service>', methods=['POST'])
-def execute_service(service,params=None):
+
+@app.route('/ASK', methods=['POST'])
+def ASK():
+    params = request.get_json(force=True)
+    service = params['service'] #service name
     
-    if params is None:
-        params = request.get_json()
-    data = params['data'] #data to be transform
-    service_params = params['params'] #parameters for the service
-    if 'actions' in params:
-        actions=[params['actions']] #for the geoportal we just gona use a single set of actions
-    else:
-        actions = ['A'] #default exec the first service called A
-        service_params = {'A':service_params}
-
-
     ######## paxos ##########
     acc = dictionary['paxos']["accepters"]
     proposer = Paxos(acc)
     proposer.process()
     #########################
-
-
     LOGER.error("executing...%s"% service)
-    Tolerant_errors=25 #total of errors that can be tolarated
     errors_counter=0
 
-    for package in actions:
-        while(True): # AVOID ERRORS
-            p_DAG = package #dag of applications
-            #res = list_resources[coordinator[package]]
-            res= LOAD_B.decide(service)
+    res= LOAD_B.decide(service)
 
-            ip = res['ip']
-            port = res['port']
-            LOGER.error(res['workload'])
+    LOGER.error(res['workload'])
+ 
+    return json.dumps(res)
 
-            #send message to BB
-            # folder is always ./ so its not necessary to add as a parameter
-            msg = {
-                'data':data,
-                'actions':p_DAG,
-                'params':service_params
-                }
-            data = C.RestRequest(ip,port,msg)
-            if data is not None:
-                LOGER.error(">>>>>>> FINISHING WITH NO ERRORS")
-                errors_counter=0
-                break;
-            else:
-                errors_counter+=1
-                LOGER.error(">>>>>>> NODE FAILED... TRYING AGAIN..%s" % errors_counter)
-                if errors_counter>Tolerant_errors: #we reach the limit
-                    data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
-                    break
 
-    LOGER.error("finishing execution...%s"% service)
 
-    return data
+
+@app.route('/WARN', methods=['POST'])
+def WARN():
+    global BRANCHES
+    params = request.get_json(force=True)
+    status = params['status']
+    message = params['message']
+    label = params['label']
+    id = params['id']
+    data_type = params['type']
+    index_opt = params['index']
+    control_number = params['control_number']
+
+    BRANCHES[control_number][id]={'status':status,"message":message,"label":label,"task":id,"type":data_type, "index":index_opt} #update status
+
+    if 'times' in params:
+        tmp= params['times']
+        f = open(logs_folder+'log_'+control_number+'.txt', 'a+'); 
+        #{"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time}
+        f.write("%s, %s, %s, %s \n" %(tmp['NAME'],tmp['ACQ'],tmp['EXE'],tmp['IDX'], )) 
+        f.close()
+    return json.dumps({'status':'OK'})
+
 
 #service to execute a set of application in a DAG
 @app.route('/executeDAG', methods=['POST'])
@@ -233,8 +229,8 @@ def execute_DAG():
     BRANCHES[RN]=dict()
     FINISHED_BRANCH[RN]=dict()
 
-    for br in DAG: #for each service in DAG
-        thread1 = Thread(target = EXE_SERVICE, args = (RN,data,br,) )
+    for br in DAG: #for each pipe in DAG
+        thread1 = Thread(target = Execute_pipe, args = (RN,data,br,) )
         thread1.start()
 
     return json.dumps({'RN':RN})

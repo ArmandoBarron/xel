@@ -33,6 +33,9 @@ services:
       - service_mersh
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 
   text_preprocessing:
     image: sm_bb_text_preprocessing
@@ -46,6 +49,9 @@ services:
       - service_mersh
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 
   text_processing: 
     image: sm_bb_text_processing
@@ -59,6 +65,9 @@ services:
       - service_mersh
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 
   text_classification:
     image: sm_bb_calsification
@@ -72,6 +81,9 @@ services:
       - service_mersh
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 
   preprocessing:
     image: sm_bb_preprocessing
@@ -85,6 +97,9 @@ services:
       - service_mersh
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 
   bb_tps: # tools to clean data
     image: sm_bb_tps
@@ -98,6 +113,9 @@ services:
     restart: always
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 
   bb_converters: # tools to convert file formats
     image: sm_bb_converters
@@ -111,6 +129,9 @@ services:
     restart: always
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 
   bb_acquisition: # tools to download data
     image: sm_bb_acquisition
@@ -125,6 +146,9 @@ services:
     restart: always
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
     deploy: 
       placement: 
         constraints: 
@@ -143,6 +167,9 @@ services:
     restart: always
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
     deploy: 
       placement: 
         constraints: 
@@ -160,6 +187,9 @@ services:
     restart: always
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 
   bb_glove:
     image: sm_bb_glove
@@ -173,6 +203,9 @@ services:
     restart: always
     depends_on:
       - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 ###########################################
 ############## TPS SERVICES ###############
 ###########################################

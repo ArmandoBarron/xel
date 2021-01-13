@@ -8,6 +8,10 @@ RUN apt-get install nano
 RUN apt-get update && apt-get -y install --no-install-recommends build-essential r-base r-cran-randomforest
 RUN Rscript -e 'install.packages("remotes", repo = "https://cloud.r-project.org")' && Rscript -e 'remotes::install_github("rstudio/reticulate")' && Rscript -e 'reticulate::virtualenv_create()'
 RUN Rscript -e "install.packages('devtools')" && Rscript -e "remotes::install_github('rstudio/keras')" && Rscript -e "keras::install_keras()"
+
+RUN pip3 install requests --user
+
+
 COPY ["app","/home/app/"]
 WORKDIR /home/app/
 

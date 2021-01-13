@@ -37,7 +37,7 @@ def middleware(data,DAG,workParams):
             C_ST = time.time() #<--- time flag
             LOG.debug(char)
             char = char.upper()
-            DAG = DAG.replace(char,"",1)
+            #DAG = DAG.replace(char,"",1)
 
             #get config for application
             appconfig = dictionary[char]
@@ -52,9 +52,9 @@ def middleware(data,DAG,workParams):
             params = workParams[char] #it has the character for the application and _params (e.g. A)
 
             #execute application as blackbox
-            LOG.info("RUNNING BLACKBOX")
+            LOG.error("RUNNING BLACKBOX")
             data = mod.blackbox(data,params) #data is a json
-            LOG.info("BLACKBOX FINISHED")
+            LOG.error("BLACKBOX FINISHED")
             LOG.error(data['status'])
 
             f.write("%s, %s \n" %(char, (time.time() - C_ST))) #<--- time flag

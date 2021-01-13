@@ -8,6 +8,9 @@ RUN pip3 install --upgrade pip
 RUN pip3 install numpy && pip3 install pandas && pip3 install flask && pip3 install nltk && pip3 install scikit-learn && pip3 install mpld3 && pip3 install joblib && pip3 install gensim && pip3 install keras && pip3 install tensorflow && pip3 install pydot && pip3 install pydotplus
 RUN apt-get install nano
 
+RUN pip3 install requests --user
+
+
 COPY ["app","/home/app/"]
 WORKDIR /home/app/
 

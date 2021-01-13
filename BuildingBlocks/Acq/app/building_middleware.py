@@ -37,7 +37,7 @@ def middleware(data,DAG,workParams):
             C_ST = time.time() #<--- time flag
             LOG.debug(char)
             char = char.upper()
-            DAG = DAG.replace(char,"",1)
+            #DAG = DAG.replace(char,"",1)
 
             #get config for application
             appconfig = dictionary[char]

@@ -8,6 +8,9 @@ RUN apt-get install nano
 RUN apt-get update && apt-get -y install --no-install-recommends build-essential r-base r-cran-randomforest
 RUN Rscript -e "install.packages('sampling')"
 
+RUN pip3 install requests --user
+
+
 COPY ["app","/home/app/"]
 WORKDIR /home/app/
 

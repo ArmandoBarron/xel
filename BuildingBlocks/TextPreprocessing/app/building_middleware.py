@@ -37,7 +37,7 @@ def middleware(data,DAG,workParams):
             C_ST = time.time() #<--- time flag
             LOG.debug(char)
             char = char.upper()
-            DAG = DAG.replace(char,"",1)
+            #DAG = DAG.replace(char,"",1)
 
             #get config for application
             appconfig = dictionary[char]
@@ -73,4 +73,4 @@ def middleware(data,DAG,workParams):
         f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
         f.write("-\n") #<--- time flag
         f.close() 
-        return {'data':'','type':'','status':'ERROR','message':'Unexpected error was capture on BW. '+str(ex)}
+        return {'data':'','type':'','status':'ERROR','message':'Unexpected error. '+str(ex)}
