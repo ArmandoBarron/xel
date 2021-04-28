@@ -14,5 +14,9 @@
     "R":{
         "path":"REPRESENTATION",
         "resultname":"_REPRESENTATION"
+    },
+    "V":{
+        "path":"VALIDATION",
+        "resultname":"_VALIDATION"
     }
 }

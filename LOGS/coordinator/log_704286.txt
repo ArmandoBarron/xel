@@ -1,3 +1,0 @@
-Acquisition, 0.48459625244140625 
-text_preprocessing, 26.573295831680298 
-index_text_preprocessing, 0.9638943672180176 

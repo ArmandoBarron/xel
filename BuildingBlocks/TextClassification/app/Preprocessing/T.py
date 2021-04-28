@@ -27,6 +27,8 @@ from sklearn.naive_bayes import GaussianNB
 import pickle 
 #evaluation
 import sys
+import logging
+LOGER = logging.getLogger()
 
 #plot
 from matplotlib import pyplot as plt
@@ -40,6 +42,7 @@ str_query  = argv[5] # query pandas "null"
 
 
 tweet_df= pd.read_csv(inputfile, engine="python")
+LOGER.error(str_query)
 print(tweet_df[text_column])
 #load stopwords
 STOPWORDS = set(stopwords.words('english'))

@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"STEAMMING",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}client/grobid-client.py --config @{CWD}client/config.json --input @{SOURCE} --output @{SINK} --n @{n} --force --generateIDs @{process}",
+        "CUSTOM_APP":true
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"output.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

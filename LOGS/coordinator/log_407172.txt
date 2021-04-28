@@ -1,4 +1,0 @@
-Acquisition, 0.9430696964263916 
-index_Acquisition, 2.135178565979004 
-text_classification, 22.364360570907593 
-index_text_classification, 0.22775840759277344 

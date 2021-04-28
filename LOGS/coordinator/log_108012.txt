@@ -1,4 +1,0 @@
-Acquisition, 0.5056474208831787 
-index_Acquisition, 1.7750544548034668 
-Acquisition, 0.6506297588348389 
-index_Acquisition, 1.3148858547210693 

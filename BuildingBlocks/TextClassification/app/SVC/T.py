@@ -26,20 +26,23 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from scipy.stats.stats import pearsonr
 from sklearn.metrics import classification_report
-
+import json
 import sys
 
 # PARAMETERS #
 inputpath="./"
 outputpath="./"
+svc_parameters = '{"gamma":"auto"}'
 
 
 #parameters from script
 if len(sys.argv)>1:
     inputpath=sys.argv[1] +"/"
     outputpath=sys.argv[2]
+    svc_parameters = sys.argv[3]
 
-
+print(svc_parameters)
+new_svc_parameters = json.loads(svc_parameters)
 #load preprocessed data
 
 X_train = pickle.load( open(inputpath+"xtrain.pkl", "rb" ) )
@@ -49,7 +52,7 @@ y_test=pickle.load( open(inputpath+ "ytest.pkl", "rb" ) )
 
 
 
-clf = make_pipeline(StandardScaler(), SVC(gamma='auto',verbose=True),verbose=True )
+clf = make_pipeline(StandardScaler(), SVC(**new_svc_parameters),verbose=True )
 
 
 clf.fit(X_train, y_train)

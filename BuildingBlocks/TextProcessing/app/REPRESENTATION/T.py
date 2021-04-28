@@ -57,9 +57,9 @@ But first, I import everything I am going to need up front
 
 import numpy as np
 import pandas as pd
-import nltk
-nltk.download('stopwords')
-nltk.download('punkt')
+#import nltk
+#nltk.download('stopwords')
+#nltk.download('punkt')
 import re
 import os
 import pickle
@@ -108,15 +108,6 @@ pos = mds.fit_transform(dist)  # shape (n_components, n_samples)
 
 xs, ys = pos[:, 0], pos[:, 1]
 
-#strip any proper nouns (NNP) or plural proper nouns (NNPS) from a text
-#from nltk.tag import pos_tag
-
-#text = pickle.load( open( "06-text.pkl", "rb" ) )
-
-#def strip_proppers_POS(text):
-    #tagged = pos_tag(text.split()) #use NLTK's part of speech tagger
-    #non_propernouns = [word for word,pos in tagged if pos != 'NNP' and pos != 'NNPS']
-    #return non_propernouns
 
 """##Visualizing document clusters"""
 
@@ -186,7 +177,7 @@ ax.legend(numpoints=1)  #show legend with only 1 point
 
 #add label in x,y position with the label as the film title
 for i in range(len(df)):
-    ax.text(df.loc[i]['x'], df.loc[i]['y'], df.loc[i]['title'], size=8)  
+    ax.text(df.loc[i]['x'], df.loc[i]['y'], df.loc[i][params['identifier_column']], size=8)  
 
     
     

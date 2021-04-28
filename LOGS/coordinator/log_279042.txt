@@ -1,2 +1,0 @@
-Acquisition, 0.4928150177001953 
-index_Acquisition, 0.841038703918457 

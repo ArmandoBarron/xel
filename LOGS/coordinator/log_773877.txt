@@ -1,8 +1,0 @@
-text_classification, 7.90287184715271 
-index_text_classification, 0.2989835739135742 
-text_classification, 2.470510721206665 
-text_classification, 2.770519495010376 
-index_text_classification, 0.31481266021728516 
-index_text_classification, 0.22876477241516113 
-text_classification, 11.745933055877686 
-index_text_classification, 0.20440149307250977 

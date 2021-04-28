@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y build-essential
 RUN apt-get -y install python3
@@ -7,6 +7,8 @@ RUN pip3 install numpy && pip3 install pandas && pip3 install flask && pip3 inst
 RUN apt-get install nano
 
 RUN pip3 install requests --user
+RUN python3 -m nltk.downloader stopwords
+RUN python3 -m nltk.downloader punkt
 
 COPY ["app","/home/app/"]
 WORKDIR /home/app/

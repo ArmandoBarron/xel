@@ -37,12 +37,10 @@ def middleware(data,DAG,workParams):
             C_ST = time.time() #<--- time flag
             LOG.debug(char)
             char = char.upper()
-            #DAG = DAG.replace(char,"",1)
 
             #get config for application
             appconfig = dictionary[char]
             filepath =appconfig['path'] + '/'
-            #resultname =appconfig['resultname']
 
             #import module
             LOG.info("importing....."+ appconfig['path']+'.blackbox_middleware')
@@ -61,10 +59,9 @@ def middleware(data,DAG,workParams):
             if data['status'] == "ERROR":
                 LOG.error(" ERROR DETECTED ---- STOPING BB")
                 return data
-
             #the same data variable is transformed by all the application
-        
-        LOG.info("STOPING BB")
+
+        LOG.error("STOPING BB")
         f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
         f.write("-\n") #<--- time flag
         f.close() 
@@ -73,4 +70,4 @@ def middleware(data,DAG,workParams):
         f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
         f.write("-\n") #<--- time flag
         f.close() 
-        return {'data':'','type':'','status':'ERROR','message':'Unexpected error. '+str(ex)}
+        return {'data':'','type':'','status':'ERROR','message':'Unexpected error in BB middleware. '+str(ex)}
