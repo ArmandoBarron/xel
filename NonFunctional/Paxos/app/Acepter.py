@@ -4,6 +4,7 @@ from flask import request, url_for
 import json
 import logging
 import sys
+import time
 
 logging.basicConfig()
 LOG = logging.getLogger()
@@ -21,6 +22,7 @@ def save_data(value):
     if params is None: #the first index
         BRANCHES[RN]=dict()
     else:
+        params['timestamp'] = time.time()
         id_service = params['task']
         BRANCHES[RN][id_service]=params
 
@@ -36,6 +38,11 @@ def consult_data(value):
     else: #last update
         task_dict = BRANCHES[RN]
         for key,val in task_dict.items():
+            #LOG.error(">>>>>>>>>>>>>> %s" % json.dumps(val))
+            if val['status']=="RUNNING" and time.time()-val['timestamp'] > 20: #if has passed more than 20 seg of the last health check of one service
+                BRANCHES[RN][key]['status']="ERROR"
+                BRANCHES[RN][key]['message']="Resource %s is not responding. last message: %s." % (val['task'], val['message'])
+                     
             if val['status'] == "OK" or val['status']=="ERROR":
                 st =  val['status']
                 BRANCHES[RN][key]['status']="STANDBY" #status stamdby is for a task which already finished and it has been count
@@ -44,6 +51,7 @@ def consult_data(value):
                 data_type = val['type']
                 idx_opt = val['index']
                 return {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt }
+
         return {'status':"WAITING"}
 
 

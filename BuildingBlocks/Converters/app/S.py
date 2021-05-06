@@ -18,6 +18,8 @@ f_records.close()
 
 
 def ClientProcess(metadata,data_acq_time):
+    AG=postman(GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,API_GATEWAY=API_GATEWAY)
+
     os.chdir(BASE_PATH) #in case of error must be set the base path
     DAG = metadata['DAG'] #dag
     data = metadata['data'] #datos {data,type}
@@ -90,7 +92,7 @@ def ClientProcess(metadata,data_acq_time):
     ########################  save solution's results in diary
     with open(SOLUTIONS_FILE,'a+') as f_records:
         # id_service, control_number,results path, DAG of childrens
-        f_records.write("%s,%s,%s,%s\n" %(id_service,control_number,result['data'],json.dumps(childrens)))
+        f_records.write("%s\t%s\t%s\t%s\n" %(id_service,control_number,result['data'],json.dumps(childrens)))
     ############################
 
     ####### WARN #######
@@ -190,13 +192,15 @@ TPSHOST = os.getenv("TPS_MANAGER")
 
 Tolerant_errors=10 #total of errors that can be tolarated
 
-##### AG communication handler
-AG=postman(None,GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST)
+##### TEMP_AG communication handler
+TEMP_AG=postman(GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST)
 
-if AG.Select_gateway() == 1:
+Gtwy = TEMP_AG.Select_gateway()
+if Gtwy == 1:
     LOGER.error("BAD GATEWAY")
     exit(1)
-
+else:
+    API_GATEWAY=Gtwy
 
 HEADERSIZE = 4096
 port = 80
@@ -210,7 +214,7 @@ host_name = socket.gethostname()
 host_ip = socket.gethostbyname(host_name) 
 LOGER.error("SERVER ON! IP: "+host_ip+" PORT: "+str(port)+"\n\n")
 #   init service  #
-AG.init_service()
+TEMP_AG.init_service()
 serv.listen(Tolerant_errors)
 
 while True:

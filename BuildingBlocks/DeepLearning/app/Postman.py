@@ -7,7 +7,7 @@ from TPS.Builder import Builder #TPS API BUILDER
 
 class postman(Thread):
 
-    def __init__(self,API_GATEWAY,GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST):
+    def __init__(self,GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,API_GATEWAY=None):
         super(postman, self).__init__()
         self.LOGER = logging.getLogger()
         ####
@@ -46,7 +46,7 @@ class postman(Thread):
                 res =api.get(url,headers=headers).json()
                 if res['status']=="OK":
                     self.API_GATEWAY = ag
-                    return 0        
+                    return ag   
             except Exception:
                 pass
         self.API_GATEWAY=None
@@ -98,10 +98,11 @@ class postman(Thread):
     def HealthCheck(self): 
         time_interval= 10
         while self._running:
-            time.sleep(time_interval)
             ToSend = {'status':"RUNNING","message":"Health check","label":'',"id":self.id_service,"type":'', "index":'',"control_number":self.RN}
             self.LOGER.error(ToSend)
             self.WarnGateway(ToSend)
+            time.sleep(time_interval)
+
 
     def run(self):
         self.HealthCheck()
