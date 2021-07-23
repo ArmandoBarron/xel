@@ -103,6 +103,16 @@ class postman(Thread):
             self.WarnGateway(ToSend)
             time.sleep(time_interval)
 
+    def ArchiveData(self,file_pointer,namefile):
+        self.LOGER.error("ENTRO A GUARDAR DATOS")
+        try:
+            url = 'http://%s/ArchiveData/%s/%s' % (self.API_GATEWAY,self.RN,self.id_service)
+            res = api.post(url, files={"file":(namefile,file_pointer)}).json()
+            return res
+        except Exception as ex:
+            self.LOGER.error(ex)
+            return {"status":"ERROR","info":"ERROR"}
+
 
     def run(self):
         self.HealthCheck()

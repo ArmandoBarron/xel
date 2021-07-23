@@ -10,13 +10,13 @@ class Paxos:
         self.N = len(self.acepters)
         self.PV = 0
 
-    def Save(self,control_number):
+    def Save(self,control_number,DAG):
         """
          value = {"control_number":,"params":}
         """
         res= self.Consensus()
         if res['status']=="OK":
-            value = {"control_number":control_number,"params":None}
+            value = {"control_number":control_number,"params":None,'DAG':DAG}
             res= self.accept(value,action="SAVE_SOLUTION")    
         return res
     

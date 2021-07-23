@@ -2,7 +2,7 @@ import sys,os,ast
 import pandas as pd
 from threading import Thread
 from flask import request, url_for
-from flask import Flask, request,jsonify,Response,send_file
+from flask import Flask,jsonify,Response,send_file
 from random import randint
 import json
 from time import sleep
@@ -16,7 +16,15 @@ from TwoChoices import loadbalancer
 from Proposer import Paxos
 import tempfile
 
-########## GLOBAL VARIABLES ###########
+def createFolderIfNotExist(folder_name,wd=""):
+    try:
+        if not os.path.exists(wd+folder_name):
+            os.makedirs(wd+folder_name)
+    except FileExistsError:
+        pass
+    return wd+folder_name
+
+########## GLOBAL VARIABLES ##########
 with open('coordinator_structure.json') as json_file:
     dictionary = json.load(json_file) #read all configurations for services
 
@@ -27,11 +35,10 @@ NETWORK=os.getenv("NETWORK")
 
 #create logs folder
 logs_folder= "./logs/"
-try:
-    if not os.path.exists(logs_folder):
-        os.makedirs(logs_folder)
-except FileExistsError:
-    pass
+createFolderIfNotExist(logs_folder)
+
+BKP_FOLDER= "./BACKUPS/"
+createFolderIfNotExist(BKP_FOLDER)
 
 #fh = logging.FileHandler(logs_folder+'info.log')
 #fh.setLevel(logging.error)
@@ -43,9 +50,7 @@ LOAD_B = loadbalancer(dictionary)
 Tolerant_errors=25 #total of errors that can be tolarated
 ACCEPTORS_LIST= dictionary['paxos']["accepters"]
 PROPOSER = Paxos(ACCEPTORS_LIST)
-
-
-###### END GLOBAL VARIABLES ##########
+########## END GLOBAL VARIABLES ##########
 
 def IndexData(RN,id_service,data):
     #data must be a json (dict)
@@ -73,7 +78,6 @@ def GetIndexedData(label):
 
     data = INDEXER.TPSapi.GetData(label)['DATA']
     #data = INDEXER.TPSapi.TPS(query,"getdata") #this service (getdata) let me send json data and save it into a mongo DB
-    #LOGER.error(data)
     return data
     
 
@@ -100,8 +104,14 @@ def execute_service(service,metadata):
             WARN(params={'status':data['status'],"message":data["message"],"label":"FALSE","task":metadata['DAG']['id_service'],"type":data['type'], "index":False}) #update status
             break
     
-        ip = res['ip']
-        port = res['port']
+        try:
+            ip = res['ip']
+            port = res['port']
+        except KeyError as ke:
+            data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
+            WARN(params={'status':data['status'],"message":data["message"],"label":"FALSE","task":metadata['DAG']['id_service'],"type":data['type'], "index":False}) #update status
+            break
+
 
         #send message to BB
         data = C.RestRequest(ip,port,metadata,data_file=f)
@@ -245,6 +255,9 @@ def WARN(params=None):
 
     ToSend={'status':status,"message":message,"label":label,"task":id_serv,"type":data_type, "index":index_opt} #update status
 
+    if 'parent' in params:
+        ToSend['parent'] = params['parent']
+
     ######## paxos ##########
     paxos_response = PROPOSER.Update_task(control_number,ToSend) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
@@ -290,7 +303,7 @@ def execute_DAG():
     data['data']=input_temp_filename
 
     ######## paxos ##########
-    paxos_response = PROPOSER.Save(RN) # save request in paxos distributed memory
+    paxos_response = PROPOSER.Save(RN,DAG) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
         LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
         return {"status":"ERROR","message":"Mesh is not accepting requests"}
@@ -317,6 +330,25 @@ def monitoring_solution(RN):
     paxos_response = PROPOSER.Consult(RN) # consult request in paxos distributed memory
     #########################
     value = paxos_response['value']
+
+    if 'DAG' in value:
+        #el nodo fallo al estar procesando datos... se van a recuperar
+        params = value['DAG']
+        path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,params['parent'])
+        tmp = os.listdir(path_bk_data)
+        path_bk_data +="/"+tmp[0]
+        #LOGER.error("recuperando datos de %s ..." % path_bk_data)
+
+        params['DAG']['control_number'] = RN
+        data ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
+        metadata = {"data":data,"DAG":params['DAG']}
+        service = params['DAG']['service']
+
+        thread1 = Thread(target = execute_service, args = (service,metadata))
+        thread1.start()
+        return json.dumps({"status":"INFO", "message":"RECOVERING DATA FROM %s" % service})
+
+
     if value is None:
         return json.dumps({"status":"ERROR", "message":"PAXOS ERROR"})
     else:
@@ -335,6 +367,13 @@ def getdataintask(RN,task):
     else:
         label = value['label']
         data = GetIndexedData(label) #get data from label
+        if data['type'] == "csv":
+            newFile = open("tempfile.csv", "wb")
+            newFile.write(b64decode(data['data'].encode()))
+            newFile.close()
+
+        tempdf = pd.read_csv("tempfile.csv")
+        data['data'] = json.loads(tempdf.to_json(orient="records"))
         return json.dumps({'status':"OK","data":data}) #no task found
 
 @app.route('/getfile/<RN>/<task>', methods=['GET'])
@@ -357,6 +396,17 @@ def getfileintask(RN,task):
                     as_attachment=True,
                     attachment_filename=task+'.'+data_ext
             )
+
+
+
+@app.route('/ArchiveData/<RN>/<id_service>', methods = ['POST'])
+def upload_file(RN,id_service):
+    tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
+    path_to_archive= createFolderIfNotExist("%s/" % id_service,wd=tmp_f)
+    f = request.files['file']
+    filename = f.filename
+    f.save(os.path.join(path_to_archive, filename))
+    return json.dumps({"status":"OK", "message":"OK"})
 
 @app.route('/getlog/<RN>', methods=['GET'])
 def getLogFile(RN):

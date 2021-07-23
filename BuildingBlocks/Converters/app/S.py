@@ -100,6 +100,14 @@ def ClientProcess(metadata,data_acq_time):
     ToSend['times']={"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time}
     AG.WarnGateway(ToSend)
     #------------------#
+
+    ##### archive results #####
+    if result['status']=="ERROR":
+        pass
+    else:
+        AG.ArchiveData(open(result['data'],"rb"),result['data'].split("/")[-1]) #open result file to send it to another service
+    #######################
+
     AG.terminate()
     LOGER.error("### INFO: sending to childrens...")
 
@@ -148,6 +156,9 @@ def ClientProcess(metadata,data_acq_time):
                     data = C.RestRequest(ip,port,{'data':result,'DAG':child},data_file=f)
                     if data is not None:
                         LOGER.error(">>>>>>> SENT WITH NO ERRORS")
+                        #warn successful process
+                        warn_success= {'label':'','id':child['id'],'index':'','control_number':control_number,'type':'','status':'INFO','message': child,'parent':id_service}
+                        AG.WarnGateway(warn_success)
                         errors_counter=0
                         break;
                     else:

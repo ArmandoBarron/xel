@@ -19,8 +19,12 @@ def save_data(value):
     global BRANCHES
     RN = str(value['control_number'])
     params = value['params']
+
     if params is None: #the first index
         BRANCHES[RN]=dict()
+        BRANCHES[RN]["DAG"]=dict()
+    elif params['status'] == "INFO":
+        BRANCHES[RN]["DAG"][params['task']]= {'parent':params['parent'],'DAG':params['message']} #save parent of service
     else:
         params['timestamp'] = time.time()
         id_service = params['task']
@@ -38,19 +42,26 @@ def consult_data(value):
     else: #last update
         task_dict = BRANCHES[RN]
         for key,val in task_dict.items():
-            #LOG.error(">>>>>>>>>>>>>> %s" % json.dumps(val))
-            if val['status']=="RUNNING" and time.time()-val['timestamp'] > 20: #if has passed more than 20 seg of the last health check of one service
-                BRANCHES[RN][key]['status']="ERROR"
-                BRANCHES[RN][key]['message']="Resource %s is not responding. last message: %s." % (val['task'], val['message'])
-                     
-            if val['status'] == "OK" or val['status']=="ERROR":
-                st =  val['status']
-                BRANCHES[RN][key]['status']="STANDBY" #status stamdby is for a task which already finished and it has been count
-                label = val['label']
-                task = val['task']
-                data_type = val['type']
-                idx_opt = val['index']
-                return {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt }
+            if key=="DAG": #se ignora DAG
+                pass
+            else:
+                #LOG.error(">>>>>>>>>>>>>> %s" % json.dumps(val))
+                if val['status']=="RUNNING" and time.time()-val['timestamp'] > 20: #if has passed more than 20 seg of the last health check of one service
+                    BRANCHES[RN][key]['status']="ERROR"
+                    BRANCHES[RN][key]['message']="Resource %s is not responding. last message: %s." % (val['task'], val['message'])
+                    BRANCHES[RN][key]['details']="RESOURCE DOWN"
+
+                if val['status'] == "OK" or val['status']=="ERROR":
+                    st =  val['status']
+                    BRANCHES[RN][key]['status']="STANDBY" #status stamdby is for a task which already finished and it has been count
+                    label = val['label']
+                    task = val['task']
+                    data_type = val['type']
+                    idx_opt = val['index']
+                    ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt }
+                    if 'details' in val:
+                        ToSend['DAG'] =  BRANCHES[RN]["DAG"][key] #{'parent':params['parent'],'DAG':params['message']}
+                    return ToSend
 
         return {'status':"WAITING"}
 
