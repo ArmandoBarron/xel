@@ -59,7 +59,12 @@ def execute(params,AppConfig):
             try:
                 CustomScript.custom_app(params,RESERVED_PARAMS)
                 execution_status=0
-            except Exception:
+            except Exception as e:
+                exception_type, exception_object, exception_traceback = sys.exc_info()
+                filename_error = exception_traceback.tb_frame.f_code.co_filename
+                line_number = exception_traceback.tb_lineno
+                LOGER.error("CUSTOMAPP ERROR: "+str(e)+", line: "+str(line_number)+ " in "+filename_error)
+
                 execution_status=1
         else:
             command = Transform_config['COMMAND']

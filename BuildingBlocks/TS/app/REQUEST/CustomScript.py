@@ -13,18 +13,19 @@ def config_env():
 def custom_app(app_params,reserved_params):
     mod = importlib.import_module('REQUEST.tps_request')
     #transform to json
-    data = json.load(reserved_params['SOURCE'])
-    LOGER.error(params)
+    LOGER.error(reserved_params['SOURCE'])
+    df = pd.read_csv(reserved_params['SOURCE'])
+    data = json.loads(df.to_json(orient="records"))
 
-    try:
-        data= mod.call_tps(data,app_params) #tps result
-        if app_params['service']=="ANOVA" or app_params['service']=="describe":
-            with open(reserved_params['SINK']+'output.json', 'w') as f:
-                json.dump(data, f)
+    data= mod.call_tps(data,app_params) #tps result
+    if app_params['service']=="ANOVA" or app_params['service']=="describe":
+        with open(reserved_params['SINK']+'output.json', 'w') as f:
+            json.dump(data, f)
 
-        elif app_params['service']=="graphics":
-            with open(reserved_params['SINK']+'output.png', 'wb') as f:
-                json.dump(data, f)
-        else:
-            df = pd.Dataframe.from_records(data)
-            df.to_csv(reserved_params['SINK']+'output.csv')
+    elif app_params['service']=="graphics":
+        with open(reserved_params['SINK']+'output.png', 'wb') as f:
+            json.dump(data, f)
+    else:
+        df = pd.DataFrame.from_records(data)
+        LOGER.error(df)
+        df.to_csv(reserved_params['SINK']+'output.csv',index=False)
