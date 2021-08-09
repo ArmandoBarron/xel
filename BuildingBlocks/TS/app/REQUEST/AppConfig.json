@@ -9,7 +9,7 @@
         "CUSTOM_APP":true
     },
     "LOAD":{
-            "OUTPUT_NAMEFILE":"output.csv",
+            "OUTPUT_NAMEFILE":"output.csv,output.png,output.json",
             "COMPRESS":false,
             "ignore_list":[]
         }

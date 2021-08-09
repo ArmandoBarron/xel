@@ -408,6 +408,37 @@ def upload_file(RN,id_service):
     f.save(os.path.join(path_to_archive, filename))
     return json.dumps({"status":"OK", "message":"OK"})
 
+
+@app.route('/DescribeDataset', methods=['POST'])
+def describeDataset():
+    data = request.get_json()
+    datos= data['data']
+    datos = pd.DataFrame.from_records(datos)
+    columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
+
+    datos = datos.apply(pd.to_numeric, errors='ignore')
+    
+    response = dict()
+    response['info']=dict()
+    response['columns'] = list(datos.columns.values)
+    des = datos.describe(include='all')
+    for col in response['columns']:
+        des_col = des[col]
+        column_description = dict()
+        for c in range(0,len(columns)):
+            try:
+                value = des_col[c]
+            except Exception:
+                break
+            if pd.isnull(value) or pd.isna(value):
+                value = ""
+            column_description[columns[c]] = str(value)
+        column_description['type'] = datos[col].dtype.name
+        response['info'][col] = column_description
+        LOGER.error(column_description)
+    return json.dumps(response)
+
+
 @app.route('/getlog/<RN>', methods=['GET'])
 def getLogFile(RN):
     return send_file(logs_folder+'log_'+RN+'.txt',as_attachment=True)

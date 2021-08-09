@@ -129,27 +129,6 @@ services:
       SERVICE_PORT: 80
 
 
-  text_processing_3: 
-    image: sm_bb_text_processing
-    build:
-      context: ./BuildingBlocks/TextProcessing
-      dockerfile: ./Dockerfile
-    restart: always
-    volumes:
-      - ./LOGS/text_processing/:/home/app/logs #for debugging
-    networks:
-      - service_mersh
-    depends_on:
-      - coordinator
-    environment:      
-      TPS_MANAGER: http://tps_manager:5000 #TPS URL
-      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
-      NETWORK: LocalCluster
-      SERVICE: text_processing
-      SERVICE_IP: text_processing_3
-      SERVICE_PORT: 80
-
-
   text_classification_1:
     image: sm_bb_calsification
     build:
@@ -401,6 +380,26 @@ services:
       - 11001:80
     restart: always
   
+  graphics: # service to graphic data
+    container_name: TPS_graphics
+    #image: 127.0.0.1:5000/TPS_cleaning_tools
+    build:
+      context: ./TPS/Services/Graficas
+      dockerfile: ./Dockerfile
+    networks:
+      - TPS_net
+    restart: always
+
+  summary: # summary
+    container_name: TPS_summary
+    build:
+      context: ./TPS/Services/Summary/
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - TPS_net
+    depends_on:
+      - tps_manager
   
 ###########################################
 ############## PAXOS NETWORK ###############
