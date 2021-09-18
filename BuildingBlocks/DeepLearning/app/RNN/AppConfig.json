@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"RNN",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "Rscript @{CWD}T.r \"@{SOURCE_PATH}\" \"@{SOURCE_FILENAME}\" \"@{SINK}output.csv\" \"@{columns}\" \"@{trainSize}\" \"@{classColumn}\" \"@{epoch}\" \"@{lossFunction}\" \"@{metric}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"output.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

@@ -24,7 +24,7 @@ def custom_app(app_params,reserved_params):
 
     elif app_params['service']=="graphics":
         with open(reserved_params['SINK']+'output.png', 'wb') as f:
-            json.dump(data, f)
+            f.write(data)
     else:
         df = pd.DataFrame.from_records(data)
         LOGER.error(df)

@@ -64,7 +64,6 @@ def execute(params,AppConfig):
                 filename_error = exception_traceback.tb_frame.f_code.co_filename
                 line_number = exception_traceback.tb_lineno
                 LOGER.error("CUSTOMAPP ERROR: "+str(e)+", line: "+str(line_number)+ " in "+filename_error)
-
                 execution_status=1
         else:
             command = Transform_config['COMMAND']
@@ -77,12 +76,23 @@ def execute(params,AppConfig):
         ### must especify compress option or output_namefile option... in other case a error will rise.
 
         if Load_config['OUTPUT_NAMEFILE'] !="":
-            namefile = utils.FormatCommand(Load_config['OUTPUT_NAMEFILE'],params,reserved_params=RESERVED_PARAMS) #format namefile 
-            if len(namefile.split("/"))>=2: #its a path
-                result = namefile
-            else:
-                result=RESERVED_PARAMS['SINK']+namefile #its just a file name and we add a default path
-            result = shutil.copy(result,params['BBOX_ROLLBACK_PATH']) #copy file generated to rollback folder
+            list_namefiles =  Load_config['OUTPUT_NAMEFILE'].split(",")
+            if type(list_namefiles) is not list:
+                list_namefiles = [Load_config['OUTPUT_NAMEFILE']]
+
+            for tmp_name in list_namefiles: #check all posible outputs
+                try:
+                    namefile = utils.FormatCommand(tmp_name,params,reserved_params=RESERVED_PARAMS) #format namefile 
+                    if len(namefile.split("/"))>=2: #its a path
+                        result = namefile
+                    else:
+                        result=RESERVED_PARAMS['SINK']+namefile #its just a file name and we add a default path
+                    result = shutil.copy(result,params['BBOX_ROLLBACK_PATH']) #copy file generated to rollback folder
+                    break
+                except Exception as e:
+                    LOGER.error("-- NOT THIS ONE:%s" % tmp_name)
+                    pass
+
 
         if Load_config['COMPRESS']:
             result = utils.CompressFile(params['BBOX_ROLLBACK_PATH'],RESERVED_PARAMS['SINK'],ignore_list=Load_config['ignore_list'])

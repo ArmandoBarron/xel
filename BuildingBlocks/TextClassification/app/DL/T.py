@@ -22,7 +22,7 @@ from scipy.stats.stats import pearsonr
 
 #plot
 from matplotlib import pyplot as plt
-from keras.optimizers import SGD
+from tensorflow.keras.optimizers import SGD
 
 import sys
 

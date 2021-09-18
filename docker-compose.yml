@@ -12,7 +12,7 @@ services:
       - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
     restart: always
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - tps_manager
     environment:      
@@ -32,7 +32,7 @@ services:
       - "25001:80"
     restart: always
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - coordinator
     environment:      
@@ -47,25 +47,65 @@ services:
   
 ########### BB services ############################
 
-#  deep_learning:
-#    image: sm_bb_deeplearning
-#    build:
-#      context: ./BuildingBlocks/DeepLearning
-#      dockerfile: ./Dockerfile
-#    restart: always
-#    volumes:
-#      - ./LOGS/deep_learning/:/home/app/logs #for debugging
-#    networks:
-#      - service_mersh
-#    depends_on:
-#      - coordinator
-#    environment:      
-#      TPS_MANAGER: http://tps_manager:5000 #TPS URL
-#      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
-#      NETWORK: LocalCluster
-#      SERVICE: deeplearning
-#      SERVICE_IP: deep_learning
-#      SERVICE_PORT: 80
+  bb_transform:
+    image: sm_bb_transform
+    build:
+      context: ./BuildingBlocks/TransformStrData
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/TransformStrData/:/home/app/logs #for debugging
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: transform_ds
+      SERVICE_IP: bb_transform
+      SERVICE_PORT: 80
+
+  bb_clustering:
+    image: sm_bb_clustering
+    build:
+      context: ./BuildingBlocks/ClusteringAlgh
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/ClusteringAlgh/:/home/app/logs #for debugging
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: clustering_service
+      SERVICE_IP: bb_clustering
+      SERVICE_PORT: 80
+
+  deep_learning:
+    image: sm_bb_deeplearning
+    build:
+      context: ./BuildingBlocks/DeepLearning
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/deep_learning/:/home/app/logs #for debugging
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: deeplearning
+      SERVICE_IP: deep_learning
+      SERVICE_PORT: 80
 
   text_preprocessing_1:
     image: sm_bb_text_preprocessing
@@ -76,7 +116,7 @@ services:
     volumes:
       - ./LOGS/text_preprocessing/:/home/app/logs #for debugging
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - coordinator
     environment:      
@@ -97,7 +137,7 @@ services:
     volumes:
       - ./LOGS/text_processing/:/home/app/logs #for debugging
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - coordinator
     environment:      
@@ -117,7 +157,7 @@ services:
     volumes:
       - ./LOGS/text_processing/:/home/app/logs #for debugging
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - coordinator
     environment:      
@@ -126,27 +166,6 @@ services:
       NETWORK: LocalCluster
       SERVICE: text_processing
       SERVICE_IP: text_processing_2
-      SERVICE_PORT: 80
-
-
-  text_processing_3: 
-    image: sm_bb_text_processing
-    build:
-      context: ./BuildingBlocks/TextProcessing
-      dockerfile: ./Dockerfile
-    restart: always
-    volumes:
-      - ./LOGS/text_processing/:/home/app/logs #for debugging
-    networks:
-      - service_mersh
-    depends_on:
-      - coordinator
-    environment:      
-      TPS_MANAGER: http://tps_manager:5000 #TPS URL
-      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
-      NETWORK: LocalCluster
-      SERVICE: text_processing
-      SERVICE_IP: text_processing_3
       SERVICE_PORT: 80
 
 
@@ -159,7 +178,7 @@ services:
     volumes:
       - ./LOGS/text_classification/:/home/app/logs #for debugging
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - coordinator
     environment:      
@@ -170,26 +189,26 @@ services:
       SERVICE_IP: text_classification_1
       SERVICE_PORT: 80
 
-#  preprocessing:
-#    image: sm_bb_preprocessing
-#    build:
-#      context: ./BuildingBlocks/Preprocessing
-#      dockerfile: ./Dockerfile
-#    restart: always
-#    volumes:
-#      - ./LOGS/preprocessing/:/home/app/logs #for debugging
-#    networks:
-#      - service_mersh
-#    depends_on:
-#      - coordinator
-#    environment:      
-#      TPS_MANAGER: http://tps_manager:5000 #TPS URL
-#      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
-#      NETWORK: LocalCluster
-#      SERVICE: preprocessing
-#      SERVICE_IP: preprocessing
-#      SERVICE_PORT: 80
-#
+  preprocessing:
+    image: sm_bb_preprocessing
+    build:
+      context: ./BuildingBlocks/Preprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/preprocessing/:/home/app/logs #for debugging
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: preprocessing
+      SERVICE_IP: preprocessing
+      SERVICE_PORT: 80
+
   bb_tps: # tools to clean data
     image: sm_bb_tps
     build:
@@ -198,7 +217,7 @@ services:
     volumes:
       - ./LOGS/tps/:/home/app/logs #for debugging
     networks:
-      - service_mersh
+      - service_mesh
     restart: always
     depends_on:
       - coordinator
@@ -218,7 +237,7 @@ services:
 #    volumes:
 #      - ./LOGS/converters/:/home/app/logs #for debugging
 #    networks:
-#      - service_mersh
+#      - service_mesh
 #    restart: always
 #    depends_on:
 #      - coordinator
@@ -239,7 +258,7 @@ services:
       - ./LOGS/acquisition/:/home/app/logs #for debugging
       - ./localdata/:/home/app/REQUEST/input_data
     networks:
-      - service_mersh
+      - service_mesh
     restart: always
     depends_on:
       - coordinator
@@ -264,7 +283,7 @@ services:
       - ./LOGS/acquisition/:/home/app/logs #for debugging
       - ./localdata/:/home/app/REQUEST/input_data
     networks:
-      - service_mersh
+      - service_mesh
     restart: always
     depends_on:
       - coordinator
@@ -288,7 +307,7 @@ services:
     volumes:
       - ./LOGS/grobid/:/home/app/logs #for debugging
     networks:
-      - service_mersh
+      - service_mesh
     restart: always
     depends_on:
       - coordinator
@@ -309,7 +328,7 @@ services:
     volumes:
       - ./LOGS/glove/:/home/app/logs #for debugging
     networks:
-      - service_mersh
+      - service_mesh
     restart: always
     depends_on:
       - coordinator
@@ -346,12 +365,11 @@ services:
       - "5000"
     restart: always
     networks:
-      - TPS_net
-      - service_mersh
+      - service_mesh
 
   mongodb: # tps manager mongoDB
     container_name: DB_TPS_data
-    image: mongo:latest
+    image: mongo:4.4
     restart: always
     environment:
       data-volume: /data/db
@@ -362,7 +380,7 @@ services:
     ports:
       - 27018:27017
     networks:
-      - TPS_net
+      - service_mesh
 
 ###########################################
 ############## external services ###############
@@ -374,7 +392,7 @@ services:
     environment:      
       GROBID__NB_THREADS: 4 #configuration location
     networks:
-      - service_mersh
+      - service_mesh
     restart: always
 
   cleaningtools: # tools to clean data
@@ -384,9 +402,9 @@ services:
       context: ./TPS/Services/CleaningTools
       dockerfile: ./Dockerfile
     networks:
-      - TPS_net
-    ports:
-      - 11003:80
+      - service_mesh
+    #ports:
+    #  - 11003:80
     restart: always
 
   clustering: # API Gateway container
@@ -396,14 +414,34 @@ services:
       context: ./TPS/Services/Clustering
       dockerfile: ./Dockerfile
     networks:
-      - TPS_net
-    ports:
-      - 11001:80
+      - service_mesh
+    #ports:
+    #  - 11001:80
     restart: always
   
+  graphics: # service to graphic data
+    container_name: TPS_graphics
+    #image: 127.0.0.1:5000/TPS_cleaning_tools
+    build:
+      context: ./TPS/Services/Graficas
+      dockerfile: ./Dockerfile
+    networks:
+      - service_mesh
+    restart: always
+
+  summary: # summary
+    container_name: TPS_summary
+    build:
+      context: ./TPS/Services/Summary/
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - tps_manager
   
 ###########################################
-############## PAXOS NETWORK ###############
+############## PAXOS NETWORK ##############
 ###########################################
 
   accepter_1: # accepter
@@ -414,7 +452,7 @@ services:
       dockerfile: ./Dockerfile
     restart: always
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - coordinator
 
@@ -426,7 +464,7 @@ services:
       dockerfile: ./Dockerfile
     restart: always
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - coordinator
       
@@ -438,13 +476,16 @@ services:
       dockerfile: ./Dockerfile
     restart: always
     networks:
-      - service_mersh
+      - service_mesh
     depends_on:
       - coordinator
+###########################################
+###########################################
+###########################################
 
 networks: 
-  service_mersh:
-  TPS_net:
+  service_mesh:
+  #TPS_net:
 
 volumes:
   data-volume:

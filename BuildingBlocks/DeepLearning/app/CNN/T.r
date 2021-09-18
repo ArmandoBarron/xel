@@ -56,7 +56,7 @@ y_test = to_categorical(Y[(b+1):N_FILES], classNumber)
 
 model <- keras_model_sequential() 
 model %>% 
-  layer_conv_1d(filters=64, kernel_size=3,  activation = 'relu',  input_shape=c(featuresNumber, 1)) %>%
+  layer_conv_1d(filters=64, kernel_size=2, input_shape=c(featuresNumber, 1),activation = 'relu') %>%
   #layer_global_max_pooling_1d() %>%
   layer_max_pooling_1d(pool_size = 2) %>%
   layer_flatten() %>% 

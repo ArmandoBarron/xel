@@ -4,102 +4,78 @@ import os
 from random import randint
 import logging #logger
 from base64 import b64encode,b64decode
+import importlib
+from . import Trigger
+import tempfile
 
-NAME_APPLICATION = "Normalization"
-INPUT_DATA_FORMAT = ["csv"]
-OUTPUT_DATA_FORMAT = "csv"
 
-LOGER = logging.getLogger()
+########## GLOBAL VARIABLES ###########
 ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
+with open(ACTUAL_PATH+'AppConfig.json') as json_file:
+    App_configurations = json.load(json_file) #read all configurations for services
 
-def execute(params):
-    LOGER.error(params)
-    """
-    params:: type(dict)
-
-    here is the only part must be modified
-    in this file we asume that the application produce a single file
-    use this space to return a pandas dataframe with the results
-    """ 
-    filepath = params['inputpath']
-    filename = params['inputfile']+".csv"
-    destination =  params['inputpath']+params['outputfile']+".csv"
-    columns = params['columns']
-    execution_status = os.system('Rscript '+ACTUAL_PATH+'T.r "'+filepath+'" "'+filename+'" "'+destination+'" "'+columns+'"')
-    LOGER.error(">>>>>>>>>>>>>>>>>" + str(execution_status))
-    #execution_status = 0
-    return {'status':execution_status,'data':''} # status 0 is ok
-
+NAME_APPLICATION = App_configurations["NAME_APPLICATION"]
+INPUT_DATA_FORMAT = App_configurations['INPUT_DATA_FORMAT']
+LOGER = logging.getLogger()
 
 
 def blackbox(data,params):
 
-    #its always an ETL. we dont need a dag
-    #since the data its in variable data we need to write a file so T application can read it
-    #the file is created with a random name to avoid confilc on parallel request.
-    
     ###########################################################################
     ################################# EXTRACT #################################
     ###########################################################################
-    data_type = data['type']
+    
+    # add reserverd params for the blackbox
+    head, tail = os.path.split(data['data'])
+    params['BBOX_INPUT_PATH']=head+"/" #input file created in S
+    params['BBOX_INPUT_NAMEFILE']=tail  #input file created in S
 
-    input_folder= ACTUAL_PATH+"input_data/"
-    try:
-        if not os.path.exists(input_folder):
-            os.makedirs(input_folder)
-    except FileExistsError:
-        pass
+    # intermediate PATH
+    params['BBOX_TEMP_PATH']= tempfile.mkdtemp() +"/"
+    # output path
+    params['BBOX_OUTPUT_PATH']=tempfile.mkdtemp() +"/"
+    # rollback path
+    if not os.path.exists(ACTUAL_PATH+"rollback/"):
+        os.makedirs(ACTUAL_PATH+"rollback/")
+    params['BBOX_ROLLBACK_PATH']=tempfile.mkdtemp(dir=ACTUAL_PATH+"rollback/") +"/"
 
-
-    inputfile_name = "input_%s" % randint(1,1000)
-    outputfile_name = "output_%s" % randint(1,1000)
-
-
-    source = input_folder + inputfile_name+"."+data_type
-    destination = input_folder + outputfile_name+"."+OUTPUT_DATA_FORMAT
-
-    ########### write data on disk and keep it on memory ########### 
+    
     #### if type is csv, the inputdata is in memory in the variable INPUT_DATA
-    if data_type in INPUT_DATA_FORMAT: #if the app can manage the input
-        LOGER.error("correct input format")
+    data_type= data['type']
+    if data_type == "error":
+        return {'data':'','type':'','status':'ERROR','message':"bad input. %s not supported by %s" % (data_type,NAME_APPLICATION)}
+    if data_type in INPUT_DATA_FORMAT or "any" in INPUT_DATA_FORMAT: #if the app can manage the input
+        LOGER.error("Input format is supported")
     else:
         return {'data':'','type':'','status':'ERROR','message':"bad input. %s not supported by %s" % (data_type,NAME_APPLICATION)}
-
-    if data_type=="csv":
-        input_data = pd.DataFrame.from_records(data['data']) #data is now a dataframe
-        input_data.to_csv(source, index = False, header=True) #write DF to disk
-    else:
-        with open(source,"wb") as file:
-            file.write(b64decode(data['data'].encode()))
-
     ######################################################################
-    ######################## SPACE FOR DEVELOPERS ########################
+    ############################## TRANSFORM #############################
     ######################################################################
 
-    params['inputpath'] = input_folder #where the input data is
-    params['inputfile'] = inputfile_name #name of the input data
-    params['outputfile'] = outputfile_name #name of the input data
+    ####################### execute the application ######################
+    response = Trigger.execute(params,App_configurations)
+    LOGER.error("RESPONSE GET : %s" % response['status'])
 
-                ################## TRANSFORM ####################
-                            #execute the application
-    output_status = execute(params)
-    if output_status['status'] != 0:
-        return {'data':'','type':'','status':'ERROR','message':"Bad execution in %s. Check the parameters and input data. Hint: Maybe the \
-            input data is dirty (e.g Strings in numerical columns, Null values, etc.)" % NAME_APPLICATION}
-
+    if response['status'] != 0:
+        return {'data':'','type':'','status':'ERROR','message':"Bad execution in %s blackbox: %s" % (NAME_APPLICATION,response['data']['message'])}
+    response = response['data']
 
     ######################################################################
     ################################ LOAD ################################
     ######################################################################
-    try:
-        if OUTPUT_DATA_FORMAT=="csv":
-            df_table = pd.read_csv(destination)
-            output_data = {'data':json.loads(df_table.to_json(orient='records')),'type':OUTPUT_DATA_FORMAT,'status':"OK","message":"OK"}
-        else:
-            with open(destination,"rb") as file:
-                    output_data = {'data':b64encode(file.read()).decode(),'type':OUTPUT_DATA_FORMAT,'status':"OK","message":"OK"}
-    except FileNotFoundError:
-        LOGER.error("OUTPUT FILE NOT FOUND IN %s " % NAME_APPLICATION )
-        output_data = {'data':'','type':OUTPUT_DATA_FORMAT,'status':"ERROR","message":"OUTPUT FILE NOT FOUND IN %s " % NAME_APPLICATION }
+    
+    #### verify if file not exist
+    if os.path.isfile(response['data']):
+        LOGER.error("FILE EXIST")
+    else:
+        LOGER.error("### INFO: RESULTS NOT FOUND")
+        response = {'data':'','type':'','status':"ERROR","message":"OUTPUT FILE NOT FOUND IN %s " % NAME_APPLICATION }
+        return response
 
-    return output_data    #data is a json
+    ### verify if is empty
+    if os.stat(response['data']).st_size == 0:
+        LOGER.error("### INFO: RESULTS WERE NOT GENERATED")
+        response = {'data':'','type':'','status':"ERROR","message":"OUTPUT FILE IS EMPTY %s " % NAME_APPLICATION }
+
+    return response    #data is a json
+
