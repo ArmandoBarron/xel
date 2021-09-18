@@ -37,8 +37,14 @@ NETWORK=os.getenv("NETWORK")
 logs_folder= "./logs/"
 createFolderIfNotExist(logs_folder)
 
+#Backups folder
 BKP_FOLDER= "./BACKUPS/"
 createFolderIfNotExist(BKP_FOLDER)
+
+#supplies folder
+SPL_FOLDER= "./SUPPLIES/"
+createFolderIfNotExist(SPL_FOLDER)
+
 
 #fh = logging.FileHandler(logs_folder+'info.log')
 #fh.setLevel(logging.error)
@@ -51,6 +57,34 @@ Tolerant_errors=25 #total of errors that can be tolarated
 ACCEPTORS_LIST= dictionary['paxos']["accepters"]
 PROPOSER = Paxos(ACCEPTORS_LIST)
 ########## END GLOBAL VARIABLES ##########
+
+def GetWorkspacePath(workspace,tokenuser):
+    createFolderIfNotExist("%s%s" %(SPL_FOLDER,tokenuser))
+    createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
+    return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
+
+def DatasetDescription(path_dataset):
+    datos = pd.read_csv(path_dataset)
+    columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
+    datos = datos.apply(pd.to_numeric, errors='ignore')
+    response = dict()
+    response['info']=dict()
+    response['columns'] = list(datos.columns.values)
+    des = datos.describe(include='all')
+    for col in response['columns']:
+        des_col = des[col]
+        column_description = dict()
+        for c in range(0,len(columns)):
+            try:
+                value = des_col[c]
+            except Exception:
+                break
+            if pd.isnull(value) or pd.isna(value):
+                value = ""
+            column_description[columns[c]] = str(value)
+        column_description['type'] = datos[col].dtype.name
+        response['info'][col] = column_description
+    return response
 
 def IndexData(RN,id_service,data):
     #data must be a json (dict)
@@ -278,29 +312,44 @@ def WARN(params=None):
 def execute_DAG():
 
     params = request.get_json(force=True)
+    envirioment_params = json.loads(params['auth']) #params wich define the enviroment  {user:,workspace:}
     data = json.loads(params['data']) #data to be transform {data:,type:}
-
     DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
     #A resquest random number for monitoring is created. 
     RN = str(randint(100000,900000)) #random number with 6 digits
 
-    INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+data['type']) #create temporary file
-    input_temp_filename = INPUT_TEMPFILE.name
-    INPUT_TEMPFILE.close()
+    #INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+data['type']) #create temporary file
+    #input_temp_filename = INPUT_TEMPFILE.name
+    #INPUT_TEMPFILE.close()
 
-    if data['data']=="": #if nothing was sent
-        data['data']="WAKE ME UP INSIDE.."
+    if data['data']=="": #if nothing was sent (BUT MUST HAVE THE FILENAME)
+        text_for_test="HELLO WORLD. WAKE ME UP, BEFORE YOU GO GO.."
+        INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+data['type']) #create temporary file
+        data['data'] = INPUT_TEMPFILE.name
         data['type']="txt"
-
-    if data["type"]=="csv": # to parse json to csv
-        input_data = pd.DataFrame.from_records(data['data']) #data is now a dataframe
-        input_data.to_csv(input_temp_filename, index = False, header=True) #write DF to disk
-    else:
-        f = open(input_temp_filename,"wb")
-        f.write(data['data'].encode())
+        INPUT_TEMPFILE.close()
+        f = open(data['data'],"wb")
+        f.write(text_for_test.encode())
         f.close()
+    else:
+        if 'user' in envirioment_params and 'workspace' in envirioment_params:
+            data['data'] = GetWorkspacePath(envirioment_params['workspace'],envirioment_params['user']) + data['data']
 
-    data['data']=input_temp_filename
+        if (os.path.exists(data['data'])):
+            pass
+        else:
+            return {"status":"ERROR","message":"404: Input data not found in server"}
+
+
+
+    #if data["type"]=="csv": # to parse json to csv
+    #    input_data = pd.DataFrame.from_records(data['data']) #data is now a dataframe
+    #    input_data.to_csv(input_temp_filename, index = False, header=True) #write DF to disk
+    #else:
+    #    f = open(input_temp_filename,"wb")
+    #    f.write(data['data'].encode())
+    #    f.close()
+    #data['data']=input_temp_filename
 
     ######## paxos ##########
     paxos_response = PROPOSER.Save(RN,DAG) # save request in paxos distributed memory
@@ -409,35 +458,58 @@ def upload_file(RN,id_service):
     return json.dumps({"status":"OK", "message":"OK"})
 
 
-@app.route('/DescribeDataset', methods=['POST'])
-def describeDataset():
-    data = request.get_json()
-    datos= data['data']
-    datos = pd.DataFrame.from_records(datos)
-    columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
+@app.route('/DescribeDataset/v2', methods=['POST'])
+def describeDatasetv2():
+    f = request.files['file']
+    filename = f.filename
+    filetype = filename.split(".")[-1]
+    LOGER.error(filetype)
 
-    datos = datos.apply(pd.to_numeric, errors='ignore')
-    
-    response = dict()
-    response['info']=dict()
-    response['columns'] = list(datos.columns.values)
-    des = datos.describe(include='all')
-    for col in response['columns']:
-        des_col = des[col]
-        column_description = dict()
-        for c in range(0,len(columns)):
-            try:
-                value = des_col[c]
-            except Exception:
-                break
-            if pd.isnull(value) or pd.isna(value):
-                value = ""
-            column_description[columns[c]] = str(value)
-        column_description['type'] = datos[col].dtype.name
-        response['info'][col] = column_description
-        LOGER.error(column_description)
+    workspace = request.form['workspace']
+    user = request.form['user']
+
+    # get worspace path
+    workspace_path= GetWorkspacePath(workspace,user)
+    f.save(os.path.join(workspace_path, filename))
+    LOGER.error("data saved in %s" % workspace_path+filename)
+
+    #descrive csv
+    if filetype=="csv":
+        response = DatasetDescription(workspace_path+filename)
+    else:
+        response={}
     return json.dumps(response)
 
+
+#@app.route('/DescribeDataset', methods=['POST'])
+#def describeDataset():
+#    data = request.get_json()
+#    datos= data['data']
+#    datos = pd.DataFrame.from_records(datos)
+#    columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
+#
+#    datos = datos.apply(pd.to_numeric, errors='ignore')
+#    
+#    response = dict()
+#    response['info']=dict()
+#    response['columns'] = list(datos.columns.values)
+#    des = datos.describe(include='all')
+#    for col in response['columns']:
+#        des_col = des[col]
+#        column_description = dict()
+#        for c in range(0,len(columns)):
+#            try:
+#                value = des_col[c]
+#            except Exception:
+#                break
+#            if pd.isnull(value) or pd.isna(value):
+#                value = ""
+#            column_description[columns[c]] = str(value)
+#        column_description['type'] = datos[col].dtype.name
+#        response['info'][col] = column_description
+#        LOGER.error(column_description)
+#    return json.dumps(response)
+#
 
 @app.route('/getlog/<RN>', methods=['GET'])
 def getLogFile(RN):

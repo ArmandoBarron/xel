@@ -1,22 +1,14 @@
-FROM ubuntu:16.04
+FROM python:3.8.6-slim-buster
 
-#install requeriments
-RUN apt-get update --fix-missing
-RUN apt install -y software-properties-common
-RUN apt-get update --fix-missing
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository -y ppa:deadsnakes/ppa
-RUN apt-get update
-RUN apt-get install -y python3.6
-RUN apt-get install -y python3-pip
+WORKDIR home
+#requierments for the app:
 
-RUN pip3 install --upgrade pip
+COPY ./app/requirements.txt  requirements.txt
+RUN pip install -r requirements.txt --user 
 
-ADD ./app /app
-WORKDIR /app
+COPY ./app app
+WORKDIR /home/app
 
-RUN pip3 install -r requirements.txt
+#EXPOSE 7070
 
-EXPOSE 7070
-
-ENTRYPOINT [ "python3", "/app/app.py" ]
+ENTRYPOINT [ "python3", "app.py" ]

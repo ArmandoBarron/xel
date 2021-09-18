@@ -18,6 +18,14 @@
   },
   "internal_gateways": [],
   "services": {
+    "transform_ds": {
+      "output_file": "content.csv",
+      "resources": []
+    },
+    "clustering_service": {
+      "output_file": "content.csv",
+      "resources": []
+    },
     "deeplearning": {
       "output_file": "content.csv",
       "resources": []

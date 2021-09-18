@@ -153,7 +153,7 @@ def get_scatter():
     plt.savefig(fileDir)
     return json.dumps({"status":"ok","file":graphic_name})
 
-@app.route('/line', methods=['POST'])
+@app.route('/line', methods=['GET', 'POST'])
 def get_line():
     from matplotlib import pyplot as plt
     """

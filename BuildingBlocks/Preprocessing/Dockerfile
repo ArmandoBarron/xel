@@ -10,6 +10,9 @@ RUN Rscript -e "install.packages('sampling')"
 
 RUN pip3 install requests --user
 
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt --user 
+
 
 COPY ["app","/home/app/"]
 WORKDIR /home/app/

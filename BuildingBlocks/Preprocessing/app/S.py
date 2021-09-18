@@ -51,9 +51,13 @@ def ClientProcess(metadata,data_acq_time):
             else:
                 index_opt = False
 
-    if 'actions' in DAG: 
-        actions=[DAG['actions']] 
-        service_name=service_name+"_"+str(DAG['actions'][0])
+    if 'actions' in DAG:
+        #check if is list
+        if type(DAG['actions']) is list:
+            actions = DAG['actions']
+        else:
+            actions=[DAG['actions']] 
+            service_name=service_name+"_"+str(DAG['actions'][0])
     else:
         actions = ['A'] #default exec the first service called A
         params = {'A':params}
