@@ -28,6 +28,7 @@ def createFolderIfNotExist(folder_name,wd=""):
 with open('coordinator_structure.json') as json_file:
     dictionary = json.load(json_file) #read all configurations for services
 
+logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
 WORKSPACENAME = "SERVICEMESH"
 TPSHOST ="http://tps_manager:5000"
@@ -36,6 +37,7 @@ NETWORK=os.getenv("NETWORK")
 #create logs folder
 logs_folder= "./logs/"
 createFolderIfNotExist(logs_folder)
+#fh = logging.FileHandler(logs_folder+'info.log')
 
 #Backups folder
 BKP_FOLDER= "./BACKUPS/"
@@ -44,10 +46,6 @@ createFolderIfNotExist(BKP_FOLDER)
 #supplies folder
 SPL_FOLDER= "./SUPPLIES/"
 createFolderIfNotExist(SPL_FOLDER)
-
-
-#fh = logging.FileHandler(logs_folder+'info.log')
-#fh.setLevel(logging.error)
 
 INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
 
@@ -114,15 +112,6 @@ def GetIndexedData(label):
     #data = INDEXER.TPSapi.TPS(query,"getdata") #this service (getdata) let me send json data and save it into a mongo DB
     return data
     
-
-def formPMsg(data,p_DAG,destinationFolder,destinationFile,workParams):
-    msg = data,destinationFolder,destinationFile,p_DAG,workParams
-    return msg
-
-def formDLMsg(data,dl_DAG,destinationFolder,destinationFile,filename,workParams):
-    msg = data,destinationFolder,destinationFile,dl_DAG,filename,workParams
-    return msg
-
 #service to execute applications
 def execute_service(service,metadata):
     f = open(metadata['data']['data'],"rb")
@@ -151,7 +140,7 @@ def execute_service(service,metadata):
         data = C.RestRequest(ip,port,metadata,data_file=f)
 
         if data is not None:
-            LOGER.error(">>>>>>> SENT WITH NO ERRORS")
+            LOGER.info(">>>>>>> SENT WITH NO ERRORS")
             errors_counter=0
             break
         else:
@@ -199,9 +188,9 @@ def AddServiceResource():
     ToSend={"network":network,"ip":service_ip,"port":service_port,"status":"UP"}
     status = LOAD_B.Addresource(service,ToSend)
     if status:
-        LOGER.error("REGISTRED %s, ip:%s port: %s" % (service,service_ip,service_port))
+        LOGER.info("REGISTRED %s, ip:%s port: %s" % (service,service_ip,service_port))
     else:
-        LOGER.error("ALREADY REGISTRED %s, ip:%s port: %s " % (service,service_ip,service_port))
+        LOGER.info("ALREADY REGISTRED %s, ip:%s port: %s " % (service,service_ip,service_port))
 
     return json.dumps({'status':'OK'})
 
@@ -237,14 +226,14 @@ def ASK(params=None):
 
         res['type'] = "service" #add type
         if res['network'] != network: #redirect to gateway
-            LOGER.error("REDIRECTING TO INTERNAL GATEWAY..")
+            LOGER.info("REDIRECTING TO INTERNAL GATEWAY..")
             #
 
             iag = LOAD_B.SelectGateway(res['network'])
             if iag is not None:
                 res = iag
                 res['type'] = "gateway"
-                LOGER.error("GATEWAY: %s, NETWORK: %s" %(res['ip'],res['network']))
+                LOGER.debug("GATEWAY: %s, NETWORK: %s" %(res['ip'],res['network']))
                 break
             else:
                 LOGER.error("Gateway is not aviable")
@@ -316,11 +305,10 @@ def execute_DAG():
     data = json.loads(params['data']) #data to be transform {data:,type:}
     DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
     #A resquest random number for monitoring is created. 
-    RN = str(randint(100000,900000)) #random number with 6 digits
+    RN = str(randint(1000000000,9000000000)) #random number with 10 digits
 
-    #INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+data['type']) #create temporary file
-    #input_temp_filename = INPUT_TEMPFILE.name
-    #INPUT_TEMPFILE.close()
+
+    #HERE WE NEED TO ADD THE OPTION OF SENDING DIRECTLY A JSON WITH DATA
 
     if data['data']=="": #if nothing was sent (BUT MUST HAVE THE FILENAME)
         text_for_test="HELLO WORLD. WAKE ME UP, BEFORE YOU GO GO.."
@@ -386,7 +374,7 @@ def monitoring_solution(RN):
         path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,params['parent'])
         tmp = os.listdir(path_bk_data)
         path_bk_data +="/"+tmp[0]
-        #LOGER.error("recuperando datos de %s ..." % path_bk_data)
+        LOGER.debug("recovering data %s ..." % path_bk_data)
 
         params['DAG']['control_number'] = RN
         data ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
@@ -463,7 +451,6 @@ def describeDatasetv2():
     f = request.files['file']
     filename = f.filename
     filetype = filename.split(".")[-1]
-    LOGER.error(filetype)
 
     workspace = request.form['workspace']
     user = request.form['user']
@@ -471,7 +458,7 @@ def describeDatasetv2():
     # get worspace path
     workspace_path= GetWorkspacePath(workspace,user)
     f.save(os.path.join(workspace_path, filename))
-    LOGER.error("data saved in %s" % workspace_path+filename)
+    LOGER.info("Data saved in %s" % workspace_path+filename)
 
     #descrive csv
     if filetype=="csv":
@@ -480,36 +467,6 @@ def describeDatasetv2():
         response={}
     return json.dumps(response)
 
-
-#@app.route('/DescribeDataset', methods=['POST'])
-#def describeDataset():
-#    data = request.get_json()
-#    datos= data['data']
-#    datos = pd.DataFrame.from_records(datos)
-#    columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
-#
-#    datos = datos.apply(pd.to_numeric, errors='ignore')
-#    
-#    response = dict()
-#    response['info']=dict()
-#    response['columns'] = list(datos.columns.values)
-#    des = datos.describe(include='all')
-#    for col in response['columns']:
-#        des_col = des[col]
-#        column_description = dict()
-#        for c in range(0,len(columns)):
-#            try:
-#                value = des_col[c]
-#            except Exception:
-#                break
-#            if pd.isnull(value) or pd.isna(value):
-#                value = ""
-#            column_description[columns[c]] = str(value)
-#        column_description['type'] = datos[col].dtype.name
-#        response['info'][col] = column_description
-#        LOGER.error(column_description)
-#    return json.dumps(response)
-#
 
 @app.route('/getlog/<RN>', methods=['GET'])
 def getLogFile(RN):

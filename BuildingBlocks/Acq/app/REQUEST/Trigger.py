@@ -38,7 +38,11 @@ def execute(params,AppConfig):
         
     return: dict(). {status,data:{'status','data','type','message'}}
     """ 
-    RESERVED_PARAMS={"SOURCE":params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'],"SINK":params['BBOX_OUTPUT_PATH'],"CWD":ACTUAL_PATH}
+    RESERVED_PARAMS={"SOURCE":params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'],
+                    "SOURCE_PATH":params['BBOX_INPUT_PATH'],
+                    "SOURCE_FILENAME":params['BBOX_INPUT_NAMEFILE'],
+                    "SINK":params['BBOX_OUTPUT_PATH'],
+                    "CWD":ACTUAL_PATH}
 
     Extract_config = AppConfig['EXTRACT']
     Transform_config = AppConfig['TRANSFORM']
@@ -53,13 +57,17 @@ def execute(params,AppConfig):
     ##########################################################################################################
 
     try:
-
+        app_message="OK"
         ######################### call the application #########################
         if Transform_config['CUSTOM_APP']:
             try:
                 CustomScript.custom_app(params,RESERVED_PARAMS)
                 execution_status=0
-            except Exception:
+            except Exception as e:
+                exception_type, exception_object, exception_traceback = sys.exc_info()
+                filename_error = exception_traceback.tb_frame.f_code.co_filename
+                line_number = exception_traceback.tb_lineno
+                LOGER.error("CUSTOMAPP ERROR: "+str(e)+", line: "+str(line_number)+ " in "+filename_error)
                 execution_status=1
         else:
             command = Transform_config['COMMAND']
@@ -67,34 +75,50 @@ def execute(params,AppConfig):
             execution_status = os.system(command)
         ########################################################################
 
+        if (execution_status!=0):
+            app_message="Internal error in the application"
+
+
         ### some assumtions###
         ### data results are in SINK (BBOX_OUTPUT_PATH)
         ### must especify compress option or output_namefile option... in other case a error will rise.
 
         if Load_config['OUTPUT_NAMEFILE'] !="":
-            namefile = utils.FormatCommand(Load_config['OUTPUT_NAMEFILE'],params,reserved_params=RESERVED_PARAMS) #format namefile 
-            if len(namefile.split("/"))>=2: #its a path
-                result = namefile
-            else:
-                result=RESERVED_PARAMS['SINK']+namefile #its just a file name and we add a default path
-            result = shutil.copy(result,params['BBOX_ROLLBACK_PATH']) #copy file generated to rollback folder
+            list_namefiles =  Load_config['OUTPUT_NAMEFILE'].split(",")
+            if type(list_namefiles) is not list:
+                list_namefiles = [Load_config['OUTPUT_NAMEFILE']]
+
+            for tmp_name in list_namefiles: #check all posible outputs
+                try:
+                    namefile = utils.FormatCommand(tmp_name,params,reserved_params=RESERVED_PARAMS) #format namefile 
+                    if len(namefile.split("/"))>=2: #its a path
+                        result = namefile
+                        #if its a path by default compress is TRUE
+                        Load_config['COMPRESS']=True
+                    else:
+                        result=RESERVED_PARAMS['SINK']+namefile #its just a file name and we add a default path
+                    result = shutil.copy(result,params['BBOX_ROLLBACK_PATH']) #copy file generated to rollback folder
+                    break
+                except Exception as e:
+                    LOGER.error("-- NOT THIS ONE:%s" % tmp_name)
+                    pass
+
 
         if Load_config['COMPRESS']:
             result = utils.CompressFile(params['BBOX_ROLLBACK_PATH'],RESERVED_PARAMS['SINK'],ignore_list=Load_config['ignore_list'])
 
         #clean everything
         #shutil.rmtree(params['BBOX_INPUT_PATH'],ignore_errors=True)
+        os.remove(params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'])
         shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True)
         shutil.rmtree(params['BBOX_OUTPUT_PATH'],ignore_errors=True)
 
         name,ext = result.split(".")
         LOGER.error(result)
-        response = {"data":result,"type":ext,"status":"OK","message":"OK"}
+        response = {"data":result,"type":ext,"status":"OK","message":app_message}
 
     except (Exception,ValueError) as e:
-        LOGER.error("wooowoowoooo"+ str(e))
-        response = {"data":"","type":"","status":"ERROR","message":""}
-        response['message']=str(e)
+        response = {"data":"","type":"","status":"ERROR","message":"%s" %(e)}
         return {'status':1,'data':response}
 
     return {'status':execution_status,'data':response}

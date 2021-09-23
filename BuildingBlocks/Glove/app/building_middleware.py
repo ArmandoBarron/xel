@@ -20,54 +20,57 @@ except FileExistsError:
 #fh = logging.FileHandler(logs_folder+'info.log')
 #fh.setLevel(logging.DEBUG)
 #LOG.addHandler(fh)
-## this is bassicaly the building block ##
-
-dictionary = {}
-with open("building_structure.json", "r") as json_file:
-    dictionary = json.load(json_file) #read all configurations for services
 
 
-def middleware(data,DAG,workParams):
+## this is bassically the building block ##
+ignore_list = ['TPS'] #list of folders to ignore 
+list_applications = [name for name in os.listdir(".") if (os.path.isdir(name) and name not in ignore_list)]
+
+
+
+def middleware(data,actions,workParams,LOGER=LOG):
     try:
-        LOG.info("running BB")
+        LOGER.info(list_applications)
+        LOGER.info("Running BB middleware")
         BB_ST = time.time() #<--- time flag
         f = open(logs_folder+'Times.txt', 'a+') # times log
          
-        for char in DAG:
+        for app in actions:
             C_ST = time.time() #<--- time flag
-            LOG.debug(char)
-            char = char.upper()
+            app = app.upper() #all applications names must be in uppercase
+            #confirm the app exist in BB, if not, do nothing
+            if (app in list_applications):
+                filepath = app + '/'
 
-            #get config for application
-            appconfig = dictionary[char]
-            filepath =appconfig['path'] + '/'
+                #import module
+                LOGER.debug("importing....."+ app+'.blackbox_middleware')
+                mod = importlib.import_module(app+'.blackbox_middleware')
+                
+                #get params for service
+                params = workParams[app] #it has the character for the application and _params (e.g. A)
 
-            #import module
-            LOG.info("importing....."+ appconfig['path']+'.blackbox_middleware')
-            mod = importlib.import_module(appconfig['path']+'.blackbox_middleware')
-            
-            #get params for service
-            params = workParams[char] #it has the character for the application and _params (e.g. A)
+                #execute application as blackbox
+                LOGER.info("RUNNING BLACKBOX")
+                data = mod.blackbox(data,params) #data is a json
+                LOGER.info("BLACKBOX FINISHED with status: %s" % data['status'])
 
-            #execute application as blackbox
-            LOG.error("RUNNING BLACKBOX")
-            data = mod.blackbox(data,params) #data is a json
-            LOG.error("BLACKBOX FINISHED")
-            LOG.error(data['status'])
+                #write log
+                f.write("%s, %s \n" %(app, (time.time() - C_ST))) #<--- time flag
 
-            f.write("%s, %s \n" %(char, (time.time() - C_ST))) #<--- time flag
-            if data['status'] == "ERROR":
-                LOG.error(" ERROR DETECTED ---- STOPING BB")
-                return data
-            #the same data variable is transformed by all the application
+                if data['status'] == "ERROR":
+                    LOGER.error(">>> ERROR DETECTED <<< \n STOPING BB")
+                    return data
+                #the same data variable is transformed by all the application
+            else:
+                data['status']=="ERROR"
+                LOGER.error("APP %s doesn't exist in BB... skipping this step" % app)
 
-        LOG.error("STOPING BB")
-        f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
-        f.write("-\n") #<--- time flag
+        LOGER.info("STOPING BB")
+        f.write("BB, %s \n-\n" %((time.time() - C_ST))) #<--- time flag
         f.close() 
         return data #{data:,type}
     except Exception as ex: #catch everything
-        f.write("BB, %s \n" %((time.time() - C_ST))) #<--- time flag
-        f.write("-\n") #<--- time flag
+        f.write("BB, %s \n-\n" %((time.time() - C_ST))) #<--- time flag
         f.close() 
-        return {'data':'','type':'','status':'ERROR','message':'Unexpected error in BB middleware. '+str(ex)}
+        LOGER.error("Unexpected error in BB middleware. %s" %(ex))
+        return {'data':'','type':'','status':'ERROR','message':'Unexpected error in BB middleware. %s' %(ex)}

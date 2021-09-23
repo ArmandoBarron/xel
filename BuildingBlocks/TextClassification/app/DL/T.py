@@ -20,6 +20,9 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from scipy.stats.stats import pearsonr
 
+#export
+from tensorflow.keras.experimental import export_saved_model
+
 #plot
 from matplotlib import pyplot as plt
 from tensorflow.keras.optimizers import SGD
@@ -126,7 +129,6 @@ for ep in ep_list:
 
 
     f = open(outputpath +"RESULT_LSTM_ep-%s_bsize-%s.txt" %(str(ep),str(bsize)),"a")
-
     f.write("\n\nRESULTS OF EVALUATING LSTM Epocs"+str(ep)+"Batch Size"+str(bsize)+"\n")
     f.write("\nMSE:"+repr(nnMSE))
     f.write("\nRMSE:"+repr(nnRMSE))
@@ -139,5 +141,7 @@ for ep in ep_list:
     f.write("\nSupport:"+repr(supportDL))
     f.write("\n\nConfusion matrix:\n")
     f.write(repr(matrix))
-
     f.close()
+
+    # Exportar el modelo a 'SavedModel'
+    export_saved_model(model, '%sMODEL_LSTM_ep-%s_bsize-%s/' %(outputpath,ep,bsize))

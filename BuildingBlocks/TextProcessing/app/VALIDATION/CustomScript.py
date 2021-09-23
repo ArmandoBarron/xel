@@ -13,6 +13,6 @@ def custom_app(app_params,reserved_params):
     app_params['outputfile']  = reserved_params['SINK']+"output.txt"
     
     # call the application
-    params = json.dumps(parapp_paramsams)
+    params = json.dumps(app_params)
     execution_status = os.system("python3 "+reserved_params['CWD']+"T.py '"+params+"'")
 

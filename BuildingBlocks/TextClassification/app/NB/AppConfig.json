@@ -5,12 +5,12 @@
             "COMPRESS":true
         },
     "TRANSFORM":{
-        "COMMAND": "python3 @{CWD}T.py '@{SOURCE}' '@{SINK}output_NB.txt'",
+        "COMMAND": "python3 @{CWD}T.py '@{SOURCE}' '@{SINK}'",
         "CUSTOM_APP":false
     },
     "LOAD":{
-            "OUTPUT_NAMEFILE":"output_NB.txt",
-            "COMPRESS":false,
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
             "ignore_list":[]
         }
 

@@ -35,7 +35,7 @@ def consult_data(value):
     global BRANCHES
     RN = str(value['control_number'])
     params = value['params']
-    if params is not None: #specific task status
+    if params is not None: #specific task status to get data
         task = params['task']
         label = BRANCHES[RN][task]['label']
         return {'label':label}
@@ -106,7 +106,6 @@ def prepare_request():
         value = params['value']
         save_data(value)
         return json.dumps({"status":"OK","action":"ACCEPT","value":value})
-
 
     elif action == "UPDATE_TASK":
         value = params['value']

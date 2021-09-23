@@ -8,7 +8,6 @@ services:
     ports:
       - "25000:5555"
     volumes:
-      - ./LOGS/coordinator/:/home/app/logs #for debugging
       - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
     restart: always
     networks:
@@ -47,14 +46,12 @@ services:
   
 ########### BB services ############################
 
-  bb_transform:
-    image: sm_bb_transform
+  bb_statistics:
+    image: sm_bb_statistics
     build:
-      context: ./BuildingBlocks/TransformStrData
+      context: ./BuildingBlocks/statistics
       dockerfile: ./Dockerfile
     restart: always
-    volumes:
-      - ./LOGS/TransformStrData/:/home/app/logs #for debugging
     networks:
       - service_mesh
     depends_on:
@@ -63,7 +60,25 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: transform_ds
+      SERVICE_NAME: statistics
+      SERVICE_IP: bb_statistics
+      SERVICE_PORT: 80
+
+  bb_transform:
+    image: sm_bb_transform
+    build:
+      context: ./BuildingBlocks/TransformStrData
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: transform_ds
       SERVICE_IP: bb_transform
       SERVICE_PORT: 80
 
@@ -73,8 +88,6 @@ services:
       context: ./BuildingBlocks/ClusteringAlgh
       dockerfile: ./Dockerfile
     restart: always
-    volumes:
-      - ./LOGS/ClusteringAlgh/:/home/app/logs #for debugging
     networks:
       - service_mesh
     depends_on:
@@ -83,7 +96,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: clustering_service
+      SERVICE_NAME: clustering_service
       SERVICE_IP: bb_clustering
       SERVICE_PORT: 80
 
@@ -93,8 +106,6 @@ services:
       context: ./BuildingBlocks/DeepLearning
       dockerfile: ./Dockerfile
     restart: always
-    volumes:
-      - ./LOGS/deep_learning/:/home/app/logs #for debugging
     networks:
       - service_mesh
     depends_on:
@@ -103,7 +114,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: deeplearning
+      SERVICE_NAME: deeplearning
       SERVICE_IP: deep_learning
       SERVICE_PORT: 80
 
@@ -113,8 +124,6 @@ services:
       context: ./BuildingBlocks/TextPreprocessing
       dockerfile: ./Dockerfile
     restart: always
-    volumes:
-      - ./LOGS/text_preprocessing/:/home/app/logs #for debugging
     networks:
       - service_mesh
     depends_on:
@@ -123,7 +132,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: text_preprocessing
+      SERVICE_NAME: text_preprocessing
       SERVICE_IP: text_preprocessing_1
       SERVICE_PORT: 80
 
@@ -134,8 +143,6 @@ services:
       context: ./BuildingBlocks/TextProcessing
       dockerfile: ./Dockerfile
     restart: always
-    volumes:
-      - ./LOGS/text_processing/:/home/app/logs #for debugging
     networks:
       - service_mesh
     depends_on:
@@ -144,7 +151,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: text_processing
+      SERVICE_NAME: text_processing
       SERVICE_IP: text_processing_1
       SERVICE_PORT: 80
 
@@ -154,8 +161,6 @@ services:
       context: ./BuildingBlocks/TextProcessing
       dockerfile: ./Dockerfile
     restart: always
-    volumes:
-      - ./LOGS/text_processing/:/home/app/logs #for debugging
     networks:
       - service_mesh
     depends_on:
@@ -164,7 +169,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: text_processing
+      SERVICE_NAME: text_processing
       SERVICE_IP: text_processing_2
       SERVICE_PORT: 80
 
@@ -175,8 +180,6 @@ services:
       context: ./BuildingBlocks/TextClassification
       dockerfile: ./Dockerfile
     restart: always
-    volumes:
-      - ./LOGS/text_classification/:/home/app/logs #for debugging
     networks:
       - service_mesh
     depends_on:
@@ -185,7 +188,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: text_classification
+      SERVICE_NAME: text_classification
       SERVICE_IP: text_classification_1
       SERVICE_PORT: 80
 
@@ -195,8 +198,6 @@ services:
       context: ./BuildingBlocks/Preprocessing
       dockerfile: ./Dockerfile
     restart: always
-    volumes:
-      - ./LOGS/preprocessing/:/home/app/logs #for debugging
     networks:
       - service_mesh
     depends_on:
@@ -205,7 +206,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: preprocessing
+      SERVICE_NAME: preprocessing
       SERVICE_IP: preprocessing
       SERVICE_PORT: 80
 
@@ -214,8 +215,6 @@ services:
     build:
       context: ./BuildingBlocks/TS
       dockerfile: ./Dockerfile
-    volumes:
-      - ./LOGS/tps/:/home/app/logs #for debugging
     networks:
       - service_mesh
     restart: always
@@ -225,7 +224,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: TS
+      SERVICE_NAME: TS
       SERVICE_IP: bb_tps
       SERVICE_PORT: 80
 #
@@ -234,8 +233,6 @@ services:
 #    build:
 #      context: ./BuildingBlocks/Converters
 #      dockerfile: ./Dockerfile
-#    volumes:
-#      - ./LOGS/converters/:/home/app/logs #for debugging
 #    networks:
 #      - service_mesh
 #    restart: always
@@ -245,7 +242,7 @@ services:
 #      TPS_MANAGER: http://tps_manager:5000 #TPS URL
 #      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
 #      NETWORK: LocalCluster
-#      SERVICE: Converters
+#      SERVICE_NAME: Converters
 #      SERVICE_IP: bb_converters
 #      SERVICE_PORT: 80
 
@@ -255,7 +252,6 @@ services:
       context: ./BuildingBlocks/Acq
       dockerfile: ./Dockerfile
     volumes:
-      - ./LOGS/acquisition/:/home/app/logs #for debugging
       - ./localdata/:/home/app/REQUEST/input_data
     networks:
       - service_mesh
@@ -266,7 +262,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: Acquisition
+      SERVICE_NAME: Acquisition
       SERVICE_IP: bb_acquisition_1
       SERVICE_PORT: 80
     deploy: 
@@ -280,7 +276,6 @@ services:
       context: ./BuildingBlocks/Acq
       dockerfile: ./Dockerfile
     volumes:
-      - ./LOGS/acquisition/:/home/app/logs #for debugging
       - ./localdata/:/home/app/REQUEST/input_data
     networks:
       - service_mesh
@@ -291,7 +286,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: Acquisition
+      SERVICE_NAME: Acquisition
       SERVICE_IP: bb_acquisition_2
       SERVICE_PORT: 80
     deploy: 
@@ -304,8 +299,6 @@ services:
     build:
       context: ./BuildingBlocks/Grobid
       dockerfile: ./Dockerfile
-    volumes:
-      - ./LOGS/grobid/:/home/app/logs #for debugging
     networks:
       - service_mesh
     restart: always
@@ -316,7 +309,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: Grobid
+      SERVICE_NAME: Grobid
       SERVICE_IP: bb_grobid
       SERVICE_PORT: 80
 
@@ -325,8 +318,6 @@ services:
     build:
       context: ./BuildingBlocks/Glove
       dockerfile: ./Dockerfile
-    volumes:
-      - ./LOGS/glove/:/home/app/logs #for debugging
     networks:
       - service_mesh
     restart: always
@@ -336,7 +327,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE: Glove
+      SERVICE_NAME: Glove
       SERVICE_IP: bb_glove
       SERVICE_PORT: 80
 ###########################################
@@ -353,12 +344,10 @@ services:
       CONFIGPATH: ./CONFIG/ #configuration location
       SCHEMAPATH: ./SCHEMA/ #data location
       DATABASE: mongodb #database
-      CENTINEL: none #master watcher (must be active)
+      CENTINEL: none #master watcher
     volumes:
       - ./TPS/Manager/:/home/ #for debugging
       - ./TPS/:/home/CONFIG/
-      #- ./TEST/:/home/SCHEMA/
-      #- /tmp/pruebas/TPSSCHEMA/:/home/SCHEMA/ #workflow dagon schema
     ports:
       - "54350:5000"
     expose:
@@ -376,7 +365,6 @@ services:
       MONGO_INITDB_DATABASE: TPS_Data
     volumes:
       - data-volume:/data/db
-      #- ./Configuration/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     ports:
       - 27018:27017
     networks:
@@ -415,8 +403,6 @@ services:
       dockerfile: ./Dockerfile
     networks:
       - service_mesh
-    #ports:
-    #  - 11001:80
     restart: always
   
   graphics: # service to graphic data
@@ -429,16 +415,16 @@ services:
       - service_mesh
     restart: always
 
-  summary: # summary
-    container_name: TPS_summary
-    build:
-      context: ./TPS/Services/Summary/
-      dockerfile: ./Dockerfile
-    restart: always
-    networks:
-      - service_mesh
-    depends_on:
-      - tps_manager
+#  summary: # summary
+#    container_name: TPS_summary
+#    build:
+#      context: ./TPS/Services/Summary/
+#      dockerfile: ./Dockerfile
+#    restart: always
+#    networks:
+#      - service_mesh
+#    depends_on:
+#      - tps_manager
   
 ###########################################
 ############## PAXOS NETWORK ##############
@@ -485,7 +471,6 @@ services:
 
 networks: 
   service_mesh:
-  #TPS_net:
 
 volumes:
   data-volume:

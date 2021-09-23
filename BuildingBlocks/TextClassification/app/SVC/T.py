@@ -71,8 +71,7 @@ matrixSVC=confusion_matrix(y_test, y_predSVC)
 #accuracy and loss
 accuracySVC = accuracy_score(y_test, y_predSVC)
 
-f = open(outputpath,"a")
-
+f = open(outputpath +"RESULT_SVC.txt","a")
 f.write("RESULTS OF EVALUATING Support Vector Machines\n")
 f.write("\nMSE:"+repr(svcMSE))
 f.write("\nRMSE:"+repr(svcRMSE))
@@ -85,5 +84,9 @@ f.write("\nf1:"+repr(f1SVC))
 f.write("\nSupport:"+repr(supportSVC))
 f.write("\n\nConfusion matrix:\n")
 f.write(repr(matrixSVC))
-
 f.close()
+
+# save the model to disk
+filename = '%sSVC_model.pkl' %(outputpath)
+pickle.dump(clf, open(filename, 'wb'))
+ 

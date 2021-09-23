@@ -16,6 +16,7 @@ with open(ACTUAL_PATH+'AppConfig.json') as json_file:
 
 NAME_APPLICATION = App_configurations["NAME_APPLICATION"]
 INPUT_DATA_FORMAT = App_configurations['INPUT_DATA_FORMAT']
+logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
 
 
@@ -36,11 +37,14 @@ def blackbox(data,params):
     params['BBOX_OUTPUT_PATH']=tempfile.mkdtemp() +"/"
     # rollback path
     if not os.path.exists(ACTUAL_PATH+"rollback/"):
-        os.makedirs(ACTUAL_PATH+"rollback/")
+        try:
+            os.makedirs(ACTUAL_PATH+"rollback/")
+        except Exception as identifier:
+            pass
+    
     params['BBOX_ROLLBACK_PATH']=tempfile.mkdtemp(dir=ACTUAL_PATH+"rollback/") +"/"
 
     
-    #### if type is csv, the inputdata is in memory in the variable INPUT_DATA
     data_type= data['type']
     if data_type == "error":
         return {'data':'','type':'','status':'ERROR','message':"bad input. %s not supported by %s" % (data_type,NAME_APPLICATION)}
@@ -54,7 +58,7 @@ def blackbox(data,params):
 
     ####################### execute the application ######################
     response = Trigger.execute(params,App_configurations)
-    LOGER.error("RESPONSE GET : %s" % response['status'])
+    LOGER.info("RESPONSE: %s" % response['status'])
 
     if response['status'] != 0:
         return {'data':'','type':'','status':'ERROR','message':"Bad execution in %s blackbox: %s" % (NAME_APPLICATION,response['data']['message'])}
@@ -66,16 +70,16 @@ def blackbox(data,params):
     
     #### verify if file not exist
     if os.path.isfile(response['data']):
-        LOGER.error("FILE EXIST")
+        LOGER.warning("File with results was generated")
     else:
-        LOGER.error("### INFO: RESULTS NOT FOUND")
+        LOGER.error("File with results not found")
         response = {'data':'','type':'','status':"ERROR","message":"OUTPUT FILE NOT FOUND IN %s " % NAME_APPLICATION }
         return response
 
     ### verify if is empty
     if os.stat(response['data']).st_size == 0:
-        LOGER.error("### INFO: RESULTS WERE NOT GENERATED")
+        LOGER.error("File with results was generated, but its empty.")
         response = {'data':'','type':'','status':"ERROR","message":"OUTPUT FILE IS EMPTY %s " % NAME_APPLICATION }
 
-    return response    #data is a json
+    return response 
 

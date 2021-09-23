@@ -5,12 +5,12 @@
             "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "Rscript @{CWD}T.r \"@{SOURCE_PATH}\" \"@{SOURCE_FILENAME}\" \"@{SINK}output.csv\" \"@{columns}\" \"@{trainSize}\" \"@{classColumn}\" \"@{epoch}\" \"@{lossFunction}\" \"@{metric}\"",
+        "COMMAND": "Rscript @{CWD}T.r \"@{SOURCE_PATH}\" \"@{SOURCE_FILENAME}\" \"@{SINK}output/\" \"@{columns}\" \"@{trainSize}\" \"@{classColumn}\" \"@{epoch}\" \"@{lossFunction}\" \"@{metric}\"",
         "CUSTOM_APP":false
     },
     "LOAD":{
-            "OUTPUT_NAMEFILE":"output.csv",
-            "COMPRESS":false,
+            "OUTPUT_NAMEFILE":"@{SINK}output/",
+            "COMPRESS":true,
             "ignore_list":[]
         }
 

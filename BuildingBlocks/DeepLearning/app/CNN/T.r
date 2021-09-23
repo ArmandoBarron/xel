@@ -17,22 +17,15 @@ epoch = as.numeric(as.character(args[7]))
 lossFunction = args[8]
 metric = args[9]
 
+
+dir.create(destination)
+
+
 columns<-unlist(strsplit(columns, ","))
 data <- read.table(paste(dataPath,fileName,sep=""), header=T, sep=",")
 
 SPLT = (trainSize/100)
 data <- completeFun(data, classColumn)
-
-
-
-
-#define the prescribed inclusion probabilities
-#pik <- runif(nrow(complete_data),0,1)
-#select a sample
-#s=UPrandomsystematic(pik)
-#the sample is
-#v<-(1:length(pik))[s==1]
-#complete_sample<- complete_data[v,]
 
 
 X <- data.matrix(data[,columns])
@@ -82,7 +75,13 @@ loss <- paste("Loss", report[1], sep=":")
 
 report_to_write<- paste(accuracy,loss, sep="\n")
 
-fileConn<-file(destination)
+fileConn<-file(paste(destination,"report.csv"))
 writeLines(c(report_to_write), fileConn)
 close(fileConn)
+
+#save model 
+save_model_tf(model, paste(destination,"CNNTrainedModel/"))
+
+# Recreate the exact same model
+#new_model <- load_model_tf("model/")
 
