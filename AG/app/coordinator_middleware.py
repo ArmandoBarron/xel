@@ -1,8 +1,7 @@
 import sys,os,ast
 import pandas as pd
 from threading import Thread
-from flask import request, url_for
-from flask import Flask,jsonify,Response,send_file
+from flask import Flask,request,jsonify,send_file
 from random import randint
 import json
 from time import sleep
@@ -11,10 +10,13 @@ from TPS.Builder import Builder #TPS API BUILDER
 import logging #logger
 from base64 import b64encode,b64decode
 import io
-import time
 from TwoChoices import loadbalancer
 from Proposer import Paxos
 import tempfile
+
+import hashlib
+from datetime import datetime
+
 
 def createFolderIfNotExist(folder_name,wd=""):
     try:
@@ -30,7 +32,7 @@ with open('coordinator_structure.json') as json_file:
 
 logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
-WORKSPACENAME = "SERVICEMESH"
+WORKSPACENAME = "SERVICEMESH" #equivalente a catalogo en skycds, es decir, una solucion o un DAG
 TPSHOST ="http://tps_manager:5000"
 NETWORK=os.getenv("NETWORK") 
 
@@ -56,13 +58,43 @@ ACCEPTORS_LIST= dictionary['paxos']["accepters"]
 PROPOSER = Paxos(ACCEPTORS_LIST)
 ########## END GLOBAL VARIABLES ##########
 
-def GetWorkspacePath(workspace,tokenuser):
+def GetDataPath(params):
+    typeOfData = params['data']['type']
+
+    if typeOfData =="SOLUTION":
+        #hay que descargar el catalogo si es necesario
+        #cuando se añada SKYCDS el BKP_FOLDER se remplaza por el token del usuario
+        path = BKP_FOLDER+params['data']['RN']+"/"+ params['data']['task']+"/"
+        tmp = os.listdir(path)
+        path +=tmp[0]
+    elif typeOfData=="LAKE":
+        path = GetWorkspacePath(params['auth']['user'],params['auth']['workspace']) + params['data']['data']
+    else:
+        return ""
+    return path
+
+
+def CreateSolutionID(params_recived):
+    LOGER.info(params_recived)
+
+    if 'token_solution' in params_recived:
+        RN=params_recived['token_solution']
+    else:
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        id_string=  "%s-%s" %(dt_string, randint(10000,90000)) #random number with 10 digits
+        encoded=id_string.encode()
+        RN = hashlib.sha256(encoded).hexdigest()
+    return RN
+
+    
+def GetWorkspacePath(tokenuser,workspace):
+    #se creara el cataloog de fuentes de datos si es que no existe
     createFolderIfNotExist("%s%s" %(SPL_FOLDER,tokenuser))
     createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
     return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
 
-def DatasetDescription(path_dataset):
-    datos = pd.read_csv(path_dataset)
+def DatasetDescription(datos):
     columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
     datos = datos.apply(pd.to_numeric, errors='ignore')
     response = dict()
@@ -116,7 +148,7 @@ def GetIndexedData(label):
 def execute_service(service,metadata):
     f = open(metadata['data']['data'],"rb")
 
-    LOGER.error("executing...%s"% service)
+    LOGER.info("Coordinator is executing...%s"% service)
     errors_counter=0
     ToSend = {'service':service,'network':NETWORK} #update status of falied node
     res = json.loads(ASK(params=ToSend))
@@ -157,7 +189,7 @@ def execute_service(service,metadata):
                     else:
                         ip = res['ip'];port = res['port']
                         LOGER.error("TRYING A NEW NODE... IP:%s PORT: %s " %(ip,port) )
-    LOGER.error("finishing execution...%s"% service)
+    LOGER.info("finishing execution...%s"% service)
 
 
 app = Flask(__name__)
@@ -177,9 +209,7 @@ def saveconfig():
 
 @app.route('/ADD', methods=['POST'])
 def AddServiceResource():
-
     params = request.get_json(force=True)
-
     service = params['SERVICE']
     service_ip = params['IP']
     service_port = params['PORT']
@@ -264,35 +294,25 @@ def TIMES():
 
 
 @app.route('/WARN', methods=['POST'])
-def WARN(params=None):
-    if params is None:
-        params = request.get_json(force=True)
+def WARN(warn_message=None):
+    if warn_message is None:
+        warn_message = request.get_json(force=True)
 
-    status = params['status']
-    message = params['message']
-    label = params['label']
-    id_serv = params['id']
-    data_type = params['type']
-    index_opt = params['index']
-    control_number = params['control_number']
-
-    ToSend={'status':status,"message":message,"label":label,"task":id_serv,"type":data_type, "index":index_opt} #update status
-
-    if 'parent' in params:
-        ToSend['parent'] = params['parent']
-
+    #ToSend={'status':status,"message":message,"label":label,"task":id_serv,"type":data_type, "index":index_opt} #update status
+    control_number = warn_message['control_number']
     ######## paxos ##########
-    paxos_response = PROPOSER.Update_task(control_number,ToSend) # save request in paxos distributed memory
+    paxos_response = PROPOSER.Update_task(control_number,warn_message) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
         LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
     #########################
 
-    if 'times' in params:
-        tmp= params['times']
+    if 'times' in warn_message:
+        tmp= warn_message['times']
         f = open(logs_folder+'log_'+control_number+'.txt', 'a+'); 
         #{"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time}
         f.write("%s, %s, %s, %s \n" %(tmp['NAME'],tmp['ACQ'],tmp['EXE'],tmp['IDX'], )) 
         f.close()
+
     return json.dumps({'status':'OK'})
 
 
@@ -301,12 +321,10 @@ def WARN(params=None):
 def execute_DAG():
 
     params = request.get_json(force=True)
-    envirioment_params = json.loads(params['auth']) #params wich define the enviroment  {user:,workspace:}
-    data = json.loads(params['data']) #data to be transform {data:,type:}
-    DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
-    #A resquest random number for monitoring is created. 
-    RN = str(randint(1000000000,9000000000)) #random number with 10 digits
-
+    envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    data = params['data'] #data to be transform {data:,type:}
+    DAG = params['DAG'] #it have the parameters, the sub dag ,and the secuence of execution (its a json).
+    
 
     #HERE WE NEED TO ADD THE OPTION OF SENDING DIRECTLY A JSON WITH DATA
 
@@ -321,7 +339,7 @@ def execute_DAG():
         f.close()
     else:
         if 'user' in envirioment_params and 'workspace' in envirioment_params:
-            data['data'] = GetWorkspacePath(envirioment_params['workspace'],envirioment_params['user']) + data['data']
+            data['data'] = GetWorkspacePath(envirioment_params['user'],envirioment_params['workspace']) + data['data']
 
         if (os.path.exists(data['data'])):
             pass
@@ -338,24 +356,53 @@ def execute_DAG():
     #    f.write(data['data'].encode())
     #    f.close()
     #data['data']=input_temp_filename
+        
+    #A resquest random number for monitoring is created. 
+    RN = CreateSolutionID(params)
 
     ######## paxos ##########
-    paxos_response = PROPOSER.Save(RN,DAG) # save request in paxos distributed memory
+    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
         LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
         return {"status":"ERROR","message":"Mesh is not accepting requests"}
     #########################
+    #Paxos returns the list of task tat will be executed. if list is void, then all the task have been executed before and must be pass the FORCE option to execute them again
+    res = paxos_response['value']
 
-    for br in DAG: #for each pipe in DAG
-        br['control_number'] = RN
-        metadata = {"data":data,"DAG":br}
-        service = br['service']
 
-        thread1 = Thread(target = execute_service, args = (service,metadata) )
-        thread1.start()
-        time.sleep(1)
+    new_dag = res['DAG']
+    task_list = res['task_list']
+    for branch in new_dag:
+        branch['control_number'] = RN
+        if branch['id'] in task_list:
+            parent = task_list[branch['id']]['parent']
 
-    return json.dumps({"status":"OK",'RN':RN})
+            path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
+            tmp = os.listdir(path_bk_data)
+            path_bk_data +="/"+tmp[0]
+            LOGER.info("recovering data %s ..." % path_bk_data)
+
+            data_format ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
+            metadata = {"data":data,"DAG":branch}
+            service = branch['service'] #name of the service to send the instructions
+            thread1 = Thread(target = execute_service, args = (service,metadata))
+            thread1.start()
+        else:
+            metadata = {"data":data,"DAG":branch}
+            service = branch['service']
+            thread1 = Thread(target = execute_service, args = (service,metadata) )
+            thread1.start()
+            sleep(.5)
+
+    #for br in DAG: #for each pipe in DAG
+    #    br['control_number'] = RN
+    #    metadata = {"data":data,"DAG":br}
+    #    service = br['service']
+    #    thread1 = Thread(target = execute_service, args = (service,metadata) )
+    #    thread1.start()
+    #    sleep(1)
+
+    return json.dumps({"status":"OK",'RN':RN,"DAG":DAG})
 
 
 #service to monitoring a solution with a control number
@@ -368,21 +415,27 @@ def monitoring_solution(RN):
     #########################
     value = paxos_response['value']
 
-    if 'DAG' in value:
-        #el nodo fallo al estar procesando datos... se van a recuperar
-        params = value['DAG']
-        path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,params['parent'])
+    if value is None:
+        return json.dumps({"status":"ERROR", "message":"Solution doesn't exist"})
+
+    if 'DAG' in value: #el nodo fallo al estar procesando datos... se van a recuperar
+        dag = value['DAG']
+        parent = value['parent']
+
+        path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
         tmp = os.listdir(path_bk_data)
         path_bk_data +="/"+tmp[0]
-        LOGER.debug("recovering data %s ..." % path_bk_data)
+        LOGER.info("recovering data %s ..." % path_bk_data)
 
-        params['DAG']['control_number'] = RN
+        dag['control_number'] = RN # must be added, BB need it
         data ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
-        metadata = {"data":data,"DAG":params['DAG']}
-        service = params['DAG']['service']
+
+        metadata = {"data":data,"DAG":dag}
+        service = dag['service'] #name of the service to send the instructions
 
         thread1 = Thread(target = execute_service, args = (service,metadata))
         thread1.start()
+
         return json.dumps({"status":"INFO", "message":"RECOVERING DATA FROM %s" % service})
 
 
@@ -433,39 +486,102 @@ def getfileintask(RN,task):
                     as_attachment=True,
                     attachment_filename=task+'.'+data_ext
             )
+@app.route('/RetrieveSolution', methods=['POST'])
+def retrieve_sol_from_DB():
+    params = request.get_json(force=True)
+    auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    token_solution = params['token_solution']
+     ######## paxos ##########
+    paxos_response = PROPOSER.Retrieve(token_solution,auth) # consult request in paxos distributed memory
+    #########################
+    return {"status":paxos_response['status'],"info":paxos_response['value']}    
+
+@app.route('/StoreSolution', methods=['POST'])
+def store_sol_in_DB():
+    params = request.get_json(force=True)
+
+    auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    metadata = params['metadata'] #metadata of the solution {name,desc,frontend}
+    DAG = params['DAG'] #it have the parameters, the sub dag ,and the secuence of execution (its a json).
+    #token_solution = params['token_solution']
+    token_solution = CreateSolutionID(params)
+    
+    ######## paxos ##########
+    paxos_response = PROPOSER.Store(token_solution,DAG,metadata,auth) # consult request in paxos distributed memory
+    #########################
+    return {"status":paxos_response['status'], "message":paxos_response['value'],"info":{"token_solution":token_solution}}
+
+@app.route('/ListSolutions', methods=['POST'])
+def List_solutions_user():
+    params = request.get_json(force=True)
+
+    auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
+
+    ######## paxos ##########
+    paxos_response = PROPOSER.list_solutions(auth) # consult request in paxos distributed memory
+    #########################
+    return {"status":"OK", "info":paxos_response['value']}
 
 
-
-@app.route('/ArchiveData/<RN>/<id_service>', methods = ['POST'])
-def upload_file(RN,id_service):
+@app.route('/ArchiveData/<RN>/<task>', methods = ['POST'])
+def upload_file(RN,task):
     tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
-    path_to_archive= createFolderIfNotExist("%s/" % id_service,wd=tmp_f)
+    path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
     f = request.files['file']
     filename = f.filename
     f.save(os.path.join(path_to_archive, filename))
     return json.dumps({"status":"OK", "message":"OK"})
 
 
-@app.route('/DescribeDataset/v2', methods=['POST'])
-def describeDatasetv2():
+
+@app.route('/UploadDataset', methods=['POST'])
+def UploadDataset():
+    """
+    function to upload to the catalog of user a dataset
+    """
     f = request.files['file']
     filename = f.filename
     filetype = filename.split(".")[-1]
 
     workspace = request.form['workspace']
-    user = request.form['user']
+    tokenuser = request.form['user']
 
     # get worspace path
-    workspace_path= GetWorkspacePath(workspace,user)
-    f.save(os.path.join(workspace_path, filename))
+    workspace_path= GetWorkspacePath(tokenuser,workspace)
+    f.save(os.path.join(workspace_path, filename)) #añadir DS al catalogo de fuentes de datos
     LOGER.info("Data saved in %s" % workspace_path+filename)
 
-    #descrive csv
-    if filetype=="csv":
-        response = DatasetDescription(workspace_path+filename)
+    return {"status":"OK"}
+
+@app.route('/DescribeDataset/v2', methods=['POST'])
+def describeDatasetv2():
+    """
+    function to describe a dataset un users catalog or results of a task in a solution
+    {auth: {user:,workspace:}, RN: ,data:{data,type},DAG:{}}
+
+    type:(LAKE,SOLUTION,RECORDS)
+    if SOLUTION:
+        data:{data:{RN,task,filename},type:SOLUTION} #un catalogo del usuario
+    if RECORDS:
+        data:{data:[],type:RECORDS}
+    if LAKE:
+        data:{data:"namefile.csv",type:LAKE}
+    """
+    params = request.get_json(force=True)
+    
+    data_path= GetDataPath(params)
+    LOGER.info(data_path)
+    name,ext = data_path.split("/")[-1].split(".") #get the namefile and then split the name and extention
+
+    #describe csv
+    if ext=="csv":
+        dataset= pd.read_csv(data_path)
+        response = DatasetDescription(dataset)
     else:
         response={}
     return json.dumps(response)
+
+
 
 
 @app.route('/getlog/<RN>', methods=['GET'])

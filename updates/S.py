@@ -26,7 +26,12 @@ def ClientProcess(metadata,data_acq_time):
     service = DAG['service']
     service_name = service
     params = DAG['params']
-    childrens = DAG['childrens']
+
+    if 'childrens' in DAG:
+        childrens = DAG['childrens']
+    else:
+        childrens = []
+    
     id_service =DAG['id']
     control_number = DAG['control_number']
     #times
@@ -103,11 +108,9 @@ def ClientProcess(metadata,data_acq_time):
         AG.ArchiveData(open(result['data'],"rb"),result['data'].split("/")[-1]) #open result file to send it to another service
     ###########################
 
-    ToSend = {'status':result['status'],"message":result['message'],"label":label,"id":id_service,"type":result['type'], "index":index_opt,"control_number":control_number}
-    ToSend['times']={"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time}
+    ToSend = AG.CreateMessage(control_number,result['message'],result['status'],label=label,type_data=result['type'],index_opt=index_opt,times={"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time})
     AG.terminate(result['status'],ToSend)
     LOGER.info("Sending to childrens...")
-
 
     try:
         for child in childrens: #list[]
@@ -133,7 +136,7 @@ def ClientProcess(metadata,data_acq_time):
             #------------------#
             if 'info' in res: #no more nodes
                 LOGER.error("NO NODES FOUND")
-                data= {'label':'','id':child['id'],'index':'','control_number':control_number,'type':'','status':'ERROR','message': 'no available resources found.'}
+                data = AG.CreateMessage(control_number,'no available resources found.','ERROR',id_service=child['id'])
                 AG.WarnGateway(data)
             else:
                 errors_counter=0
@@ -146,8 +149,8 @@ def ClientProcess(metadata,data_acq_time):
                     if data is not None:
                         LOGER.info(">>> DATA SENT SUCCESFULLY <<<")
                         #warn successful process
-                        warn_success= {'label':'','id':child['id'],'index':'','control_number':control_number,'type':'','status':'INFO','message': child,'parent':id_service}
-                        AG.WarnGateway(warn_success)
+                        ToSend = AG.CreateMessage(control_number,'Starting ejecution.','INFO',id_service=child['id'],parent=id_service)
+                        AG.WarnGateway(ToSend)
                         errors_counter=0
                         break;
                     else:
@@ -160,7 +163,7 @@ def ClientProcess(metadata,data_acq_time):
                             #------------------#
                             errors_counter=0 #reset counter 
                             if 'info' in res: #no more nodes
-                                data= {'label':'','id':child['id'],'index':'','control_number':control_number,'type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
+                                data = AG.CreateMessage(control_number,'no available resources found: %s attempts.' % str(errors_counter) ,'ERROR',id_service=child['id'])
                                 AG.WarnGateway(data)
                                 break
                             ip = res['ip'];port = res['port']

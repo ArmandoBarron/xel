@@ -20,6 +20,19 @@ services:
       placement: 
         constraints: 
           - node.role == manager
+
+  sdb: # tps manager mongoDB
+    container_name: xel_sdb
+    image: mongo:4.4
+    restart: always
+    environment:
+      data-volume: /data/db
+      MONGO_INITDB_DATABASE: xelhua
+    volumes:
+      - sdb_volume:/data/db
+    networks:
+      - service_mesh
+
 ########### Internal API gateway  ############################
 
   iag_local: # local
@@ -436,6 +449,8 @@ services:
     build:
       context: ./NonFunctional/Paxos
       dockerfile: ./Dockerfile
+    environment:
+      DATABASE_HOST: sdb
     restart: always
     networks:
       - service_mesh
@@ -448,6 +463,8 @@ services:
     build:
       context: ./NonFunctional/Paxos
       dockerfile: ./Dockerfile
+    environment:
+      DATABASE_HOST: sdb
     restart: always
     networks:
       - service_mesh
@@ -460,6 +477,8 @@ services:
     build:
       context: ./NonFunctional/Paxos
       dockerfile: ./Dockerfile
+    environment:
+      DATABASE_HOST: sdb
     restart: always
     networks:
       - service_mesh
@@ -474,3 +493,4 @@ networks:
 
 volumes:
   data-volume:
+  sdb_volume:

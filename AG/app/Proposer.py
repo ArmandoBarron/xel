@@ -10,18 +10,47 @@ class Paxos:
         self.N = len(self.acepters)
         self.PV = 0
 
-    def Save(self,control_number,DAG):
+    def Save(self,control_number,DAG,auth):
         """
          value = {"control_number":,"params":}
         """
         res= self.Consensus()
         if res['status']=="OK":
-            value = {"control_number":control_number,"params":None,'DAG':DAG}
+            value = {"control_number":control_number,"params":None,'DAG':DAG,"auth":auth}
             res= self.accept(value,action="SAVE_SOLUTION")    
         return res
     
+    def Store(self,control_number,DAG,meta,auth):
+        """
+         value = {"control_number":,"metadata":,"DAG",auth"}
+        """
+        res= self.Consensus()
+        if res['status']=="OK":
+            value = {"control_number":control_number,"metadata":meta,"auth":auth,'DAG':DAG}
+            res= self.request2node(value,action="STORE_SOLUTION")    
+        return res
+    
+    def Retrieve(self,token_solution,auth):
+        """
+         value = {"control_number":,auth"}
+        """
 
+        value = {"control_number":token_solution,"auth":auth}
+        res= self.request2node(value,action="RETRIEVE_SOLUTION")
 
+        return res
+
+    
+    def list_solutions(self,auth):
+        """
+         value = {"control_number":,auth"}
+        """
+        res= self.Consensus()
+        if res['status']=="OK":
+            value = {"auth":auth}
+            res= self.request2node(value,action="LIST_SOLUTIONS")    
+        return res
+    
 
     def Update_task(self,control_number,params):
         """
@@ -36,7 +65,6 @@ class Paxos:
         """
          value = {"control_number":,"params":}
         """
-        print("ACCEPTING")
         value = {"control_number":control_number,"params":params}
         res= self.accept(value,action="CONSULT")
         return res
@@ -76,6 +104,7 @@ class Paxos:
                     print("Max attempts reached... ")
                     return {"status":"ERROR"}
 
+
     def accept(self,value,action="ACCEPT"): #send request to the consensus
             response = None
             ToSend = json.dumps({"status":"OK","action":action,"PV":self.PV,"value":value})
@@ -93,16 +122,46 @@ class Paxos:
                         response = RES["value"]
                     elif RES['status']=="OK" and RES['action']=="IGNORE":
                         print("NODE IGNORED THE REQUEST")
+                    elif RES['status']=="ERROR":
+                        response = RES["value"]
+                        return {"status":"ERROR", "value":response}
                 except Exception:
                     print("A node is down")
 
             
             if int(self.N/2) <requ_acepted: #mayority
-                print("%s nodes ACCEPTED" % requ_acepted)
                 return {"status":"OK","value":response}
             else:
                 time.sleep(1)
-                print("REQUEST NOT ACCEPTED... TRYING AGAIN")
+                return {"status":"ERROR", "value":response}
+
+    def request2node(self,value,action="ACCEPT"): 
+        #send a request directly to 1 node
+            response = None
+            ToSend = json.dumps({"status":"OK","action":action,"PV":self.PV,"value":value})
+            
+            #send it to all acepters
+            requ_acepted=0
+            for ac in self.acepters:
+                url = 'http://%s/REQUEST' % ac['host']
+                headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+                try:
+                    result = api.post(url, data=ToSend,headers=headers)
+                    RES = result.json()
+                    if RES['status']=="OK" and RES['action']=="ACCEPT":
+                        response = RES["value"]
+                        break;
+                    elif RES['status']=="OK" and RES['action']=="IGNORE":
+                        print("NODE IGNORED THE REQUEST")
+                    elif RES['status']=="ERROR":
+                        response = RES["value"]
+                        return {"status":"ERROR", "value":response}
+                except Exception:
+                    print("A node is down")
+
+            if response is not None:
+                return {"status":"OK","value":response}
+            else:
                 return {"status":"ERROR", "value":response}
 
     def Consensus(self):

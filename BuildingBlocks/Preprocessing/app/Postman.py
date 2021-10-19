@@ -29,6 +29,7 @@ class postman(Thread):
         self.last_message ={}
         self._running=True
 
+
     def init_service(self):
         try:
             if self.SERVICE is not None and self.SERVICE_IP is not None and self.SERVICE_PORT is not None:
@@ -103,7 +104,7 @@ class postman(Thread):
     def HealthCheck(self): 
         time_interval= 10
         while self._running:
-            ToSend = {'status':"RUNNING","message":"Health check","label":'',"id":self.id_service,"type":'', "index":'',"control_number":self.RN}
+            ToSend = {'status':"RUNNING","message":"Health check","label":'',"task":self.id_service,"type":'', "index":'',"control_number":self.RN}
             self.LOGER.info(ToSend)
             self.WarnGateway(ToSend)
             time.sleep(time_interval)
@@ -136,3 +137,16 @@ class postman(Thread):
         
     def Set_RN(self,RN):
         self.RN=RN
+
+        #------------------ TOOLS ---------------#
+    
+    def CreateMessage(self,RN,message,status,id_service=None,type_data='',parent='',label='',index_opt='',times=None):
+        if id_service is None:
+            id_service = self.id_service
+
+        ToSend = {'control_number':RN, "task":id_service, 'status':status,"message":message,"parent":parent,"label":label,"type":type_data, "index":index_opt}
+
+        if times is not None:
+            ToSend['times']=times
+
+        return ToSend
