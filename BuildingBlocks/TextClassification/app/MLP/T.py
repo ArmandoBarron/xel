@@ -15,6 +15,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
+#export
+from tensorflow.keras.experimental import export_saved_model
+
 #for dumping
 import pickle 
 #evaluation
@@ -108,8 +111,7 @@ for ep in ep_list:
     matrixMLP=confusion_matrix(y_test, y_predMLP)
 
 
-    f = open(outputpath,"a")
-
+    f = open(outputpath +"RESULT_MLP_ep-%s_bsize-%s.txt" %(str(ep),str(bsize)),"a")
     f.write("RESULTS OF EVALUATING MLP\n")
     f.write("\nMSE:"+repr(mlpMSE))
     f.write("\nRMSE:"+repr(mlpRMSE))
@@ -122,5 +124,7 @@ for ep in ep_list:
     f.write("\nSupport:"+repr(supportMLP))
     f.write("\n\nConfusion matrix:\n")
     f.write(repr(matrixMLP))
-
     f.close()
+
+    # Exportar el modelo a 'SavedModel'
+    export_saved_model(model, '%sMODEL_MLP_ep-%s_bsize-%s/' %(outputpath,ep,bsize))

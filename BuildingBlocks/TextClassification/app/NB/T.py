@@ -72,8 +72,8 @@ scoresNaive = cross_val_score(model_naive, X_train, y_train, cv=10, scoring='acc
 
 naiveAccuracy = scoresNaive.mean()
 
-f = open(outputpath,"a")
 
+f = open(outputpath +"RESULT_NB.txt","a")
 f.write("RESULTS OF EVALUATING Naive Bayes\n")
 f.write("\nMSE:"+repr(naiveMSE))
 f.write("\nRMSE:"+repr(naiveRMSE))
@@ -88,3 +88,8 @@ f.write("\n\nConfusion matrix:\n")
 f.write(repr(matrixNaive))
 
 f.close()
+
+# save the model to disk
+filename = '%sNaiveBayes.pkl' %(outputpath)
+pickle.dump(model_naive, open(filename, 'wb'))
+ 

@@ -17,6 +17,8 @@ epoch = as.numeric(as.character(args[7]))
 lossFunction = args[8]
 metric = args[9]
 
+dir.create(destination)
+
 columns<-unlist(strsplit(columns, ","))
 data <- read.table(paste(dataPath,fileName,sep=""), header=T, sep=",")
 
@@ -82,7 +84,9 @@ loss <- paste("Loss", report[1], sep=":")
 
 report_to_write<- paste(accuracy,loss, sep="\n")
 
-fileConn<-file(destination)
+fileConn<-file(paste(destination,"report.csv"))
 writeLines(c(report_to_write), fileConn)
 close(fileConn)
 
+#save model 
+save_model_tf(model, paste(destination,"LSTMTrainedModel/"))

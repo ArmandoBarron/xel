@@ -5,12 +5,12 @@
             "COMPRESS":true
         },
     "TRANSFORM":{
-        "COMMAND": "python3 @{CWD}T.py '@{SOURCE}' '@{SINK}output_svc.txt' '@{svc_parameters}'",
+        "COMMAND": "python3 @{CWD}T.py '@{SOURCE}' '@{SINK}' '@{svc_parameters}'",
         "CUSTOM_APP":false
     },
     "LOAD":{
-            "OUTPUT_NAMEFILE":"output_svc.txt",
-            "COMPRESS":false,
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
             "ignore_list":[]
         }
 

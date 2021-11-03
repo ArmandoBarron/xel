@@ -7,9 +7,13 @@ from TPS.Builder import Builder #TPS API BUILDER
 
 class postman(Thread):
 
-    def __init__(self,GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,API_GATEWAY=None):
+    def __init__(self,GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,API_GATEWAY=None,LOGER=None):
         super(postman, self).__init__()
-        self.LOGER = logging.getLogger()
+        if LOGER is None:
+            self.LOGER = logging.getLogger()
+        else:
+            self.LOGER=LOGER
+
         ####
         self.API_GATEWAY=API_GATEWAY
         self.GATEWAYS_LIST=GATEWAYS_LIST
@@ -19,9 +23,12 @@ class postman(Thread):
         self.NETWORK=NETWORK
         self.TPSHOST=TPSHOST
         ##################
+        self.status = "STANDBY"
         self.RN=None
         self.id_service = None
+        self.last_message ={}
         self._running=True
+
 
     def init_service(self):
         try:
@@ -30,12 +37,11 @@ class postman(Thread):
                 url = 'http://%s/ADD' % self.API_GATEWAY
                 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                 res =api.post(url, data=ToSend,headers=headers).json()
-                self.LOGER.error("INIT")
+                self.LOGER.debug("INIT")
             else:
                 self.LOGER.error("NOT ENOUGH INFO TO INIT")
         except Exception as e:
-            self.LOGER.error("ERROR: %s" % e)
-            self.LOGER.error("BAD PARAMETERS")
+            self.LOGER.error("ERROR: %s, BAD PARAMETERS" % e)
             exit(1)
 
     def Select_gateway(self):
@@ -98,13 +104,13 @@ class postman(Thread):
     def HealthCheck(self): 
         time_interval= 10
         while self._running:
-            ToSend = {'status':"RUNNING","message":"Health check","label":'',"id":self.id_service,"type":'', "index":'',"control_number":self.RN}
-            self.LOGER.error(ToSend)
+            ToSend = {'status':"RUNNING","message":"Health check","label":'',"task":self.id_service,"type":'', "index":'',"control_number":self.RN}
+            self.LOGER.info(ToSend)
             self.WarnGateway(ToSend)
             time.sleep(time_interval)
 
     def ArchiveData(self,file_pointer,namefile):
-        self.LOGER.error("ENTRO A GUARDAR DATOS")
+        self.LOGER.debug("ENTRO A GUARDAR DATOS")
         try:
             url = 'http://%s/ArchiveData/%s/%s' % (self.API_GATEWAY,self.RN,self.id_service)
             res = api.post(url, files={"file":(namefile,file_pointer)}).json()
@@ -115,12 +121,32 @@ class postman(Thread):
 
 
     def run(self):
+        self.status="RUNNING"
         self.HealthCheck()
 
-    def terminate(self):
+    def terminate(self,final_status,last_message):
+        self.status=final_status
         self._running=False
+        ## send a last message
+        self.WarnGateway(last_message)
+        self.LOGER.warning("SENDING A LAST MESSAGE: %s" %(last_message))
+
 
     def Set_IdService(self,id_service):
         self.id_service=id_service
+        
     def Set_RN(self,RN):
         self.RN=RN
+
+        #------------------ TOOLS ---------------#
+    
+    def CreateMessage(self,RN,message,status,id_service=None,type_data='',parent='',label='',index_opt='',times=None):
+        if id_service is None:
+            id_service = self.id_service
+
+        ToSend = {'control_number':RN, "task":id_service, 'status':status,"message":message,"parent":parent,"label":label,"type":type_data, "index":index_opt}
+
+        if times is not None:
+            ToSend['times']=times
+
+        return ToSend

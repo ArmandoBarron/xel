@@ -38,7 +38,11 @@ def execute(params,AppConfig):
         
     return: dict(). {status,data:{'status','data','type','message'}}
     """ 
-    RESERVED_PARAMS={"SOURCE":params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'],"SINK":params['BBOX_OUTPUT_PATH'],"CWD":ACTUAL_PATH}
+    RESERVED_PARAMS={"SOURCE":params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'],
+                    "SOURCE_PATH":params['BBOX_INPUT_PATH'],
+                    "SOURCE_FILENAME":params['BBOX_INPUT_NAMEFILE'],
+                    "SINK":params['BBOX_OUTPUT_PATH'],
+                    "CWD":ACTUAL_PATH}
 
     Extract_config = AppConfig['EXTRACT']
     Transform_config = AppConfig['TRANSFORM']
@@ -53,7 +57,7 @@ def execute(params,AppConfig):
     ##########################################################################################################
 
     try:
-
+        app_message="OK"
         ######################### call the application #########################
         if Transform_config['CUSTOM_APP']:
             try:
@@ -71,6 +75,10 @@ def execute(params,AppConfig):
             execution_status = os.system(command)
         ########################################################################
 
+        if (execution_status!=0):
+            app_message="Internal error in the application"
+
+
         ### some assumtions###
         ### data results are in SINK (BBOX_OUTPUT_PATH)
         ### must especify compress option or output_namefile option... in other case a error will rise.
@@ -85,6 +93,8 @@ def execute(params,AppConfig):
                     namefile = utils.FormatCommand(tmp_name,params,reserved_params=RESERVED_PARAMS) #format namefile 
                     if len(namefile.split("/"))>=2: #its a path
                         result = namefile
+                        #if its a path by default compress is TRUE
+                        Load_config['COMPRESS']=True
                     else:
                         result=RESERVED_PARAMS['SINK']+namefile #its just a file name and we add a default path
                     result = shutil.copy(result,params['BBOX_ROLLBACK_PATH']) #copy file generated to rollback folder
@@ -105,12 +115,10 @@ def execute(params,AppConfig):
 
         name,ext = result.split(".")
         LOGER.error(result)
-        response = {"data":result,"type":ext,"status":"OK","message":"OK"}
+        response = {"data":result,"type":ext,"status":"OK","message":app_message}
 
     except (Exception,ValueError) as e:
-        LOGER.error("wooowoowoooo"+ str(e))
-        response = {"data":"","type":"","status":"ERROR","message":""}
-        response['message']=str(e)
+        response = {"data":"","type":"","status":"ERROR","message":"%s" %(e)}
         return {'status':1,'data':response}
 
     return {'status':execution_status,'data':response}

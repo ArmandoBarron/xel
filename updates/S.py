@@ -17,7 +17,7 @@ f_records.close()
 
 
 def ClientProcess(metadata,data_acq_time):
-    AG=postman(GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,API_GATEWAY=API_GATEWAY)
+    AG=postman(GATEWAYS_LIST,SERVICE_NAME,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,API_GATEWAY=API_GATEWAY,LOGER=LOGER)
 
     os.chdir(BASE_PATH) #in case of error must be set the base path
     DAG = metadata['DAG'] #dag
@@ -26,7 +26,12 @@ def ClientProcess(metadata,data_acq_time):
     service = DAG['service']
     service_name = service
     params = DAG['params']
-    childrens = DAG['childrens']
+
+    if 'childrens' in DAG:
+        childrens = DAG['childrens']
+    else:
+        childrens = []
+    
     id_service =DAG['id']
     control_number = DAG['control_number']
     #times
@@ -58,21 +63,21 @@ def ClientProcess(metadata,data_acq_time):
             actions=[DAG['actions']] 
             service_name=service_name+"_"+str(DAG['actions'][0])
     else:
-        actions = ['A'] #default exec the first service called A
-        params = {'A':params}
+        actions = ['REQUEST'] #default exec the first service called REQUEST
+        params = {'REQUEST':params}
 
-    LOGER.error("### INFO: starting execution process... %s" % service_name)
-    LOGER.error(data['data'])
+    LOGER.info("Starting execution process... %s" % service_name)
+    LOGER.debug("input path: %s" %data['data'])
 
     ##### EXECUTION ####
     execution_time=time.time()
-    result = BB.middleware(data,actions,params) #{data,type,status,message}
+    result = BB.middleware(data,actions,params,LOGER=LOGER) #{data,type,status,message}
     execution_time=time.time()-execution_time
-    LOGER.error("### INFO: Finishing execution process... %s" % service_name)
+    LOGER.info("Finishing execution process... %s" % service_name)
     del data
 
     #------------------#
-    LOGER.error("### INFO: starting indexing process...%s" % result['data'])
+    LOGER.info("Starting indexing process...%s" % result['data'])
     ###### INDEX #######
     if index_opt and result['status']!="ERROR": #save results 
 
@@ -90,7 +95,7 @@ def ClientProcess(metadata,data_acq_time):
         result['data'] = temp_filename
     else:
         label=False
-        LOGER.error("### INFO: skiping index process")
+        LOGER.info("Skiping index process")
     #------------------#
     ########################  save solution's results in diary
     with open(SOLUTIONS_FILE,'a+') as f_records:
@@ -98,32 +103,16 @@ def ClientProcess(metadata,data_acq_time):
         f_records.write("%s\t%s\t%s\t%s\n" %(id_service,control_number,result['data'],json.dumps(childrens)))
     ############################
 
-    ####### WARN #######
-    ToSend = {'status':result['status'],"message":result['message'],"label":label,"id":id_service,"type":result['type'], "index":index_opt,"control_number":control_number}
-    ToSend['times']={"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time}
-    AG.WarnGateway(ToSend)
-    #------------------#
-
     ##### archive results #####
-    if result['status']=="ERROR":
-        pass
-    else:
+    if result['status']!="ERROR":
         AG.ArchiveData(open(result['data'],"rb"),result['data'].split("/")[-1]) #open result file to send it to another service
-    #######################
+    ###########################
 
-    AG.terminate()
-    LOGER.error("### INFO: sending to childrens...")
+    ToSend = AG.CreateMessage(control_number,result['message'],result['status'],label=label,type_data=result['type'],index_opt=index_opt,times={"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time})
+    AG.terminate(result['status'],ToSend)
+    LOGER.info("Sending to childrens...")
 
-###### PATCH
-    #OUTPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+result['type'])
-    #OUTPUT_TEMPFILE.write(result['data'].encode())
-    #output_temp_filename = OUTPUT_TEMPFILE.name
-    #OUTPUT_TEMPFILE.close()
-    #result['data'] = output_temp_filename
-###########
-    
     try:
-
         for child in childrens: #list[]
             ##################### HERE 
             if result['status']=="ERROR":
@@ -137,8 +126,8 @@ def ClientProcess(metadata,data_acq_time):
             else:
                 f = open(result['data'],"rb") #open result file to send it to another service
             
-            LOGER.error("### INFO: file: %s ..." %result['type'])
-            LOGER.error(childrens)
+            LOGER.info("### INFO: file: %s ..." %result['type'])
+            LOGER.debug(childrens)
             child['control_number']=control_number ## add control number 
             
             ######## ASK #######
@@ -147,26 +136,26 @@ def ClientProcess(metadata,data_acq_time):
             #------------------#
             if 'info' in res: #no more nodes
                 LOGER.error("NO NODES FOUND")
-                data= {'label':'','id':child['id'],'index':'','control_number':control_number,'type':'','status':'ERROR','message': 'no available resources found.'}
+                data = AG.CreateMessage(control_number,'no available resources found.','ERROR',id_service=child['id'])
                 AG.WarnGateway(data)
             else:
                 errors_counter=0
                 ###### SEND #######
                 ip = res['ip'];port = res['port']
-                LOGER.error("Children detected... IP:%s PORT: %s " %(ip,port) )
+                LOGER.debug("Children detected... IP:%s PORT: %s " %(ip,port) )
                 while(True):
                     #
                     data = C.RestRequest(ip,port,{'data':result,'DAG':child},data_file=f)
                     if data is not None:
-                        LOGER.error(">>>>>>> SENT WITH NO ERRORS")
+                        LOGER.info(">>> DATA SENT SUCCESFULLY <<<")
                         #warn successful process
-                        warn_success= {'label':'','id':child['id'],'index':'','control_number':control_number,'type':'','status':'INFO','message': child,'parent':id_service}
-                        AG.WarnGateway(warn_success)
+                        ToSend = AG.CreateMessage(control_number,'Starting ejecution.','INFO',id_service=child['id'],parent=id_service)
+                        AG.WarnGateway(ToSend)
                         errors_counter=0
                         break;
                     else:
                         errors_counter+=1
-                        LOGER.error(">>>>>>> NODE FAILED... TRYING AGAIN..%s" % errors_counter)
+                        LOGER.warning(">>>>>>> NODE FAILED... TRYING AGAIN..%s" % errors_counter)
                         if errors_counter>Tolerant_errors: #we reach the limit
                             ######## ASK AGAIN #######
                             ToSend = {'service':child['service'],'network':NETWORK,'update':{'id':res['id'],'status':'DOWN',"type":res['type']}} #update status of falied node
@@ -174,18 +163,18 @@ def ClientProcess(metadata,data_acq_time):
                             #------------------#
                             errors_counter=0 #reset counter 
                             if 'info' in res: #no more nodes
-                                data= {'label':'','id':child['id'],'index':'','control_number':control_number,'type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
+                                data = AG.CreateMessage(control_number,'no available resources found: %s attempts.' % str(errors_counter) ,'ERROR',id_service=child['id'])
                                 AG.WarnGateway(data)
                                 break
                             ip = res['ip'];port = res['port']
-                            LOGER.error("TRYING A NEW NODE... IP:%s PORT: %s " %(ip,port) )
+                            LOGER.debug("TRYING A NEW NODE... IP:%s PORT: %s " %(ip,port) )
 
 
     except KeyError as ke:
-        LOGER.error("No more childrens")
+        LOGER.error("ERROR: we can't find chilfrens childrens")
 
     if len(childrens)<=0:
-        LOGER.error("Data sent to all childrens")
+        LOGER.info("Data sent to all childrens")
 
     #here it will be the rollback function
     del result
@@ -196,10 +185,11 @@ def ClientProcess(metadata,data_acq_time):
 #########################################################
 
 BASE_PATH = os.getcwd()
+logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
 GATEWAYS_LIST =os.getenv("API_GATEWAY").split(",")
 NETWORK=os.getenv("NETWORK")
-SERVICE=os.getenv("SERVICE")
+SERVICE_NAME=os.getenv("SERVICE_NAME")
 SERVICE_IP=os.getenv("SERVICE_IP") 
 SERVICE_PORT=os.getenv("SERVICE_PORT") 
 TPSHOST = os.getenv("TPS_MANAGER") 
@@ -207,7 +197,7 @@ TPSHOST = os.getenv("TPS_MANAGER")
 Tolerant_errors=10 #total of errors that can be tolarated
 
 ##### TEMP_AG communication handler
-TEMP_AG=postman(GATEWAYS_LIST,SERVICE,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST)
+TEMP_AG=postman(GATEWAYS_LIST,SERVICE_NAME,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,LOGER=LOGER)
 
 Gtwy = TEMP_AG.Select_gateway()
 if Gtwy == 1:
@@ -226,7 +216,7 @@ serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind((socket.gethostname(), port))
 host_name = socket.gethostname() 
 host_ip = socket.gethostbyname(host_name) 
-LOGER.error("SERVER ON! IP: "+host_ip+" PORT: "+str(port)+"\n\n")
+LOGER.info("SERVER ON! IP: "+host_ip+" PORT: "+str(port)+"\n\n")
 #   init service  #
 TEMP_AG.init_service()
 serv.listen(Tolerant_errors)
@@ -234,7 +224,7 @@ serv.listen(Tolerant_errors)
 while True:
     conn, addr = serv.accept()
     data_acq_time=time.time()
-    LOGER.error("CONECTION FROM: "+str(addr[0])+" PORT: "+str(addr[1])+"\n")
+    LOGER.info("CONECTION FROM: "+str(addr[0])+" PORT: "+str(addr[1])+"\n")
 
     ### get header ###
     data_to_recv = HEADERSIZE
@@ -252,7 +242,7 @@ while True:
         else:
             data_to_recv-=reciv_amount
 
-    LOGER.error("> header recived")
+    LOGER.debug("> header recived")
 
     ### get metadata ###
     data_to_recv = msglen
@@ -268,21 +258,20 @@ while True:
         else:
             data_to_recv-=reciv_amount
 
-    LOGER.error("> metadata recived")
+    LOGER.debug("> metadata recived")
 
     file_ext =json.loads(metadata)['data']['type'] 
 
     INPUT_TEMP_FILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+file_ext) # TEMPORARY FILE TO SAVE DATA
     ### get file ###
     reciv_amount = 0
-    LOGER.error("prepare for recive: %s\n" % file_ext)
+    LOGER.debug("prepare for recive: %s\n" % file_ext)
     progress = tqdm.tqdm(range(filesize), f"Receiving data", unit="B", unit_scale=True, unit_divisor=1024)
     while True:
         bytes_read = conn.recv(BUFF_SIZE)
         reciv_amount += len(bytes_read)
         INPUT_TEMP_FILE.write(bytes_read)
         progress.update(len(bytes_read))
-
         if reciv_amount>=filesize: 
             break
 

@@ -81,7 +81,8 @@ Once a mesh of deployed services exists, they can be used to create solutions.
 The solutions are designed based on instructions defined as a tree, following the following structure:
 ```json
 {
- "data":{"data":"Adhh77gd67tb17t68eggi80asdasd","type":"xls"},
+ "data-map":{"data":"","type":"LAKE"},
+ "auth":{"workspace": "<catalog>", "user": "<token_user>"},
  "DAG":{ 
     "id": "root",
     "name": "root",
@@ -110,22 +111,36 @@ where:
 + **params** is a set of params defined in a key-valye format that will be used for the app to preform the data transformation.
 + **children** is a set of childres with the instructions to be executed for services after finish _this_ parent.
 
-As well as the instructions, the dataset to be transformed must be sent, this can be done in 2 ways:
-+ Send it with the instructions in the **data** as an encoded file specifing the extention in **type**. For CSV files could be sent in an array [] (as the [pandas library](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_records.html) produce with the function *pandas.DataFrame.to_records*).
-+ Using the Acquisition BB to access remote or local datasets (in localdata folder).
+As well as the instructions, the dataset to be transformed must be sent. Below are the available ways up to this version of xel to provide a dataset
 
++ **Upload it as a file**. Dataset can be send to the mesh as _multipart/form-data_ to the path /UploadDataset. In addition to the file, information must be provided for storage in the lake, such as the user identifier and the catalog (or workspace) where it will be stored, this is done as follows:
+  ```json
+    {"workspace": "<catalog>", "user": "<token_user>"}
+   ```
+
+  Once the file has been uploaded it needs to be specified in the json with the instructions. In this case, the dataset will be in the data lake of xel, and it is specified as follows:
+
+  ```json
+    {"data_map":{"data":{"token_user":"<token_user>","catalog":"<catalog>","filename":"<name of the dataset>"},"type":"LAKE"}}
+  ```
+
++ Using the Acquisition _BB_ to access remote or local datasets (in localdata folder). In this case, since an acquisition BB will be used to obtain the data, xel is not required to provide input data. This is specified in the statement json as follows:
+  ```json
+    {"data_map":{"data":,"type":"DUMMY"}}
+  ```
+  
 ### Execution
 
 To execute the solutions can be done in 2 ways:
-+ using the GUI deployed in http://www.adaptivez.org.mx/AEM-Eris/meteo/ specifying the IP of the API GATEWAY of the mesh (or using the already deployed services in the adaptivez server)
++ Using the GUI deployed in http://www.adaptivez.org.mx/AEM-Eris/meteo/ specifying the IP of the API GATEWAY of the mesh (or using the already deployed services in the adaptivez server)
 + Using the Client.py app.  Execute this client with the following command:
     ```sh
-    $ python3 Client.py 127.0.0.1:25000 ./Examples/Solutions/Classification_control_test.json NA
+    $ python3 Client.py localhost:25000 ./Examples/Solutions/map_reduce.json ./localdata/EC_mun.csv 
     ```
     where:
-    + 127.0.0.1:5432 is the host ip with the AG.
-    + ./Examples/Solutions/Classification_control_test.json is the path for the json file with the instructions.
-    + NA is the path with the file of dataset, in this case, we dont need a dataset so we declared as NA. 
+    + 127.0.0.1:25000 is the host ip with the AG.
+    + ./Examples/Solutions/map_reduce.json  is the path for the json file with the instructions.
+    + ./localdata/EC_mun.csv is the path with the file of dataset (this is optional depending of the instructions).
     
     
 

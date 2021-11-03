@@ -15,37 +15,39 @@ class loadbalancer():
     def decide(self,service,network,force_network=None,n=1):
         if force_network is None:
             force_network = self.force_local
-        
-        up_resources=[]
-        for r in self.resources[service]['resources']: #up services
-            if r['status'] == "UP":
-                up_resources.append(r)
+        try:
+            up_resources=[]
+            for r in self.resources[service]['resources']: #up services
+                if r['status'] == "UP":
+                    up_resources.append(r)
 
 
-        network_resources = []
-        for r in up_resources: #services in the same network
-            if r['network'] == network and force_network:
-                network_resources.append(r)
+            network_resources = []
+            for r in up_resources: #services in the same network
+                if r['network'] == network and force_network:
+                    network_resources.append(r)
 
-        total_resources = len(network_resources)
+            total_resources = len(network_resources)
 
-        if total_resources <=0:
-            if len(up_resources)<=0: #actually there are no resources
-                return None
-            resources = up_resources #select all up resources despite the network
-            total_resources = len(resources)
-        else:
-            resources = network_resources
+            if total_resources <=0:
+                if len(up_resources)<=0: #actually there are no resources
+                    return None
+                resources = up_resources #select all up resources despite the network
+                total_resources = len(resources)
+            else:
+                resources = network_resources
 
-        # two choices algorithm
-        random1 = randint(0, total_resources-1)
-        random2 = randint(0, total_resources-1)
-        if total_resources>1: #more than 1 resource
-            while(True):
-                if random1 == random2:
-                    random1 = randint(0, total_resources-1)
-                else:
-                    break
+            # two choices algorithm
+            random1 = randint(0, total_resources-1)
+            random2 = randint(0, total_resources-1)
+            if total_resources>1: #more than 1 resource
+                while(True):
+                    if random1 == random2:
+                        random1 = randint(0, total_resources-1)
+                    else:
+                        break
+        except KeyError: #the service required is not in the mesh
+            return None
 
 
 
@@ -104,13 +106,17 @@ class loadbalancer():
             self.gateways.append({"network":data['network'],"id":id_service,"ip":data['ip'],"port":data['port'],"status":"UP"})
             return True
         else:
-            #verify if exist        
-            for res in self.resources[service]["resources"]:
-                if res['ip']==data['ip'] and res['port']==data['port'] and res['network']==data['network']:
-                    res['status']="UP"
-                    return False
+            #verify if the service exist
+            if service in self.resources:
+                #verify if resource exist
+                for res in self.resources[service]["resources"]:
+                    if res['ip']==data['ip'] and res['port']==data['port'] and res['network']==data['network']:
+                        res['status']="UP"
+                        return False
+            else: #if service not exist then...
+                self.resources[service] = {"resources":[]}
 
-            #if not, add as a new resource
+            #Add as a new resource
             id_service = len(self.resources[service]["resources"])+1
             self.resources[service]["resources"].append({"network":data['network'],"id":id_service,"ip":data['ip'],"port":data['port'],"workload":0,"status":"UP"})
             return True

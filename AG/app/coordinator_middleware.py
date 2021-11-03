@@ -1,41 +1,37 @@
 import sys,os,ast
 import pandas as pd
 from threading import Thread
-from flask import request, url_for
-from flask import Flask,jsonify,Response,send_file
-from random import randint
+from flask import Flask,request,jsonify,send_file
 import json
 from time import sleep
 import C
-from TPS.Builder import Builder #TPS API BUILDER
 import logging #logger
 from base64 import b64encode,b64decode
 import io
-import time
-from TwoChoices import loadbalancer
-from Proposer import Paxos
 import tempfile
+import shutil
 
-def createFolderIfNotExist(folder_name,wd=""):
-    try:
-        if not os.path.exists(wd+folder_name):
-            os.makedirs(wd+folder_name)
-    except FileExistsError:
-        pass
-    return wd+folder_name
+# local imports
+from functions import *
+from TwoChoices import loadbalancer
+from TPS.Builder import Builder #TPS API BUILDER
+from Proposer import Paxos
+
 
 ########## GLOBAL VARIABLES ##########
 with open('coordinator_structure.json') as json_file:
     dictionary = json.load(json_file) #read all configurations for services
 
+logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
-WORKSPACENAME = "SERVICEMESH"
+WORKSPACENAME = "SERVICEMESH" #equivalente a catalogo en skycds, es decir, una solucion o un DAG
 TPSHOST ="http://tps_manager:5000"
 NETWORK=os.getenv("NETWORK") 
 
 #create logs folder
 logs_folder= "./logs/"
 createFolderIfNotExist(logs_folder)
+#fh = logging.FileHandler(logs_folder+'info.log')
 
 #Backups folder
 BKP_FOLDER= "./BACKUPS/"
@@ -44,10 +40,6 @@ createFolderIfNotExist(BKP_FOLDER)
 #supplies folder
 SPL_FOLDER= "./SUPPLIES/"
 createFolderIfNotExist(SPL_FOLDER)
-
-
-#fh = logging.FileHandler(logs_folder+'info.log')
-#fh.setLevel(logging.error)
 
 INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
 
@@ -58,33 +50,46 @@ ACCEPTORS_LIST= dictionary['paxos']["accepters"]
 PROPOSER = Paxos(ACCEPTORS_LIST)
 ########## END GLOBAL VARIABLES ##########
 
-def GetWorkspacePath(workspace,tokenuser):
+def GetDataPath(params):
+    typeOfData = params['type']
+    credentials = params['data']
+    if typeOfData=="RECORDS":
+        input_data = pd.DataFrame.from_records(data['data']) #data is now a dataframe
+        INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix=".csv") #create temporary file
+        path= INPUT_TEMPFILE.name; INPUT_TEMPFILE.close()
+        input_data.to_csv(path, index = False, header=True) #write DF to disk
+    if typeOfData =="SOLUTION":
+        #hay que descargar el catalogo si es necesario
+        #cuando se añada SKYCDS el BKP_FOLDER se remplaza por el token del usuario
+        # BKP_FOLDER = credentials['token_user']
+        path = BKP_FOLDER+credentials['token_solution']+"/"+ credentials['task']+"/"
+        if 'filename' in credentials:
+            path+=credentials['filename']
+        else:
+            tmp = os.listdir(path)
+            path +=tmp[0]
+    elif typeOfData=="LAKE":
+        path = GetWorkspacePath(credentials['token_user'],credentials['catalog']) + credentials['filename']
+    elif typeOfData=="DUMMY": #no data, just a dummy file (is the easiest way to avoid an error, sorry in advance)
+        text_for_test="WAKE ME UP, BEFORE YOU GO GO.."
+        INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix=".txt") #create temporary file
+        path = INPUT_TEMPFILE.name
+        INPUT_TEMPFILE.write(text_for_test.encode())
+        INPUT_TEMPFILE.close()
+    else:
+        path="."
+    
+    LOGER.error(path)
+    name,ext = path.split("/")[-1].split(".") #get the namefile and then split the name and extention
+    return path,name,ext
+
+
+def GetWorkspacePath(tokenuser,workspace):
+    #se creara el cataloog de fuentes de datos si es que no existe
     createFolderIfNotExist("%s%s" %(SPL_FOLDER,tokenuser))
     createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
     return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
 
-def DatasetDescription(path_dataset):
-    datos = pd.read_csv(path_dataset)
-    columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
-    datos = datos.apply(pd.to_numeric, errors='ignore')
-    response = dict()
-    response['info']=dict()
-    response['columns'] = list(datos.columns.values)
-    des = datos.describe(include='all')
-    for col in response['columns']:
-        des_col = des[col]
-        column_description = dict()
-        for c in range(0,len(columns)):
-            try:
-                value = des_col[c]
-            except Exception:
-                break
-            if pd.isnull(value) or pd.isna(value):
-                value = ""
-            column_description[columns[c]] = str(value)
-        column_description['type'] = datos[col].dtype.name
-        response['info'][col] = column_description
-    return response
 
 def IndexData(RN,id_service,data):
     #data must be a json (dict)
@@ -114,20 +119,11 @@ def GetIndexedData(label):
     #data = INDEXER.TPSapi.TPS(query,"getdata") #this service (getdata) let me send json data and save it into a mongo DB
     return data
     
-
-def formPMsg(data,p_DAG,destinationFolder,destinationFile,workParams):
-    msg = data,destinationFolder,destinationFile,p_DAG,workParams
-    return msg
-
-def formDLMsg(data,dl_DAG,destinationFolder,destinationFile,filename,workParams):
-    msg = data,destinationFolder,destinationFile,dl_DAG,filename,workParams
-    return msg
-
 #service to execute applications
 def execute_service(service,metadata):
     f = open(metadata['data']['data'],"rb")
 
-    LOGER.error("executing...%s"% service)
+    LOGER.info("Coordinator is executing...%s"% service)
     errors_counter=0
     ToSend = {'service':service,'network':NETWORK} #update status of falied node
     res = json.loads(ASK(params=ToSend))
@@ -151,7 +147,7 @@ def execute_service(service,metadata):
         data = C.RestRequest(ip,port,metadata,data_file=f)
 
         if data is not None:
-            LOGER.error(">>>>>>> SENT WITH NO ERRORS")
+            LOGER.info(">>>>>>> SENT WITH NO ERRORS")
             errors_counter=0
             break
         else:
@@ -168,14 +164,15 @@ def execute_service(service,metadata):
                     else:
                         ip = res['ip'];port = res['port']
                         LOGER.error("TRYING A NEW NODE... IP:%s PORT: %s " %(ip,port) )
-    LOGER.error("finishing execution...%s"% service)
+    LOGER.info("finishing execution...%s"% service)
 
 
 app = Flask(__name__)
+
 #root service
 @app.route('/')
 def prueba():
-    return "Service Mesh"
+    return {"status":"OK","message":"xel is online."}
 
 @app.route('/health',methods=['GET'])
 def health():
@@ -188,9 +185,7 @@ def saveconfig():
 
 @app.route('/ADD', methods=['POST'])
 def AddServiceResource():
-
     params = request.get_json(force=True)
-
     service = params['SERVICE']
     service_ip = params['IP']
     service_port = params['PORT']
@@ -199,12 +194,11 @@ def AddServiceResource():
     ToSend={"network":network,"ip":service_ip,"port":service_port,"status":"UP"}
     status = LOAD_B.Addresource(service,ToSend)
     if status:
-        LOGER.error("REGISTRED %s, ip:%s port: %s" % (service,service_ip,service_port))
+        LOGER.info("REGISTRED %s, ip:%s port: %s" % (service,service_ip,service_port))
     else:
-        LOGER.error("ALREADY REGISTRED %s, ip:%s port: %s " % (service,service_ip,service_port))
+        LOGER.info("ALREADY REGISTRED %s, ip:%s port: %s " % (service,service_ip,service_port))
 
     return json.dumps({'status':'OK'})
-
 
 
 @app.route('/ASK', methods=['POST'])
@@ -237,14 +231,14 @@ def ASK(params=None):
 
         res['type'] = "service" #add type
         if res['network'] != network: #redirect to gateway
-            LOGER.error("REDIRECTING TO INTERNAL GATEWAY..")
+            LOGER.info("REDIRECTING TO INTERNAL GATEWAY..")
             #
 
             iag = LOAD_B.SelectGateway(res['network'])
             if iag is not None:
                 res = iag
                 res['type'] = "gateway"
-                LOGER.error("GATEWAY: %s, NETWORK: %s" %(res['ip'],res['network']))
+                LOGER.debug("GATEWAY: %s, NETWORK: %s" %(res['ip'],res['network']))
                 break
             else:
                 LOGER.error("Gateway is not aviable")
@@ -275,99 +269,100 @@ def TIMES():
 
 
 @app.route('/WARN', methods=['POST'])
-def WARN(params=None):
-    if params is None:
-        params = request.get_json(force=True)
+def WARN(warn_message=None):
+    if warn_message is None:
+        warn_message = request.get_json(force=True)
 
-    status = params['status']
-    message = params['message']
-    label = params['label']
-    id_serv = params['id']
-    data_type = params['type']
-    index_opt = params['index']
-    control_number = params['control_number']
-
-    ToSend={'status':status,"message":message,"label":label,"task":id_serv,"type":data_type, "index":index_opt} #update status
-
-    if 'parent' in params:
-        ToSend['parent'] = params['parent']
-
+    #ToSend={'status':status,"message":message,"label":label,"task":id_serv,"type":data_type, "index":index_opt} #update status
+    control_number = warn_message['control_number']
     ######## paxos ##########
-    paxos_response = PROPOSER.Update_task(control_number,ToSend) # save request in paxos distributed memory
+    paxos_response = PROPOSER.Update_task(control_number,warn_message) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
         LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
     #########################
 
-    if 'times' in params:
-        tmp= params['times']
+    if 'times' in warn_message:
+        tmp= warn_message['times']
         f = open(logs_folder+'log_'+control_number+'.txt', 'a+'); 
         #{"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time}
         f.write("%s, %s, %s, %s \n" %(tmp['NAME'],tmp['ACQ'],tmp['EXE'],tmp['IDX'], )) 
         f.close()
+
     return json.dumps({'status':'OK'})
 
 
 #service to execute a set of application in a DAG
 @app.route('/executeDAG', methods=['POST'])
 def execute_DAG():
+    """
+        {data_map:{data,type},DAG:{},token_solution(optional)}
+
+        type:(LAKE,SOLUTION,RECORDS,SHARED,DUMMY)
+
+        if SOLUTION: //local transversal, detect data produced by another solution from the same user 
+            {data:{token_user,token_solution,task,filename(optional)},type:SOLUTION} #un catalogo del usuario
+        if RECORDS: //raw data as records 
+            {data:[],type:RECORDS}
+        if LAKE: //obtained from a catalog in the CDN
+            {data:{token_user,catalog(workspace),filename},type:LAKE}
+        if SHARED: //shared transversal, detect data produced by another solution from another user 
+            {data:{shared_token,task,filename(optional)},type:SHARED} #un catalogo del usuario
+    """
 
     params = request.get_json(force=True)
-    envirioment_params = json.loads(params['auth']) #params wich define the enviroment  {user:,workspace:}
-    data = json.loads(params['data']) #data to be transform {data:,type:}
+    envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    data = params['data_map'] #data to be transform {data:,type:}
     DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
-    #A resquest random number for monitoring is created. 
-    RN = str(randint(100000,900000)) #random number with 6 digits
+    
+    LOGER.error(DAG)
+    data_path,name,ext= GetDataPath(data) #get data path
 
-    #INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+data['type']) #create temporary file
-    #input_temp_filename = INPUT_TEMPFILE.name
-    #INPUT_TEMPFILE.close()
+    data['data'] = data_path
+    data['type'] = ext
 
-    if data['data']=="": #if nothing was sent (BUT MUST HAVE THE FILENAME)
-        text_for_test="HELLO WORLD. WAKE ME UP, BEFORE YOU GO GO.."
-        INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+data['type']) #create temporary file
-        data['data'] = INPUT_TEMPFILE.name
-        data['type']="txt"
-        INPUT_TEMPFILE.close()
-        f = open(data['data'],"wb")
-        f.write(text_for_test.encode())
-        f.close()
+    # verify if data exist
+    if (os.path.exists(data['data'])):
+        pass
     else:
-        if 'user' in envirioment_params and 'workspace' in envirioment_params:
-            data['data'] = GetWorkspacePath(envirioment_params['workspace'],envirioment_params['user']) + data['data']
+        return {"status":"ERROR","message":"404: Data not found."}
 
-        if (os.path.exists(data['data'])):
-            pass
-        else:
-            return {"status":"ERROR","message":"404: Input data not found in server"}
-
-
-
-    #if data["type"]=="csv": # to parse json to csv
-    #    input_data = pd.DataFrame.from_records(data['data']) #data is now a dataframe
-    #    input_data.to_csv(input_temp_filename, index = False, header=True) #write DF to disk
-    #else:
-    #    f = open(input_temp_filename,"wb")
-    #    f.write(data['data'].encode())
-    #    f.close()
-    #data['data']=input_temp_filename
+    #A resquest random number for monitoring is created. 
+    RN = CreateSolutionID(params)
 
     ######## paxos ##########
-    paxos_response = PROPOSER.Save(RN,DAG) # save request in paxos distributed memory
+    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
         LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
         return {"status":"ERROR","message":"Mesh is not accepting requests"}
     #########################
+    #Paxos returns the list of task tat will be executed. if list is void, then all the task have been executed before and must be pass the FORCE option to execute them again
+    res = paxos_response['value']
 
-    for br in DAG: #for each pipe in DAG
-        br['control_number'] = RN
-        metadata = {"data":data,"DAG":br}
-        service = br['service']
+    new_dag = res['DAG']
+    task_list = res['task_list']
+    for branch in new_dag:
+        branch['control_number'] = RN
+        if branch['id'] in task_list:
 
-        thread1 = Thread(target = execute_service, args = (service,metadata) )
-        thread1.start()
-        time.sleep(1)
+            parent = task_list[branch['id']]['parent']
+            path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
+            tmp = os.listdir(path_bk_data)
+            path_bk_data +="/"+tmp[0]
+            LOGER.info("recovering data from %s ..." % path_bk_data)
 
-    return json.dumps({"status":"OK",'RN':RN})
+            data_format ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
+            metadata = {"data":data,"DAG":branch}
+            service = branch['service'] #name of the service to send the instructions
+            thread1 = Thread(target = execute_service, args = (service,metadata))
+            thread1.start()
+        else:
+            metadata = {"data":data,"DAG":branch}
+            service = branch['service']
+            thread1 = Thread(target = execute_service, args = (service,metadata) )
+            thread1.start()
+            sleep(.5)
+
+    return json.dumps({"status":"OK",'token_solution':RN,"DAG":DAG})
 
 
 #service to monitoring a solution with a control number
@@ -380,21 +375,27 @@ def monitoring_solution(RN):
     #########################
     value = paxos_response['value']
 
-    if 'DAG' in value:
-        #el nodo fallo al estar procesando datos... se van a recuperar
-        params = value['DAG']
-        path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,params['parent'])
+    if value is None:
+        return json.dumps({"status":"ERROR", "message":"Solution doesn't exist"})
+
+    if 'DAG' in value: #el nodo fallo al estar procesando datos... se van a recuperar
+        dag = value['DAG']
+        parent = value['parent']
+
+        path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
         tmp = os.listdir(path_bk_data)
         path_bk_data +="/"+tmp[0]
-        #LOGER.error("recuperando datos de %s ..." % path_bk_data)
+        LOGER.info("recovering data %s ..." % path_bk_data)
 
-        params['DAG']['control_number'] = RN
+        dag['control_number'] = RN # must be added, BB need it
         data ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
-        metadata = {"data":data,"DAG":params['DAG']}
-        service = params['DAG']['service']
+
+        metadata = {"data":data,"DAG":dag}
+        service = dag['service'] #name of the service to send the instructions
 
         thread1 = Thread(target = execute_service, args = (service,metadata))
         thread1.start()
+
         return json.dumps({"status":"INFO", "message":"RECOVERING DATA FROM %s" % service})
 
 
@@ -445,71 +446,133 @@ def getfileintask(RN,task):
                     as_attachment=True,
                     attachment_filename=task+'.'+data_ext
             )
+@app.route('/RetrieveSolution', methods=['POST'])
+def retrieve_sol_from_DB():
+    params = request.get_json(force=True)
+    auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    token_solution = params['token_solution']
+     ######## paxos ##########
+    paxos_response = PROPOSER.Retrieve(token_solution,auth) # consult request in paxos distributed memory
+    #########################
+    return {"status":paxos_response['status'],"info":paxos_response['value']}    
+
+@app.route('/StoreSolution', methods=['POST'])
+def store_sol_in_DB():
+    params = request.get_json(force=True)
+    auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    metadata = params['metadata'] #metadata of the solution {name,desc,frontend}
+    DAG = params['DAG'] #it have the parameters, the sub dag ,and the secuence of execution (its a json).
+    #token_solution = params['token_solution']
+    token_solution = CreateSolutionID(params)
+    
+    ######## paxos ##########
+    paxos_response = PROPOSER.Store(token_solution,DAG,metadata,auth) # consult request in paxos distributed memory
+    #########################
+    return {"status":paxos_response['status'], "message":paxos_response['value'],"info":{"token_solution":token_solution}}
+
+@app.route('/ListSolutions', methods=['POST'])
+def List_solutions_user():
+    params = request.get_json(force=True)
+
+    auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
+
+    ######## paxos ##########
+    paxos_response = PROPOSER.list_solutions(auth) # consult request in paxos distributed memory
+    #########################
+    return {"status":"OK", "info":paxos_response['value']}
 
 
-
-@app.route('/ArchiveData/<RN>/<id_service>', methods = ['POST'])
-def upload_file(RN,id_service):
+@app.route('/ArchiveData/<RN>/<task>', methods = ['POST'])
+def upload_file(RN,task):
     tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
-    path_to_archive= createFolderIfNotExist("%s/" % id_service,wd=tmp_f)
+    path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
     f = request.files['file']
     filename = f.filename
     f.save(os.path.join(path_to_archive, filename))
     return json.dumps({"status":"OK", "message":"OK"})
 
 
-@app.route('/DescribeDataset/v2', methods=['POST'])
-def describeDatasetv2():
+
+@app.route('/UploadDataset', methods=['POST'])
+def UploadDataset():
+    """
+    function to upload to the catalog of user a dataset
+    """
     f = request.files['file']
     filename = f.filename
     filetype = filename.split(".")[-1]
-    LOGER.error(filetype)
 
     workspace = request.form['workspace']
-    user = request.form['user']
+    tokenuser = request.form['user']
 
     # get worspace path
-    workspace_path= GetWorkspacePath(workspace,user)
-    f.save(os.path.join(workspace_path, filename))
-    LOGER.error("data saved in %s" % workspace_path+filename)
+    workspace_path= GetWorkspacePath(tokenuser,workspace)
+    f.save(os.path.join(workspace_path, filename)) #añadir DS al catalogo de fuentes de datos
+    LOGER.info("Data saved in %s" % workspace_path+filename)
 
-    #descrive csv
-    if filetype=="csv":
-        response = DatasetDescription(workspace_path+filename)
+    return {"status":"OK"}
+
+@app.route('/DescribeDataset/v2', methods=['POST'])
+def describeDatasetv2():
+    """
+    function to describe a dataset un users catalog or results of a task in a solution
+    
+    type:(LAKE,SOLUTION,RECORDS)
+    if SOLUTION:
+        {data:{token_user,token_solution,task,filename},type:SOLUTION} #un catalogo del usuario
+    if RECORDS:
+        {data:[],type:RECORDS}
+    if LAKE:
+        {data:{token_user,catalog(workspace),filename},type:LAKE}
+
+    returns:
+    {"status":"OK"/"ERROR", "message":"", "info":{"parent_filename":<name_of_original_file>,"list_of_files":[<list of names>],","files_info":{<file_name>:{} }}}
+
+    """
+    def verify_extentions(data_path,ext,response,filename):
+        valid = False #flag to mark a valid file
+
+        if ext=="zip":
+            valid=True
+            dirpath,list_of_files=zip_extraction(data_path)
+            for fname in list_of_files:
+                fext= fname.split(".")[1]
+                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname) #recursive
+                response['info']['list_of_files'].append(fname)
+            # must delete the temp folder
+            shutil.rmtree(dirpath)
+
+        elif ext=="csv":  #describe csv
+            dataset= pd.read_csv(data_path)
+            response['info']['files_info'][filename] = DatasetDescription(dataset)
+            valid=True
+        elif ext=="json":
+            dataset = pd.read_json(data_path)
+            response['info']['files_info'][filename] = DatasetDescription(dataset)
+            valid=True
+
+        return response,valid 
+
+
+    params = request.get_json(force=True)
+    
+    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+    LOGER.info(data_path)
+    filename = "%s.%s" %(name,ext)
+
+    response={"status":"OK","message":"","info":{"parent_filename":filename,"list_of_files":[],"files_info":{}}}
+
+    response,file_validation=verify_extentions(data_path,ext,response,filename)
+    if file_validation:
+        pass
     else:
-        response={}
-    return json.dumps(response)
+        response['status']="ERROR"
+        response['message']="Datafile can't be described. Try with the followinf file extentions:csv,json,zip or tar."
+
+    return response
 
 
-#@app.route('/DescribeDataset', methods=['POST'])
-#def describeDataset():
-#    data = request.get_json()
-#    datos= data['data']
-#    datos = pd.DataFrame.from_records(datos)
-#    columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
-#
-#    datos = datos.apply(pd.to_numeric, errors='ignore')
-#    
-#    response = dict()
-#    response['info']=dict()
-#    response['columns'] = list(datos.columns.values)
-#    des = datos.describe(include='all')
-#    for col in response['columns']:
-#        des_col = des[col]
-#        column_description = dict()
-#        for c in range(0,len(columns)):
-#            try:
-#                value = des_col[c]
-#            except Exception:
-#                break
-#            if pd.isnull(value) or pd.isna(value):
-#                value = ""
-#            column_description[columns[c]] = str(value)
-#        column_description['type'] = datos[col].dtype.name
-#        response['info'][col] = column_description
-#        LOGER.error(column_description)
-#    return json.dumps(response)
-#
+
 
 @app.route('/getlog/<RN>', methods=['GET'])
 def getLogFile(RN):
