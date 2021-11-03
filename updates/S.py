@@ -272,7 +272,6 @@ while True:
         reciv_amount += len(bytes_read)
         INPUT_TEMP_FILE.write(bytes_read)
         progress.update(len(bytes_read))
-
         if reciv_amount>=filesize: 
             break
 

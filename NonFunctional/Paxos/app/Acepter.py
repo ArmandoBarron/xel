@@ -62,12 +62,18 @@ def Compare_fingerprints(fp1,fp2):
 def LookForParams(DAG,task):
     params = None
     for bb in DAG:
+        LOG.error("encuenta esto %s " %bb['id'])
         if bb['id'] == task:
+            LOG.error("<<<<<<<<<<<<<<<<<<< LO ENCONTO <<<<<<<<<<<<<<<<<<<<<<<<< %s " %task)
             params = bb
+            break
         else:
             if 'childrens' not in bb:
                 bb['childrens']=[]
             params = LookForParams(bb['childrens'],task) # look  by children
+            if params is not None:
+                break
+    LOG.error(params)
     return params
 
 

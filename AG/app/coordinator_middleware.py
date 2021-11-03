@@ -2,29 +2,21 @@ import sys,os,ast
 import pandas as pd
 from threading import Thread
 from flask import Flask,request,jsonify,send_file
-from random import randint
 import json
 from time import sleep
 import C
-from TPS.Builder import Builder #TPS API BUILDER
 import logging #logger
 from base64 import b64encode,b64decode
 import io
-from TwoChoices import loadbalancer
-from Proposer import Paxos
 import tempfile
+import shutil
 
-import hashlib
-from datetime import datetime
+# local imports
+from functions import *
+from TwoChoices import loadbalancer
+from TPS.Builder import Builder #TPS API BUILDER
+from Proposer import Paxos
 
-
-def createFolderIfNotExist(folder_name,wd=""):
-    try:
-        if not os.path.exists(wd+folder_name):
-            os.makedirs(wd+folder_name)
-    except FileExistsError:
-        pass
-    return wd+folder_name
 
 ########## GLOBAL VARIABLES ##########
 with open('coordinator_structure.json') as json_file:
@@ -59,62 +51,45 @@ PROPOSER = Paxos(ACCEPTORS_LIST)
 ########## END GLOBAL VARIABLES ##########
 
 def GetDataPath(params):
-    typeOfData = params['data']['type']
-
+    typeOfData = params['type']
+    credentials = params['data']
+    if typeOfData=="RECORDS":
+        input_data = pd.DataFrame.from_records(data['data']) #data is now a dataframe
+        INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix=".csv") #create temporary file
+        path= INPUT_TEMPFILE.name; INPUT_TEMPFILE.close()
+        input_data.to_csv(path, index = False, header=True) #write DF to disk
     if typeOfData =="SOLUTION":
         #hay que descargar el catalogo si es necesario
         #cuando se añada SKYCDS el BKP_FOLDER se remplaza por el token del usuario
-        path = BKP_FOLDER+params['data']['RN']+"/"+ params['data']['task']+"/"
-        tmp = os.listdir(path)
-        path +=tmp[0]
+        # BKP_FOLDER = credentials['token_user']
+        path = BKP_FOLDER+credentials['token_solution']+"/"+ credentials['task']+"/"
+        if 'filename' in credentials:
+            path+=credentials['filename']
+        else:
+            tmp = os.listdir(path)
+            path +=tmp[0]
     elif typeOfData=="LAKE":
-        path = GetWorkspacePath(params['auth']['user'],params['auth']['workspace']) + params['data']['data']
+        path = GetWorkspacePath(credentials['token_user'],credentials['catalog']) + credentials['filename']
+    elif typeOfData=="DUMMY": #no data, just a dummy file (is the easiest way to avoid an error, sorry in advance)
+        text_for_test="WAKE ME UP, BEFORE YOU GO GO.."
+        INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix=".txt") #create temporary file
+        path = INPUT_TEMPFILE.name
+        INPUT_TEMPFILE.write(text_for_test.encode())
+        INPUT_TEMPFILE.close()
     else:
-        return ""
-    return path
-
-
-def CreateSolutionID(params_recived):
-    LOGER.info(params_recived)
-
-    if 'token_solution' in params_recived:
-        RN=params_recived['token_solution']
-    else:
-        now = datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        id_string=  "%s-%s" %(dt_string, randint(10000,90000)) #random number with 10 digits
-        encoded=id_string.encode()
-        RN = hashlib.sha256(encoded).hexdigest()
-    return RN
-
+        path="."
     
+    LOGER.error(path)
+    name,ext = path.split("/")[-1].split(".") #get the namefile and then split the name and extention
+    return path,name,ext
+
+
 def GetWorkspacePath(tokenuser,workspace):
     #se creara el cataloog de fuentes de datos si es que no existe
     createFolderIfNotExist("%s%s" %(SPL_FOLDER,tokenuser))
     createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
     return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
 
-def DatasetDescription(datos):
-    columns = ['count','unique','top','freq','mean','std' ,'min' ,'q_25' ,'q_50' ,'q_75' ,'max']
-    datos = datos.apply(pd.to_numeric, errors='ignore')
-    response = dict()
-    response['info']=dict()
-    response['columns'] = list(datos.columns.values)
-    des = datos.describe(include='all')
-    for col in response['columns']:
-        des_col = des[col]
-        column_description = dict()
-        for c in range(0,len(columns)):
-            try:
-                value = des_col[c]
-            except Exception:
-                break
-            if pd.isnull(value) or pd.isna(value):
-                value = ""
-            column_description[columns[c]] = str(value)
-        column_description['type'] = datos[col].dtype.name
-        response['info'][col] = column_description
-    return response
 
 def IndexData(RN,id_service,data):
     #data must be a json (dict)
@@ -193,10 +168,11 @@ def execute_service(service,metadata):
 
 
 app = Flask(__name__)
+
 #root service
 @app.route('/')
 def prueba():
-    return "Service Mesh"
+    return {"status":"OK","message":"xel is online."}
 
 @app.route('/health',methods=['GET'])
 def health():
@@ -223,7 +199,6 @@ def AddServiceResource():
         LOGER.info("ALREADY REGISTRED %s, ip:%s port: %s " % (service,service_ip,service_port))
 
     return json.dumps({'status':'OK'})
-
 
 
 @app.route('/ASK', methods=['POST'])
@@ -319,44 +294,38 @@ def WARN(warn_message=None):
 #service to execute a set of application in a DAG
 @app.route('/executeDAG', methods=['POST'])
 def execute_DAG():
+    """
+        {data_map:{data,type},DAG:{},token_solution(optional)}
+
+        type:(LAKE,SOLUTION,RECORDS,SHARED,DUMMY)
+
+        if SOLUTION: //local transversal, detect data produced by another solution from the same user 
+            {data:{token_user,token_solution,task,filename(optional)},type:SOLUTION} #un catalogo del usuario
+        if RECORDS: //raw data as records 
+            {data:[],type:RECORDS}
+        if LAKE: //obtained from a catalog in the CDN
+            {data:{token_user,catalog(workspace),filename},type:LAKE}
+        if SHARED: //shared transversal, detect data produced by another solution from another user 
+            {data:{shared_token,task,filename(optional)},type:SHARED} #un catalogo del usuario
+    """
 
     params = request.get_json(force=True)
     envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
-    data = params['data'] #data to be transform {data:,type:}
-    DAG = params['DAG'] #it have the parameters, the sub dag ,and the secuence of execution (its a json).
+    data = params['data_map'] #data to be transform {data:,type:}
+    DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
     
+    LOGER.error(DAG)
+    data_path,name,ext= GetDataPath(data) #get data path
 
-    #HERE WE NEED TO ADD THE OPTION OF SENDING DIRECTLY A JSON WITH DATA
+    data['data'] = data_path
+    data['type'] = ext
 
-    if data['data']=="": #if nothing was sent (BUT MUST HAVE THE FILENAME)
-        text_for_test="HELLO WORLD. WAKE ME UP, BEFORE YOU GO GO.."
-        INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix="."+data['type']) #create temporary file
-        data['data'] = INPUT_TEMPFILE.name
-        data['type']="txt"
-        INPUT_TEMPFILE.close()
-        f = open(data['data'],"wb")
-        f.write(text_for_test.encode())
-        f.close()
+    # verify if data exist
+    if (os.path.exists(data['data'])):
+        pass
     else:
-        if 'user' in envirioment_params and 'workspace' in envirioment_params:
-            data['data'] = GetWorkspacePath(envirioment_params['user'],envirioment_params['workspace']) + data['data']
+        return {"status":"ERROR","message":"404: Data not found."}
 
-        if (os.path.exists(data['data'])):
-            pass
-        else:
-            return {"status":"ERROR","message":"404: Input data not found in server"}
-
-
-
-    #if data["type"]=="csv": # to parse json to csv
-    #    input_data = pd.DataFrame.from_records(data['data']) #data is now a dataframe
-    #    input_data.to_csv(input_temp_filename, index = False, header=True) #write DF to disk
-    #else:
-    #    f = open(input_temp_filename,"wb")
-    #    f.write(data['data'].encode())
-    #    f.close()
-    #data['data']=input_temp_filename
-        
     #A resquest random number for monitoring is created. 
     RN = CreateSolutionID(params)
 
@@ -369,18 +338,17 @@ def execute_DAG():
     #Paxos returns the list of task tat will be executed. if list is void, then all the task have been executed before and must be pass the FORCE option to execute them again
     res = paxos_response['value']
 
-
     new_dag = res['DAG']
     task_list = res['task_list']
     for branch in new_dag:
         branch['control_number'] = RN
         if branch['id'] in task_list:
-            parent = task_list[branch['id']]['parent']
 
+            parent = task_list[branch['id']]['parent']
             path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
             tmp = os.listdir(path_bk_data)
             path_bk_data +="/"+tmp[0]
-            LOGER.info("recovering data %s ..." % path_bk_data)
+            LOGER.info("recovering data from %s ..." % path_bk_data)
 
             data_format ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
             metadata = {"data":data,"DAG":branch}
@@ -394,15 +362,7 @@ def execute_DAG():
             thread1.start()
             sleep(.5)
 
-    #for br in DAG: #for each pipe in DAG
-    #    br['control_number'] = RN
-    #    metadata = {"data":data,"DAG":br}
-    #    service = br['service']
-    #    thread1 = Thread(target = execute_service, args = (service,metadata) )
-    #    thread1.start()
-    #    sleep(1)
-
-    return json.dumps({"status":"OK",'RN':RN,"DAG":DAG})
+    return json.dumps({"status":"OK",'token_solution':RN,"DAG":DAG})
 
 
 #service to monitoring a solution with a control number
@@ -499,7 +459,6 @@ def retrieve_sol_from_DB():
 @app.route('/StoreSolution', methods=['POST'])
 def store_sol_in_DB():
     params = request.get_json(force=True)
-
     auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
     metadata = params['metadata'] #metadata of the solution {name,desc,frontend}
     DAG = params['DAG'] #it have the parameters, the sub dag ,and the secuence of execution (its a json).
@@ -557,29 +516,60 @@ def UploadDataset():
 def describeDatasetv2():
     """
     function to describe a dataset un users catalog or results of a task in a solution
-    {auth: {user:,workspace:}, RN: ,data:{data,type},DAG:{}}
-
+    
     type:(LAKE,SOLUTION,RECORDS)
     if SOLUTION:
-        data:{data:{RN,task,filename},type:SOLUTION} #un catalogo del usuario
+        {data:{token_user,token_solution,task,filename},type:SOLUTION} #un catalogo del usuario
     if RECORDS:
-        data:{data:[],type:RECORDS}
+        {data:[],type:RECORDS}
     if LAKE:
-        data:{data:"namefile.csv",type:LAKE}
+        {data:{token_user,catalog(workspace),filename},type:LAKE}
+
+    returns:
+    {"status":"OK"/"ERROR", "message":"", "info":{"parent_filename":<name_of_original_file>,"list_of_files":[<list of names>],","files_info":{<file_name>:{} }}}
+
     """
+    def verify_extentions(data_path,ext,response,filename):
+        valid = False #flag to mark a valid file
+
+        if ext=="zip":
+            valid=True
+            dirpath,list_of_files=zip_extraction(data_path)
+            for fname in list_of_files:
+                fext= fname.split(".")[1]
+                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname) #recursive
+                response['info']['list_of_files'].append(fname)
+            # must delete the temp folder
+            shutil.rmtree(dirpath)
+
+        elif ext=="csv":  #describe csv
+            dataset= pd.read_csv(data_path)
+            response['info']['files_info'][filename] = DatasetDescription(dataset)
+            valid=True
+        elif ext=="json":
+            dataset = pd.read_json(data_path)
+            response['info']['files_info'][filename] = DatasetDescription(dataset)
+            valid=True
+
+        return response,valid 
+
+
     params = request.get_json(force=True)
     
-    data_path= GetDataPath(params)
+    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
     LOGER.info(data_path)
-    name,ext = data_path.split("/")[-1].split(".") #get the namefile and then split the name and extention
+    filename = "%s.%s" %(name,ext)
 
-    #describe csv
-    if ext=="csv":
-        dataset= pd.read_csv(data_path)
-        response = DatasetDescription(dataset)
+    response={"status":"OK","message":"","info":{"parent_filename":filename,"list_of_files":[],"files_info":{}}}
+
+    response,file_validation=verify_extentions(data_path,ext,response,filename)
+    if file_validation:
+        pass
     else:
-        response={}
-    return json.dumps(response)
+        response['status']="ERROR"
+        response['message']="Datafile can't be described. Try with the followinf file extentions:csv,json,zip or tar."
+
+    return response
 
 
 

@@ -7,5 +7,5 @@ with open(name_jsonfile+".json") as json_file:
     
 print(data)
 
-with open(name_jsonfile+"pretty.json","w") as f:
+with open(name_jsonfile+"_pretty.json","w") as f:
     f.write(json.dumps(data,indent=2))
