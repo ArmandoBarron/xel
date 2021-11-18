@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"catalog_municipios",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}merge_municipios.py @{SOURCE} @{SINK}merged_mun.csv '@{cve_ent}' '@{cve_mun}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"merged_mun.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

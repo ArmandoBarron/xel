@@ -9,6 +9,10 @@ services:
       - "25000:5555"
     volumes:
       - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
+      #- ./AG/app/:/home/app/ #for debugging and making changes
+      - ./localdata/LAKE:/home/app/SUPPLIES/ #for debugging
+      - ./localdata/LAKE:/home/app/BACKUPS/ #for debugging
+
     restart: always
     networks:
       - service_mesh
@@ -58,7 +62,42 @@ services:
           - node.role == manager
   
 ########### BB services ############################
+  bb_catalogs:
+    image: sm_bb_catalog
+    build:
+      context: ./BuildingBlocks/Catalogs
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: catalogs
+      SERVICE_IP: bb_catalogs
+      SERVICE_PORT: 80
 
+  bb_regressions:
+    image: sm_bb_regressions
+    build:
+      context: ./BuildingBlocks/Regressions
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: regression
+      SERVICE_IP: bb_regressions
+      SERVICE_PORT: 80
+  
   bb_statistics:
     image: sm_bb_statistics
     build:
@@ -283,30 +322,6 @@ services:
         constraints: 
           - node.role == manager
 
-  bb_acquisition_2: # tools to download data
-    image: sm_bb_acquisition
-    build:
-      context: ./BuildingBlocks/Acq
-      dockerfile: ./Dockerfile
-    volumes:
-      - ./localdata/:/home/app/REQUEST/input_data
-    networks:
-      - service_mesh
-    restart: always
-    depends_on:
-      - coordinator
-    environment:      
-      TPS_MANAGER: http://tps_manager:5000 #TPS URL
-      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
-      NETWORK: LocalCluster
-      SERVICE_NAME: Acquisition
-      SERVICE_IP: bb_acquisition_2
-      SERVICE_PORT: 80
-    deploy: 
-      placement: 
-        constraints: 
-          - node.role == manager
-
   bb_grobid:
     image: sm_bb_grobid
     build:
@@ -326,23 +341,23 @@ services:
       SERVICE_IP: bb_grobid
       SERVICE_PORT: 80
 
-  bb_glove:
-    image: sm_bb_glove
-    build:
-      context: ./BuildingBlocks/Glove
-      dockerfile: ./Dockerfile
-    networks:
-      - service_mesh
-    restart: always
-    depends_on:
-      - coordinator
-    environment:      
-      TPS_MANAGER: http://tps_manager:5000 #TPS URL
-      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
-      NETWORK: LocalCluster
-      SERVICE_NAME: Glove
-      SERVICE_IP: bb_glove
-      SERVICE_PORT: 80
+#  bb_glove:
+#    image: sm_bb_glove
+#    build:
+#      context: ./BuildingBlocks/Glove
+#      dockerfile: ./Dockerfile
+#    networks:
+#      - service_mesh
+#    restart: always
+#    depends_on:
+#      - coordinator
+#    environment:      
+#      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+#      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+#      NETWORK: LocalCluster
+#      SERVICE_NAME: Glove
+#      SERVICE_IP: bb_glove
+#      SERVICE_PORT: 80
 ###########################################
 ############## TPS SERVICES ###############
 ###########################################
@@ -408,15 +423,15 @@ services:
     #  - 11003:80
     restart: always
 
-  clustering: # API Gateway container
-    container_name: TPS_clustering
-    #image: 127.0.0.1:5000/meteots_clustering_w1
-    build:
-      context: ./TPS/Services/Clustering
-      dockerfile: ./Dockerfile
-    networks:
-      - service_mesh
-    restart: always
+#  clustering: # API Gateway container
+#    container_name: TPS_clustering
+#    #image: 127.0.0.1:5000/meteots_clustering_w1
+#    build:
+#      context: ./TPS/Services/Clustering
+#      dockerfile: ./Dockerfile
+#    networks:
+#      - service_mesh
+#    restart: always
   
   graphics: # service to graphic data
     container_name: TPS_graphics

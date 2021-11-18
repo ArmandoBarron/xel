@@ -55,7 +55,7 @@ def execute(params,AppConfig):
     ############## develepores can modify this function in order to set the envirioment to the app ###########
     CustomScript.config_env()
     ##########################################################################################################
-
+    execution_status=1
     try:
         app_message="OK"
         ######################### call the application #########################
@@ -71,7 +71,9 @@ def execute(params,AppConfig):
                 execution_status=1
         else:
             command = Transform_config['COMMAND']
+            LOGER.error("==== FORMATING COMMAND ======")
             command = utils.FormatCommand(command,params,reserved_params=RESERVED_PARAMS)
+            LOGER.error("==== EXECUTING COMMAND ====== %s" % command )
             execution_status = os.system(command)
         ########################################################################
 

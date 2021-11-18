@@ -39,6 +39,23 @@ def createFolderIfNotExist(folder_name,wd=""):
         pass
     return wd+folder_name
 
+
+def Request2Dataset(df_path,peticiones):
+    df = pd.read_csv(df_path)
+    results = []
+    for p in peticiones: # it can be multilayer but for now its fine
+        req = p['request']
+        val = p['value']
+        if req=="unique":
+            res = df[val].unique().tolist()
+            results.append(res)
+        if req=="query":
+            res = df.query(val)
+            res = res.to_json(orient="records")
+            results.append(res)
+
+    return results
+
 def DatasetDescription(datos):
     """
     create a json description form a pandas dataframe
@@ -64,3 +81,7 @@ def DatasetDescription(datos):
         column_description['type'] = datos[col].dtype.name
         response['info'][col] = column_description
     return response
+
+def FileExist(filepath):
+    exist = os.path.exists(filepath)
+    return exist

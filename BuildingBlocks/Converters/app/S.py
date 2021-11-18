@@ -31,7 +31,7 @@ def ClientProcess(metadata,data_acq_time):
         childrens = DAG['childrens']
     else:
         childrens = []
-        
+    
     id_service =DAG['id']
     control_number = DAG['control_number']
     #times
@@ -208,7 +208,7 @@ else:
 
 HEADERSIZE = 4096
 port = 80
-BUFF_SIZE = 81920
+BUFF_SIZE = 81920*10
 SEPARATOR = "<SEPARATOR>"
 
 
@@ -272,7 +272,6 @@ while True:
         reciv_amount += len(bytes_read)
         INPUT_TEMP_FILE.write(bytes_read)
         progress.update(len(bytes_read))
-
         if reciv_amount>=filesize: 
             break
 

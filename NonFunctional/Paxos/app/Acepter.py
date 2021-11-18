@@ -273,7 +273,7 @@ def consult_data(value):
     if params is not None: #specific task status to get data
         task = params['task']
         label = BRANCHES[RN]['task_list'][task]['label'] 
-        return {'label':label}
+        return BRANCHES[RN]['task_list'][task] #{'label':label}
     else: #last update
         for key,val in BRANCHES[RN]['task_list'].items():
 

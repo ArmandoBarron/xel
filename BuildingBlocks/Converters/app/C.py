@@ -12,7 +12,7 @@ LOGER = logging.getLogger()
 
 def RestRequest(ip,port,metadata,data_file=tempfile.NamedTemporaryFile()):
   HEADERSIZE = 4096
-  BUFF_SIZE = 81920
+  BUFF_SIZE = 81920 * 10
   SEPARATOR = "<SEPARATOR>"
   filesize= os.stat(data_file.name).st_size
   client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
