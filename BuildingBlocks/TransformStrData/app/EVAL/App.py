@@ -29,6 +29,7 @@ output_path= sys.argv[2] #output_path
 
 query_list= sys.argv[3].split(";") #query to process separated by;
 
+query_filt_list= sys.argv[4].split(";") #query to process separated by;
 
 DF_data = pd.read_csv(data_path)
 
@@ -41,7 +42,11 @@ for q in query_list:
         if q != "":
                 DF_data = DF_data.eval(q)
 
-
+for q in query_filt_list:
+        q = FormatCommand(q)
+        LOGER.info(q)
+        if q != "":
+                DF_data = DF_data.query(q)
 
 DF_data.to_csv(output_path,index=False)
 

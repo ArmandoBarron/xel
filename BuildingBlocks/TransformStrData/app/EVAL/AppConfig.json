@@ -5,7 +5,7 @@
             "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "python3 @{CWD}App.py @{SOURCE} @{SINK}output.csv \"@{query_list}\"",
+        "COMMAND": "python3 @{CWD}App.py @{SOURCE} @{SINK}output.csv \"@{query_list}\" \"@{query_flt}\"",
         "CUSTOM_APP":false
     },
     "LOAD":{
