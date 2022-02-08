@@ -66,7 +66,8 @@ def GetDataPath(params):
         if 'filename' in credentials:
             path+=credentials['filename']
         else:
-            tmp = os.listdir(path)
+            #tmp = os.listdir(path)
+            tmp = [f for f in os.listdir(path) if not f.startswith('.')] #ignore hidden ones
             path +=tmp[0]
     elif typeOfData=="LAKE":
         path = GetWorkspacePath(credentials['token_user'],credentials['catalog']) + credentials['filename']
@@ -138,6 +139,7 @@ def execute_service(service,metadata):
             ip = res['ip']
             port = res['port']
         except KeyError as ke:
+            LOGER.error("Key error: %s" %metadata )
             data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
             WARN(params={'status':data['status'],"message":data["message"],"label":"FALSE","task":metadata['DAG']['id_service'],"type":data['type'], "index":False}) #update status
             break
@@ -340,22 +342,28 @@ def execute_DAG():
 
     new_dag = res['DAG']
     task_list = res['task_list']
+    LOGER.info(" ========= task list========== ")
+    LOGER.info(task_list)
     for branch in new_dag:
         branch['control_number'] = RN
         if branch['id'] in task_list:
-
             parent = task_list[branch['id']]['parent']
+
+            LOGER.info(" ========= recovering data ========== Executing: %s with parent %s " % (branch['id'],parent) )
             path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
-            tmp = os.listdir(path_bk_data)
+            tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
+            #tmp = os.listdir(path_bk_data) #agarra el primer archivo que s eencuentre
             path_bk_data +="/"+tmp[0]
             LOGER.info("recovering data from %s ..." % path_bk_data)
 
             data_format ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
-            metadata = {"data":data,"DAG":branch}
+            metadata = {"data":data_format,"DAG":branch}
             service = branch['service'] #name of the service to send the instructions
             thread1 = Thread(target = execute_service, args = (service,metadata))
             thread1.start()
         else:
+            LOGER.info(" ========= sending Raw data ========== ")
+
             metadata = {"data":data,"DAG":branch}
             service = branch['service']
             thread1 = Thread(target = execute_service, args = (service,metadata) )
@@ -383,7 +391,9 @@ def monitoring_solution(RN):
         parent = value['parent']
 
         path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
-        tmp = os.listdir(path_bk_data)
+        #tmp = os.listdir(path_bk_data)
+        tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
+
         path_bk_data +="/"+tmp[0]
         LOGER.info("recovering data %s ..." % path_bk_data)
 
@@ -446,6 +456,7 @@ def getfileintask(RN,task):
                     as_attachment=True,
                     attachment_filename=task+'.'+data_ext
             )
+    
 @app.route('/RetrieveSolution', methods=['POST'])
 def retrieve_sol_from_DB():
     params = request.get_json(force=True)
@@ -492,7 +503,6 @@ def upload_file(RN,task):
     return json.dumps({"status":"OK", "message":"OK"})
 
 
-
 @app.route('/UploadDataset', methods=['POST'])
 def UploadDataset():
     """
@@ -511,6 +521,43 @@ def UploadDataset():
     LOGER.info("Data saved in %s" % workspace_path+filename)
 
     return {"status":"OK"}
+
+
+@app.route('/DatasetQuery', methods=['POST'])
+def queryDS():
+    """
+    type:(LAKE,SOLUTION,RECORDS)
+    if SOLUTION:
+        {data:{token_user,token_solution,task,filename},type:SOLUTION,ask:[]} #un catalogo del usuario
+    if LAKE:
+        {data:{token_user,catalog(workspace),filename},type:LAKE,ask:[]}
+
+    ask : {request:"", value:"" }
+        request values:
+            -unique
+            -query
+            -inside 
+
+    returns:
+    {"status":"OK"/"ERROR", "message":"", "info":[] }
+
+    """
+    params = request.get_json(force=True)
+    ask_list = params['ask']
+    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+    LOGER.info("Data must be in %s " % data_path)
+    file_exist=FileExist(data_path) #verify if data exist
+
+    response={"status":"OK","message":"","info":[]}
+
+    if file_exist and ext=="csv":
+        results = Request2Dataset(data_path,ask_list)
+        response['info']=results
+        LOGER.info(response)
+
+    return json.dumps(response)
+
+
 
 @app.route('/DescribeDataset/v2', methods=['POST'])
 def describeDatasetv2():
@@ -531,7 +578,6 @@ def describeDatasetv2():
     """
     def verify_extentions(data_path,ext,response,filename):
         valid = False #flag to mark a valid file
-
         if ext=="zip":
             valid=True
             dirpath,list_of_files=zip_extraction(data_path)
@@ -550,24 +596,36 @@ def describeDatasetv2():
             dataset = pd.read_json(data_path)
             response['info']['files_info'][filename] = DatasetDescription(dataset)
             valid=True
-
         return response,valid 
 
 
     params = request.get_json(force=True)
-    
-    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
-    LOGER.info(data_path)
-    filename = "%s.%s" %(name,ext)
-
-    response={"status":"OK","message":"","info":{"parent_filename":filename,"list_of_files":[],"files_info":{}}}
-
-    response,file_validation=verify_extentions(data_path,ext,response,filename)
-    if file_validation:
-        pass
+    if 'force' in params:
+        force_desc = True
     else:
-        response['status']="ERROR"
-        response['message']="Datafile can't be described. Try with the followinf file extentions:csv,json,zip or tar."
+        force_desc= False
+
+    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+    LOGER.info("Data must be in %s " % data_path)
+
+    file_exist=FileExist(data_path) #verify if data exist
+    desc_file_path = data_path.replace("%s.%s" %(name,ext),".%s_desc.json" %(name))
+    desc_file_exist=FileExist(desc_file_path)
+
+    filename = "%s.%s" %(name,ext)
+    response={"status":"OK","message":"","file_exist":file_exist,"info":{"parent_filename":filename,"list_of_files":[],"files_info":{}}}
+
+    if file_exist:
+        if desc_file_exist and force_desc is False: #load the exiting description
+            response = json.load(open(desc_file_path))
+        else:
+            response,file_validation=verify_extentions(data_path,ext,response,filename)
+            if file_validation: #save in file
+                with open(desc_file_path,'w') as f:
+                    f.write(json.dumps(response))
+            else:
+                response['status']="ERROR"
+                response['message']="Datafile can't be described. Try with the following file extentions:csv,json,zip or tar."
 
     return response
 

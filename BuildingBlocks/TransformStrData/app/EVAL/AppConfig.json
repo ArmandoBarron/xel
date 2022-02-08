@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"Eval",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}App.py @{SOURCE} @{SINK}output.csv \"@{query_list}\" \"@{query_flt}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"output.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

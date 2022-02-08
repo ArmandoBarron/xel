@@ -1,7 +1,7 @@
-# GR-DataServices
+# Xel
 ## _A mesh model for reliable and generic services_
 
-GR-DataServices is a generic service mesh model for building reliable big data processing in multiclouds.
+Xel is a generic service mesh model for building reliable big data processing in multiclouds.
 
 - Create your own service repository.
 - Deploy your service repository in any kind of infrastructure, from local machines to cloud or multi-cloud.
@@ -70,7 +70,7 @@ $ docker-compose push
 ```
 Push the images to swarm
 ```sh
-$ docker stack deploy --compose-file docker-compose.yml GR-DataServices
+$ docker stack deploy --compose-file docker-compose.yml Xel
 ```
 
 

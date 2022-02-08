@@ -58,7 +58,7 @@ def blackbox(data,params):
 
     ####################### execute the application ######################
     response = Trigger.execute(params,App_configurations)
-    LOGER.info("RESPONSE: %s" % response['status'])
+    LOGER.error("RESPONSE: %s" % response['status'])
 
     if response['status'] != 0:
         return {'data':'','type':'','status':'ERROR','message':"Bad execution in %s blackbox: %s" % (NAME_APPLICATION,response['data']['message'])}

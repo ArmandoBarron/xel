@@ -50,7 +50,10 @@ def FormatCommand(command,params,reserved_params={}):
         ########## REPLACE PARAMS FOUND #############
         if parameter_found in reserved_params:
             command = command.replace("@{%s}" % parameter_found,reserved_params[parameter_found])
-        if parameter_found in params:
+        elif parameter_found in params:
             command = command.replace("@{%s}" % parameter_found,str(params[parameter_found]))
+        else:
+            command = command.replace("@{%s}" % parameter_found,"")
+
     
     return command

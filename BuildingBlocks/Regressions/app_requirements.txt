@@ -1,0 +1,7 @@
+scipy==1.7.2
+scikit-learn==1.0.1
+statsmodels==0.13.0
+
+#graphics
+matplotlib==3.4.3
+seaborn==0.11.2
