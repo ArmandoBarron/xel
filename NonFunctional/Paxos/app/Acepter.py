@@ -10,6 +10,7 @@ import datetime
 import hashlib
 from datetime import datetime
 from db_handler import Handler
+from TwoChoices import loadbalancer
 
 logging.basicConfig()
 LOG = logging.getLogger()
@@ -18,6 +19,9 @@ BRANCHES = dict() #dict of all the REQUEST
 app = Flask(__name__)
 ACTUAL_VALUE = 0
 
+with open('coordinator_structure.json') as json_file:
+    dictionary = json.load(json_file) #read all configurations for services
+LOAD_B = loadbalancer(dictionary)
 
 
 """
@@ -193,8 +197,7 @@ def save_data(value):
     RN = str(value['control_number'])
     dag = value['DAG']
     auth = value['auth']
-    LOG.error(auth)
-    LOG.error(type(auth))
+
     #options = value['exe_opt']
     force = False
 
@@ -313,6 +316,51 @@ def consult_data(value):
         return {'status':"WAITING"}
 
 
+
+def ResourcesManagment(action,value):
+    """
+    value {
+        action
+        action_params{service,service_id,context}
+        data_bin
+    }
+    """
+    action = value['action']
+    action_params = value['action_params']
+    data_bin = value['data_bin']
+
+    service = action_params['service']
+    service_id = action_params['service_id']
+    
+    if action=="ADD":
+        status = LOAD_B.Addresource(service,service_id,data_bin)
+        if status:
+            LOG.info("REGISTRED %s, ip:%s" % (service,service_id))
+        else:
+            LOGER.info("ALREADY REGISTRED %s, ip:%s" % (service,service_id))
+        res = {'status':'OK'}
+    elif action=="DISABLE":#when a node is down
+        LOAD_B.NodeDown(service,service_id)
+        res = {'status':'OK'}
+    elif action=="ADD_WORKLOAD":#add workload
+        LOAD_B.AddWorkload(service,service_id,n=1)
+        res = {'status':'OK'}
+
+    ## READ ACTIONS
+    elif action=="STATUS":#add workload
+        res=LOAD_B.GetStatus()
+    elif action=="SELECT":#select a resource
+        res= LOAD_B.decide(service, action_params['context']) #search services in the same context
+
+    return res
+
+
+
+
+
+
+
+
 @app.route('/')
 def prueba():
     return "Paxos node"
@@ -378,6 +426,11 @@ def prepare_request():
     elif action == "CONSULT":
         value = params['value']
         res = consult_data(value)
+        return json.dumps({"status":"OK","action":"ACCEPT","value":res})
+
+    elif action == "RESOURCES":
+        value = params['value']
+        res = ResourcesManagment(value['action'],value)
         return json.dumps({"status":"OK","action":"ACCEPT","value":res})
 
     else:

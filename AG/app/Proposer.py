@@ -69,7 +69,31 @@ class Paxos:
         res= self.accept(value,action="CONSULT")
         return res
 
+## ========================================================= ##
+## ====================== RESOURCES ======================== ##
+## ========================================================= ##
 
+    def Read_resource(self,service,service_id,context,read_action="SELECT"):
+        #res= self.Consensus()
+        #if res['status']=="OK":
+        value = {
+            "action":read_action,
+            "action_params":{'service':service,'service_id':service_id,"context":context},
+            "data_bin":{}
+        }
+        res= self.request2node(value,action="RESOURCES")    
+        return res
+
+    def Update_resource(self,service,service_id,data_bin,read_action="ADD"):
+        res= self.Consensus()
+        if res['status']=="OK":
+            value = {
+                "action":read_action,
+                "action_params":{'service':service,'service_id':service_id},
+                "data_bin":data_bin
+            }
+            res= self.accept(value,action="RESOURCES")    
+        return res
 
 ##############################################################
 

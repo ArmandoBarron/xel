@@ -16,8 +16,8 @@ services:
     restart: always
     networks:
       - service_mesh
-    depends_on:
-      - tps_manager
+    #depends_on:
+    #  - tps_manager
     environment:      
       NETWORK: LocalCluster
     deploy: 
@@ -28,6 +28,7 @@ services:
   sdb: # tps manager mongoDB
     container_name: xel_sdb
     image: mongo:4.4
+    command: mongod --quiet --logpath /dev/null 
     restart: always
     environment:
       data-volume: /data/db
@@ -39,27 +40,27 @@ services:
 
 ########### Internal API gateway  ############################
 
-  iag_local: # local
-    image: sm_iag
-    build:
-      context: ./IAG
-      dockerfile: ./Dockerfile
-    ports:
-      - "25001:80"
-    restart: always
-    networks:
-      - service_mesh
-    depends_on:
-      - coordinator
-    environment:      
-      NETWORK: LocalCluster
-      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
-      SERVICE_IP: 18.191.55.169
-      SERVICE_PORT: 25001
-    deploy: 
-      placement: 
-        constraints: 
-          - node.role == manager
+#  iag_local: # local
+#    image: sm_iag
+#    build:
+#      context: ./IAG
+#      dockerfile: ./Dockerfile
+#    ports:
+#      - "25001:80"
+#    restart: always
+#    networks:
+#      - service_mesh
+#    depends_on:
+#      - coordinator
+#    environment:      
+#      NETWORK: LocalCluster
+#      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+#      SERVICE_IP: 18.191.55.169
+#      SERVICE_PORT: 25001
+#    deploy: 
+#      placement: 
+#        constraints: 
+#          - node.role == manager
   
 ########### BB services ############################
   bb_catalogs:
@@ -362,41 +363,42 @@ services:
 ############## TPS SERVICES ###############
 ###########################################
 
-  tps_manager: #API Gatewaey THE MANAGER
-    image: tps_manager
-    container_name: TPS_Manager
-    build:
-      context: ./TPS/Manager/
-      dockerfile: ./Dockerfile
-    environment:      
-      CONFIGPATH: ./CONFIG/ #configuration location
-      SCHEMAPATH: ./SCHEMA/ #data location
-      DATABASE: mongodb #database
-      CENTINEL: none #master watcher
-    volumes:
-      - ./TPS/Manager/:/home/ #for debugging
-      - ./TPS/:/home/CONFIG/
-    ports:
-      - "54350:5000"
-    expose:
-      - "5000"
-    restart: always
-    networks:
-      - service_mesh
-
-  mongodb: # tps manager mongoDB
-    container_name: DB_TPS_data
-    image: mongo:4.4
-    restart: always
-    environment:
-      data-volume: /data/db
-      MONGO_INITDB_DATABASE: TPS_Data
-    volumes:
-      - data-volume:/data/db
-    ports:
-      - 27018:27017
-    networks:
-      - service_mesh
+#  tps_manager: #API Gatewaey THE MANAGER
+#    image: tps_manager
+#    container_name: TPS_Manager
+#    build:
+#      context: ./TPS/Manager/
+#      dockerfile: ./Dockerfile
+#    environment:      
+#      CONFIGPATH: ./CONFIG/ #configuration location
+#      SCHEMAPATH: ./SCHEMA/ #data location
+#      DATABASE: mongodb #database
+#      CENTINEL: none #master watcher
+#    volumes:
+#      - ./TPS/Manager/:/home/ #for debugging
+#      - ./TPS/:/home/CONFIG/
+#    ports:
+#      - "54350:5000"
+#    expose:
+#      - "5000"
+#    restart: always
+#    networks:
+#      - service_mesh
+#
+#  mongodb: # tps manager mongoDB
+#    container_name: DB_TPS_data
+#    image: mongo:4.4
+#    command: mongod --quiet --logpath /dev/null 
+#    restart: always
+#    environment:
+#      data-volume: /data/db
+#      MONGO_INITDB_DATABASE: TPS_Data
+#    volumes:
+#      - data-volume:/data/db
+#    ports:
+#      - 27018:27017
+#    networks:
+#      - service_mesh
 
 ###########################################
 ############## external services ###############
@@ -411,17 +413,17 @@ services:
       - service_mesh
     restart: always
 
-  cleaningtools: # tools to clean data
-    container_name: TPS_cleaning_tools
-    #image: 127.0.0.1:5000/TPS_cleaning_tools
-    build:
-      context: ./TPS/Services/CleaningTools
-      dockerfile: ./Dockerfile
-    networks:
-      - service_mesh
-    #ports:
-    #  - 11003:80
-    restart: always
+#  cleaningtools: # tools to clean data
+#    container_name: TPS_cleaning_tools
+#    #image: 127.0.0.1:5000/TPS_cleaning_tools
+#    build:
+#      context: ./TPS/Services/CleaningTools
+#      dockerfile: ./Dockerfile
+#    networks:
+#      - service_mesh
+#    #ports:
+#    #  - 11003:80
+#    restart: always
 
 #  clustering: # API Gateway container
 #    container_name: TPS_clustering
@@ -433,15 +435,15 @@ services:
 #      - service_mesh
 #    restart: always
   
-  graphics: # service to graphic data
-    container_name: TPS_graphics
-    #image: 127.0.0.1:5000/TPS_cleaning_tools
-    build:
-      context: ./TPS/Services/Graficas
-      dockerfile: ./Dockerfile
-    networks:
-      - service_mesh
-    restart: always
+#  graphics: # service to graphic data
+#    container_name: TPS_graphics
+#    #image: 127.0.0.1:5000/TPS_cleaning_tools
+#    build:
+#      context: ./TPS/Services/Graficas
+#      dockerfile: ./Dockerfile
+#    networks:
+#      - service_mesh
+#    restart: always
 
 #  summary: # summary
 #    container_name: TPS_summary
@@ -471,6 +473,8 @@ services:
       - service_mesh
     depends_on:
       - coordinator
+    volumes:
+      - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
 
   accepter_2: # accepter
     image: paxos
@@ -485,6 +489,8 @@ services:
       - service_mesh
     depends_on:
       - coordinator
+    volumes:
+      - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
       
   accepter_3: # accepter
     image: paxos
@@ -499,6 +505,8 @@ services:
       - service_mesh
     depends_on:
       - coordinator
+    volumes:
+      - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
 ###########################################
 ###########################################
 ###########################################

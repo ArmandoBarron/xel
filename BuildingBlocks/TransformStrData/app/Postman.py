@@ -20,7 +20,7 @@ class postman(Thread):
         self.SERVICE=SERVICE
         self.SERVICE_IP=SERVICE_IP
         self.SERVICE_PORT=SERVICE_PORT
-        self.NETWORK=NETWORK
+        self.CONTEXT=NETWORK
         self.TPSHOST=TPSHOST
         ##################
         self.status = "STANDBY"
@@ -33,7 +33,7 @@ class postman(Thread):
     def init_service(self):
         try:
             if self.SERVICE is not None and self.SERVICE_IP is not None and self.SERVICE_PORT is not None:
-                ToSend=json.dumps({"SERVICE":self.SERVICE,"IP":self.SERVICE_IP,"PORT":int(self.SERVICE_PORT),"NETWORK":self.NETWORK})
+                ToSend=json.dumps({"SERVICE":self.SERVICE,"ID":self.SERVICE_IP,"IP":self.SERVICE_IP,"PORT":int(self.SERVICE_PORT),"CONTEXT":self.CONTEXT})
                 url = 'http://%s/ADD' % self.API_GATEWAY
                 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                 res =api.post(url, data=ToSend,headers=headers).json()

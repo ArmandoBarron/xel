@@ -13,7 +13,6 @@ import shutil
 
 # local imports
 from functions import *
-from TwoChoices import loadbalancer
 from TPS.Builder import Builder #TPS API BUILDER
 from Proposer import Paxos
 
@@ -41,10 +40,7 @@ createFolderIfNotExist(BKP_FOLDER)
 SPL_FOLDER= "./SUPPLIES/"
 createFolderIfNotExist(SPL_FOLDER)
 
-INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
-
 #select load blaancer
-LOAD_B = loadbalancer(dictionary)
 Tolerant_errors=25 #total of errors that can be tolarated
 ACCEPTORS_LIST= dictionary['paxos']["accepters"]
 PROPOSER = Paxos(ACCEPTORS_LIST)
@@ -85,40 +81,15 @@ def GetDataPath(params):
     return path,name,ext
 
 
-def GetWorkspacePath(tokenuser,workspace):
+def GetWorkspacePath(tokenuser,workspace=None):
     #se creara el cataloog de fuentes de datos si es que no existe
     createFolderIfNotExist("%s%s" %(SPL_FOLDER,tokenuser))
-    createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
-    return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
+    if workspace is None:
+        return "%s%s/" %(SPL_FOLDER,tokenuser)
+    else:
+        createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
+        return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
 
-
-def IndexData(RN,id_service,data):
-    #data must be a json (dict)
-    global INDEXER
-    try:
-        INDEXER.TPSapi.format_single_query("notImportant")
-    except AttributeError:
-        global WORKSPACENAME, TPSHOST
-        INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
-
-
-    data_label = "%s_%s" % (RN,id_service) #this is the name of the document (mongo document)
-    query = INDEXER.TPSapi.format_single_query("notImportant") #not important line. Well yes but actually no.
-    res = INDEXER.TPSapi.TPS(query,"indexdata",workload=data,label=data_label) #this service (getdata) let me send json data and save it into a mongo DB
-    return data_label
-
-def GetIndexedData(label):
-    #data must be a json (dict)
-    global INDEXER
-    try:
-        INDEXER.TPSapi.format_single_query("notImportant")
-    except AttributeError:
-        global WORKSPACENAME, TPSHOST
-        INDEXER=Builder(WORKSPACENAME,TPS_manager_host=TPSHOST) #api for index data
-
-    data = INDEXER.TPSapi.GetData(label)['DATA']
-    #data = INDEXER.TPSapi.TPS(query,"getdata") #this service (getdata) let me send json data and save it into a mongo DB
-    return data
     
 #service to execute applications
 def execute_service(service,metadata):
@@ -126,7 +97,7 @@ def execute_service(service,metadata):
 
     LOGER.info("Coordinator is executing...%s"% service)
     errors_counter=0
-    ToSend = {'service':service,'network':NETWORK} #update status of falied node
+    ToSend = {'service':service,'context':NETWORK} #update status of falied node
     res = json.loads(ASK(params=ToSend))
 
     while(True): # AVOID ERRORS
@@ -157,7 +128,7 @@ def execute_service(service,metadata):
             LOGER.error(">>>>>>> NODE FAILED... TRYING AGAIN..%s" % errors_counter)
             if errors_counter>Tolerant_errors: #we reach the limit
                     ######## ASK AGAIN #######
-                    ToSend = {'service':service,'network':NETWORK,'update':{'id':res['id'],'status':'DOWN','type':res['type']}} #update status of falied node
+                    ToSend = {'service':service,'context':NETWORK,'update':{'id':res['id'],'status':'DOWN','type':res['type']}} #update status of falied node
                     res = json.loads(ASK(params=ToSend))
                     errors_counter=0 #reset counter 
                     #------------------#
@@ -180,27 +151,19 @@ def prueba():
 def health():
     return json.dumps({"status":"OK"})
 
-@app.route('/SAVE_CONFIG', methods=['GET'])
-def saveconfig():
-    LOAD_B.Save_config_file()
-    return json.dumps({'status':'OK'})
-
 @app.route('/ADD', methods=['POST'])
 def AddServiceResource():
     params = request.get_json(force=True)
     service = params['SERVICE']
+    service_ID = params['ID']
     service_ip = params['IP']
     service_port = params['PORT']
-    network = params['NETWORK']
+    context = params['CONTEXT']
     
-    ToSend={"network":network,"ip":service_ip,"port":service_port,"status":"UP"}
-    status = LOAD_B.Addresource(service,ToSend)
-    if status:
-        LOGER.info("REGISTRED %s, ip:%s port: %s" % (service,service_ip,service_port))
-    else:
-        LOGER.info("ALREADY REGISTRED %s, ip:%s port: %s " % (service,service_ip,service_port))
+    ToSend={"id":service_ID,"ip":service_ip,"port":service_port,"context":context,"status":True,"workload":0} #status true is UP. False is down
+    paxos_response = PROPOSER.Update_resource(service,service_ID,ToSend,read_action="ADD") # save request in paxos distributed memory
 
-    return json.dumps({'status':'OK'})
+    return json.dumps(paxos_response)
 
 
 @app.route('/ASK', methods=['POST'])
@@ -209,52 +172,30 @@ def ASK(params=None):
         params = request.get_json(force=True)
 
     service = params['service'] #service name
-    network = params['network']
+    context = params['context']
     n=1 #quantity of workload added to resource
     force = None
-    if 'force' in params: #option for gateways, gateways are forced to select a resource in the same network
+    if 'force' in params: #option for gateways, gateways are forced to select a resource in the same context
         force = True
         n = 0
 
     if 'update' in params: #update node status
         info = params['update'] #{id,status,type}
         if info['status'] == "DOWN":
-            if info['type']=="service":
-                LOAD_B.NodeDown(service,info['id'])
-            elif info['type']=="gateway":
-                LOAD_B.GatewayDown(info['id'])
-            else:
-                LOGER.error("ERROR in update. type")
-                
-    while(True):
-        res= LOAD_B.decide(service,network,force_network=force,n=n) #search services in the same network
-        if res is None: #no more avaiable resources
-            return json.dumps({'info':'ERROR'})
+            PROPOSER.Update_resource(service,info['id'],{},read_action="DISABLE")
 
-        res['type'] = "service" #add type
-        if res['network'] != network: #redirect to gateway
-            LOGER.info("REDIRECTING TO INTERNAL GATEWAY..")
-            #
+    res = PROPOSER.Read_resource(service,'',context,read_action="SELECT")['value'] #select
 
-            iag = LOAD_B.SelectGateway(res['network'])
-            if iag is not None:
-                res = iag
-                res['type'] = "gateway"
-                LOGER.debug("GATEWAY: %s, NETWORK: %s" %(res['ip'],res['network']))
-                break
-            else:
-                LOGER.error("Gateway is not aviable")
-                LOAD_B.NetworkDown(service,res['network'])  #update set all service of the network
-        else: #service is in the same network
-            LOAD_B.AddWorkload(service,res['id'])
-            break
-
-    return json.dumps(res)
+    if res is None: #no more avaiable resources
+        return json.dumps({'info':'ERROR'})
+    else:
+        PROPOSER.Update_resource(service,res['id'],{},read_action="ADD_WORKLOAD")
+        return json.dumps(res)
 
 
 @app.route('/STATUS', methods=['GET'])
 def services_status():
-    services = LOAD_B.GetStatus()
+    services = PROPOSER.Read_resource('','','',read_action="STATUS")['value'] #select
     return jsonify(services)
 
 
@@ -415,48 +356,58 @@ def monitoring_solution(RN):
         return json.dumps(value) 
 
 
-@app.route('/getdata/<RN>/<task>', methods=['POST'])
-def getdataintask(RN,task):
-    ######## paxos ##########
-    paxos_response = PROPOSER.Consult(RN,params={"task":task}) # consult request in paxos distributed memory
-    #########################
+#@app.route('/getdata/<RN>/<task>', methods=['POST'])
+#def getdataintask(RN,task):
+#    ######## paxos ##########
+#    paxos_response = PROPOSER.Consult(RN,params={"task":task}) # consult request in paxos distributed memory
+#    #########################
+#
+#    value = paxos_response['value']
+#    if value is None:
+#        return json.dumps({"status":"ERROR", "message":"PAXOS ERROR"})
+#    else:
+#        label = value['label']
+#        data = GetIndexedData(label) #get data from label
+#        if data['type'] == "csv":
+#            newFile = open("tempfile.csv", "wb")
+#            newFile.write(b64decode(data['data'].encode()))
+#            newFile.close()
+#
+#        tempdf = pd.read_csv("tempfile.csv")
+#        data['data'] = json.loads(tempdf.to_json(orient="records"))
+#        return json.dumps({'status':"OK","data":data}) #no task found
 
-    value = paxos_response['value']
-    if value is None:
-        return json.dumps({"status":"ERROR", "message":"PAXOS ERROR"})
-    else:
-        label = value['label']
-        data = GetIndexedData(label) #get data from label
-        if data['type'] == "csv":
-            newFile = open("tempfile.csv", "wb")
-            newFile.write(b64decode(data['data'].encode()))
-            newFile.close()
-
-        tempdf = pd.read_csv("tempfile.csv")
-        data['data'] = json.loads(tempdf.to_json(orient="records"))
-        return json.dumps({'status':"OK","data":data}) #no task found
-
-@app.route('/getfile/<RN>/<task>', methods=['GET'])
-def getfileintask(RN,task):
-    ######## paxos ##########
-    paxos_response = PROPOSER.Consult(RN,params={"task":task}) # consult request in paxos distributed memory
-    #########################
-    value = paxos_response['value']
-    if value is None:
-        return json.dumps({"status":"ERROR", "message":"PAXOS ERROR"})
-    else:
-        label = value['label']
-
-        data = GetIndexedData(label) #get data from label
-        data_ext = data['type']
-        data = b64decode(data['data'].encode())
-
-        return send_file(
-                    io.BytesIO(data),
-                    as_attachment=True,
-                    attachment_filename=task+'.'+data_ext
-            )
+@app.route('/getfile', methods=['POST'])
+def getfileintask():
+    """
+    type:(LAKE,SOLUTION,RECORDS)
+    if SOLUTION:
+        {data:{token_user,token_solution,task,filename},type:SOLUTION} #un catalogo del usuario
+    if LAKE:
+        {data:{token_user,catalog(workspace),filename},type:LAKE}
     
+    returns:
+    {"status":"OK"/"ERROR", "message":"", "info":[] }
+
+    """
+    params = request.get_json(force=True)
+
+    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+    file_exist=FileExist(data_path) #verify if data exist
+
+    if file_exist:
+        return send_file(
+                data_path,
+                as_attachment=True,
+                attachment_filename="%s.%s" %(name,ext)
+        )
+    else:
+        return {"status":"ERROR", "message":"file not found"}
+
+## =============================================================== ##
+## ========================== Solutions ========================== ##
+## =============================================================== ##
+
 @app.route('/RetrieveSolution', methods=['POST'])
 def retrieve_sol_from_DB():
     params = request.get_json(force=True)
@@ -473,6 +424,8 @@ def store_sol_in_DB():
     auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
     metadata = params['metadata'] #metadata of the solution {name,desc,frontend}
     DAG = params['DAG'] #it have the parameters, the sub dag ,and the secuence of execution (its a json).
+    #template = params['template'] #its almost the same as the dag, but is used for the GUI
+
     #token_solution = params['token_solution']
     token_solution = CreateSolutionID(params)
     
@@ -493,14 +446,44 @@ def List_solutions_user():
     return {"status":"OK", "info":paxos_response['value']}
 
 
-@app.route('/ArchiveData/<RN>/<task>', methods = ['POST'])
-def upload_file(RN,task):
-    tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
-    path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
-    f = request.files['file']
-    filename = f.filename
-    f.save(os.path.join(path_to_archive, filename))
-    return json.dumps({"status":"OK", "message":"OK"})
+
+## =============================================================== ##
+## ========================= SOURCE DATA ========================= ##
+## =============================================================== ##
+
+@app.route('/workspace/list/<tokenuser>', methods=['GET'])
+def list_user_workspaces(tokenuser):
+    path_workspaces= GetWorkspacePath(tokenuser)
+    list_workspaces = [f for f in os.listdir(path_workspaces) if not f.startswith('.')] #ignore hidden ones
+
+    return {"status":"OK", "info":{"workspaces":list_workspaces}}
+
+@app.route('/workspace/list/<tokenuser>/<workspace>', methods=['GET'])
+def list_userfiles_workspaces(tokenuser,workspace):
+    path_workspace= GetWorkspacePath(tokenuser,workspace)
+    list_of_files = [f for f in os.listdir(path_workspace) if not f.startswith('.')] #ignore hidden ones
+    list_files_details = []
+    for f in list_of_files:
+        list_files_details.append(GetFileDetails(path_workspace+f,f))
+    
+    return {"status":"OK", "info":{"list_files_details":list_files_details}}
+
+## =========== GET DATA ============ ##
+@app.route('/workspace/getfile/<tokenuser>/<workspace>/<filename>', methods=['GET'])
+def get_userfile_workspace(tokenuser,workspace,filename):
+    data_path= GetWorkspacePath(tokenuser,workspace)+filename
+    file_exist=FileExist(data_path) #verify if data exist
+    if file_exist:
+        binary_data = open(data_path,"rb").read()
+    else:
+        binary_data = 'File not found. sorry.'.encode()
+    binary_data = b64decode(binary_data)
+    return send_file(
+                io.BytesIO(binary_data),
+                as_attachment=True,
+                attachment_filename=filename
+        )
+
 
 
 @app.route('/UploadDataset', methods=['POST'])
@@ -521,6 +504,19 @@ def UploadDataset():
     LOGER.info("Data saved in %s" % workspace_path+filename)
 
     return {"status":"OK"}
+
+## =============================================================== ##
+## =========================== RESULTS =========================== ##
+## =============================================================== ##
+
+@app.route('/ArchiveData/<RN>/<task>', methods = ['POST'])
+def upload_file(RN,task):
+    tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
+    path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
+    f = request.files['file']
+    filename = f.filename
+    f.save(os.path.join(path_to_archive, filename))
+    return json.dumps({"status":"OK", "message":"OK"})
 
 
 @app.route('/DatasetQuery', methods=['POST'])

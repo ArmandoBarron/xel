@@ -78,35 +78,25 @@ def ClientProcess(metadata,data_acq_time):
 
     #------------------#
     LOGER.info("Starting indexing process...%s" % result['data'])
-    ###### INDEX #######
+    ## ======================================================================= ##
+    ## =========================== ARCHIVE RESULTS =========================== ##
+    ## ======================================================================= ##
     if index_opt and result['status']!="ERROR": #save results 
-
-        temp_filename = result['data']
-        file_data = open(temp_filename,"rb")
-        result['data']=file_data.read()
-        file_data.close()
-        result['data'] = base64.b64encode(result['data']).decode('utf-8')
-
-
         index_time = time.time() #<--- time flag
-        label = AG.IndexData(control_number,id_service,result) #indexing result data into DB
-
-        index_time= time.time() - index_time
-        result['data'] = temp_filename
+        label = AG.ArchiveData(open(result['data'],"rb"),result['data'].split("/")[-1])
+        index_time= time.time() - index_time #<--- time flag
     else:
         label=False
         LOGER.info("Skiping index process")
-    #------------------#
-    ########################  save solution's results in diary
+    
+    ## ====================================================================== ##
+    ## ============================ LOG OF BDSERV ============================ ##
+    ## ======================================================================= ##
     with open(SOLUTIONS_FILE,'a+') as f_records:
         # id_service, control_number,results path, DAG of childrens
         f_records.write("%s\t%s\t%s\t%s\n" %(id_service,control_number,result['data'],json.dumps(childrens)))
-    ############################
+    ## ======================================================================= ##
 
-    ##### archive results #####
-    if result['status']!="ERROR":
-        AG.ArchiveData(open(result['data'],"rb"),result['data'].split("/")[-1]) #open result file to send it to another service
-    ###########################
 
     ToSend = AG.CreateMessage(control_number,result['message'],result['status'],label=label,type_data=result['type'],index_opt=index_opt,times={"NAME":service_name,"ACQ":data_acq_time,"EXE":execution_time,"IDX":index_time})
     AG.terminate(result['status'],ToSend)
@@ -131,7 +121,7 @@ def ClientProcess(metadata,data_acq_time):
             child['control_number']=control_number ## add control number 
             
             ######## ASK #######
-            ToSend = {'service':child['service'],'network':NETWORK}
+            ToSend = {'service':child['service'],'context':NETWORK}
             res = AG.AskGateway(ToSend)
             #------------------#
             if 'info' in res: #no more nodes
@@ -158,7 +148,7 @@ def ClientProcess(metadata,data_acq_time):
                         LOGER.warning(">>>>>>> NODE FAILED... TRYING AGAIN..%s" % errors_counter)
                         if errors_counter>Tolerant_errors: #we reach the limit
                             ######## ASK AGAIN #######
-                            ToSend = {'service':child['service'],'network':NETWORK,'update':{'id':res['id'],'status':'DOWN',"type":res['type']}} #update status of falied node
+                            ToSend = {'service':child['service'],'context':NETWORK,'update':{'id':res['id'],'status':'DOWN',"type":res['type']}} #update status of falied node
                             res = AG.AskGateway(ToSend)
                             #------------------#
                             errors_counter=0 #reset counter 

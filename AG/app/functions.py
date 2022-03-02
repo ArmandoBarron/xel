@@ -5,7 +5,7 @@ import zipfile
 import tempfile
 import pandas as pd
 from random import randint
-
+import time 
 
 ### tools for compressed files ###
 def zip_extraction(zipfile_path):
@@ -85,3 +85,13 @@ def DatasetDescription(datos):
 def FileExist(filepath):
     exist = os.path.exists(filepath)
     return exist
+
+def GetFileDetails(filepath,filename):
+    file_stats= {
+        "filename":filename,
+        "size":"%.2f MB" %(os.path.getsize(filepath)/(1024*1024)),
+        "created at": time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getctime(filepath))),
+        "last modification": time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getmtime(filepath))),
+        "last access":time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getatime(filepath)))
+    }
+    return file_stats
