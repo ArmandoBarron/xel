@@ -1,0 +1,21 @@
+{
+  "config": {
+    "Distribution_Type": "Two Choice",
+    "force_lan_selection": false
+  },
+  "paxos": {
+    "accepters": [
+      {
+        "host": "accepter_1"
+      },
+      {
+        "host": "accepter_2"
+      },
+      {
+        "host": "accepter_3"
+      }
+    ]
+  },
+  "internal_gateways": [],
+  "services": {}
+}

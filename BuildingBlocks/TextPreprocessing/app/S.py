@@ -192,6 +192,7 @@ TEMP_AG=postman(GATEWAYS_LIST,SERVICE_NAME,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHO
 Gtwy = TEMP_AG.Select_gateway()
 if Gtwy == 1:
     LOGER.error("BAD GATEWAY")
+    time.sleep(5)
     exit(1)
 else:
     API_GATEWAY=Gtwy

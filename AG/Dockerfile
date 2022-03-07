@@ -5,6 +5,8 @@ WORKDIR home
 #requierments for the mesh:
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt --user 
+#for production (only for the AG)
+RUN pip install waitress 
 #requierments for the app:
 
 COPY ./app app

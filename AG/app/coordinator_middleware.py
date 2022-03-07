@@ -2,6 +2,8 @@ import sys,os,ast
 import pandas as pd
 from threading import Thread
 from flask import Flask,request,jsonify,send_file
+#from waitress import serve
+
 import json
 from time import sleep
 import C
@@ -18,6 +20,7 @@ from Proposer import Paxos
 
 
 ########## GLOBAL VARIABLES ##########
+dictionary = dict()
 with open('coordinator_structure.json') as json_file:
     dictionary = json.load(json_file) #read all configurations for services
 
@@ -43,6 +46,7 @@ createFolderIfNotExist(SPL_FOLDER)
 #select load blaancer
 Tolerant_errors=25 #total of errors that can be tolarated
 ACCEPTORS_LIST= dictionary['paxos']["accepters"]
+LOGER.error(ACCEPTORS_LIST)
 PROPOSER = Paxos(ACCEPTORS_LIST)
 ########## END GLOBAL VARIABLES ##########
 
@@ -633,4 +637,6 @@ def getLogFile(RN):
     return send_file(logs_folder+'log_'+RN+'.txt',as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5555,debug = True)
+    app.run(host='0.0.0.0', port=5555,debug = True) #for development
+    #serve(app, host='0.0.0.0', port=5555)
+
