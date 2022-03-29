@@ -553,7 +553,7 @@ def queryDS():
     if file_exist and ext=="csv":
         results = Request2Dataset(data_path,ask_list)
         response['info']=results
-        LOGER.info(response)
+        #LOGER.info(response)
 
     return json.dumps(response)
 

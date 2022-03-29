@@ -5,7 +5,7 @@
             "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "python @{CWD}merge_municipios.py @{SOURCE} @{SINK}merged_mun.csv 1 '@{cve_ent}' '@{cve_mun}'",
+        "COMMAND": "python @{CWD}merge_municipios.py @{SOURCE} @{SINK}merged_mun.csv '@{mode}' '@{cve_ent}' '@{cve_mun}'",
         "CUSTOM_APP":false
     },
     "LOAD":{

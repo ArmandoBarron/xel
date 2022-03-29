@@ -63,6 +63,24 @@ services:
 #          - node.role == manager
   
 ########### BB services ############################
+  bb_maps:
+    image: sm_bb_maps
+    build:
+      context: ./BuildingBlocks/maps
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: maps
+      SERVICE_IP: bb_maps
+      SERVICE_PORT: 80
+      
   bb_catalogs:
     image: sm_bb_catalog
     build:

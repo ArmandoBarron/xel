@@ -337,7 +337,7 @@ def ResourcesManagment(action,value):
         if status:
             LOG.info("REGISTRED %s, ip:%s" % (service,service_id))
         else:
-            LOGER.info("ALREADY REGISTRED %s, ip:%s" % (service,service_id))
+            LOG.info("ALREADY REGISTRED %s, ip:%s" % (service,service_id))
         res = {'status':'OK'}
     elif action=="DISABLE":#when a node is down
         LOAD_B.NodeDown(service,service_id)

@@ -32,8 +32,11 @@ def CompressFile(path_compressfile,path_results,ignore_list=[]):
                 #create complete filepath of file in directory
                 if filename not in ignore_list:
                     filePath = os.path.join(folderName, filename)
+                    archive_file_path = os.path.relpath(filePath, path_results)
                     # Add file to zip
-                    zipObj.write(filePath, basename(filePath))
+                    zipObj.write(filePath, archive_file_path)
+                    #zipObj.write(filePath, os.path.relpath(filePath, src_path))
+
     return fname
 
 
