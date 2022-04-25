@@ -6,6 +6,9 @@ import tempfile
 import pandas as pd
 from random import randint
 import time 
+import logging
+
+LOG = logging.getLogger()
 
 ### tools for compressed files ###
 def zip_extraction(zipfile_path):
@@ -65,6 +68,7 @@ def DatasetDescription(datos):
     datos = datos.apply(pd.to_numeric, errors='ignore')
     response = dict()
     response['info']=dict()
+    response['unique']=dict()
     response['columns'] = list(datos.columns.values)
     des = datos.describe(include='all')
     for col in response['columns']:
@@ -78,13 +82,26 @@ def DatasetDescription(datos):
             if pd.isnull(value) or pd.isna(value):
                 value = ""
             column_description[columns[c]] = str(value)
-        column_description['type'] = datos[col].dtype.name
+        typename =datos[col].dtype.name
+        column_description['type'] = typename
+        if typename=="object":
+            LOG.error("Se encontraron unicos")
+            response['unique'][col]=list(datos[col].unique()) # sagregan los valores unicos
         response['info'][col] = column_description
+    
+
     return response
 
 def FileExist(filepath):
     exist = os.path.exists(filepath)
     return exist
+
+def GetExtension(filepath):
+    try:
+        fext= filepath.split(".")[-1]
+    except Exception as e:
+        fext = "folder"
+    return fext
 
 def GetFileDetails(filepath,filename):
     file_stats= {

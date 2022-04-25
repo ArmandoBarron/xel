@@ -16,6 +16,10 @@ classColumn = args[6]
 epoch = as.numeric(as.character(args[7]))
 lossFunction = args[8]
 metric = args[9]
+batch = as.numeric(as.character(args[10]))
+lstmlayer_units = as.numeric(as.character(args[11])) #24
+lstmdense_units = as.numeric(as.character(args[12])) #100
+
 
 dir.create(destination)
 
@@ -57,9 +61,9 @@ y_test = to_categorical(Y[(b+1):N_FILES], classNumber)
 
 model <- keras_model_sequential() 
 model %>% 
-  layer_lstm(units = 24, input_shape=c(featuresNumber, 1)) %>% 
+  layer_lstm(units = lstmlayer_units, input_shape=c(featuresNumber, 1)) %>% 
   #layer_dropout(rate=0.2) %>%
-  layer_dense(units = 100, activation = 'relu') %>%
+  layer_dense(units = lstmdense_units, activation = 'relu') %>%
   layer_dense(units = classNumber, activation = 'softmax')
 
 summary(model)
@@ -70,7 +74,7 @@ model %>% compile(
 )
 history <- model %>% fit(
   x_train, y_train, 
-  epochs = epoch, batch_size = 24, 
+  epochs = epoch, batch_size = batch, 
   validation_split = 0.2
 )
 

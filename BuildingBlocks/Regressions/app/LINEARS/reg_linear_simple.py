@@ -98,7 +98,6 @@ def REG(datos,var_x,var_y,alpha,outputpath,sufijo=""):
 
     # Predicciones con intervalo de confianza del 95%
     # ==============================================================================
-    predicciones = modelo.get_prediction(exog = X_train).summary_frame(alpha=var_alpha)
     predicciones['x'] = X_train[:, 1]
     predicciones['y'] = y_train
     predicciones = predicciones.sort_values('x')
@@ -106,10 +105,11 @@ def REG(datos,var_x,var_y,alpha,outputpath,sufijo=""):
     # Gráfico del modelo
     # ==============================================================================
     fig, ax = plt.subplots(figsize=FIGSIZE)
+    CI = (1-var_alpha) * 100
 
     ax.scatter(predicciones['x'], predicciones['y'], marker='o', color = "gray")
     ax.plot(predicciones['x'], predicciones["mean"], linestyle='-', label="OLS")
-    ax.plot(predicciones['x'], predicciones["mean_ci_lower"], linestyle='--', color='red', label="95% CI")
+    ax.plot(predicciones['x'], predicciones["mean_ci_lower"], linestyle='--', color='red', label="%s% CI" %(CI))
     ax.plot(predicciones['x'], predicciones["mean_ci_upper"], linestyle='--', color='red')
     ax.fill_between(predicciones['x'], predicciones["mean_ci_lower"], predicciones["mean_ci_upper"], alpha=0.1)
     ax.legend();

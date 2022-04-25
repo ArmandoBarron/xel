@@ -16,7 +16,6 @@ mkdir -p ${FOLDER_SERVICES}${SERVICE_NAME}"/app/"
     cp Postman.py ${FOLDER_SERVICES}${SERVICE_NAME}"/app/"
     cp C.py ${FOLDER_SERVICES}${SERVICE_NAME}"/app/"
     cp S.py ${FOLDER_SERVICES}${SERVICE_NAME}"/app/"
-    cp -R TPS/ ${FOLDER_SERVICES}${SERVICE_NAME}"/app/"
 
 
     # se copia el docker-file y lista de dependencias

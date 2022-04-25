@@ -3,7 +3,7 @@ import time
 import requests as api #for APIs request
 import logging
 import json
-from TPS.Builder import Builder #TPS API BUILDER
+#from TPS.Builder import Builder #TPS API BUILDER
 
 class postman(Thread):
 
@@ -59,18 +59,18 @@ class postman(Thread):
         return 1
 
 
-    def IndexData(self,RN,id_service,data):
-        WORKSPACENAME = "SERVICEMESH"
-        INDEXER=Builder(WORKSPACENAME,TPS_manager_host=self.TPSHOST) #api for index data
-        try:
-            INDEXER.TPSapi.format_single_query("notImportant")
-        except AttributeError:
-            INDEXER=Builder(WORKSPACENAME,TPS_manager_host=self.TPSHOST) #api for index data
-
-        data_label = "%s_%s" % (RN,id_service) #this is the name of the document (mongo document)
-        query = INDEXER.TPSapi.format_single_query("notImportant") #not important line. Well yes but actually no.
-        res = INDEXER.TPSapi.TPS(query,"indexdata",workload=data,label=data_label) #this service (getdata) let me send json data and save it into a mongo DB
-        return data_label
+#    def IndexData(self,RN,id_service,data):
+#        WORKSPACENAME = "SERVICEMESH"
+#        INDEXER=Builder(WORKSPACENAME,TPS_manager_host=self.TPSHOST) #api for index data
+#        try:
+#            INDEXER.TPSapi.format_single_query("notImportant")
+#        except AttributeError:
+#            INDEXER=Builder(WORKSPACENAME,TPS_manager_host=self.TPSHOST) #api for index data
+#
+#        data_label = "%s_%s" % (RN,id_service) #this is the name of the document (mongo document)
+#        query = INDEXER.TPSapi.format_single_query("notImportant") #not important line. Well yes but actually no.
+#        res = INDEXER.TPSapi.TPS(query,"indexdata",workload=data,label=data_label) #this service (getdata) let me send json data and save it into a mongo DB
+#        return data_label
 
     def WarnGateway(self,ToSend):
         ToSend=json.dumps(ToSend)

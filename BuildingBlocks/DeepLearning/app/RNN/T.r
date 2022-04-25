@@ -16,6 +16,8 @@ classColumn = args[6]
 epoch = as.numeric(as.character(args[7]))
 lossFunction = args[8]
 metric = args[9]
+batch = as.numeric(as.character(args[10])) #24
+grulayer_units = as.numeric(as.character(args[11])) #24
 
 dir.create(destination)
 
@@ -56,7 +58,7 @@ y_test = to_categorical(Y[(b+1):N_FILES], classNumber)
 
 model <- keras_model_sequential() %>% 
   bidirectional(
-    layer_gru(units = 32), input_shape = c(featuresNumber,1)
+    layer_gru(units = grulayer_units), input_shape = c(featuresNumber,1)
   ) %>% 
   layer_dense(units = classNumber, activation = 'softmax')
 
@@ -68,7 +70,7 @@ model %>% compile(
 )
 history <- model %>% fit(
   x_train, y_train, 
-  epochs = epoch, batch_size = 24, 
+  epochs = epoch, batch_size = batch, 
   validation_split = 0.2
 )
 

@@ -5,7 +5,7 @@
             "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "Rscript @{CWD}T.r \"@{SOURCE_PATH}\" \"@{SOURCE_FILENAME}\" \"@{SINK}output/\" \"@{columns}\" \"@{trainSize}\" \"@{classColumn}\" \"@{epoch}\" \"@{lossFunction}\" \"@{metric}\"",
+        "COMMAND": "Rscript @{CWD}T.r \"@{SOURCE_PATH}\" \"@{SOURCE_FILENAME}\" \"@{SINK}output/\" \"@{columns}\" \"@{trainSize}\" \"@{classColumn}\" \"@{epoch}\" \"@{lossFunction}\" \"@{metric}\" \"@{batch}\" \"@{layer_units}\" \"@{dense_units}\"",
         "CUSTOM_APP":false
     },
     "LOAD":{

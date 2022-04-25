@@ -15,8 +15,8 @@ import shutil
 
 # local imports
 from functions import *
-from TPS.Builder import Builder #TPS API BUILDER
 from Proposer import Paxos
+from os import listdir
 
 
 ########## GLOBAL VARIABLES ##########
@@ -489,7 +489,6 @@ def get_userfile_workspace(tokenuser,workspace,filename):
         )
 
 
-
 @app.route('/UploadDataset', methods=['POST'])
 def UploadDataset():
     """
@@ -507,6 +506,16 @@ def UploadDataset():
     f.save(os.path.join(workspace_path, filename)) #añadir DS al catalogo de fuentes de datos
     LOGER.info("Data saved in %s" % workspace_path+filename)
 
+    return {"status":"OK"}
+
+## =========== DELETE DATA ============ ##
+@app.route('/workspace/delete/<tokenuser>/<workspace>/<filename>', methods=['GET'])
+def delete_userfile(tokenuser,workspace,filename):
+    data_path= GetWorkspacePath(tokenuser,workspace)+filename
+    file_exist=FileExist(data_path) #verify if data exist
+    if file_exist:
+        #os.remove(data_path)
+        pass
     return {"status":"OK"}
 
 ## =============================================================== ##
@@ -574,7 +583,6 @@ def describeDatasetv2():
 
     returns:
     {"status":"OK"/"ERROR", "message":"", "info":{"parent_filename":<name_of_original_file>,"list_of_files":[<list of names>],","files_info":{<file_name>:{} }}}
-
     """
     def verify_extentions(data_path,ext,response,filename):
         valid = False #flag to mark a valid file
@@ -582,19 +590,31 @@ def describeDatasetv2():
             valid=True
             dirpath,list_of_files=zip_extraction(data_path)
             for fname in list_of_files:
-                fext= fname.split(".")[1]
+                fext = GetExtension(fname)
                 response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname) #recursive
-                response['info']['list_of_files'].append(fname)
+            
             # must delete the temp folder
             shutil.rmtree(dirpath)
+
+        elif ext =="folder": #if its a folder #creo que nisiquiera se requiere
+            valid=True
+            list_of_files = listdir("%s/%s"%(data_path,filename))
+            for f in list_of_files:
+                LOGER.error(f)
+                fname = "%s/%s" %(filename,f)
+                fext = GetExtension(fname)
+                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname) #recursive
 
         elif ext=="csv":  #describe csv
             dataset= pd.read_csv(data_path)
             response['info']['files_info'][filename] = DatasetDescription(dataset)
+            response['info']['list_of_files'].append(filename)
             valid=True
+
         elif ext=="json":
             dataset = pd.read_json(data_path)
             response['info']['files_info'][filename] = DatasetDescription(dataset)
+            response['info']['list_of_files'].append(filename)
             valid=True
         return response,valid 
 
@@ -625,7 +645,7 @@ def describeDatasetv2():
                     f.write(json.dumps(response))
             else:
                 response['status']="ERROR"
-                response['message']="Datafile can't be described. Try with the following file extentions:csv,json,zip or tar."
+                response['message']="Datafile can't be described. Try with the following file extentions:csv,json, or zip."
 
     return response
 

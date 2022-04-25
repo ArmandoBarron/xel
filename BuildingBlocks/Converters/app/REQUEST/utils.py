@@ -39,6 +39,14 @@ def CompressFile(path_compressfile,path_results,ignore_list=[]):
 
     return fname
 
+def FormatParam(param):
+    if isinstance(param, list):
+        return ",".join([str(i) for i in param])
+    elif isinstance(param, dict):
+        return json.dumps(param)
+    else:
+        return str(param)
+
 
 def FormatCommand(command,params,reserved_params={}):
     
@@ -50,13 +58,16 @@ def FormatCommand(command,params,reserved_params={}):
         if start>end:
             return None
         parameter_found = command[start:end]
+        #LOGER.error("---------------> %s" % parameter_found)
         ########## REPLACE PARAMS FOUND #############
         if parameter_found in reserved_params:
             command = command.replace("@{%s}" % parameter_found,reserved_params[parameter_found])
         elif parameter_found in params:
-            command = command.replace("@{%s}" % parameter_found,str(params[parameter_found]))
+            temp_p = FormatParam(params[parameter_found]) #fillter the params to change it to a valid format (e.g a list [] to a string separated by commas)
+            command = command.replace("@{%s}" % parameter_found,temp_p)
         else:
-            command = command.replace("@{%s}" % parameter_found,"")
+            #if the parameter does not exist, then a default - is allocated
+            command = command.replace("@{%s}" % parameter_found,"-")
 
     
     return command

@@ -9,9 +9,9 @@ services:
       - "25000:5555"
     volumes:
       - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
-      #- ./AG/app/:/home/app/ #for debugging and making changes
       - ./localdata/LAKE:/home/app/SUPPLIES/ #for debugging
       - ./localdata/LAKE:/home/app/BACKUPS/ #for debugging
+      - ./AG/app/:/home/app/ #for debugging and making changes
 
     restart: always
     networks:
@@ -63,6 +63,24 @@ services:
 #          - node.role == manager
   
 ########### BB services ############################
+  bb_charts:
+    image: sm_bb_charts
+    build:
+      context: ./BuildingBlocks/graphics
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: charts
+      SERVICE_IP: bb_charts
+      SERVICE_PORT: 80
+
   bb_maps:
     image: sm_bb_maps
     build:
@@ -281,23 +299,6 @@ services:
       SERVICE_IP: preprocessing
       SERVICE_PORT: 80
 
-  bb_tps: # tools to clean data
-    image: sm_bb_tps
-    build:
-      context: ./BuildingBlocks/TS
-      dockerfile: ./Dockerfile
-    networks:
-      - service_mesh
-    restart: always
-    depends_on:
-      - coordinator
-    environment:      
-      TPS_MANAGER: http://tps_manager:5000 #TPS URL
-      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
-      NETWORK: LocalCluster
-      SERVICE_NAME: TS
-      SERVICE_IP: bb_tps
-      SERVICE_PORT: 80
 #
 #  bb_converters: # tools to convert file formats
 #    image: sm_bb_converters
@@ -377,49 +378,9 @@ services:
 #      SERVICE_NAME: Glove
 #      SERVICE_IP: bb_glove
 #      SERVICE_PORT: 80
-###########################################
-############## TPS SERVICES ###############
-###########################################
-
-#  tps_manager: #API Gatewaey THE MANAGER
-#    image: tps_manager
-#    container_name: TPS_Manager
-#    build:
-#      context: ./TPS/Manager/
-#      dockerfile: ./Dockerfile
-#    environment:      
-#      CONFIGPATH: ./CONFIG/ #configuration location
-#      SCHEMAPATH: ./SCHEMA/ #data location
-#      DATABASE: mongodb #database
-#      CENTINEL: none #master watcher
-#    volumes:
-#      - ./TPS/Manager/:/home/ #for debugging
-#      - ./TPS/:/home/CONFIG/
-#    ports:
-#      - "54350:5000"
-#    expose:
-#      - "5000"
-#    restart: always
-#    networks:
-#      - service_mesh
-#
-#  mongodb: # tps manager mongoDB
-#    container_name: DB_TPS_data
-#    image: mongo:4.4
-#    command: mongod --quiet --logpath /dev/null 
-#    restart: always
-#    environment:
-#      data-volume: /data/db
-#      MONGO_INITDB_DATABASE: TPS_Data
-#    volumes:
-#      - data-volume:/data/db
-#    ports:
-#      - 27018:27017
-#    networks:
-#      - service_mesh
 
 ###########################################
-############## external services ###############
+############ external services ############
 ###########################################
 
   grobid: # tools to clean data
@@ -431,49 +392,6 @@ services:
       - service_mesh
     restart: always
 
-#  cleaningtools: # tools to clean data
-#    container_name: TPS_cleaning_tools
-#    #image: 127.0.0.1:5000/TPS_cleaning_tools
-#    build:
-#      context: ./TPS/Services/CleaningTools
-#      dockerfile: ./Dockerfile
-#    networks:
-#      - service_mesh
-#    #ports:
-#    #  - 11003:80
-#    restart: always
-
-#  clustering: # API Gateway container
-#    container_name: TPS_clustering
-#    #image: 127.0.0.1:5000/meteots_clustering_w1
-#    build:
-#      context: ./TPS/Services/Clustering
-#      dockerfile: ./Dockerfile
-#    networks:
-#      - service_mesh
-#    restart: always
-  
-#  graphics: # service to graphic data
-#    container_name: TPS_graphics
-#    #image: 127.0.0.1:5000/TPS_cleaning_tools
-#    build:
-#      context: ./TPS/Services/Graficas
-#      dockerfile: ./Dockerfile
-#    networks:
-#      - service_mesh
-#    restart: always
-
-#  summary: # summary
-#    container_name: TPS_summary
-#    build:
-#      context: ./TPS/Services/Summary/
-#      dockerfile: ./Dockerfile
-#    restart: always
-#    networks:
-#      - service_mesh
-#    depends_on:
-#      - tps_manager
-  
 ###########################################
 ############## PAXOS NETWORK ##############
 ###########################################

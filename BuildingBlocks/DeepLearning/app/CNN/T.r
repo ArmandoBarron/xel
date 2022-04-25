@@ -16,6 +16,10 @@ classColumn = args[6]
 epoch = as.numeric(as.character(args[7]))
 lossFunction = args[8]
 metric = args[9]
+batch = as.numeric(as.character(args[10])) #30
+convlayer_units = as.numeric(as.character(args[11])) #24
+dense_units = as.numeric(as.character(args[12])) #100
+kernelsize = as.numeric(as.character(args[13])) #2
 
 
 dir.create(destination)
@@ -49,11 +53,11 @@ y_test = to_categorical(Y[(b+1):N_FILES], classNumber)
 
 model <- keras_model_sequential() 
 model %>% 
-  layer_conv_1d(filters=64, kernel_size=2, input_shape=c(featuresNumber, 1),activation = 'relu') %>%
+  layer_conv_1d(filters=convlayer_units, kernel_size=kernelsize, input_shape=c(featuresNumber, 1),activation = 'relu') %>%
   #layer_global_max_pooling_1d() %>%
   layer_max_pooling_1d(pool_size = 2) %>%
   layer_flatten() %>% 
-  layer_dense(units = 100, activation = 'relu') %>%
+  layer_dense(units = dense_units, activation = 'relu') %>%
   layer_dense(units = classNumber, activation = 'softmax')
 summary(model)
 model %>% compile(
@@ -63,7 +67,7 @@ model %>% compile(
 )
 history <- model %>% fit(
   x_train, y_train, 
-  epochs = epoch, batch_size = 30, 
+  epochs = epoch, batch_size = batch, 
   validation_split = 0.2
 )
 report <- model %>% evaluate(x_test, y_test)

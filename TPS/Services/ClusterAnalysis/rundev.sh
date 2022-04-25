@@ -1,1 +1,0 @@
-docker run -it --name stats_api -p 3030:8000 --rm --mount type=bind,source="$(pwd)"/stats,target=/usr/local/src/stats stats:v1 
