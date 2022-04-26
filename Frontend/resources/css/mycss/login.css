@@ -1,0 +1,142 @@
+/*@import url("http://fonts.googleapis.com/css?family=Lato");
+@import url("http://weloveiconfonts.com/api/?family=fontawesome");*/
+
+
+
+
+[class*="fontawesome-"] {
+  display: block;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 40px;
+  font-size: 5.5rem;
+  line-height: 95px;
+  text-align: center;
+  border: 2px solid #abcde5;
+  border-radius: 100%;
+  color: #fff;
+  background: #bfd8eb;
+  transition: all .2s;
+}
+[class*="fontawesome-"]:before {
+  font-family: 'FontAwesome', sans-serif;
+}
+
+.loginbody {
+  width: 450px;
+  padding: 30px;
+  margin: 0 auto;
+  background: #16375a;
+}
+.loginbody:hover [class*="fontawesome-"] {
+  border-color: #5e9ecc;
+  background: #5e9ecc;
+}
+
+#frmsignup fieldset,#frmlogin fieldset,#frmReset fieldset  {
+  width: 100%;
+  padding: 0 10px;
+  margin: 0 0 10px;
+  border: 1px solid #595959;
+  background: #fff;
+}
+
+#frmsignup input,#frmlogin input,#frmReset input  {
+  display: block;
+  width: 100%;
+  padding: 20px 5px;
+  margin: 0;
+  border: none;
+  font: 1.4rem "Lato", sans-serif;
+  color: #333;
+}
+
+#frmsignup input[type="text"], #frmsignup input[type="password"],#frmlogin input[type="text"], #frmlogin  input[type="password"],#frmReset input[type="text"], #frmReset input[type="password"] {
+  letter-spacing: .1rem;
+  transition: padding .2s;
+}
+
+#frmsignup input[type="text"]:focus, #frmsignup input[type="password"]:focus, #frmlogin input[type="text"]:focus, #frmlogin input[type="password"]:focus, #frmReset input[type="text"]:focus, #frmReset input[type="password"]:focus {
+  padding: 20px 5px 20px 20px;
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAANCAMAAABSF4SHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAZQTFRF/5kA////nQtxcAAAAAJ0Uk5T/wDltzBKAAAAJ0lEQVR42mJgYAQDBgYGGM0AoxlgNAOMZoDRDKh8VPWo5kHMBwgwAAi4ACtJ73JtAAAAAElFTkSuQmCC") no-repeat 5px 50%;
+}
+
+#frmsignup input[type="text"],#frmlogin input[type="text"],#frmReset input[type="text"] {
+  border-bottom: 1px solid #e6e6e6;
+}
+
+#frmsignup input[type="submit"],#frmlogin input[type="submit"],#frmReset input[type="submit"] {
+  font-size: 1.6rem;
+  color: #fff;
+  background: #9aca40;
+  transition: all .2s;
+}
+
+#frmsignup input[type="submit"]:hover,#frmlogin input[type="submit"]:hover,#frmReset input[type="submit"]:hover {
+  cursor: pointer;
+  background: #608024;
+}
+
+.invisible{
+  display:none;
+}
+
+#btnCancelRec{
+  text-align: center;
+  display: block;
+  width: 100%;
+  padding: 20px 5px;
+  margin: 0;
+  border: none;
+  font: 1.6rem "Lato", sans-serif;
+  margin-top: 10px;
+  color: #808080;
+  background: #d9d9d9;
+  transition: all .2s;
+}
+
+#btnCancelRec:hover{
+  background-color: #B9B9B9;
+}
+
+#btnLogFacebook,#btnRegFacebook{
+  text-align: center;
+  display: block;
+  width: 100%;
+  padding: 20px 5px;
+  margin: 0;
+  border: none;
+  font: 1.6rem "Lato", sans-serif;
+  text-transform: uppercase;
+  margin-top: 10px;
+  color: #fff;
+  background: #3b5998;
+  transition: all .2s;
+}
+
+#btnLogGhest{
+  text-align: center;
+  display: block;
+  width: 100%;
+  padding: 20px 5px;
+  margin: 0;
+  border: none;
+  font: 1.6rem "Lato", sans-serif;
+  text-transform: uppercase;
+  margin-top: 10px;
+  color: #fff;
+  background: #FF8A65;
+  transition: all .2s;
+}
+
+#btnLogFacebook:hover,#btnRegFacebook:hover{
+  background: #17233d;
+}
+
+.animation{
+  -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadein 2s; /* Firefox < 16 */
+        -ms-animation: fadein 2s; /* Internet Explorer */
+         -o-animation: fadein 2s; /* Opera < 12.1 */
+            animation: fadein 2s;
+}

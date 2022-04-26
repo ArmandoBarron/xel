@@ -1,0 +1,597 @@
+
+html, body {
+	min-height: 100% !important;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+	overflow: auto;
+	width: 100%;
+	background:#fff;
+	font-family: 'Roboto', sans-serif;
+}
+
+a{
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.front{
+	z-index: 999999;
+}
+
+.imgmodal{
+    max-width: 100%;
+}
+
+
+.logo{
+	color: #E0F2F1;
+	font-size: 2em;
+	text-decoration: none;
+	float: left;
+}
+
+.logo a{
+	cursor: pointer;
+	text-decoration: none;
+	color: #E0F2F1;
+}
+
+.dot {
+  height: 20px;
+  width: 20px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.content{
+	height:100%;
+	background-color: green;
+	margin-top: 2px;
+	z-index: 1;
+}
+
+
+.startsesion{
+	font-size: 13px;
+}
+
+.downloads{
+	float: right;
+	margin-top: -9px;
+	padding-left: 20px;
+}
+
+.downloads a{
+	text-decoration: none;
+	color: #FFF;
+}
+
+.downloads a:hover{
+	color: #9E9E9E;
+	cursor: hand;
+}
+
+#options{
+	height: 100%;
+	min-height: 100px;
+	background-color: red;
+}
+
+.header{
+    background: #333;
+    padding: 10px;
+    font-size: 18px;
+    color: #fff;
+	box-shadow: 0px 4px 0px #BDBDBD;
+	z-index: 2;
+	padding-left: 100px;
+	padding-right: 250px;
+}
+
+.divider{
+	background: #808080;
+    padding: 10px;
+    font-size: 18px;
+    color: #fff;
+	z-index: 2;
+	padding-left: 100px;
+	padding-right: 250px;
+	height: 20px;
+	max-height: 20px;
+	margin-top: 30px;
+}
+
+.footer{
+    background: #404040;
+    padding: 10px;
+    font-size: 15px;
+    color: #fff;
+	z-index: 2;
+	padding-left: 100px;
+	padding-right: 250px;
+	min-height: 50px;
+}
+
+.space{
+	padding-top: 0px;
+	font-size: 40px;
+	margin-left: 20px;
+	margin-right:20px;
+	color: #424242;
+	font-style: normal;
+
+}
+
+.leftpanel{
+    padding: 10px;
+}
+
+.rightpanel{
+
+}
+
+#content{
+	z-index: 1;
+}
+
+#wrapper {
+    height: 100%;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+}
+
+#wrapper > .header {
+    -webkit-flex: 0 0 auto;
+    flex: 0 0 auto;
+}
+
+#wrapper > .header + div {
+    -webkit-flex: 1 1 auto;
+    flex: 1 1 auto;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+}
+
+#wrapper > .header + div > div:first-of-type {
+    -webkit-flex: 3.2 0 0;
+    flex: 3.2 0 0;
+}
+
+#wrapper > .header + div > div:last-of-type {
+    -webkit-flex: 7 0 0;
+    flex: 7 0 0;
+}
+
+.disable{
+
+}
+
+
+.resultadosbusqueda{
+  overflow-y:auto;
+  overflow-x:none;
+	width: 100%;
+
+}
+
+.botones{
+  width: 100%;
+  min-height: 20px;
+	margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+.resultados{
+	width: 100%;
+}
+
+.miniatura{
+  float:left;
+  width: 40%;
+}
+
+
+.miniatura > .imagen_res{
+	height: 80%;
+}
+
+.likes{
+	height: 20%;
+	margin-top:  10px;
+	margin-left: 5px;
+	width: 100%;
+}
+
+.info{
+  float:left
+  width: 60%;
+  
+}
+
+
+.linea {
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 1px;
+}
+
+.lugar{
+  cursor: pointer;
+}
+
+
+.tabcontentinter{
+  border-style: solid;
+  border-color: #337ab7;
+}
+
+.space{
+  min-width: 15px;
+  min-height: 15px;
+}
+
+.buscar{
+  max-height: 200px;
+  overflow-y:auto;
+  overflow-x:none;
+}
+
+#coordinates{
+  overflow-y:auto;
+  overflow-x:none;
+  height:150px;
+}
+
+.coords1{
+  border-style: solid;
+  border-width: 1px;
+  padding-left: 4px;
+  padding-top: 3px;
+  border-color: #0D47A1;
+  background-color: #90CAF9;
+  min-height: 30px;
+  font-size: 14px;
+}
+
+.coords2{
+  border-style: solid;
+  border-width: 1px;
+  padding-left: 4px;
+  padding-top: 3px;
+  border-color: #0D47A1;
+  background-color: #BBDEFB;
+  min-height: 30px;
+  font-size: 14px;
+}
+
+.divcoordenadas{
+  float:left;
+  width: 90%;
+}
+
+.btndelete{
+  float:left;  width: 10%;
+}
+
+.titulo .configuraciones{
+
+}
+
+.titulo{
+	width: 70%;
+	float: left;
+	position: relative;
+}
+
+.configuraciones{
+	width: 30%;
+	float: left;
+	position: relative;
+	padding-top: 25px;
+	font-size: 20px;
+	display: inline;
+}
+
+.dropdown2, #dropyears{
+	display: inline;
+	margin-left: 3px;
+	margin-right: 7px;
+}
+
+.configuraciones a>span{
+	color: #000;
+	cursor: hand;
+}
+
+.configuraciones a>span:hover{
+	color: #337ab7;
+	cursor: hand;
+	font-size: 22px;
+}
+
+.textonimage {
+	color:#FFEB3B;
+	text-shadow: 1px 1px #FFFDE7;
+}
+
+.textonimage p{
+	font-style: strong;
+}
+
+.infoimage{
+	background: rgba(0, 0, 0, 0.5);
+	filter: alpha(opacity=50); /* For IE8 and earlier */
+}
+
+#test{
+	background-color: #ECEFF1;
+}
+
+
+#imgelement, #divdata{
+	padding: 20px;
+}
+
+#divdata{
+	padding-left: 100px;
+	margin-top: -20px;
+}
+
+label{
+	font-weight: normal;
+	text-decoration: none;
+}
+
+/**
+* COMENTARIOS
+*/
+.comments{
+	margin:20px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.users-comments{
+	margin:20px;
+	margin-top:50px;
+	padding-left:20px;
+	padding-right: 20px;
+	max-height: 250px;
+	overflow: auto;
+}
+
+textarea {
+    resize: none;
+}
+
+.date{
+	color: #BDBDBD;
+	font-size: 14px;
+}
+
+.username{
+	color: #0277BD;
+	font-size: 17px;
+}
+
+.comment{
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+/*DROPDOWN*/
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu>.dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+    margin-left: -1px;
+    -webkit-border-radius: 0 6px 6px 6px;
+    -moz-border-radius: 0 6px 6px;
+    border-radius: 0 6px 6px 6px;
+}
+
+.dropdown-submenu:hover>.dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu>a:after {
+    display: block;
+    content: " ";
+    float: right;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 5px 0 5px 5px;
+    border-left-color: #ccc;
+    margin-top: 5px;
+    margin-right: -10px;
+}
+
+.dropdown-submenu:hover>a:after {
+    border-left-color: #fff;
+}
+
+.dropdown-submenu.pull-left {
+    float: none;
+}
+
+.dropdown-submenu.pull-left>.dropdown-menu {
+    left: -100%;
+    margin-left: 10px;
+    -webkit-border-radius: 6px 0 6px 6px;
+    -moz-border-radius: 6px 0 6px 6px;
+    border-radius: 6px 0 6px 6px;
+}
+
+body .modal-admin {
+	/* new custom width */
+	width: 1100px;
+	/* must be half of the width, minus scrollbar on the left (30px) */
+	margin-left: 100px;
+}
+
+#passreset{
+	padding: 30px;
+}
+
+#passreset input[type='password']{
+	width: 400px;
+}
+
+fieldset {
+  margin: 10px 0;
+  padding: 0;
+  border: none;
+}
+
+.palette {
+  display: flex;
+  flex-direction: row;  
+}
+
+.palette__item {
+  flex-grow: 1;
+  text-align: center;
+  height: 20px;
+  line-height: 20px;
+  color: #000;
+}
+
+	/* esto de aqui sirve para cambiar los inconos del boton de collapse*/
+
+button[aria-expanded=true] .glyphicon-chevron-right {
+  display: none;
+}
+button[aria-expanded=false] .glyphicon-chevron-down {
+  display: none;
+}
+::-webkit-scrollbar {
+  width: 0;  /* Remove scrollbar space */
+  background: transparent;  /* Optional: just make scrollbar invisible */
+}
+/* Optional: show position indicator in red */
+::-webkit-scrollbar-thumb {
+  background: rgb(133, 195, 219);
+}
+
+
+/* The side navigation menu */
+.sidenav {
+  height: 96%; /* 100% Full-height */
+  width: 0; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  right: 0;
+  background-color: #fff8f8; /* Black*/
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px; /* Place content 60px from the top */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+/* The navigation menu links */
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+#main {
+  transition: margin-left .5s;
+  padding: 20px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+.ui-front {
+  z-index: 9999999 !important;
+}
+
+.ui-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  list-style: none;
+  font-size: 14px;
+  text-align: left;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  background-clip: padding-box;
+}
+
+.ui-autocomplete > li > div {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333333;
+  white-space: nowrap;
+}
+
+.ui-state-hover,
+.ui-state-active,
+.ui-state-focus {
+  text-decoration: none;
+  color: #262626;
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+
+.ui-helper-hidden-accessible {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}

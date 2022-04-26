@@ -1,0 +1,6 @@
+php_value post_max_size 6G
+php_value upload_max_filesize 6G
+#php_value max_input_time 3000
+#php_value max_execution_time 3000
+SetEnv METEOTS_IP 148.247.204.207
+SetEnv XEL_IP 148.247.204.207

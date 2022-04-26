@@ -1,0 +1,66 @@
+
+a {/*todos los links en xelhua tendran este color*/
+  color: #bb415c
+}
+a:hover{
+  color: #EDBFC6
+}
+
+#sectionDIV #faq .cardsec {
+  margin-bottom: 2vh;
+  border: 0;
+}
+
+#sectionDIV #faq .cardsec .card-header {
+  border: 0;
+  -webkit-box-shadow: 0 0 20px 0 rgba(213, 213, 213, 0.5);
+          box-shadow: 0 0 20px 0 rgba(213, 213, 213, 0.5);
+  border-radius: 2px;
+  padding: 0;
+}
+
+#sectionDIV #faq .cardsec .card-header .btn-header-link {/*seccion abierta */
+  color: #fff;
+  display: block;
+  text-align: left;
+  background: #EDBFC6;
+  color: #222;
+  padding: 2.5vh;
+}
+
+
+.btn-header-link:focus {/*esto quita el focus azul alrededor de los botones */
+  box-shadow: none;
+  outline: none;
+}
+
+#sectionDIV #faq .cardsec .card-header .btn-header-link:after { 
+  content: "\f107";
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  float: right;
+}
+
+#sectionDIV #faq .cardsec .card-header .btn-header-link.collapsed { /*seccion collapsada */
+  background: #2A2B2A;
+  color: #fff;
+}
+
+#sectionDIV #faq .cardsec .card-header .btn-header-link.collapsed:after {
+  content: "\f106";
+}
+
+#sectionDIV #faq .cardsec .collapsing {
+  background: #EDBFC6;
+  line-height: 30px;
+}
+
+#sectionDIV #faq .cardsec .collapse {
+  border: 0;
+}
+
+#sectionDIV #faq .cardsec .collapse.show {
+  background: #EDBFC6;
+  line-height: 30px;
+  color: #222;
+}

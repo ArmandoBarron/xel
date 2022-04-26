@@ -514,8 +514,7 @@ def delete_userfile(tokenuser,workspace,filename):
     data_path= GetWorkspacePath(tokenuser,workspace)+filename
     file_exist=FileExist(data_path) #verify if data exist
     if file_exist:
-        #os.remove(data_path)
-        pass
+        os.remove(data_path)
     return {"status":"OK"}
 
 ## =============================================================== ##

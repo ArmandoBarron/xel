@@ -1,0 +1,94 @@
+
+:root {
+	--block-min-width: 200px;
+	--block-max-height: 200px;
+}
+#root {
+	min-width: var(--block-min-width);
+}
+.blockelem {
+	box-sizing: border-box;
+	background-color: lightcyan;
+	border-radius: 10px;
+	box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.54);
+	max-width: 350px;
+}
+.leftpanel-block {
+	margin: 15px;
+	min-width: var(--block-min-width)!important ;
+	width: 70%;
+}
+
+@media (max-width: 1024px) {
+	.leftpanel-block {
+		margin: 15px;
+		min-width:  var(--block-min-width)!important;
+	}	
+}
+
+.blockelem:hover {
+	box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.54);
+	border-radius: 5px;
+	background-color: #fff;
+	cursor: pointer;
+}
+
+.blockdisabled {
+	background-color: #f0f2f9;
+	opacity: 0.5;
+}
+
+.c-block {
+	margin: 0px;
+	min-width: var(--block-min-width)!important;
+	max-height: var(--block-max-height) !important;
+	/*overflow: auto;*/
+}
+
+.service-options {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.service-options > div {
+	display: flex;
+	flex-grow: 1;
+	justify-content: center;
+}
+
+.show-icon { 
+	display: inline;
+}
+
+/* 
+div.card-body.text-center {
+	padding: 15px;
+	font-size: 1.25em;
+	text-align: justify;
+}
+*/
+div.card-header.text-uppercase {
+	display: flex;
+	justify-content: space-between;
+}
+
+.icon-edit {
+	width: 20px;
+	height: 20px;
+}
+
+.icon-edit:hover {
+	background-color: rgba(239, 239, 239, 0.25);
+}
+
+.c-block-header {
+	display: flex;
+	justify-content: space-between;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.c-block-header:first-child {
+	flex-grow: 2;
+}
