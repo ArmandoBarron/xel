@@ -35,12 +35,12 @@ if(isset($_REQUEST['workspace'])){
 	#$IP = "148.247.201.227"; #compute 6
 	#$IP = "192.168.1.65"; #local
 	#$IP = "192.168.1.66";
-	$IP = "192.168.1.71";#local
+	#$IP = "192.168.1.71";#local
 	#$IP = "148.247.201.140"; #compute 1 disys0
 	$IP = $_ENV["XEL_IP"];
-
+	$PORT = $_ENV["XEL_PORT"];
 	
-	$url = "http://".$IP.":25000/UploadDataset";
+	$url = "http://".$IP.":".$PORT."/UploadDataset";
 
 	$temp_name = $_FILES['file']['tmp_name']; //temporal path of the file
 	$original_name = $_FILES['file']['name'];

@@ -3,8 +3,8 @@ services:
   xel_gui:  # Graphic user interface
     image: ddomizzi/apache:php
     environment:      
-      XEL_IP: "172.26.205.188" #for labs network
-      XEL_PORT: 25000 #for labs network
+      XEL_IP: "coordinator" #for labs network
+      XEL_PORT: 5555 #for labs network
     ports:
       - "8080:80"
     volumes:
