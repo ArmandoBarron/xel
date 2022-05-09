@@ -38,6 +38,7 @@ def middleware(data,actions,workParams,LOGER=LOG):
         for app in actions:
             C_ST = time.time() #<--- time flag
             app = app.upper() #all applications names must be in uppercase
+            LOGER.info("Looking for %s" % app)
             #confirm the app exist in BB, if not, do nothing
             if (app in list_applications):
                 filepath = app + '/'
@@ -62,8 +63,8 @@ def middleware(data,actions,workParams,LOGER=LOG):
                     return data
                 #the same data variable is transformed by all the application
             else:
-                data['status']=="ERROR"
-                LOGER.error("APP %s doesn't exist in BB... skipping this step" % app)
+                LOGER.error("APP %s doesn't exist in BB..." % app)
+                raise Exception("App not found")
 
         LOGER.info("STOPING BB")
         f.write("BB, %s \n-\n" %((time.time() - C_ST))) #<--- time flag

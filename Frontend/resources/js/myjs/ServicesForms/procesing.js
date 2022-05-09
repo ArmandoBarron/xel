@@ -161,9 +161,14 @@ ServicesArr.push(
                 },
                 params: {
                         algh: 'kmeans',
+                        actions:[],
                         k:2,
                         columns: "",
                         clustering_params: '{"dbscan":{"eps":0.5,"min_samples":10},"agglomerative":{"linkage":"ward"}}',
+                        sample_size:"",
+                        if_sil_score:1,
+                        if_cal_score:1,
+                        if_dav_score:1,
                         SAVE_DATA:true
                 },
                 html: `
@@ -173,36 +178,89 @@ ServicesArr.push(
                 </div>
                 <br>
 
-                        <h4>Algorithm:</h4>
-                        <div class="form-group">
-                                <select id="algh" required data-actions-box='true' class="form-control">
-                                        <option value="kmeans" selected>K-Means</option>
-                                        <option value="gm">Gaussian Mixture</option>
-                                        <option value="dbscan">DBscan</option>
-                                        <option value="agglomerative">hierarchical</option>
+                        <div class="form-group row m-2">
+                        <label class="col-sm-4 col-form-label col-form-label-sm"> Process: </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="actions" onchange="ChangeVisibileOptionsOfService(this)">
+                                        <option value="CLUSTERING" selected> Clustering </option>
+                                        <option value="VALIDATION"> Clustering with validation </option>
                                 </select>
+                                </div>
                         </div>
 
-                        <h4>No. of groups (k) </h4>
-                        <div class="form-group">
-                                <input type="number" class="form-control solo-numero" min="2" value="2" required id="k">
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Algorithm: </label>
+                                <div class="col-sm-8">
+                                        <select id="algh" required data-actions-box='true' class="form-control">
+                                                <option value="kmeans" selected>K-Means</option>
+                                                <option value="gm">Gaussian Mixture</option>
+                                                <option value="dbscan">DBscan</option>
+                                                <option value="agglomerative">hierarchical</option>
+                                        </select>
+                                </div>
                         </div>
 
-                        <h4>Variables: </h4>
-                        <div class="form-group">
-                                <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">No. of groups (k):</label>
+                                <div class="col-sm-4">
+                                        <input type="number" class="form-control solo-numero" min="2" value="2" required id="k">
+                                </div>
                         </div>
 
-                        <h4>Additional params </h4>
-                        <div class="form-group">
-                                <input type="text" class="form-control" id="clustering_params" value='{"dbscan":{"eps":0.5,"min_samples":10},"agglomerative":{"linkage":"ward"}}'>
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Variables:</label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
+                                </div>
                         </div>
 
-                        <span class="help-block">linkage:average,complete,single, or ward.</span>
-                        <span class="help-block">eps:0 to 1.</span>
-                        <span class="help-block">min_samples:min 5</span>
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Additional params:</label>
+                                <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="clustering_params" value='{"dbscan":{"eps":0.5,"min_samples":10},"agglomerative":{"linkage":"ward"}}'>
+                                        <span class="help-block">linkage:average,complete,single, or ward.</span>
+                                        <span class="help-block">eps:0 to 1.</span>
+                                        <span class="help-block">min_samples:min 5</span>
+                                </div>
+                        </div>
+                        <hr>
+                        <div class="form-group row m-2" servopt="VALIDATION">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Sample size:</label>
+                                <div class="col-sm-4">
+                                        <input type="number" class="form-control solo-numero" min="2" required id="sample_size">
+                                </div>
+                        </div>
 
-                                `
+                        <div class="form-group row m-2" servopt="VALIDATION">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Validation by silhouette: </label>
+                                <div class="col-sm-4">
+                                        <select class="form-control" id="if_sil_score">
+                                                <option value="1" selected> True </option>
+                                                <option value="0"> False </option>
+                                        </select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" servopt="VALIDATION">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Validation by calinski harabasz: </label>
+                                <div class="col-sm-4">
+                                        <select class="form-control" id="if_cal_score">
+                                                <option value="1" selected> True </option>
+                                                <option value="0"> False </option>
+                                        </select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" servopt="VALIDATION">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Validation by davies bouldin: </label>
+                                <div class="col-sm-4">
+                                        <select class="form-control" id="if_dav_score">
+                                                <option value="1" selected> True </option>
+                                                <option value="0"> False </option>
+                                        </select>
+                                </div>
+                        </div>
+`
             }
 )
 

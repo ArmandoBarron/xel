@@ -27,7 +27,7 @@ with open('coordinator_structure.json') as json_file:
 logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
 WORKSPACENAME = "SERVICEMESH" #equivalente a catalogo en skycds, es decir, una solucion o un DAG
-TPSHOST ="http://tps_manager:5000"
+#TPSHOST ="http://tps_manager:5000"
 NETWORK=os.getenv("NETWORK") 
 
 #create logs folder
@@ -46,7 +46,7 @@ createFolderIfNotExist(SPL_FOLDER)
 #select load blaancer
 Tolerant_errors=25 #total of errors that can be tolarated
 ACCEPTORS_LIST= dictionary['paxos']["accepters"]
-LOGER.error(ACCEPTORS_LIST)
+LOGER.info(ACCEPTORS_LIST)
 PROPOSER = Paxos(ACCEPTORS_LIST)
 ########## END GLOBAL VARIABLES ##########
 

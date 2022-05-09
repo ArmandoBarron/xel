@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"ClusteringAlghoritmsWithValidation",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}App.py @{SOURCE} @{SINK} @{k} @{algh} \"@{columns}\" '@{clustering_params}' \"@{sample_size}\" \"@{if_sil_score}\" \"@{if_cal_score}\" \"@{if_dav_score}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
+            "ignore_list":[]
+        }
+
+}

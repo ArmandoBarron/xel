@@ -465,7 +465,27 @@ function get_file(data_request){
     }).fail(function(){console.log("error al conectarse")});
 }
 
+function CreateDynamicTable(dataset,column_list,id_table,div_container_id,title,table_class="hover w-auto dt-responsive nowrap"){
+    content = `<h3>${title}</h3> <table class="table ${table_class}" style="width:100%" id="${id_table}"> <thead> <tr>`
 
+    column_list.forEach(function(h){ //headers
+        content += `<th scope="col">${h}</th>`
+    });
+
+    content += `</tr></thead><tbody>`
+    dataset.forEach(function(item){ //se rellena la tabla
+        content +=`<tr>`
+        column_list.forEach(function(h){
+            content += `<td>${item[h]}</td>`
+        });
+        content +=`</tr>`
+    });
+    content +=`</tbody></table>`   
+    
+    $(div_container_id).html(content)
+}
+
+// funcion para inspeccionar un resumen del dataset
 function Inspect_datasource(filename=null,force=false,token_solution=null,task=null,type_dataset="LAKE",catalog=MESH_WORKSPACE){
 //reestructure data
     xel_describe_dataset(filename=filename,force=force,token_solution=token_solution,task=task,type_dataset=type_dataset,catalog=catalog).done(function(result){description = JSON.parse(result).info});
@@ -480,7 +500,7 @@ function Inspect_datasource(filename=null,force=false,token_solution=null,task=n
         console.log(key)
         name = key.replace(".","-").replace("/","-F-")
         sp.append(`<option value="${name}"> ${key} </option>`);
-        $('#modal_inspect_body').append(`<div style="display:none;" id="${combo_label}_${name}" class="col-md-10 align-self-center ${combo_label}" ></div>`)
+        $('#modal_inspect_body').append(`<div style="display:none;" id="${combo_label}_${name}" class="col-12 align-self-center ${combo_label}" ></div>`)
     });
     // ------------------------
 
@@ -499,8 +519,6 @@ function Inspect_datasource(filename=null,force=false,token_solution=null,task=n
         }
     
         // EXTRACT VALUE FOR HTML HEADER. 
-    
-        // ('Book ID', 'Book Name', 'Category' and 'Price')
         var col = [];
         for (var i = 0; i < obj_info.length; i++) {
             for (var key in obj_info[i]) {
@@ -509,30 +527,25 @@ function Inspect_datasource(filename=null,force=false,token_solution=null,task=n
                 }
             }
         }
-        //console.log(`table_${combo_label}_${name}`)
-        // CREATE DYNAMIC TABLE.
-        content = ""
-        content += `
-            <table class="table table-hover w-auto dt-responsive nowrap" style="width:100%" id="table_${combo_label}_${name}">
-                <caption>list of parameters</caption>
-                <thead>
-                    <tr>`
-        col.forEach(function(h){ //headers
-            content += `<th scope="col">${h}</th>`
-        });
-        content += `</tr></thead><tbody>`
 
-        obj_info.forEach(function(item){ //se rellena la tabla
-            content +=`<tr>`
-            col.forEach(function(h){
-                content += `<td>${item[h]}</td>`
-            });
-            content +=`</tr>`
-        });
-        content +=`</tbody></table>`
 
-        $(`#${combo_label}_${name}`).html(content)
-        //console.log(`#table_${combo_label}_${name}`)
+        // template for tables
+        $(`#${combo_label}_${name}`).html(`
+        <div class="col-12 align-self-center" id="${combo_label}_${name}_summary"></div> <hr>
+        <div class="col-12 align-self-center" id="${combo_label}_${name}_sample"></div>
+        `)
+
+        // CREATE DYNAMIC TABLE for summary.
+        id_table=`table_${combo_label}_${name}`
+        div_container_id = `#${combo_label}_${name}_summary`
+        CreateDynamicTable(obj_info,col,id_table,div_container_id,"Summary")
+        // ========================================================
+        // CREATE DYNAMIC TABLE FOR SAMPLE ROWS
+        id_table=`table_sample_${combo_label}_${name}`
+        div_container_id = `#${combo_label}_${name}_sample`
+        CreateDynamicTable(desc.sample,desc.columns,id_table,div_container_id,"Sample",table_class="hover w-auto")
+        // ========================================================
+
     });
     
     // SHOW MODAL
@@ -1527,16 +1540,22 @@ function Activate_Autcomplete() {
 function SELECT_ShowValue(combo_label="default", combo){
     //hide all divs with the combo_label class
     table_id = `#table_${combo_label}_${combo.value}`
+    sample_table_id = `#table_sample_${combo_label}_${name}`
     $('.'+combo_label).hide();
     $('#'+combo_label+'_'+combo.value).show();
     
     if ( $.fn.dataTable.isDataTable( table_id ) ) {
         console.log("recalculations", table_id)
+        // 
         table = $(table_id).DataTable();
         table.columns.adjust()
+        //
+        sample_table = $(sample_table_id).DataTable();
+        sample_table.columns.adjust()
     }
     else {
-        table = $(table_id).DataTable( {responsive: true, "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]]} );
+        $(table_id).DataTable( {responsive: true, scrollY:"30vh", scrollCollapse: true, "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]]} );
+        $(sample_table_id).DataTable( {"scrollX": true, scrollY:"30vh", scrollCollapse: true, "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]] } );  
     }
     
 }

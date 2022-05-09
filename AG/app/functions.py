@@ -7,6 +7,7 @@ import pandas as pd
 from random import randint
 import time 
 import logging
+import json
 
 LOG = logging.getLogger()
 
@@ -68,6 +69,7 @@ def DatasetDescription(datos):
     datos = datos.apply(pd.to_numeric, errors='ignore')
     response = dict()
     response['info']=dict()
+    response['sample']=dict()
     response['unique']=dict()
     response['columns'] = list(datos.columns.values)
     des = datos.describe(include='all')
@@ -82,8 +84,14 @@ def DatasetDescription(datos):
             if pd.isnull(value) or pd.isna(value):
                 value = ""
             column_description[columns[c]] = str(value)
+        #se añade el tipo de datos
         typename =datos[col].dtype.name
         column_description['type'] = typename
+        # se cuentan nulos
+        column_description['NaN'] = str(datos[col].isna().sum())
+        sample = json.loads(datos.head(100).to_json(orient="records"))
+        response['sample'] = sample
+
         if typename=="object":
             LOG.error("Se encontraron unicos")
             response['unique'][col]=list(datos[col].unique()) # sagregan los valores unicos

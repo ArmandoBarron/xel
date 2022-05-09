@@ -68,6 +68,103 @@ ServicesArr.push(
     }
 )
 
+
+ServicesArr.push(
+        {
+            id: "s-clean",
+            section:SECTION,
+            name: "cleanning",
+            desc: `Cleanning dataset: imputation for fill missing values\n and more`,
+            columns:{
+                default: [],
+                parent: [] 
+            },
+            params: {
+                columns: [],
+                actions:[],
+                imputation_type: "",
+                strategy: [],
+                groupby:"",
+                n_neighbors:2,
+                fill_value:"",
+                SAVE_DATA:true
+            },
+            html: `
+        <div class="form-check" style="text-align: right;">
+        <input type="checkbox" checked class="form-check-input" id="SAVE_DATA">
+        <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
+        </div>
+        <br>
+        
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Process:</label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="actions" onchange="ChangeVisibileOptionsOfService(this)">
+                                        <option value="IMPUTATION"> Imputation </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Imputation type: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="imputation_type" onchange="ChangeVisibileOptionsOfService(this)">
+                                        <option value="Single_N"> Single column </option>
+                                        <option value="Single_G"> Single column by group </option>
+                                        <option value="Iter_N"> Iterative </option>
+                                        <option value="Iter_G"> "Iterative by group </option>
+                                        <option value="Knn_N"> KNN </option>
+                                        <option value="Knn_G"> KNN by group </option>
+                                        <option value="Constant_N"> fill with a constant </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                        <label class="col-sm-4 col-form-label col-form-label-sm">Variables:</label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" servopt="Single_N Single_G">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Strategy: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="strategy">
+                                        <option value="mean"> Mean </option>
+                                        <option value="median"> Median </option>
+                                        <option value="most_frequent"> Most frequent </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" servopt="Knn_N Knn_G">
+                        <label class="col-sm-4 col-form-label col-form-label-sm">neighbors:</label>
+                        <div class="col-sm-4">
+                                <input type="number" class="form-control solo-numero" min="2" id="n_neighbors">
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" servopt="Single_G Iter_G Knn_G">
+                        <label class="col-sm-4 col-form-label col-form-label-sm">Group by:</label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="groupby" data-actions-box="true" onclick=fillselect(this)></select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" servopt="Constant_N">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Fill value:</label>
+                        <div class="col-sm-8">
+                                <input id="fill_value" type="text" class="form-control" placeholder="-99, missing value, wtc">
+                        </div>
+                </div>
+
+
+`
+        }
+    )
+
+
 ServicesArr.push({
         id: "DST",
         name: "transform_ds",

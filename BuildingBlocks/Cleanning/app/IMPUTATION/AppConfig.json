@@ -1,0 +1,58 @@
+{
+    "NAME_APPLICATION":"imputation",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}imputation.py @{SOURCE} @{SINK}output.csv \"@{columns}\" \"@{imputation_type}\" \"@{strategy}\" \"@{groupby}\" \"@{n_neighbors}\" \"@{fill_value}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"output.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        },
+    "METADATA":{
+        "variables":{
+            "columns":{
+                "type":"VariableList",
+                "name":"columns",
+                "description":"columns to process",
+                "default":null
+            },
+            "imputation_type":{
+                "type":"CustomList",
+                "name":"imputation mode",
+                "description":"",
+                "list_values":["Single_N","Single_G","Iter_N","Iter_G","Knn_N","Knn_G","Constant_N"],
+                "list_labels":["Single column","Single column by group","Iterative","Iterative by group","KNN","KNN by group","fill with a constant"]
+            },
+            "strategy":{
+                "type":"CustomList",
+                "name":"strategy",
+                "description":"strategy of the imputation",
+                "list_values":["mean","median","most_frequent"],
+                "list_labels":["mean","median","mode"]
+            },
+
+            "n_neighbors":{
+                "type":"Integer",
+                "name":"Number of neighbors",
+                "description":"",
+                "range":{"min":2,"max":10}
+            },
+            "groupby":{
+                "type":"Variable",
+                "name":"Group by",
+                "description":"variable for creating groups"
+            },
+            "fill_value":{
+                "type":"String",
+                "name":"Fill value",
+                "description":""
+            }
+            
+        }
+    }
+}
