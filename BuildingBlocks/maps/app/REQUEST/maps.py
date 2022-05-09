@@ -121,14 +121,24 @@ def plot_maps(df):
                         pass
                     else:
                         class_label = int(class_label)
-                        folium.Marker([location_info[LAT_COLUMN], location_info[LON_COLUMN]],icon=folium.Icon(color=COLORS[class_label])).add_to(map_layer)
+                        html = ""
+                        for vari in VARIABLE:
+                            html+= "<p>%s: %s</p><br>" % (vari,location_info[vari])
+                        iframe = folium.IFrame(html,width=100,height=100)
+                        popup = folium.Popup(iframe,max_width=100)
+                        folium.CircleMarker(location=[location_info[LAT_COLUMN],location_info[LON_COLUMN]],
+                                     radius=4,
+                                     fill=True,
+                                     color=COLORS[class_label],
+                                     popup=popup,
+                                     fill_color=COLORS[class_label]).add_to(map_layer)
 
-
-
-        #save image
-        image_path = '%s%s.html'%(out_path,gb_c)
-        map_layer.save(image_path)
-        LOGER.error(image_path)
+                        #folium.Marker([location_info[LAT_COLUMN], location_info[LON_COLUMN]],icon=folium.Icon(color=)).add_to(map_layer)
+    
+            #save image
+            image_path = '%s%s.html'%(out_path,gb_c)
+            map_layer.save(image_path)
+            LOGER.error(image_path)
 
 
 
