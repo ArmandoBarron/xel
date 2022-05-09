@@ -116,7 +116,14 @@ def plot_maps(df):
 
             for group_name, df_group in df_grouped: # iterate over each group
                 for index, location_info in df_group.iterrows():
-                    folium.Marker([location_info[LAT_COLUMN], location_info[LON_COLUMN]],icon=folium.Icon(color=COLORS[location_info[CLASS_COLUMN]])).add_to(map_layer)
+                    class_label = location_info[CLASS_COLUMN]
+                    if class_label == "-":
+                        pass
+                    else:
+                        class_label = int(class_label)
+                        folium.Marker([location_info[LAT_COLUMN], location_info[LON_COLUMN]],icon=folium.Icon(color=COLORS[class_label])).add_to(map_layer)
+
+
 
         #save image
         image_path = '%s%s.html'%(out_path,gb_c)
