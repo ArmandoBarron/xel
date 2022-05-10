@@ -317,7 +317,7 @@ ServicesArr.push(
 
                         <h4>target variables (y): </h4>
                         <div class="form-group">
-                                <select class="form-control" id="var_y" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                                <select class="form-control" id="var_y" data-actions-box="true" onclick=fillselect(this)></select>
                         </div>
 
                         <h4>Filter data by the column:</h4>
