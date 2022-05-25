@@ -60,7 +60,7 @@ def REG(datos,var_x,list_var_y,alpha,outputpath,sufijo=""):
     var_alpha=ALPHA
     fig, ax = plt.subplots(figsize=FIGSIZE)
     CI = (1-var_alpha) * 100
-
+    first_var=False
     for var_y in list_var_y: 
         try:
             # quitar nulos y camiar valores de 0 a nulo
@@ -136,10 +136,14 @@ def REG(datos,var_x,list_var_y,alpha,outputpath,sufijo=""):
 
             # Gráfico del modelo
             # ==============================================================================
-
+            if first_var:
+                line_color="-k"
+                first_var=False
+            else:
+                line_color="-"
 
             ax.scatter(predicciones['x'], predicciones['y'], marker='o')
-            ax.plot(predicciones['x'], predicciones["mean"], linestyle='-', label="OLS %s" %var_y )
+            ax.plot(predicciones['x'], predicciones["mean"], linestyle=line_color, label="OLS %s" %var_y )
             #ax.plot(predicciones['x'], predicciones["mean_ci_lower"], linestyle='--', color='red', label="%s% CI" %(CI))
             #ax.plot(predicciones['x'], predicciones["mean_ci_upper"], linestyle='--', color='red')
             #ax.fill_between(predicciones['x'], predicciones["mean_ci_lower"], predicciones["mean_ci_upper"], alpha=0.1)

@@ -95,10 +95,28 @@ services:
 #          - node.role == manager
   
 ########### BB services ############################
-  bb_cleanning:
-    image: sm_bb_cleanning
+  bb_data_split:
+    image: sm_data_split
     build:
-      context: ./BuildingBlocks/Cleanning
+      context: ./BuildingBlocks/DataSplit
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: split
+      SERVICE_IP: bb_data_split
+      SERVICE_PORT: 80
+
+  bb_data_clean:
+    image: sm_data_clean
+    build:
+      context: ./BuildingBlocks/DataClean
       dockerfile: ./Dockerfile
     restart: always
     networks:
@@ -110,7 +128,25 @@ services:
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
       SERVICE_NAME: cleanning
-      SERVICE_IP: bb_cleanning
+      SERVICE_IP: bb_data_clean
+      SERVICE_PORT: 80
+
+  bb_imputation:
+    image: sm_bb_imputation
+    build:
+      context: ./BuildingBlocks/Imputation
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: imputation
+      SERVICE_IP: bb_imputation
       SERVICE_PORT: 80
 
   bb_charts:
@@ -460,6 +496,7 @@ services:
     depends_on:
       - coordinator
     volumes:
+      #- ./NonFunctional/Paxos/app:/home/app #for debugging
       - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
 
   accepter_2: # accepter
@@ -476,6 +513,7 @@ services:
     depends_on:
       - coordinator
     volumes:
+      #- ./NonFunctional/Paxos/app:/home/app #for debugging
       - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
       
   accepter_3: # accepter
@@ -492,6 +530,7 @@ services:
     depends_on:
       - coordinator
     volumes:
+      #- ./NonFunctional/Paxos/app:/home/app #for debugging
       - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
 ###########################################
 ###########################################

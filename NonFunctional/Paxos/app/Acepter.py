@@ -88,7 +88,7 @@ def update_data(value): #called on bb report
     time_action = GetCurrentTimeAction()
 
     LOG.error(value['params'])
-    if params['task'] not in BRANCHES[RN]["task_list"]: 
+    if params['task'] not in BRANCHES[RN]["task_list"]: # if the task is new we create a new fingerprint
         BRANCHES[RN]["task_list"][params['task']]=dict()
         BRANCHES[RN]["task_list"][params['task']]['historic']=[]
         BRANCHES[RN]["task_list"][params['task']]['parent']=''
@@ -99,7 +99,7 @@ def update_data(value): #called on bb report
     BRANCHES[RN]["task_list"][params['task']]['label'] = params['label']
     BRANCHES[RN]["task_list"][params['task']]['index'] = params['index']
     BRANCHES[RN]["task_list"][params['task']]['status'] = params['status']
-    BRANCHES[RN]["task_list"][params['task']]['message'] = params['label']
+    BRANCHES[RN]["task_list"][params['task']]['message'] = params['message']
     BRANCHES[RN]["task_list"][params['task']]['historic'].append({'status':params['status'],'message':params['message'],'timestamp':time_action})
     BRANCHES[RN]["task_list"][params['task']]['last_update'] = time_action
     BRANCHES[RN]["task_list"][params['task']]['timestamp'] = time.time()
@@ -128,9 +128,11 @@ def Get_solution_if_exist(token_solution,auth):
     SDB=Handler()
     if token_solution in BRANCHES:
         solution = BRANCHES[token_solution]
+        LOG.error("==============> recuperando datos de memoria")
     elif SDB.Document_exist(auth['user'],token_solution):
         solution = SDB.Get_document(auth['user'],token_solution)
         BRANCHES[token_solution]=solution
+        LOG.error("==============> recuperando datos de la BD")
     return solution
 
 def validate_solution(dag, solution,token_solution,parent=''):
@@ -154,16 +156,23 @@ def validate_solution(dag, solution,token_solution,parent=''):
             if (Fingerprints_comparation and taskInSolution['status']=="FINISHED"):
                 #validate status and fingerprints
                 BRANCHES[token_solution]["task_list"][id_service]['status']="OK" #update status. since has finished
+
                 children_dag = validate_solution(childrens,solution,token_solution,parent=id_service)
                 for x in children_dag:
                     new_dag.append(x)
             else:
                 new_dag.append(taskInDag)
                 BRANCHES[token_solution]["task_list"][id_service]['status']="STARTING" #update status. since it will be executed again 
+                BRANCHES[token_solution]["task_list"][id_service]['fingerprint']=fp_dag  # The fingerprint changed, so we save the new one
+
 
         else: #it is new
             #must be registred in the task list 
             time_action = GetCurrentTimeAction()
+            #if not 'task_list' in BRANCHES[token_solution]:
+            #    BRANCHES[token_solution]["task_list"]=dict()
+            #LOG.error(BRANCHES[token_solution]["task_list"])
+
             BRANCHES[token_solution]["task_list"][id_service]=dict()
             BRANCHES[token_solution]["task_list"][id_service]['historic']=[]
             BRANCHES[token_solution]["task_list"][id_service]['parent']=parent
@@ -181,9 +190,6 @@ def validate_solution(dag, solution,token_solution,parent=''):
 
     return new_dag
 
-    for task in solution['task_list']:
-        task_status = task['status']
-        task_fingerprint = task['fingerprint']
 
 
 
@@ -227,7 +233,7 @@ def store_data(value):
 
     RN = str(value['control_number'])
     dag = value['DAG']
-    meta = value['metadata'] #{name:"",desc:"",tags:[],frontend:""}
+    meta =value['metadata'] #{name:"",desc:"",tags:[],frontend:""}
     auth = value['auth'] 
 
 
@@ -236,7 +242,7 @@ def store_data(value):
         task_l = BRANCHES[RN]["task_list"]
     else: #if not in memory, search in DB
         last_up = GetCurrentTimeAction() 
-        task_l = []
+        task_l = {}
 
     solution = {
                 "token_solution":RN,
@@ -245,6 +251,8 @@ def store_data(value):
                 "metadata":meta,
                 "task_list": task_l
             }
+    LOG.error(type(meta))
+
     SDB = Handler() 
     SDB.Update_document(auth['user'],RN,solution)
 
@@ -275,7 +283,7 @@ def consult_data(value):
 
     if params is not None: #specific task status to get data
         task = params['task']
-        label = BRANCHES[RN]['task_list'][task]['label'] 
+        #label = BRANCHES[RN]['task_list'][task]['label'] 
         return BRANCHES[RN]['task_list'][task] #{'label':label}
     else: #last update
         for key,val in BRANCHES[RN]['task_list'].items():
@@ -308,8 +316,7 @@ def consult_data(value):
                 update_task_status(RN,key,"FAILED",val['message'])
 
                 if 'details' in val: #this mean that the resource failed, so its secure to recover try to recover data
-                    dag = LookForParams(BRANCHES[RN]["DAG"],task)
-                    ToSend['DAG'] =  dag 
+                    ToSend['DAG'] =  LookForParams(BRANCHES[RN]["DAG"],task) 
                     ToSend['parent'] =  val['parent'] 
                 return ToSend
 

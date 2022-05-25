@@ -1,0 +1,18 @@
+{
+    "NAME_APPLICATION":"Dirty Removal",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}Clean.py @{SOURCE} @{SINK}clean_dataset.csv \"@{columns}\" \"@{list_values}\" \"@{replace_with}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"clean_dataset.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        },
+    "METADATA":{
+    }
+}

@@ -1815,7 +1815,7 @@ function notificarUsuario(msj, tipo) {
     }, {
         type: tipo,
         delay: 6000,
-        z_index: 3000
+        z_index: 5000
     });
 }
 

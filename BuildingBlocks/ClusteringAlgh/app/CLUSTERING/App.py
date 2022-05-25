@@ -1,3 +1,4 @@
+from gettext import npgettext
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 from sklearn.cluster import DBSCAN
@@ -10,8 +11,15 @@ import sys
 import time
 import tempfile
 import logging
+import numpy as np
 
-
+def sort_labels(centroids,labels):
+    idx = np.argsort(centroids)
+    lut = np.zeros_like(idx)
+    lut[idx] = np.arange(k)
+    print(labels)
+    print(lut[labels])
+    return lut[labels]
 
 def DB_scan(dbscan_params,data,col):
     arr_labels={}
@@ -26,7 +34,7 @@ def K_means(k,data,col):
     dataToProcess = data[col]
     kmeans = KMeans(n_clusters=k).fit(dataToProcess)
     k_labels = kmeans.predict(dataToProcess)
-    arr_labels['default']=k_labels
+    arr_labels['default'] = sort_labels(kmeans.cluster_centers_.sum(axis=1),k_labels)
     return arr_labels
 
 
@@ -39,6 +47,8 @@ def MixtureModel(k,data,col):
                 random_state    = 123)
     modelo_gmm.fit(dataToProcess)
     k_labels = modelo_gmm.predict(dataToProcess)
+    arr_labels['default'] = sort_labels(modelo_gmm.means_.sum(axis=1),k_labels)
+
     arr_labels['default']=k_labels
     return arr_labels
 

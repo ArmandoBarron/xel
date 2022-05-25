@@ -1,5 +1,4 @@
 import pandas as pd
-import folium
 import os
 import imageio
 import branca
@@ -60,8 +59,6 @@ def plot_maps(df):
     else:
         gb_c = "all"
 
-    locations = df[[LAT_COLUMN, LON_COLUMN]]
-
     for v in VARIABLE:
         out_path = "%s%s/" %(OUTPUT_PATH,v)
         try:    
@@ -71,8 +68,8 @@ def plot_maps(df):
 
 
         locat= [df[LAT_COLUMN].median(), df[LON_COLUMN].median()]
-
-        map_layer = folium.Map(location=locat, zoom_start=6, control_scale=True)
+        import folium
+        map_layer = folium.Map(location=locat, zoom_start=6, control_scale=True,prefer_canvas=True)
 
         if MapType == 1: #normal map
             if NORMALIZE==1:
@@ -104,7 +101,7 @@ def plot_maps(df):
                 html = "<p>%s</p><br> <p>%s</p>" % (location_info[LABEL],location_info[v])
                 iframe = folium.IFrame(html,width=100,height=100)
                 popup = folium.Popup(iframe,max_width=100)
-                folium.CircleMarker(location=[location_info[LAT_COLUMN],location_info[LON_COLUMN]],
+                t = folium.CircleMarker(location=[location_info[LAT_COLUMN],location_info[LON_COLUMN]],
                                      radius=3,
                                      fill=True,
                                      color=color,
@@ -126,7 +123,7 @@ def plot_maps(df):
                             html+= "<p>%s: %s</p><br>" % (vari,location_info[vari])
                         iframe = folium.IFrame(html,width=100,height=100)
                         popup = folium.Popup(iframe,max_width=100)
-                        folium.CircleMarker(location=[location_info[LAT_COLUMN],location_info[LON_COLUMN]],
+                        t =  folium.CircleMarker(location=[location_info[LAT_COLUMN],location_info[LON_COLUMN]],
                                      radius=4,
                                      fill=True,
                                      color=COLORS[class_label],
@@ -135,10 +132,12 @@ def plot_maps(df):
 
                         #folium.Marker([location_info[LAT_COLUMN], location_info[LON_COLUMN]],icon=folium.Icon(color=)).add_to(map_layer)
     
-            #save image
-            image_path = '%s%s.html'%(out_path,gb_c)
-            map_layer.save(image_path)
-            LOGER.error(image_path)
+        #save image
+        image_path = '%s%s.html'%(out_path,gb_c)
+        LOGER.error("GUARDANDO")
+        map_layer.save(image_path)
+        del map_layer
+        LOGER.error(image_path)
 
 
 

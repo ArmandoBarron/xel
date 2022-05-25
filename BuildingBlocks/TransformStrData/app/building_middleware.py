@@ -34,9 +34,13 @@ def middleware(data,actions,workParams,LOGER=LOG):
         LOGER.info("Running BB middleware")
         BB_ST = time.time() #<--- time flag
         f = open(logs_folder+'Times.txt', 'a+') # times log
-         
+        
+        C_ST = time.time() #<--- time flag
+        if len(actions)<=0:
+            LOGER.error("No APPs selected.")
+            raise Exception("No APPs selected.")
+
         for app in actions:
-            C_ST = time.time() #<--- time flag
             app = app.upper() #all applications names must be in uppercase
             LOGER.info("Looking for %s" % app)
             #confirm the app exist in BB, if not, do nothing

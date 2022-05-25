@@ -13,6 +13,7 @@
     box-shadow: 0px 0px 30px rgba(22, 33, 74, 0);
     box-sizing: border-box;
     margin-bottom: .3vh;
+    max-width: 40vh;
 }
 
 .blocktitle {

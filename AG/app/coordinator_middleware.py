@@ -267,6 +267,9 @@ def execute_DAG():
     data['data'] = data_path
     data['type'] = ext
 
+    LOGER.info(data_path)
+
+
     # verify if data exist
     if (os.path.exists(data['data'])):
         pass
@@ -293,15 +296,19 @@ def execute_DAG():
         branch['control_number'] = RN
         if branch['id'] in task_list:
             parent = task_list[branch['id']]['parent']
+            if parent is None or parent=="": #if service has no parent
+                LOGER.info(" service has no parent ")
+                path_bk_data = data_path
+                ext_bk_data = ext
+            else:
+                LOGER.info(" ========= recovering data ========== Executing: %s with parent %s " % (branch['id'],parent) )
+                path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
+                tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
+                path_bk_data +="/"+tmp[0]
+                ext_bk_data = path_bk_data.split(".")[-1]
+                LOGER.info("recovering data from %s ..." % path_bk_data)
 
-            LOGER.info(" ========= recovering data ========== Executing: %s with parent %s " % (branch['id'],parent) )
-            path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
-            tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
-            #tmp = os.listdir(path_bk_data) #agarra el primer archivo que s eencuentre
-            path_bk_data +="/"+tmp[0]
-            LOGER.info("recovering data from %s ..." % path_bk_data)
-
-            data_format ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
+            data_format ={"data":path_bk_data,"type":ext_bk_data}
             metadata = {"data":data_format,"DAG":branch}
             service = branch['service'] #name of the service to send the instructions
             thread1 = Thread(target = execute_service, args = (service,metadata))
@@ -331,33 +338,39 @@ def monitoring_solution(RN):
     if value is None:
         return json.dumps({"status":"ERROR", "message":"Solution doesn't exist"})
 
-    if 'DAG' in value: #el nodo fallo al estar procesando datos... se van a recuperar
-        dag = value['DAG']
-        parent = value['parent']
+    try:
+        if 'DAG' in value: #el nodo fallo al estar procesando datos... se van a recuperar
+            dag = value['DAG']
+            parent = value['parent']
 
-        path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
-        #tmp = os.listdir(path_bk_data)
-        tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
+            path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
+            #tmp = os.listdir(path_bk_data)
+            tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
 
-        path_bk_data +="/"+tmp[0]
-        LOGER.info("recovering data %s ..." % path_bk_data)
+            path_bk_data +="/"+tmp[0]
+            LOGER.info("recovering data %s ..." % path_bk_data)
 
-        dag['control_number'] = RN # must be added, BB need it
-        data ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
+            dag['control_number'] = RN # must be added, BB need it
+            data ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
 
-        metadata = {"data":data,"DAG":dag}
-        service = dag['service'] #name of the service to send the instructions
+            metadata = {"data":data,"DAG":dag}
+            service = dag['service'] #name of the service to send the instructions
 
-        thread1 = Thread(target = execute_service, args = (service,metadata))
-        thread1.start()
+            thread1 = Thread(target = execute_service, args = (service,metadata))
+            thread1.start()
 
-        return json.dumps({"status":"INFO", "message":"RECOVERING DATA FROM %s" % service})
+            return json.dumps({"status":"INFO", "message":"RECOVERING DATA FROM %s" % service})
 
 
-    if value is None:
-        return json.dumps({"status":"ERROR", "message":"PAXOS ERROR"})
-    else:
-        return json.dumps(value) 
+        if value is None:
+            return json.dumps({"status":"ERROR", "message":"PAXOS ERROR"})
+        else:
+            return json.dumps(value) 
+    except Exception as e:
+        LOGER.info("No se pudieron recuperar los datos del dag")
+        LOGER.info(dag)
+
+        return json.dumps({"status":"ERROR", "message":"Task can not be recovered."})
 
 
 #@app.route('/getdata/<RN>/<task>', methods=['POST'])
@@ -454,6 +467,17 @@ def List_solutions_user():
 ## =============================================================== ##
 ## ========================= SOURCE DATA ========================= ##
 ## =============================================================== ##
+
+@app.route('/workspace/create/<tokenuser>/<workspace>', methods=['GET'])
+def create_workspace(tokenuser,workspace):
+    GetWorkspacePath(tokenuser,workspace)
+    return {"status":"OK"}
+
+@app.route('/workspace/delete/<tokenuser>/<workspace>', methods=['GET'])
+def delete_workspace(tokenuser,workspace):
+    ws = GetWorkspacePath(tokenuser,workspace)
+    shutil.rmtree(ws)
+    return {"status":"OK"}
 
 @app.route('/workspace/list/<tokenuser>', methods=['GET'])
 def list_user_workspaces(tokenuser):

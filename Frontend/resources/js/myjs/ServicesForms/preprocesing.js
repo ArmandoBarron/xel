@@ -68,13 +68,130 @@ ServicesArr.push(
     }
 )
 
+ServicesArr.push(
+        {
+            id: "data_clean",
+            section:SECTION,
+            name: "cleanning",
+            desc: `Outliers detection<br>Normalization<br>Symbols removal`,
+            columns:{
+                default: [],
+                parent: [] 
+            },
+            params: {
+                actions:"",
+                columns: [],
+                outliers_detection: "",
+                method:"",
+                n_standard_desviations:2,
+                min_range:1,
+                max_range:1,
+                norm_method:"",
+                list_values:"",
+                replace_with:"",
+                SAVE_DATA:true
+            },
+            html: `
+        <div class="form-check" style="text-align: right;">
+        <input type="checkbox" checked class="form-check-input" id="SAVE_DATA">
+        <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
+        </div>
+        <br>
+        
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Process:</label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="actions" onchange="OptionsHandler(this)">
+                                        <option value="OUTLIERS"> Outliers removal </option>
+                                        <option value="NORMALIZATION"> Normalize and standarize </option>
+                                        <option value="CLEAN"> Data removal </option>
+                                </select>
+                        </div>
+                </div>
+
+
+                <div class="form-group row m-2" opth opt-actions="OUTLIERS">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Outliers detection method: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="outliers_detection" onchange="OptionsHandler(this)">
+                                        <option value="ZS"> Z-score </option>
+                                        <option value="IQR"> Interquartile range </option>
+                                        <option value="M"> Custom range </option>
+                                </select>
+                        </div>
+                </div>
+
+               <div class="form-group row m-2" opth opt-actions="NORMALIZATION">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">normalization method: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="norm_method">
+                                        <option value="ZS"> Z-score </option>
+                                        <option value="MinMax"> Min-Max </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" >
+                        <label class="col-sm-4 col-form-label col-form-label-sm">Variables:</label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" opth opt-actions="OUTLIERS">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">method: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="method">
+                                        <option value="DEL"> Delete row </option>
+                                        <option value="NAN"> Replace with NaN </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" opth opt-actions="OUTLIERS" opt-outliers_detection="ZS">
+                        <label class="col-sm-4 col-form-label col-form-label-sm">Number of standard desviations:</label>
+                        <div class="col-sm-4">
+                                <input type="number" class="form-control solo-numero" min="1" id="n_standard_desviations">
+                        </div>
+                </div>
+                <div class="form-group row m-2" opth opt-actions="OUTLIERS" opt-outliers_detection="M">
+                        <label class="col-sm-4 col-form-label col-form-label-sm">Range min value:</label>
+                        <div class="col-sm-4">
+                                <input type="number" class="form-control solo-numero" min="1" id="min_range">
+                        </div>
+                </div>
+                <div class="form-group row m-2" opth opt-actions="OUTLIERS" opt-outliers_detection="M">
+                        <label class="col-sm-4 col-form-label col-form-label-sm">Range max value :</label>
+                        <div class="col-sm-4">
+                                <input type="number" class="form-control solo-numero" min="1" id="max_range">
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" opth opt-actions="CLEAN">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">list of values to replace (separateed by ,)</label>
+                        <div class="col-sm-8">
+                                <input id="list_values" type="text" class="form-control">
+                        </div>
+                </div>
+                
+                <div class="form-group row m-2"  opth opt-actions="CLEAN">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">replace with:</label>
+                        <div class="col-sm-8">
+                                <input id="replace_with" type="text" class="form-control">
+                        </div>
+                </div>
+
+`
+        }
+    )
+
 
 ServicesArr.push(
         {
-            id: "s-clean",
+            id: "s-imputation",
             section:SECTION,
-            name: "cleanning",
-            desc: `Cleanning dataset: imputation for fill missing values\n and more`,
+            name: "imputation",
+            desc: `Fill missing values`,
             columns:{
                 default: [],
                 parent: [] 
@@ -160,6 +277,74 @@ ServicesArr.push(
                 </div>
 
 
+`
+        }
+    )
+
+    ServicesArr.push(
+        {
+            id: "s-split",
+            section:SECTION,
+            name: "split",
+            desc: `split values.`,
+            columns:{
+                default: [],
+                parent: [] 
+            },
+            params: {
+                actions:[],
+                column: "",
+                method: "",
+                date_format: "%Y-%m-%d",
+                split_value:"/",
+                SAVE_DATA:true
+            },
+            html: `
+        <div class="form-check" style="text-align: right;">
+        <input type="checkbox" checked class="form-check-input" id="SAVE_DATA">
+        <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
+        </div>
+        <br>
+        
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Process:</label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="actions" onchange="OptionsHandler(this)">
+                                        <option value="COLUMN"> split column </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Column split type: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="method" onchange="OptionsHandler(this)">
+                                        <option value="DT"> Datetime </option>
+                                        <option value="M"> Custom </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                        <label class="col-sm-4 col-form-label col-form-label-sm">Column to split:</label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="column" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" opth opt-method="DT">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Datetime format:</label>
+                        <div class="col-sm-8">
+                                <input id="date_format" type="text" class="form-control" placeholder="%Y-%m-%d">
+                        </div>
+                </div>
+
+                <div class="form-group row m-2" opt-method="M">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">split token:</label>
+                        <div class="col-sm-8">
+                                <input id="split_value" type="text" class="form-control" placeholder="/">
+                        </div>
+                </div>
 `
         }
     )

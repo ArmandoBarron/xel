@@ -1,5 +1,26 @@
 <!--- MODALES -->
 
+
+<!-- Modal CREATE-->
+
+<div class="modal fade" id="modal_create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Create</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
 <!-- MODAL GALLERY NEW -->
 <div class="modal fade" id="modal-gallery" tabindex="-1" role="dialog" aria-labelledby="gallery" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -138,64 +159,87 @@
                 <input style="display:none" type="text" id="SOM-id_service"></input>
                 <input style="display:none" type="text" id="SOM-rn"></input>
 
-                <div class="form-group">
-                    <label>Spatial option</label>
-                    <select id="SOM-opcion_espacial" name="SOM-opcion_espacial"  required data-actions-box='true' class="form-control selectpicker">
-                        <option value="lat-lon" selected>latitude & longitude</option>
-                    </select>
-                </div>
+                <form  class="container-fluid needs-validation" id="form_map">
+                  <div class="form-group row col-12">
+                      <label>Spatial option</label>
+                      <select required id="SOM-opcion_espacial" name="SOM-opcion_espacial"  required data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true" onchange="OptionsHandler(this)">
+                        <option></option>    
+                        <option value="lat-lon">latitude & longitude</option>
+                      </select>
+                  </div>
 
-                <div class="form-group">
-                    <label>Column with latitude: </label>
-                    <select id="SOM-lat" name="SOM-lat" required data-actions-box='true' class="form-control selectpicker"><option></option></select>
-                    <label>Column with longitude: </label>
-                    <select id="SOM-lon" name="SOM-lon" required data-actions-box='true' class="form-control selectpicker"><option></option></select>
-                </div>
+                  <div class="form-group row col-12">
+                      <label>Mapping method</label>
+                      <select id="SOM-type" name="SOM-type"  required data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true" onchange="OptionsHandler(this)" required>
+                        <option></option>        
+                        <option value="clust" >With clustering label</option>
+                        <option value="heat" >Heatmap</option>
+                      </select>
+                  </div>
 
-                <div class="form-group">
-                    <label>Temporal column: </label>
-                    <select id="SOM-temporal" name="SOM-temporal" required data-actions-box='true' class="form-control selectpicker">
-                    <option></option>
-                    </select>
-                </div>
+                  <div class="form-group row" opth opt-SOM-opcion_espacial="lat-lon">
+                    <div class="form-group col-6">
+                      <label>Column with latitude: </label>
+                      <select id="SOM-lat" name="SOM-lat" required data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true" required><option></option></select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label>Column with longitude: </label>
+                      <select id="SOM-lon" name="SOM-lon" required data-actions-box='true'class="form-control selectpicker" data-size="5" data-live-search="true" required><option></option></select>
+                    </div>
+                  </div>
 
-                <div class="form-group">
-                    <label>Values to show:</label>
-                    <select id="SOM-values" name="SOM-values" required data-actions-box='true' class="form-control selectpicker" multiple>
+                  <div class="form-group row col-12" >
+                      <label>Column with a unique ID:</label>
+                      <select id="SOM-id" name="SOM-id" required data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true" required><option></option></select>
+                  </div>
+                  
+                  <div class="form-group row col-12">
+                      <label>Temporal column: </label>
+                      <select id="SOM-temporal" name="SOM-temporal" required data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true" required>
                       <option></option>
-                    </select>
+                      </select>
+                  </div>
+
+                  <div class="form-group row col-12">
+                      <label>Values to show (numeric):</label>
+                      <select id="SOM-values" name="SOM-values" required data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true" multiple required>
+                        <option></option>
+                      </select>
+                  </div>
+
+                  <div class="form-group row" name="filtros">
+                    <div class="form-group col-6">
+                        <label>Filter by spatial label:</label>
+                        <select id="SOM-spatial-filter" name="SOM-spatial-filter" data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true" multiple><option></option></select>
+                    </div>
+
+                    <div class="form-group col-6">
+                        <label>Filter by a category:</label>
+                        <select id="SOM-value-filter" name="SOM-value-filter" data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true"><option></option></select>
+                    </div>
+                  </div>
+
+                  <div class="form-group row col-12" opth opt-SOM-type="clust">
+                      <label>Class label</label>
+                      <select id="SOM-columna_class" name="SOM-columna_class" data-actions-box='true' class="form-control selectpicker" data-size="5" data-live-search="true"></select>
+                  </div>
+
+                  <div class="form-group row col-12">
+                      <label>Levels (k)</label>
+                      <input type="number" class="form-control solo-numero" min="3" id="SOM-k" required>
+                  </div>
+
+                  <div class="form-group row col-12" id=SOM-loading></div>
+
                 </div>
+               
+          <div id="modal_mapAAS_footer" class="modal-footer">
+            <button onclick="Handler_map()" type="button" class="btn btn-primary">Show in map</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
 
-                <div class="form-group">
-                    <label>Identifier:</label>
-                    <select id="SOM-id" name="SOM-id" required data-actions-box='true' class="form-control selectpicker"><option></option></select>
-                </div>
-                
+				</form >
 
-                <div class="form-group">
-                    <label>Spatial filters:</label>
-                    <select id="SOM-spatial-filter" name="SOM-spatial-filter" required data-actions-box='true' class="form-control selectpicker" multiple><option></option></select>
-                </div>
-
-                <div class="form-group">
-                    <label>Value filter:</label>
-                    <select id="SOM-value-filter" name="SOM-value-filter" required data-actions-box='true' class="form-control selectpicker"><option></option></select>
-                </div>
-
-
-                <div class="form-group">
-                    <label>Column with class</label>
-                    <select id="SOM-columna_class" name="SOM-columna_class" required data-actions-box='true' class="form-control selectpicker"></select>
-                </div>
-
-                <div class="form-group" id=SOM-loading></div>
-
-
-				</div>
-				<div id="modal_mapAAS_footer" class="modal-footer">
-        <button onclick="Handler_map()" type="button" class="btn btn-primary">Show in map</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				</div>
 			</div>
 		</div>
 	</div>

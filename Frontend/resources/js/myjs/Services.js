@@ -285,6 +285,9 @@ function xel_upload_dataset(sourceId,files,filename){
       contentType: false,
       processData: false,
       cache: false,
+      beforeSend: function() {
+        $('#progress-div').show("fast") //mostrar barra de progreso
+      },
       xhr: function() {
         var xhr = new window.XMLHttpRequest();
     
@@ -292,8 +295,13 @@ function xel_upload_dataset(sourceId,files,filename){
           if (evt.lengthComputable) {
             var percentComplete = evt.loaded / evt.total;
             percentComplete = parseInt(percentComplete * 100);
+            //$('#progress_upload_dataset .progress-text').text(progression + '%');
+            $('#progress_upload_dataset').css({'width':percentComplete+'%'});
+            // actualizar progressbar
+
             console.log(percentComplete);
             if (percentComplete === 100) {
+                
             }
           }
         }, false);
@@ -308,7 +316,12 @@ function xel_upload_dataset(sourceId,files,filename){
             });
             LoadExistingDataset(sourceId,filename,metadata=files_metadata)
         }
-      }
+      },
+      complete: function() {
+        setTimeout(function(){
+            $('#progress-div').hide("slow") //esconder barra de progreso
+        }, 1000);
+    },
     });
 
     return 0
@@ -667,6 +680,25 @@ function Parse_params(params,service_name){
     }
 }
 
+function OptionsHandler(combobox,onlyhide=false){
+    //hide everything with the servopt attribute
+    // el atributo se llama opt-<id>
+    id_s = combobox.id
+    console.log("values for " + id_s)
+    $(`[opt-${id_s}]`).hide()
+    if (onlyhide){return 0} //only hide option. Use it to initialize
+
+    valor = combobox.value
+    if (valor !== "undefined" && valor !== ""){
+        console.log(valor)
+        $( `[opt-${id_s}~=${valor}]`).show();
+    }
+    else{
+        console.log("el valor es undefined")
+    }
+
+}
+
 
 function ChangeVisibileOptionsOfService(combobox,onlyhide=false){
     //hide everything with the servopt attribute
@@ -683,13 +715,13 @@ function ChangeVisibileOptionsOfService(combobox,onlyhide=false){
         
         if (n==1){
             valor = list_comboboxes[0].value
-            if (valor!=""){$( "[servopt*= "+valor+" ]").show();}
+            if (valor!=""){$( "[servopt~= "+valor+" ]").show();}
         }
         else{
             $.each(list_comboboxes, function() {   
                 valor = this.value
                 console.log(valor)
-                if (valor!=""){$( "[servopt*= "+valor+" ]").show();}
+                if (valor!=""){$( "[servopt~= "+valor+" ]").show();}
             });
 
         }
@@ -697,7 +729,7 @@ function ChangeVisibileOptionsOfService(combobox,onlyhide=false){
     else{
         valor = combobox.value
         console.log(valor)
-        $( "[servopt*= "+valor+" ]").show();
+        $( "[servopt~='"+valor+"']").show();
     }
 }
 
@@ -726,7 +758,7 @@ function DeleteDataset(id_row,filename,table){
         data:data_request,
         success: function(result) {  
             $(`#${table}`).DataTable().row($(`#file_${id_row}`)).remove().draw()
-            notificarUsuario("Dataset deleted","info")
+            notificarUsuario("Dataset deleted","warning")
         }
     }).fail(function(){console.log("error al conectarse")});
 }
@@ -746,6 +778,7 @@ function LoadExistingDataset(sourceId,filename,metadata=null){
 function fillworkspaces(sp){
     id_element = sp.id
     sp = $("#"+id_element)
+    sp.html("<option></option>")
 
     let data_request = {'SERVICE':`workspace/list/${MESH_USER}`}
 
@@ -930,15 +963,25 @@ var lista_global_filtros={}
 var LISTA_CLUST_ORDENADOS=[]
 
 function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones para consulta
+    // validar
+    var form = document.getElementById('form_map');
+    if (form.checkValidity() === false) {
+        console.log("hay datos sin rellenar")
+        return 0
+    }
+
+
     PARAMS_MAP.opcion_espacial= $(`select[name=SOM-lat]`).val();
+    PARAMS_MAP.method=$(`select[name=SOM-type]`).val();
     PARAMS_MAP.lat= $(`select[name=SOM-lat]`).val();
     PARAMS_MAP.lon= $(`select[name=SOM-lon]`).val();
     PARAMS_MAP.temporal= $(`select[name=SOM-temporal]`).val();
-    PARAMS_MAP.columna_class= $(`select[name=SOM-columna_class]`).val();
     PARAMS_MAP.spatial_filter= $(`select[name=SOM-spatial-filter]`).val();
     PARAMS_MAP.value_filter= $(`select[name=SOM-value-filter]`).val();
     PARAMS_MAP.values= $(`select[name=SOM-values]`).val();
     PARAMS_MAP.id=$(`select[name=SOM-id]`).val();
+    PARAMS_MAP.label=$(`select[name=SOM-columna_class]`).val();
+    PARAMS_MAP.k=$(`#SOM-k`).val();
 
     PARAMS_MAP.task= $("#SOM-id_service").val();
     PARAMS_MAP.rn= $("#SOM-rn").val();
@@ -950,56 +993,56 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
     rn = $("#SOM-rn").val();
     task = $("#SOM-id_service").val();
 
-    console.log(rn,task)
-
 
     // aqui creo el combobox y mando llamar Show_data_on_map con un posible valor temporal
     $("#results2").html("")
     $("#results2").append("<div id='aas_temporal_combo' style='width:100%'></div>"); //div para combo de fechas
     $("#results2").append("<div id='aas_criteria' style='width:100%'></div>"); // div para combo de criterios
     $("#results2").append(`<button onclick="Show_data_on_map()" class="btn btn-outline-info btn-block">Request</button>`); // boton para mostrar resultados
-
-    $("#results2").append("<div id='filtros-dinamicos' style='width:100%;max-height:400px; overflow-y:auto;'></div>");
-    $("#results2").append("<div id='clust_res' style='width:100%'></div>");
+    $("#results2").append("<div id='filtros-dinamicos' style='width:100%;max-height:400px; overflow-y:auto;'></div>"); //div para filtros
+    $("#results2").append("<div id='clust_res' style='width:100%'></div>"); //div para resultados
 
     //vaciar lista de filtros global
     lista_global_filtros={}
 
 
+    if (PARAMS_MAP.temporal=="" || PARAMS_MAP.lat=="" || PARAMS_MAP.lon==""){
+        notificarUsuario("Error")
+        return 0
+    }
 
-    if (PARAMS_MAP.temporal!=null && PARAMS_MAP.lat!=null && PARAMS_MAP.lon!=null){
+    let data_request = {'SERVICE':'DatasetQuery' ,'REQUEST':{'data':{},'type':"SOLUTION"}}
+    data_request.REQUEST.data.token_user=MESH_USER //por defecto solo se usa este usuario
+    data_request.REQUEST.data.token_solution=PARAMS_MAP.rn
+    data_request.REQUEST.data.task=PARAMS_MAP.task
 
-        let data_request = {'SERVICE':'DatasetQuery' ,'REQUEST':{'data':{},'type':"SOLUTION"}}
-        data_request.REQUEST.data.token_user=MESH_USER //por defecto solo se usa este usuario
-        data_request.REQUEST.data.token_solution=rn 
-        data_request.REQUEST.data.task=task 
+    data_request.REQUEST.ask = [{"request":"unique","value":PARAMS_MAP.temporal}]
+    $.ajax({ // ajax para rellenar valores de temporal
+        url: 'includes/xel_Request.php',
+        type: 'POST',
+        dataType: 'json',
+        data:data_request,
+        success: function(result) {  
+            console.log(result)
+            lista_temporal = result.info[0]
+            lista_temporal = lista_temporal.sort(function(a, b) {return a - b;});
+            dates="<option value=''> </option>"
+            lista_temporal.forEach(function(item, index) {
+                dates += "<option value='" + item + "'>" + item + "</option>";
+            });
+            //rellenar combobox de criterios
 
-        data_request.REQUEST.ask = [{"request":"unique","value":PARAMS_MAP.temporal}]
-        $.ajax({ // ajax para rellenar valores de temporal
-            url: 'includes/xel_Request.php',
-            type: 'POST',
-            dataType: 'json',
-            data:data_request,
-            success: function(result) {  
-                console.log(result)
-                lista_temporal = result.info[0]
-                lista_temporal = lista_temporal.sort(function(a, b) {return a - b;});
-                dates="<option value=''> </option>"
-                lista_temporal.forEach(function(item, index) {
-                    dates += "<option value='" + item + "'>" + item + "</option>";
-                });
-                //rellenar combobox de criterios
+            $("#aas_temporal_combo").append(`<label>Temporal: </label> <select class='form-control selectpicker idfechas' data-style="btn-info" width='80%' name="combo_temporalAAS">${dates}</select><hr>`);
+            $(`select[name=combo_temporalAAS]`).selectpicker("refresh")
+        }
+    }).fail(function(){console.log("error al conectarse")});
 
-                $("#aas_temporal_combo").append(`<label>Temporal: </label> <select class='form-control selectpicker idfechas' data-style="btn-info" width='80%' name="combo_temporalAAS">${dates}</select><hr>`);
-                $(`select[name=combo_temporalAAS]`).selectpicker("refresh")
-            }
-        }).fail(function(){console.log("error al conectarse")});
+    let data_request2 = {'SERVICE':'DatasetQuery' ,'REQUEST':{'data':{},'type':"SOLUTION"}}
+    data_request2.REQUEST.data.token_user=MESH_USER //por defecto solo se usa este usuario
+    data_request2.REQUEST.data.token_solution=PARAMS_MAP.rn
+    data_request2.REQUEST.data.task=PARAMS_MAP.task
 
-        let data_request2 = {'SERVICE':'DatasetQuery' ,'REQUEST':{'data':{},'type':"SOLUTION"}}
-        data_request2.REQUEST.data.token_user=MESH_USER //por defecto solo se usa este usuario
-        data_request2.REQUEST.data.token_solution=rn 
-        data_request2.REQUEST.data.task=task 
-
+    if (PARAMS_MAP.value_filter!=null){ //el filtro por valor es opcional
         data_request2.REQUEST.ask = [{"request":"unique","value":PARAMS_MAP.value_filter}]
         $.ajax({ // ajax para rellenar valores de criterio
             url: 'includes/xel_Request.php',
@@ -1010,7 +1053,7 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
                 console.log(result)
                 lista_criteria = result.info[0]
                 //lista_temporal = JSON.parse(result).info[0]
-
+    
                 criterios="<option value=''> </option>"
                 lista_criteria.forEach(function(item, index) {
                     criterios += "<option value='" + item + "'>" + item + "</option>";
@@ -1021,12 +1064,12 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
                 $("#SOM-loading").html("")
             }
         }).fail(function(){console.log("error al conectarse")});
-
-
+    
+        $('[opth]').hide()
         $("#modal_mapAAS").modal('toggle');
         $('#mytabs a[href="#results-tab"]').tab('show');
         $('#tabs_show a[href="#mapContainer"]').tab('show');
-    }
+    }   
 
 }
 
@@ -1034,7 +1077,6 @@ function Show_data_on_map(){
     //temporal_value = combobox.value
     temporal_value = $(`select[name=combo_temporalAAS]`).val()
     if (temporal_value==""){return 0}
-
     criterio_value =  $(`select[name=combo_criteriosAAS]`).val()
 
     // se obtienen los metadatos
@@ -1100,16 +1142,18 @@ function Show_data_on_map(){
 
 function SetDataOnMap(dataset) {
        
-    heatmap = true
+    method  =  PARAMS_MAP.method
     opcion_espacial  = PARAMS_MAP.opcion_espacial //entidad, entidad-municipio, latitud-longitud  
     col_temporal  = PARAMS_MAP.temporal 
     columns  = PARAMS_MAP.values 
     lista_filtros  = PARAMS_MAP.spatial_filter 
+    col_label  = PARAMS_MAP.label 
 
     col_lat  = PARAMS_MAP.lat 
     col_lon  = PARAMS_MAP.lon
     col_id  = PARAMS_MAP.id
     col_value_filter = PARAMS_MAP.value_filter
+    CantidadClusters = PARAMS_MAP.k
 
 
     $("#clust_res").html("");
@@ -1126,35 +1170,32 @@ function SetDataOnMap(dataset) {
 
 
     // ============ opciones cuando no hay etiquetas de cluster ======================
+    if (method=="heat"){
+        // se aplica una escala de colores en base a los valores
+        lista_colores = chroma.scale(["#e50000","#feffa0"]).mode('lch').colors(CantidadClusters)
+        resumenes = {}
+        cantidades_para_escala = []
 
-    // se aplica una escala de colores en base a los valores
-    CantidadClusters = 5
-    lista_colores = chroma.scale(["#e50000","#feffa0"]).mode('lch').colors(CantidadClusters)
-    resumenes = {}
-    cantidades_para_escala = []
-
-    //se obtiene un total de todos las columnas numericas (y se crea un vector de datos)
-    vector_dataset=[]
-    dataset[col_id].forEach(function(row, row_idx) {
-        vector_row = []
-        columns.forEach(function(columna, columna_idx) {
-            vector_row.push(dataset[columna][row_idx])
+        //se obtiene un total de todos las columnas numericas (y se crea un vector de datos)
+        vector_dataset=[]
+        dataset[col_id].forEach(function(row, row_idx) {
+            vector_row = []
+            columns.forEach(function(columna, columna_idx) {
+                vector_row.push(dataset[columna][row_idx])
+            });
+            vector_dataset.push(vector_row)
         });
-        vector_dataset.push(vector_row)
-    });
 
+        kmeans_result = kmeans(vector_dataset,CantidadClusters)
+        labels = kmeans_result.labels
+        centroids = kmeans_result.centroids
+        console.log(kmeans_result)
+        // se añaden los resultados de kmeans 
+        etiquetas_por_marcador={}
+        dataset[col_id].forEach(function(id_marcador, row_idx) {
+            etiquetas_por_marcador[id_marcador]= labels[row_idx]
+        });
 
-    kmeans_result = kmeans(vector_dataset,CantidadClusters)
-    labels = kmeans_result.labels
-    centroids = kmeans_result.centroids
-    console.log(kmeans_result)
-    // se añaden los resultados de kmeans 
-    etiquetas_por_marcador={}
-    dataset[col_id].forEach(function(id_marcador, row_idx) {
-        etiquetas_por_marcador[id_marcador]= labels[row_idx]
-    });
-
-    if (heatmap){
         //obtener indice de la suma de los valores deel centroide
         lista_indices_centroids =[]
         centroids.forEach(function(c, c_i) {
@@ -1176,9 +1217,21 @@ function SetDataOnMap(dataset) {
                     lista_indices_centroids[cluster_id] = null; //se remplaza por null
                 }
         }
+
     }
-    else{
-        lista_clusters_ordenados = [0,1,2,3,4]
+    if (method=="clust"){
+
+        
+        etiquetas_por_marcador={}
+        dataset[col_id].forEach(function(id_marcador, row_idx) {
+            etiquetas_por_marcador[id_marcador] = dataset[col_label][row_idx]
+        });
+
+        lista_clusters_ordenados =[]
+        for(var i = 0; i < CantidadClusters; i++) {
+            lista_clusters_ordenados.push(i);
+        }
+        lista_colores = chroma.scale(["#feffa0","#e50000"]).mode('lch').colors(CantidadClusters)
     }
 
     //GRAFICAS
@@ -1197,6 +1250,7 @@ function SetDataOnMap(dataset) {
         label_marcador = etiquetas_por_marcador[row]
         index_color = lista_clusters_ordenados.indexOf(label_marcador);
         color = lista_colores[index_color]
+        
 
         //if(index_color==0){console.log(row)}
         var pinImage = new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|'+color.substring(1),
@@ -1276,29 +1330,17 @@ function SetDataOnMap(dataset) {
 
 // Guardar solucion en BD
 function BTN_save_solution(){
-    token = $("#modal_save-solutions-form-tokensolution").val()
-    name = $("#modal_save-solutions-form-name").val()
-    desc= $("#modal_save-solutions-form-desc").val()
-    tags= $("#modal_save-solutions-form-tags").val().split(",")
-
     //AUTH
     let data_request = {"SERVICE":"StoreSolution",'REQUEST':{'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE},'metadata':{},'DAG':[]}}
-
-    //TOKEN
-    if (token!=""){data_request.REQUEST.token_solution= token}
-
     //metadata
-    data_request.REQUEST.metadata.name= name
-    data_request.REQUEST.metadata.desc= desc
-    data_request.REQUEST.metadata.tags= tags
-    data_request.REQUEST.metadata.frontend = flowy.output();
-    data_request.REQUEST.metadata.source_type = dataObject.type //type of the root box
-
+    data_request.REQUEST.metadata = Metadata_collector()
+    //TOKEN
+    if (data_request.REQUEST.metadata.token!=""){data_request.REQUEST.token_solution= token}
     //DAG
     DAG=JSON.parse(JSON.stringify(dataObject)).children 
 
     //transform_dag(dataObject,DAG)
-    data_request.REQUEST.DAG = DAG //list of task
+    data_request.REQUEST.DAG = JSON.stringify(DAG) //list of task is sent as a string, not as a dict
     console.log(DAG)
 
     if(Object.keys(DAG).length > 0){
@@ -1336,17 +1378,15 @@ function BTN_retrieve_solution(token_solution){
             result= result['info']
             // Change dataObject with the imported data.
             dataObject = {id: "root", boxid: 0, type: result.metadata.source_type, service_type:"DATASOURCE", columns: { default: [], parent: [] }, name: "root", root: true, children: []}
-            dataObject.children = result.DAG;
+            console.log(result.DAG)
+            dataObject.children = JSON.parse(result.DAG);
             // Use Flowy import to add the boxes to the canvas.
             flowy.import(result.metadata.frontend);
             currentLayout = [...flowy.output().blockarr]
+            
+            // load metadata into page
+            Metadata_assign(result.metadata)
 
-            //assign metadata
-            TOKEN_SOLUTION = result.token_solution
-            $("#modal_save-solutions-form-tokensolution").val(result.token_solution)
-            $("#modal_save-solutions-form-name").val(result.metadata.name)
-            $("#modal_save-solutions-form-desc").val(result.metadata.desc)
-            $("#modal_save-solutions-form-tags").val(result.metadata.tags)
             
         }
     }).fail(function(){console.log("error al conectarse")});
@@ -1430,13 +1470,14 @@ function Activate_Autcomplete() {
     sourceid = $(Modal_selector).data("sourceId")
 
     let BOX = demoflowy_lookForParent(sourceid); //fill select
-    
+    const isEmpty = Object.keys(BOX).length === 0
     //si es null no se hace nada
-    if (BOX===null){ console.log("no se requiere autocomplete");return 0;}
+    if (BOX===null || isEmpty){ console.log("no se requiere autocomplete");return 0;}
 
     console.log("se activo el autocomplete")
 
     if (BOX.service_metadata===undefined){ //si es null se va a forzar la herencia
+        console.log("heredando valores")
         let fatherBOX = demoflowy_lookForFather(sourceid) //father
         if (fatherBOX===null){ //si es null no se hace nada
             console.log("La caja padre no tiene info para autocompletar")
@@ -1444,6 +1485,11 @@ function Activate_Autcomplete() {
         }
         BOX.service_metadata = fatherBOX.service_metadata
     }
+    if (BOX.service_metadata===undefined){ //si aun asi es undefined, se cierra el proceso
+        notificarUsuario("No dataset detected.", "warning")
+        return 0
+    }
+
     parentfilename = BOX.service_metadata.parent_filename
     availableTags = BOX.service_metadata.files_info[parentfilename].columns
 
@@ -1560,6 +1606,81 @@ function SELECT_ShowValue(combo_label="default", combo){
     
 }
 
+/// funcion para abrir el modal de create
+function ModalCreate(ToCreate){
+    if (ToCreate=="workspace"){
+        //create form
+        $("#modal_create > .modal-dialog > .modal-content> .modal-body").html(`
+            <div class="form-group row col-12">
+                <label>Workspace</label>
+                <input type="text" class="form-control" id="create_workspace-name" required>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="btnSave" type="button" class="btn btn-primary" onclick="TriggerCreate('workspace')" >Create</button>
+            </div>
+        `)
+
+    }
+
+    
+    $("#modal_create").modal("show")
+}
+
+function TriggerCreate(ToCreate){
+    if (ToCreate=="workspace"){
+        //create form
+        workspacename = $("#create_workspace-name").val()
+        let data_request = {'SERVICE':`workspace/create/${MESH_USER}/${workspacename}`}
+
+        $.ajax({ // ajax para rellenar valores de workspaces
+            url: 'includes/xel_get_Request.php',
+            type: 'POST',
+            dataType: 'json',
+            data:data_request,
+            success: function(result) {  
+                if (result.status=="OK"){
+                    notificarUsuario("Workspace created","success")
+                    $("#modal_create").modal("hide")
+                    // update list
+                    $("#user_workspace").click()
+                    $("#user_workspace").selectpicker("refresh")
+                }
+                else{
+                    notificarUsuario("Workspace could not be created.","danger")
+                }
+            }
+        }).fail(function(){console.log("error al conectarse")});
+    }
+
+}
+
+function TriggerDelete(ToDelete){
+    if (ToDelete=="workspace"){
+        //create form
+        workspacename = $("#user_workspace").val()
+        let data_request = {'SERVICE':`workspace/delete/${MESH_USER}/${workspacename}`}
+
+        $.ajax({ // ajax para rellenar valores de workspaces
+            url: 'includes/xel_get_Request.php',
+            type: 'POST',
+            dataType: 'json',
+            data:data_request,
+            success: function(result) {  
+                if (result.status=="OK"){
+                    notificarUsuario("Workspace detelted","success")
+                    $("#user_workspace").click()
+                    $("#user_workspace").selectpicker("refresh")
+                }
+                else{
+                    notificarUsuario("Workspace could not be deleted.","danger")
+                }
+            }
+        }).fail(function(){console.log("error al conectarse")});
+    }
+
+}
 
 //// funcione smuys especificas para servicios, en un futuro se van a cambiar
 
@@ -1573,3 +1694,21 @@ function remove_list_element(el){
 }
 
 function init_modal(){}
+
+
+
+// funcion para crear stacks de modals
+$(document).on('show.bs.modal', '.modal', function (event) {
+    var zIndex = 1040 + (10 * $('.modal:visible').length);
+    $(this).css('z-index', zIndex);
+    setTimeout(function() {
+        $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+    }, 0);
+});
+
+
+// funcion para seleccionar el workspace
+function SelectWorkspace(){
+    MESH_WORKSPACE= $("#user_workspace").val()
+    //notificarUsuario("")
+}

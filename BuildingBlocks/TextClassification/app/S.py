@@ -48,12 +48,11 @@ def ClientProcess(metadata,data_acq_time):
     if 'SAVE_DATA' in params:        
         index_opt = params['SAVE_DATA']
     else:
+        index_opt = False # by default
         for key in params:
             if 'SAVE_DATA' in params[key]:
                 index_opt = params[key]['SAVE_DATA']
                 break
-            else:
-                index_opt = False
 
     if 'actions' in DAG:
         #check if is list

@@ -1,5 +1,7 @@
 var rootMoved = false;
 
+var METADATA_SOLUTION = {}
+
 // global variable. keeps all the instructions of the solution as: 
 //      id: "root",
 //      boxid: 0,
@@ -104,8 +106,9 @@ $(document).ready(function () {
             // Update the count of elements on canvas to keep adding more boxes.
             canvasElementsCount = result.lastBoxId;
             // Use Flowy import to add the boxes to the canvas.
-            flowy.import(result);
-            TOKEN_SOLUTION=""
+            flowy.import(result.metadata.frontend);
+            // load metadata into page
+            Metadata_assign(result.metadata)
             
             currentLayout = [...flowy.output().blockarr]
         }
@@ -116,13 +119,23 @@ $(document).ready(function () {
     // Add the dataObject and elementsCount to that flowy output object
     // To use it when importing the same file again.
     $('#btnExport').click((e) => {
-        flowyOutput = flowy.output();
+        flowyOutput = {} //flowy.output();
         flowyOutput.dataobject = dataObject;
         flowyOutput.lastBoxId = canvasElementsCount;
+        //save metadata
+        flowyOutput.metadata = Metadata_collector()
         dag = []
         transform_dag(dataObject,dag)
         flowyOutput.DAG = dag
-        exportTXTFile(flowyOutput, 'flowy_output');
+        //namefile
+        if (flowyOutput.metadata.name==""){
+            namefile = "flowy_output"
+        }
+        else{
+            namefile = flowyOutput.metadata.name
+        }
+
+        exportTXTFile(flowyOutput, namefile);
     });
 
     function demoflowy_snapping(drag, first, parent) {
@@ -208,7 +221,7 @@ $(document).ready(function () {
             params: params,
             children: [],
             html: box_template.html,
-            isModalReady: false // this is needed to know if the modal for this element was already opened for first time.
+            isModalReady: true // this is needed to know if the modal for this element was already opened for first time.
         }
 
         //SE AÑADE EL CONTENIDO A LA CAJA
@@ -257,7 +270,7 @@ $(document).ready(function () {
 
     function demoflowy_rearranging(block, parent) {
         demoflowy_removeChild(block.id);
-        canvasElementsCount--;
+        //canvasElementsCount--;
         return false;
     }
 
@@ -505,7 +518,7 @@ function demoflowy_btnEditarClick(event) {
 
 function demoflowy_showModalFromId(canvasId,canvasType) {
     let parent = demoflowy_lookForParent(canvasId); // se obtiene la metadata mediante el ID
-    
+    $('.selectpicker').selectpicker('refresh') //carga los selectpicker en el modal
     //modal que se abrira
     if (parent.service_type =="DATASOURCE"){modal2open = "modal_datasource"}
     else{modal2open = "modal_edition"}
@@ -531,6 +544,11 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
                     $(`#${p}`).trigger('click'); //simulate click to load the options
                     $(`#${p}`).selectpicker('val', parent.params[p]);
                     //console.log(parent.params[p])
+                    var attr =  $(`#${p}`).attr('onchange'); //verify if has attr for handler
+                    console.log(attr)
+                    if (typeof attr !== 'undefined' && attr !== false) {
+                        OptionsHandler(document.getElementById(p))
+                    }
                 } 
                 else if (['string', 'number', 'boolean'].includes(type)) {
                     if (type == 'boolean') $(`#${modal2open} .modal-body #${p}`)[0].checked = parent.params[p];
@@ -547,15 +565,16 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
                     
                 }
             }
-            $('.selectpicker').selectpicker('refresh')
+            
             init_modal()
         });
     }
 
     // from now on, modal always should be ready.
-    parent.isModalReady = true;
+    //parent.isModalReady = true; //esta validacion ya no se ocupa
     init_modal()
     ChangeVisibileOptionsOfService("",onlyhide=true) // este esconde todos los divs que no se ocupan
+    $('[opth]').hide() // todos los que tengan este atributo ser esconden. sirve para manejar las opciones en el modal
 
     // SHOW MODAL
     $(`#${modal2open}`).modal('show');
@@ -666,4 +685,37 @@ function ShowBoxParametersNav(el){
 
     $("#sidebar-content").hide().html(content).slideDown(500);
     openNav()
+}
+
+function Metadata_collector(){
+    obj_metadata= {}
+    token = $("#modal_save-solutions-form-tokensolution").val()
+    name = $("#modal_save-solutions-form-name").val()
+    desc= $("#modal_save-solutions-form-desc").val()
+    tags= $("#modal_save-solutions-form-tags").val().split(",")
+
+
+    obj_metadata.name= name
+    obj_metadata.desc= desc
+    obj_metadata.tags= tags
+    obj_metadata.token= token
+    obj_metadata.frontend = flowy.output();
+    obj_metadata.source_type = dataObject.type //type of the root box
+    obj_metadata.datasource = DATA_WORKFLOW.data //dataset
+    obj_metadata.datasource_type = DATA_WORKFLOW.type //kind of dataset
+
+    return obj_metadata
+
+}
+
+function Metadata_assign(meta){
+    $("#modal_save-solutions-form-tokensolution").val(meta.token)
+    $("#modal_save-solutions-form-name").val(meta.name)
+    $("#modal_save-solutions-form-desc").val(meta.desc)
+    $("#modal_save-solutions-form-tags").val(meta.tags)
+    // load token
+    TOKEN_SOLUTION = meta.token
+
+    //import dataset info
+    DATA_WORKFLOW = {'data':meta.datasource,'type':meta.datasource_type};
 }
