@@ -501,3 +501,56 @@ ServicesArr.push({
 
                         `
     })
+
+    ServicesArr.push(
+        {
+            id: "s-merge",
+            section:SECTION,
+            name: "fusion",
+            desc: `Service to fusion datasources in a zip.`,
+            columns:{
+                default: [],
+                parent: [] 
+            },
+            params: {
+                list_files: [],
+                list_columns: "",
+                method: [],
+                SAVE_DATA:true
+            },
+            html: `
+        <div class="form-check" style="text-align: right;">
+                <input type="checkbox" checked class="form-check-input" id="SAVE_DATA">
+                <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
+        </div>
+        <br>
+
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">list of files (separateed by ,)</label>
+                        <div class="col-sm-8">
+                                <input id="list_files" type="text" class="form-control">
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">list of columns (,) of each file (separateed by ;. e.g. col1,col2;col3,col4)</label>
+                        <div class="col-sm-8">
+                                <input id="list_columns" type="text" class="form-control autocomplete-column">
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Method:</label>
+                        <div class="col-sm-8">
+                        <select class="form-control selectpicker" id="method">
+                                <option value="inner"> inner </option>
+                                <option value="outer"> outer </option>
+                        </select>
+                        </div>
+                </div>
+
+
+                    `
+        }
+    )
+    

@@ -42,11 +42,15 @@ $(document).ready(function () {
 
     $('.modal.fade').on('shown.bs.modal', function (e) { //function que se ejecutan cuando el modal se abre
         ChangeVisibileOptionsOfService("",onlyhide=false) //este muestra los divs de la seccion seleccionada
-
+        $(".courtain").show("slow")
+        $(".dt-responsive").DataTable().columns.adjust()//se ajustan las datatable
         Activate_Autcomplete() //se añade el evento para autocompletar
 
+         //se muestran todos los elementos de clase courtain (para hacerlo mas bonito)
     })
-
+    $('.modal.fade').on('hidden.bs.modal', function (e) {
+        $(".courtain").hide("slow")
+      })
 
     var popoverShow = false;
     var tempblock2;
@@ -125,8 +129,8 @@ $(document).ready(function () {
         //save metadata
         flowyOutput.metadata = Metadata_collector()
         dag = []
-        transform_dag(dataObject,dag)
-        flowyOutput.DAG = dag
+        //transform_dag(dataObject,dag)
+        //flowyOutput.DAG = dag
         //namefile
         if (flowyOutput.metadata.name==""){
             namefile = "flowy_output"
@@ -145,51 +149,37 @@ $(document).ready(function () {
         var id = drag.getAttribute("id");
         var name = drag.getAttribute("name");
         var service_type = drag.getAttribute("type");
-        var idParent="root" // by default
-        var canvasId="root"
+        //var idParent="root" // by default
+        //var canvasId="root"
+        canvasId= "c" + canvasElementsCount + "-" + id;
 
         console.log(service_type)
         if (first){
             if(service_type=="DATASOURCE"){
-                dataObject = {id: "root", boxid: 0, type: id, service_type:service_type, columns: { default: [], parent: [] }, name: "root", root: true, children: []}
+                idParent = canvasId // init data object
+                ///dataObject = {id: "root", boxid: 0, type: id, service_type:service_type, columns: { default: [], parent: [] }, name: "root", root: true, children: []}
             }else{
                 notificarUsuario("wrong datasource.","danger")
-                //drag.classList.remove("dragging");
-                throw "Error: select a datasource first"
+                //throw "Error: select a datasource first"
                 flowy.deleteBlocks()
                 return false
             }
         }
         else{
             idParent = parent.getAttribute("id");
-            canvasId= "c" + canvasElementsCount + "-" + id;
         }
 
         console.log("parent id:"+idParent )
         console.log("canvas id (in dataObject):"+canvasId )
 
-        // we get the template from the template services json
-        var box_template = JSON.parse(JSON.stringify(ServicesArr.find(s => s.id == id))) //creating a copy of the object
-        var params = box_template.params;
-        var columns = box_template.columns;
-        var serv_meta = box_template.service_metadata;
-
-        //var header = drag.querySelector(".card-header");
-        //var body = drag.querySelector(".card-body");
-        //header.parentNode.classList.remove('leftpanel-block');
-        //header.parentNode.removeChild(header);
-        //body.parentNode.removeChild(body);
+        // Se configura el front end de la caja
 
         var grab = drag.querySelector(".fb-grab");
         grab.parentNode.removeChild(grab);
         var blockin = drag.querySelector(".fb-desc");
         blockin.parentNode.removeChild(blockin);
-
         drag.classList.add('position-absolute');
         drag.classList.remove('row');
-
-        //${canvasElementsCount == 1 ? `data-toggle="popover" data-trigger="focus" data-title="SERVICE BOX" 
-        //data-content="Para modificar los parametros, presionar el boton editar o dar doble click sobre la caja, para eliminar, arrastra y suelta la caja en cualquier parte del panel"`: ""}
 
         bcontent = `<div type="${id}" id="${canvasId}" class="card c-block container">
                         <div class="row card-header" style="background-color:#fff" >
@@ -208,43 +198,29 @@ $(document).ready(function () {
                         </div>
                     </div>
                 `;
-
-        newBox = {
-            id: canvasId,
-            boxid: canvasElementsCount,
-            type: id,
-            service_type:service_type,
-            name: name,
-            root: false,
-            columns: columns,
-            service_metadata:serv_meta,
-            params: params,
-            children: [],
-            html: box_template.html,
-            isModalReady: true // this is needed to know if the modal for this element was already opened for first time.
-        }
-
         //SE AÑADE EL CONTENIDO A LA CAJA
         drag.innerHTML += bcontent;
         drag.setAttribute("id", canvasId);
-
         //se modifican algunos estilos
         drag.style["padding-top"] = '3px';
 
+
+        var box_template = flowey_GetTemplate_service(id)    
+        box_template.id = canvasId
+        box_template.boxid= canvasElementsCount
+
         // heredar la metadata del padre, salvo que sea la primera caja
         if (first){
-            console.log("skip for root")
-            dataObject.html= box_template.html
+            console.log("se inicializa el dataobject")
+            dataObject= box_template
         }
         else{
             ParentBox = JSON.parse(JSON.stringify(demoflowy_lookForParent(idParent)))
-            console.log(ParentBox)
-            newBox.service_metadata = ParentBox.service_metadata
-            demoflowy_lookForParent(idParent).children.push(newBox); //añadir caja al object
+            box_template.service_metadata = ParentBox.service_metadata
+            demoflowy_lookForParent(idParent).children.push(box_template); //añadir caja al object
         }
 
         canvasElementsCount++;
-
 
         // hover for the info
         console.log("ready hoverintent")
@@ -454,6 +430,7 @@ function flowey_ConfigServices(){
     for (let i = 0; i < n; i++) {
         //create a new key for service metadata. columns, data, filenames, etc 
         ServicesArr[i].service_metadata={}
+        ServicesArr[i].children=[]
 
     }
 }
@@ -463,7 +440,7 @@ function flowey_GetTemplate_service(idservice){
     n = ServicesArr.length
     for (let i = 0; i < n; i++) {
         if (ServicesArr[i].id==idservice){
-            return ServicesArr[i]
+            return  JSON.parse(JSON.stringify(ServicesArr[i]))
         }
     }
     return null
@@ -474,7 +451,7 @@ function demoflowy_createBoxes(n, boxData) {
         let id = boxData[i].id;
         let name = boxData[i].name;
         let desc = boxData[i].desc;
-        let type = boxData[i].type; //SERVICE OR DATASOURCE
+        let type = boxData[i].service_type; //SERVICE OR DATASOURCE
 
         if (type==undefined){type="SERVICE"}
 
@@ -518,16 +495,19 @@ function demoflowy_btnEditarClick(event) {
 
 function demoflowy_showModalFromId(canvasId,canvasType) {
     let parent = demoflowy_lookForParent(canvasId); // se obtiene la metadata mediante el ID
-    $('.selectpicker').selectpicker('refresh') //carga los selectpicker en el modal
     //modal que se abrira
     if (parent.service_type =="DATASOURCE"){modal2open = "modal_datasource"}
     else{modal2open = "modal_edition"}
-
+    console.log(canvasType)
     $(`#${modal2open}`).data("sourceId", canvasId);
     template = flowey_GetTemplate_service(canvasType)
-    $(`#${modal2open} .modal-body`).html(template.html);
+    console.log(template)
 
-    if(parent.isModalReady) {
+    $(`#${modal2open} .modal-body`).html(template.html);
+    $('.selectpicker').selectpicker('refresh') //carga los selectpicker en el modal
+    console.log(canvasId)
+
+    //if(parent.isModalReady) {
         $(`#${modal2open} .modal-body`).ready(function ($) {
             // first, add the current html to let the list, if there's any, as
             // it was the last time it was modified.
@@ -538,7 +518,7 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
                 let type = typeof (parent.params[p]);
                 var input = $(`#${modal2open} .modal-body #${p}`);
 
-                //console.log(input[0].tagName)
+                console.log(input[0].tagName)
                 //console.log(type)
                 if(input[0].tagName == 'SELECT') {
                     $(`#${p}`).trigger('click'); //simulate click to load the options
@@ -568,7 +548,7 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
             
             init_modal()
         });
-    }
+    //}
 
     // from now on, modal always should be ready.
     //parent.isModalReady = true; //esta validacion ya no se ocupa
@@ -700,7 +680,7 @@ function Metadata_collector(){
     obj_metadata.tags= tags
     obj_metadata.token= token
     obj_metadata.frontend = flowy.output();
-    obj_metadata.source_type = dataObject.type //type of the root box
+    obj_metadata.source_type = dataObject.source_type //type of the root box
     obj_metadata.datasource = DATA_WORKFLOW.data //dataset
     obj_metadata.datasource_type = DATA_WORKFLOW.type //kind of dataset
 

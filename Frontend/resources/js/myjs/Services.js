@@ -18,15 +18,15 @@ var ifCoordinates = ["latitud","longitud","lat","lon"].map(function(x){ return x
 
 function Clean_graph_data(){
     DATA_WORKFLOW_STATUS = false
-    notificarUsuario("dataset clean.", 'info');
+    notificarUsuario("No dataset loaded.", 'info');
     //$("#files").hide();
-    $("#files_button").show();
-    $("#cleandata_button").hide();
+    $("#group-upload").show("fast");
+    $("#cleandata_button").hide("fast");
     //$("#rawdata_button").show();
     $(".serviceLoadingIcon-raw").html("")
     $(".showOnMapIcon-raw").html("")
     $(".downloadDataIcon-raw").html("")
-    $("#files").show();
+    //$("#files").show();
     $("#listOfDatasources").html("no data source selected.")
 
 }
@@ -37,9 +37,9 @@ function Upload_graph_data(){
         if (raw_file==undefined){console.log("select a data source");return 0}
 
         $("#"+sourceId+" > div.container > div.service-options > #serviceLoadingIcon").html("<img style='width:25%; height:100%' src='resources/imgs/loading.gif'></img>")
-        $("#files_button").hide();
-        $("#cleandata_button").show();
-        $("#files").hide();
+        $("#group-upload").hide();
+        //$("#cleandata_button").show();
+        //$("#files").hide();
 
         if(raw_file.length != 0) {
             DATA_WORKFLOW_EXT = raw_file.name.split('.').pop();
@@ -241,23 +241,26 @@ function pipe_dag(data_for_workflow){ // launch dag
     });
 }
 
-function xel_describe_dataset(filename=null,force=false,token_solution=null,task=null,type_dataset="LAKE",catalog=MESH_WORKSPACE){
+function xel_describe_dataset(filename=null,force=false,context={token_solution:null,task:null,type_dataset:"LAKE",catalog:MESH_WORKSPACE},delimiter=","){
+    // filename, force, context = {token_solution,task,type_dataset,tacalog},delimiter=","
     /// dataset = "LAKE,SOLUTION,RECORDS"
     // if SOLUTION:
-    // {data:{token_user,token_solution,task,filename},type:SOLUTION} #un catalogo del usuario
+    // {data:{token_user,token_solution,task,filename},type:SOLUTION,metadata} #un catalogo del usuario
     // if RECORDS:
     //     {data:[],type:RECORDS}
     // if LAKE:
     //     {data:{token_user,catalog(workspace),filename},type:LAKE}
     // ///
-    let data_request = {'SERVICE':'DescribeDataset/v2' ,'REQUEST':{'data':{},'type':type_dataset}}
+    if (context == null){context={token_solution:null,task:null,type_dataset:"LAKE",catalog:MESH_WORKSPACE}}
+
+    let data_request = {'SERVICE':'DescribeDataset/v2' ,'REQUEST':{'data':{},'type':context.type_dataset}}
     if (filename!=null){    data_request.REQUEST.data.filename=filename     }
     data_request.REQUEST.data.token_user=MESH_USER //por defecto solo se usa este usuario
-    data_request.REQUEST.data.token_solution=token_solution 
-    data_request.REQUEST.data.task=task 
-    data_request.REQUEST.data.catalog=catalog 
+    data_request.REQUEST.data.token_solution=context.token_solution 
+    data_request.REQUEST.data.task=context.task 
+    data_request.REQUEST.data.catalog=context.catalog 
     if (force){ data_request.REQUEST.force=true}
-
+    data_request.REQUEST.delimiter=delimiter
     return $.ajax({
         url: 'includes/xel_Request.php',
         type: 'POST',
@@ -277,7 +280,9 @@ function xel_upload_dataset(sourceId,files,filename){
     fd.append('file',files[0]);
     fd.append('workspace',MESH_WORKSPACE);
     fd.append('user',MESH_USER);
-
+    separator = $("#file_delimiter").val()
+    force_describe = $("#force_describe").val()
+    
     $.ajax({
       url: 'includes/dag_UploadDataset.php',
       type: 'POST',
@@ -299,10 +304,6 @@ function xel_upload_dataset(sourceId,files,filename){
             $('#progress_upload_dataset').css({'width':percentComplete+'%'});
             // actualizar progressbar
 
-            console.log(percentComplete);
-            if (percentComplete === 100) {
-                
-            }
           }
         }, false);
     
@@ -311,7 +312,7 @@ function xel_upload_dataset(sourceId,files,filename){
       success: function(result) {
         result = JSON.parse(result)
         if (result['status']=="OK"){
-            xel_describe_dataset(filename=filename,force=true).done(function(result2){
+            xel_describe_dataset(filename=filename,force=force_describe,context=null,delimiter=separator).done(function(result2){
                 files_metadata = JSON.parse(result2).info
             });
             LoadExistingDataset(sourceId,filename,metadata=files_metadata)
@@ -320,12 +321,15 @@ function xel_upload_dataset(sourceId,files,filename){
       complete: function() {
         setTimeout(function(){
             $('#progress-div').hide("slow") //esconder barra de progreso
+            $("#cleandata_button").show("fast");
         }, 1000);
     },
     });
 
     return 0
 }
+
+
 function Handler_condition_GetData(task_id,description,isRaw,filename=null,token_solution=null,dataRet=null){
     // si es raw, solo se usa filename
     // si no es raw, se usa el token_solution y el dataRet
@@ -358,7 +362,7 @@ function Handler_condition_GetData(task_id,description,isRaw,filename=null,token
     else
     {
         // añadir boton de inspect a la caja con una funcion que haga el describe 
-        $("#"+task_id+"_inspect").html(`<i class="fas fa-search fa-xl elementhover" onclick="Inspect_datasource(filename=null,force=true,token_solution='${token_solution}',task='${task_id}',type_dataset='SOLUTION')"></i>`)
+        $("#"+task_id+"_inspect").html(`<i class="fas fa-search fa-xl elementhover" onclick="Inspect_datasource(filename=null,force=false,token_solution='${token_solution}',task='${task_id}',type_dataset='SOLUTION')"></i>`)
         
         if (isMarkable){
             $(`#${task_id}_showOnMapIcon`).html(`<i class="fas fa-map-marked-alt fa-xl elementhover" onclick="ShowModal_map_AAS('${token_solution}','${task_id}')"></i>`)
@@ -394,7 +398,8 @@ function pipe_monitoring(RN,cfg) {
             {
                 // describir dataset intermedio
                 task_id = dataRet['task']
-                xel_describe_dataset(filename=null,force=true,token_solution=RN,task=task_id,type_dataset="SOLUTION").done(function(result){description = JSON.parse(result).info});
+                context={token_solution:RN,task:task_id,type_dataset:"SOLUTION",catalog:MESH_WORKSPACE}
+                xel_describe_dataset(filename=null,force=true,context=context).done(function(result){description = JSON.parse(result).info});
 
                 Handler_condition_GetData(task_id,description,false,'',RN,dataRet)
 
@@ -501,7 +506,8 @@ function CreateDynamicTable(dataset,column_list,id_table,div_container_id,title,
 // funcion para inspeccionar un resumen del dataset
 function Inspect_datasource(filename=null,force=false,token_solution=null,task=null,type_dataset="LAKE",catalog=MESH_WORKSPACE){
 //reestructure data
-    xel_describe_dataset(filename=filename,force=force,token_solution=token_solution,task=task,type_dataset=type_dataset,catalog=catalog).done(function(result){description = JSON.parse(result).info});
+    context={token_solution:token_solution,task:task,type_dataset:type_dataset,catalog:catalog}
+    xel_describe_dataset(filename=filename,force=force,context=context).done(function(result){description = JSON.parse(result).info});
 
     combo_label="inspctDS"
     $('#modal_inspect_body').html(`<div class="col-12"><select class="form-control" 
@@ -764,8 +770,13 @@ function DeleteDataset(id_row,filename,table){
 }
 
 function LoadExistingDataset(sourceId,filename,metadata=null){
-    if(metadata ==null){ //si no se proporciona metadata, se hace la consulta
-        xel_describe_dataset(filename=filename).done(function(result){
+    force_describe =$("#force_describe").is(':checked')
+    if (force_describe==="undefined" || force_describe==""){
+        force_describe=false
+    }
+
+    if(metadata ==null){ //si no se proporciona metadata, se hace la consulta. normalmente esto es para los datos recien procesados
+        xel_describe_dataset(filename=filename,force=force_describe).done(function(result){
             metadata = JSON.parse(result).info
         });
     }
@@ -778,7 +789,7 @@ function LoadExistingDataset(sourceId,filename,metadata=null){
 function fillworkspaces(sp){
     id_element = sp.id
     sp = $("#"+id_element)
-    sp.html("<option></option>")
+    //sp.html("<option></option>")
 
     let data_request = {'SERVICE':`workspace/list/${MESH_USER}`}
 
@@ -862,11 +873,11 @@ function fillselect(sp,mult=true){
 
     let BOX = demoflowy_lookForParent($("#modal_edition").data("sourceId")); //fill select
     console.log(BOX.service_metadata)
-    if (BOX.service_metadata===undefined){ //si es null se va a forzar la herencia
+    if (BOX.service_metadata===undefined || Object.keys(BOX.service_metadata).length == 0){ //si es null se va a forzar la herencia
         BOX.service_metadata = demoflowy_lookForFather($("#modal_edition").data("sourceId")).service_metadata //father
     }
 
-    sp.append('<option value=""></option>'); // se añade un valor nulo
+    //sp.append('<option value=""></option>'); // se añade un valor nulo
     if (!(BOX.service_metadata===undefined)){
         parentfilename = BOX.service_metadata.parent_filename
         BOX_columns = BOX.service_metadata.files_info[parentfilename].columns
@@ -1102,7 +1113,7 @@ function Show_data_on_map(){
     data_request.REQUEST.data.token_solution=rn 
     data_request.REQUEST.data.task=task 
 
-    query = "("+col_temporal+" == "+temporal_value+")" // QUERY CON DATOS DE TEMPORAL. ejemplo: fecha < 2019
+    query = "("+col_temporal+" == '"+temporal_value+"')" // QUERY CON DATOS DE TEMPORAL. ejemplo: fecha < 2019
 
     lista_c=""
     if (criterio_value != undefined){
@@ -1337,13 +1348,13 @@ function BTN_save_solution(){
     //TOKEN
     if (data_request.REQUEST.metadata.token!=""){data_request.REQUEST.token_solution= token}
     //DAG
-    DAG=JSON.parse(JSON.stringify(dataObject)).children 
+    DAG=JSON.parse(JSON.stringify(dataObject)) 
 
     //transform_dag(dataObject,DAG)
     data_request.REQUEST.DAG = JSON.stringify(DAG) //list of task is sent as a string, not as a dict
     console.log(DAG)
 
-    if(Object.keys(DAG).length > 0){
+    if(Object.keys(DAG.children).length > 0){
         //-------------------------
         $.ajax({
             url: 'includes/xel_Request.php',
@@ -1377,9 +1388,8 @@ function BTN_retrieve_solution(token_solution){
             console.log(result)
             result= result['info']
             // Change dataObject with the imported data.
-            dataObject = {id: "root", boxid: 0, type: result.metadata.source_type, service_type:"DATASOURCE", columns: { default: [], parent: [] }, name: "root", root: true, children: []}
-            console.log(result.DAG)
-            dataObject.children = JSON.parse(result.DAG);
+            //dataObject = {id: "root", boxid: 0, type: result.metadata.source_type, service_type:"DATASOURCE", columns: { default: [], parent: [] }, name: "root", root: true, children: []}
+            dataObject = JSON.parse(result.DAG);
             // Use Flowy import to add the boxes to the canvas.
             flowy.import(result.metadata.frontend);
             currentLayout = [...flowy.output().blockarr]
@@ -1403,46 +1413,51 @@ function BTN_list_solution(){
         dataType: 'json',
         data:data_request,
         success: function(response) {  
-            $('#modal_list-solutions-body').append("<div id='modal_list-solutions-table'></div> ");
-            columns = ['name','description','tags','id','options']
+            $('#modal_list-solutions-body').append("<div id='modal_list-solutions-table' class='form-group container col-12 table-responsive courtain' style='display:none'></div>");
+            headeres = ['name','desc','tags','token_solution']
+
+            content = ""
+            content += `
+                <table class="table table-hover table-sm dt-responsive nowrap" id="table-solutions">
+                    <caption>List of solutions</caption>
+                    <thead>
+                        <tr>`
+                        headeres.forEach(function(h){
+                            content += `<th scope="col">${h}</th>`
+                        });
+            content+= `<th scope="col">options</th>`
+            content += `</tr></thead><tbody>`
 
 
-            // CREATE DYNAMIC TABLE.
-            var table = document.createElement("table");
-            table.classList.add('table');
-            table.classList.add('table-striped');
-            // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
-            var tr = table.insertRow(-1);// TABLE ROW.
-            for (var i = 0; i < columns.length; i++) {
-                var th = document.createElement("th");      // TABLE HEADER.
-                th.innerHTML = columns[i];
-                tr.appendChild(th);
-            }
-
-            response['info'].forEach(function(value, key){
-                tr = table.insertRow(-1);
-                cells = []
-                cells.push(value['metadata']['name'])
-                cells.push(value['metadata']['desc'])
-                cells.push(value['metadata']['tags'])
-                cells.push(value['token_solution'])
-                cells.push(`<button type='button' onclick='BTN_retrieve_solution("${value["token_solution"]}")' class="btn btn-outline-primary">GET</button>`)
-                for (var j = 0; j < cells.length; j++) {
-                    var tabCell = tr.insertCell(-1);
-                    tabCell.innerHTML = cells[j];
-                }
-
+            solution_id = 0
+            response['info'].forEach(function(value){ //se rellena la tabla
+                content +=`<tr id="solution_${solution_id}">` // se añade un id par apoder borrarlo despues
+                headeres.forEach(function(h){
+                    if (h=="token_solution"){
+                        content += `<td>${value[h]}</td>`
+                    }
+                    else{
+                        content += `<td>${value['metadata'][h]}</td>`
+                    }
+                });
+                content +=`<td><button type='button' onclick='BTN_retrieve_solution("${value["token_solution"]}")' class="btn btn-outline-primary">GET</button></td>`
+                content +=`</tr>`
+                solution_id+=1
             });
+            content +=`</tbody></table>`
+            $("#modal_list-solutions-table").html(content)
 
-
-            // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
-            var divContainer = document.getElementById("modal_list-solutions-table");
-            divContainer.innerHTML = "";
-            divContainer.appendChild(table);
 
             // SHOW MODAL
             $('#modal_list-solutions').modal('show');
 
+            // create datatable
+            $("#table-solutions").DataTable({
+                responsive: true,
+                "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
+                "scrollX": false
+            } );
+            
 
         }
     }).fail(function(){console.log("error al conectarse")});

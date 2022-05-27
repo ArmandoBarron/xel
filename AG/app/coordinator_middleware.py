@@ -17,6 +17,7 @@ import shutil
 from functions import *
 from Proposer import Paxos
 from os import listdir
+import chardet
 
 
 ########## GLOBAL VARIABLES ##########
@@ -607,14 +608,14 @@ def describeDatasetv2():
     returns:
     {"status":"OK"/"ERROR", "message":"", "info":{"parent_filename":<name_of_original_file>,"list_of_files":[<list of names>],","files_info":{<file_name>:{} }}}
     """
-    def verify_extentions(data_path,ext,response,filename):
+    def verify_extentions(data_path,ext,response,filename,delimiter=","):
         valid = False #flag to mark a valid file
         if ext=="zip":
             valid=True
             dirpath,list_of_files=zip_extraction(data_path)
             for fname in list_of_files:
                 fext = GetExtension(fname)
-                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname) #recursive
+                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname,delimiter) #recursive
             
             # must delete the temp folder
             shutil.rmtree(dirpath)
@@ -626,12 +627,18 @@ def describeDatasetv2():
                 LOGER.error(f)
                 fname = "%s/%s" %(filename,f)
                 fext = GetExtension(fname)
-                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname) #recursive
+                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname,delimiter) #recursive
 
         elif ext=="csv":  #describe csv
-            dataset= pd.read_csv(data_path)
+            enc = detect_encode(data_path)
+            LOGER.info(enc)
+            dataset= pd.read_csv(data_path,encoding=enc['encoding'],sep=delimiter)
+            #LOGER.info(dataset)
             response['info']['files_info'][filename] = DatasetDescription(dataset)
             response['info']['list_of_files'].append(filename)
+            # normalize to utf and separated by ,
+            dataset.to_csv(data_path,encoding='utf-8-sig',index=False)
+
             valid=True
 
         elif ext=="json":
@@ -648,6 +655,8 @@ def describeDatasetv2():
     else:
         force_desc= False
 
+    separator = params['delimiter']
+
     data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
     LOGER.info("Data must be in %s " % data_path)
 
@@ -662,7 +671,7 @@ def describeDatasetv2():
         if desc_file_exist and force_desc is False: #load the exiting description
             response = json.load(open(desc_file_path))
         else:
-            response,file_validation=verify_extentions(data_path,ext,response,filename)
+            response,file_validation=verify_extentions(data_path,ext,response,filename,delimiter=separator)
             if file_validation: #save in file
                 with open(desc_file_path,'w') as f:
                     f.write(json.dumps(response))

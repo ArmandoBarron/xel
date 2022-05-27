@@ -264,6 +264,61 @@ ServicesArr.push(
             }
 )
 
+// CORRELATIONS
+//====================================================================================
+ServicesArr.push(
+        {
+                id: "s-corr",
+                name: "correlation",
+                section:SECTION,
+                desc: `See the correlations between variables in a dataset.`,
+                columns:{
+                    default: [],
+                    parent: [] 
+                },
+                params: {
+                        method: '',
+                        periods:'',
+                        columns:[],
+                        SAVE_DATA:true
+                },
+                html: `
+                <div class="form-check" style="text-align: right;">
+                    <input type="checkbox" checked class="form-check-input" id="SAVE_DATA">
+                    <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
+                </div>
+                <br>
+
+                        <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm"> </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="method"">
+                                        <option value=""></option>
+                                        <option value="pearson"> pearson</option>
+                                        <option value="kendall"> kendall  </option>
+                                        <option value="spearman"> spearman </option>
+                                </select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">periods:</label>
+                                <div class="col-sm-4">
+                                        <input type="number" class="form-control solo-numero" min="2" value="2" required id="periods">
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Variables:</label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
+                                </div>
+                        </div>
+
+
+                `
+            }
+)
 
 // REGRESSIONS 
 //====================================================================================

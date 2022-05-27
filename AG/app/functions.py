@@ -8,6 +8,7 @@ from random import randint
 import time 
 import logging
 import json
+from chardet.universaldetector import UniversalDetector
 
 LOG = logging.getLogger()
 
@@ -120,3 +121,15 @@ def GetFileDetails(filepath,filename):
         "last access":time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getatime(filepath)))
     }
     return file_stats
+
+
+def detect_encode(file):
+    detector = UniversalDetector()
+    detector.reset()
+    with open(file, 'rb') as f:
+        for row in f:
+            detector.feed(row)
+            if detector.done: break
+
+    detector.close()
+    return detector.result

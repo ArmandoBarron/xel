@@ -42,6 +42,7 @@ ServicesArr.push({
                         <select class="form-control" id="mode" onchange="ChangeVisibileOptionsOfService(this)">
                                 <option value="1"> Clave entidad y clave municipio </option>
                                 <option value="2"> Clave Entidad-municipio </option>
+                                <option value="3"> Nombre municipio </option>
                         </select>
                         </div>
                 </div>
@@ -53,7 +54,7 @@ ServicesArr.push({
                         </div>
                 </div>
 
-                <div servopt="MUNICIPIOS 1" class="form-group row m-2">
+                <div servopt="MUNICIPIOS 1 3" class="form-group row m-2">
                         <label for="txttype" class="col-sm-6 col-form-label col-form-label-sm">Column with the key of "municipio" </label>
                         <div class="col-sm-6">
                                 <select class="form-control" id="cve_mun" data-actions-box="true" onclick=fillselect(this,mult=false)></select>

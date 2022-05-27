@@ -39,6 +39,11 @@ if mode == 2:
 
     df_mun['CVE_ENT_MUN'] = (df_mun['CVE_ENT'].astype(str) + df_mun['CVE_MUN']).astype(int)
     
+if mode == 3:
+    # por nombre municipio
+    datasource_keys=[cve_mun] 
+    catalog_keys=['nombre municipio']
+
 
 df_data = pd.merge(df_data, df_mun,  how='inner', left_on=datasource_keys, right_on = catalog_keys)
 df_data.to_csv(outputpath,index=False)
