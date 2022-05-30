@@ -99,7 +99,7 @@ def DatasetDescription(datos):
             LOG.error("Se encontraron unicos")
             unique_str = list(datos[col].unique()) # sagregan los valores unicos
             response['unique'][col]= ["NaN" if x is np.NaN else x for x in unique_str]
-        #response['info'][col] = column_description
+        response['info'][col] = column_description
     
 
     return response
