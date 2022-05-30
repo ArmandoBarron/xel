@@ -9,6 +9,7 @@ import time
 import logging
 import json
 from chardet.universaldetector import UniversalDetector
+import numpy as np
 
 LOG = logging.getLogger()
 
@@ -74,6 +75,7 @@ def DatasetDescription(datos):
     response['unique']=dict()
     response['columns'] = list(datos.columns.values)
     des = datos.describe(include='all')
+    LOG.error(des)
     for col in response['columns']:
         des_col = des[col]
         column_description = dict()
@@ -95,8 +97,9 @@ def DatasetDescription(datos):
 
         if typename=="object":
             LOG.error("Se encontraron unicos")
-            response['unique'][col]=list(datos[col].unique()) # sagregan los valores unicos
-        response['info'][col] = column_description
+            unique_str = list(datos[col].unique()) # sagregan los valores unicos
+            response['unique'][col]= ["NaN" if x is np.NaN else x for x in unique_str]
+        #response['info'][col] = column_description
     
 
     return response
