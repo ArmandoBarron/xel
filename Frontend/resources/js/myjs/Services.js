@@ -1113,7 +1113,7 @@ function Show_data_on_map(){
     data_request.REQUEST.data.token_solution=rn 
     data_request.REQUEST.data.task=task 
 
-    query = "(`"+col_temporal+"` == '"+temporal_value+"')" // QUERY CON DATOS DE TEMPORAL. ejemplo: fecha < 2019
+    query = "(`"+col_temporal+"` == \""+temporal_value+"\")" // QUERY CON DATOS DE TEMPORAL. ejemplo: fecha < 2019
 
     lista_c=""
     if (criterio_value != undefined){

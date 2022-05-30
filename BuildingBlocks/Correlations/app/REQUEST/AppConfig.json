@@ -5,7 +5,7 @@
             "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "python @{CWD}correlate.py @{SOURCE} @{method} @{periods} @{columns} @{SINK}correlation",
+        "COMMAND": "python @{CWD}correlate.py @{SOURCE} @{method} @{periods} \"@{columns}\" @{SINK}correlation",
         "CUSTOM_APP":false
     },
     "LOAD":{

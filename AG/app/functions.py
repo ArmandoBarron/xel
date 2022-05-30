@@ -49,14 +49,22 @@ def createFolderIfNotExist(folder_name,wd=""):
 def Request2Dataset(df_path,peticiones):
     df = pd.read_csv(df_path)
     results = []
+    LOG.error(peticiones)
     for p in peticiones: # it can be multilayer but for now its fine
         req = p['request']
         val = p['value']
+
         if req=="unique":
             res = df[val].unique().tolist()
             results.append(res)
         if req=="query":
             res = df.query(val)
+            if len(res) <=0:
+                val = val.replace("\"","")
+                res = df.query(val)
+
+            LOG.error(df.query(val))
+
             res = res.to_json(orient="records")
             results.append(res)
 
