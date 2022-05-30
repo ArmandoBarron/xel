@@ -1113,7 +1113,7 @@ function Show_data_on_map(){
     data_request.REQUEST.data.token_solution=rn 
     data_request.REQUEST.data.task=task 
 
-    query = "("+col_temporal+" == '"+temporal_value+"')" // QUERY CON DATOS DE TEMPORAL. ejemplo: fecha < 2019
+    query = "(`"+col_temporal+"` == '"+temporal_value+"')" // QUERY CON DATOS DE TEMPORAL. ejemplo: fecha < 2019
 
     lista_c=""
     if (criterio_value != undefined){
@@ -1123,7 +1123,7 @@ function Show_data_on_map(){
             //});
             //eliminar el ultimo or
             //lista_c = lista_c.slice(0, -4);
-            lista_c+=col_value_filter+"=='"+criterio_value+"'" 
+            lista_c+="`"+col_value_filter+"`=='"+criterio_value+"'" 
             lista_c= "("+lista_c+")" //se encierran entre parentesis
             query+= " and "+lista_c // se añade al query
         }
@@ -1418,7 +1418,7 @@ function BTN_list_solution(){
 
             content = ""
             content += `
-                <table class="table table-hover table-sm dt-responsive nowrap" id="table-solutions">
+                <table class="table table-hover table-sm dt-responsive nowrap compact-dt" id="table-solutions">
                     <caption>List of solutions</caption>
                     <thead>
                         <tr>`
@@ -1607,10 +1607,8 @@ function SELECT_ShowValue(combo_label="default", combo){
     
     if ( $.fn.dataTable.isDataTable( table_id ) ) {
         console.log("recalculations", table_id)
-        // 
         table = $(table_id).DataTable();
         table.columns.adjust()
-        //
         sample_table = $(sample_table_id).DataTable();
         sample_table.columns.adjust()
     }

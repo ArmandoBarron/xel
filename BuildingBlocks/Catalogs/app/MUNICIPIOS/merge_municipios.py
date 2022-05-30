@@ -43,7 +43,8 @@ if mode == 3:
     # por nombre municipio
     datasource_keys=[cve_mun] 
     catalog_keys=['nombre municipio']
-
+    query_estados = "(`Nombre Abreviado de AGEE`=='CDMX' or `Nombre Abreviado de AGEE`=='Mex.')"
+    df_mun = df_mun.query(query_estados)
 
 df_data = pd.merge(df_data, df_mun,  how='inner', left_on=datasource_keys, right_on = catalog_keys)
 df_data.to_csv(outputpath,index=False)

@@ -43,7 +43,7 @@ $(document).ready(function () {
     $('.modal.fade').on('shown.bs.modal', function (e) { //function que se ejecutan cuando el modal se abre
         ChangeVisibileOptionsOfService("",onlyhide=false) //este muestra los divs de la seccion seleccionada
         $(".courtain").show("slow")
-        $(".dt-responsive").DataTable().columns.adjust()//se ajustan las datatable
+        $(".compact-dt").DataTable().columns.adjust()//se ajustan las datatable
         Activate_Autcomplete() //se añade el evento para autocompletar
 
          //se muestran todos los elementos de clase courtain (para hacerlo mas bonito)
