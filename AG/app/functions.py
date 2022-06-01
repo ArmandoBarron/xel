@@ -104,9 +104,9 @@ def DatasetDescription(datos):
         response['sample'] = sample
 
         if typename=="object":
-            LOG.error("Se encontraron unicos en %s" % col)
+            LOG.error("La columna puede tener unicos: %s" % col)
             response['unique'][col] = pd.DataFrame({"u":datos[col].unique()}).fillna("NaN")['u'].to_list() # sagregan los valores unicos
-        
+            LOG.error("Se encontraron unicos en %s" % col)
         response['info'][col] = column_description
     
 
