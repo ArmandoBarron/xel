@@ -776,7 +776,7 @@ function LoadExistingDataset(sourceId,filename,metadata=null){
     if (force_describe==="undefined" || force_describe==""){
         force_describe=false
     }
-    notificarUsuario("Exstracting information...","info")
+    notificarUsuario("Getting information...","info")
     DATA_WORKFLOW = {'data':{'token_user':MESH_USER,'catalog':MESH_WORKSPACE,'filename':filename},'type':'LAKE'}
     if(metadata ==null){ //si no se proporciona metadata, se hace la consulta. normalmente esto es para los datos recien procesados
         xel_describe_dataset(filename=filename,force=force_describe).done(function(result){

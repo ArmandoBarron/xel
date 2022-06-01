@@ -1,6 +1,5 @@
 import sys,os,ast
 import pandas as pd
-import dask.dataframe as dd
 from threading import Thread
 from flask import Flask,request,jsonify,send_file
 #from waitress import serve
@@ -631,14 +630,14 @@ def describeDatasetv2():
                 response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname,delimiter) #recursive
 
         elif ext=="csv":  #describe csv
-            enc = detect_encode(data_path) #por ahora quedará asi
+            enc = detect_encode(data_path)
             LOGER.info(enc)
-            dataset= dd.read_csv(data_path,sep=delimiter)
+            dataset= pd.read_csv(data_path,encoding=enc['encoding'],sep=delimiter)
             #LOGER.info(dataset)
             response['info']['files_info'][filename] = DatasetDescription(dataset)
             response['info']['list_of_files'].append(filename)
             # normalize to utf and separated by ,
-            dataset.to_csv(data_path,encoding='utf-8-sig',index=False,single_file=True)
+            dataset.to_csv(data_path,encoding='utf-8-sig',index=False)
 
             valid=True
 
