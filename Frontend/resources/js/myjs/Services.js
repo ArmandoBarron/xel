@@ -379,8 +379,6 @@ function pipe_monitoring(RN,cfg) {
         return 0
     }
     cfg.monitor=true
-    //list_task_showOnMap = ["preproc","clustering","cleanning","clustering_service"]
-    ifclass = ["class","Etiqueta_clase"].map(function(x){ return x.toUpperCase();}) 
 
     let data_request = {"rn":RN,'host':SERVICE_GATEWAY}
     var xhr = new XMLHttpRequest();
@@ -397,18 +395,22 @@ function pipe_monitoring(RN,cfg) {
             {
                 // describir dataset intermedio
                 task_id = dataRet['task']
+                task_data = CloneJSON(dataRet)
                 context={token_solution:RN,task:task_id,type_dataset:"SOLUTION",catalog:MESH_WORKSPACE}
                 xel_describe_dataset(filename=null,force=true,context=context).done(function(result){
                     description = JSON.parse(result).info
-                    Handler_condition_GetData(task_id,description,false,'',RN,dataRet)
+                    console.log(task_data)
+                    Handler_condition_GetData(task_id,description,false,'',RN,task_data)
                     cfg.errors=0 //reset errors counter
                     notificarUsuario("Task "+task_id+" has finished", 'success');
                     cfg.i++
+                    cfg.monitor=false
                 });
             }
             if (dataRet['status']=="INFO")
             {
                 notificarUsuario('An error was detected...'+dataRet['message'], 'info');
+                cfg.monitor=false
             }
             if (dataRet['status']=="ERROR")
             {
@@ -421,8 +423,9 @@ function pipe_monitoring(RN,cfg) {
                 cfg.errors=0
                 notificarUsuario("ERROR "+task_id+": "+ dataRet['message'], 'danger');
                 cfg.i++
+                cfg.monitor=false
             }
-            else{
+            if (dataRet['status']=="WAITING"){
                 console.log("monitoring:" + cfg.errors)
                 if(cfg.errors == 15)notificarUsuario('We keep working in your request...', 'info');
                 if (cfg.errors>=cfg.max_errors){
@@ -432,10 +435,11 @@ function pipe_monitoring(RN,cfg) {
                 } //debuging option
                 if (cfg.i>contar_servicios(dataObject.children)){clearInterval(cfg.interv);	PIPELINE = false; postExecutionStop(RN,error=false);} //debuging option
                 cfg.errors++
+                cfg.monitor=false
             }
     
         } 
-        cfg.monitor=false
+        
     };
     xhr.send(send); //se envia el json
 

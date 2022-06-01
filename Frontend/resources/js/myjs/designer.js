@@ -698,3 +698,7 @@ function Metadata_assign(meta){
     //import dataset info
     DATA_WORKFLOW = {'data':meta.datasource,'type':meta.datasource_type};
 }
+
+function CloneJSON(js){
+    return copiedjson = JSON.parse(JSON.stringify(js));
+}
