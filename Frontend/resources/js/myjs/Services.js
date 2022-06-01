@@ -51,33 +51,32 @@ function Upload_graph_data(){
             files_metadata={}
             xel_describe_dataset(filename=filename).done(function(result){
                 description = JSON.parse(result)
-            });
-            
-            //verify if file exist in repo. if does, get the metadata. Or 
-            if(description['file_exist']){
-                if (confirm('A file named "'+filename+'" already exists in repo, do you want to overwrite it?')) {
-                    // overwrite it!
-                    upload_and_describe=true
-                  } else {
-                    // Do nothing!
-                    upload_and_describe=false
-                    if (description['status']=="OK"){
-                        files_metadata =description.info
+                
+                //verify if file exist in repo. if does, get the metadata. Or 
+                if(description['file_exist']){
+                    if (confirm('A file named "'+filename+'" already exists in repo, do you want to overwrite it?')) {
+                        // overwrite it!
+                        upload_and_describe=true
+                    } else {
+                        // Do nothing!
+                        upload_and_describe=false
+                        if (description['status']=="OK"){
+                            files_metadata =description.info
+                        }
                     }
-                  }
-            }
+                }
 
-            //upload again or upload if not exist in repo
-            if(files.length > 0 && upload_and_describe){
-                xel_upload_dataset(sourceId,files,filename)
-            }
-            else{
-            // data was uploaded to the catalog MESH_WORKER by default of the user MESH USER
-                LoadExistingDataset(sourceId,filename,metadata=files_metadata)
-            }
+                //upload again or upload if not exist in repo
+                if(files.length > 0 && upload_and_describe){
+                    xel_upload_dataset(sourceId,files,filename)
+                }
+                else{
+                // data was uploaded to the catalog MESH_WORKER by default of the user MESH USER
+                    LoadExistingDataset(sourceId,filename,metadata=files_metadata)
+                }
 
-
-
+                });
+            
         }
 }
 
@@ -265,9 +264,7 @@ function xel_describe_dataset(filename=null,force=false,context={token_solution:
         url: 'includes/xel_Request.php',
         type: 'POST',
         data: data_request,
-        async: false,
         cache: false,
-        timeout: 30000,
     });
 
 }
@@ -314,8 +311,8 @@ function xel_upload_dataset(sourceId,files,filename){
         if (result['status']=="OK"){
             xel_describe_dataset(filename=filename,force=force_describe,context=null,delimiter=separator).done(function(result2){
                 files_metadata = JSON.parse(result2).info
+                LoadExistingDataset(sourceId,filename,metadata=files_metadata)
             });
-            LoadExistingDataset(sourceId,filename,metadata=files_metadata)
         }
       },
       complete: function() {
@@ -372,6 +369,8 @@ function Handler_condition_GetData(task_id,description,isRaw,filename=null,token
             $(`#${task_id}_downloadDataIcon`).html(`<i class="fas fa-cloud-download-alt fa-xl elementhover" onclick="download_data_pipe('${token_solution}','${task_id}','${dataRet['type']}')"></i>`)
         }
     }
+    notificarUsuario(`${task_id}: Data loaded.`,"success")
+
 }
 
 function pipe_monitoring(RN,cfg) {
@@ -399,13 +398,13 @@ function pipe_monitoring(RN,cfg) {
                 // describir dataset intermedio
                 task_id = dataRet['task']
                 context={token_solution:RN,task:task_id,type_dataset:"SOLUTION",catalog:MESH_WORKSPACE}
-                xel_describe_dataset(filename=null,force=true,context=context).done(function(result){description = JSON.parse(result).info});
-
-                Handler_condition_GetData(task_id,description,false,'',RN,dataRet)
-
-                cfg.errors=0 //reset errors counter
-                notificarUsuario("Task "+task_id+" has finished", 'success');
-                cfg.i++
+                xel_describe_dataset(filename=null,force=true,context=context).done(function(result){
+                    description = JSON.parse(result).info
+                    Handler_condition_GetData(task_id,description,false,'',RN,dataRet)
+                    cfg.errors=0 //reset errors counter
+                    notificarUsuario("Task "+task_id+" has finished", 'success');
+                    cfg.i++
+                });
             }
             if (dataRet['status']=="INFO")
             {
@@ -507,68 +506,71 @@ function CreateDynamicTable(dataset,column_list,id_table,div_container_id,title,
 function Inspect_datasource(filename=null,force=false,token_solution=null,task=null,type_dataset="LAKE",catalog=MESH_WORKSPACE){
 //reestructure data
     context={token_solution:token_solution,task:task,type_dataset:type_dataset,catalog:catalog}
-    xel_describe_dataset(filename=filename,force=force,context=context).done(function(result){description = JSON.parse(result).info});
-
-    combo_label="inspctDS"
-    $('#modal_inspect_body').html(`<div class="col-12"><select class="form-control" 
-        id="select_${combo_label}" onChange="SELECT_ShowValue('${combo_label}',this)" > <option value=""></option><select></div> <hr> `);
-    sp = $(`#select_${combo_label}`)
+    xel_describe_dataset(filename=filename,force=force,context=context).done(function(result){
+        description = JSON.parse(result).info
     
-    //create sections for each file described
-    Object.keys(description.files_info).forEach(function(key) {
-        console.log(key)
-        name = key.replace(".","-").replace("/","-F-")
-        sp.append(`<option value="${name}"> ${key} </option>`);
-        $('#modal_inspect_body').append(`<div style="display:none;" id="${combo_label}_${name}" class="col-12 align-self-center ${combo_label}" ></div>`)
-    });
-    // ------------------------
-
-//describe each file
-    Object.keys(description.files_info).forEach(function(key) { 
-        name = key.replace(".","-").replace("/","-F-")
-        desc = description.files_info[key]
-
-        obj_info = []
-        for (var clave in desc['info']){
-            value_json = desc['info'][clave]
-            new_val_json = {}
-            new_val_json['column'] = clave
-            new_val_json = {...new_val_json,...value_json}
-            obj_info.push(new_val_json)
-        }
+        combo_label="inspctDS"
+        $('#modal_inspect_body').html(`<div class="col-12"><select class="form-control" 
+            id="select_${combo_label}" onChange="SELECT_ShowValue('${combo_label}',this)" > <option value=""></option><select></div> <hr> `);
+        sp = $(`#select_${combo_label}`)
+        
+        //create sections for each file described
+        Object.keys(description.files_info).forEach(function(key) {
+            console.log(key)
+            name = key.replace(".","-").replace("/","-F-")
+            sp.append(`<option value="${name}"> ${key} </option>`);
+            $('#modal_inspect_body').append(`<div style="display:none;" id="${combo_label}_${name}" class="col-12 align-self-center ${combo_label}" ></div>`)
+        });
+        // ------------------------
     
-        // EXTRACT VALUE FOR HTML HEADER. 
-        var col = [];
-        for (var i = 0; i < obj_info.length; i++) {
-            for (var key in obj_info[i]) {
-                if (col.indexOf(key) === -1) {
-                    col.push(key);
+    //describe each file
+        Object.keys(description.files_info).forEach(function(key) { 
+            name = key.replace(".","-").replace("/","-F-")
+            desc = description.files_info[key]
+    
+            obj_info = []
+            for (var clave in desc['info']){
+                value_json = desc['info'][clave]
+                new_val_json = {}
+                new_val_json['column'] = clave
+                new_val_json = {...new_val_json,...value_json}
+                obj_info.push(new_val_json)
+            }
+        
+            // EXTRACT VALUE FOR HTML HEADER. 
+            var col = [];
+            for (var i = 0; i < obj_info.length; i++) {
+                for (var key in obj_info[i]) {
+                    if (col.indexOf(key) === -1) {
+                        col.push(key);
+                    }
                 }
             }
-        }
-
-
-        // template for tables
-        $(`#${combo_label}_${name}`).html(`
-        <div class="col-12 align-self-center" id="${combo_label}_${name}_summary"></div> <hr>
-        <div class="col-12 align-self-center" id="${combo_label}_${name}_sample"></div>
-        `)
-
-        // CREATE DYNAMIC TABLE for summary.
-        id_table=`table_${combo_label}_${name}`
-        div_container_id = `#${combo_label}_${name}_summary`
-        CreateDynamicTable(obj_info,col,id_table,div_container_id,"Summary")
-        // ========================================================
-        // CREATE DYNAMIC TABLE FOR SAMPLE ROWS
-        id_table=`table_sample_${combo_label}_${name}`
-        div_container_id = `#${combo_label}_${name}_sample`
-        CreateDynamicTable(desc.sample,desc.columns,id_table,div_container_id,"Sample",table_class="hover w-auto")
-        // ========================================================
+    
+    
+            // template for tables
+            $(`#${combo_label}_${name}`).html(`
+            <div class="col-12 align-self-center" id="${combo_label}_${name}_summary"></div> <hr>
+            <div class="col-12 align-self-center" id="${combo_label}_${name}_sample"></div>
+            `)
+    
+            // CREATE DYNAMIC TABLE for summary.
+            id_table=`table_${combo_label}_${name}`
+            div_container_id = `#${combo_label}_${name}_summary`
+            CreateDynamicTable(obj_info,col,id_table,div_container_id,"Summary")
+            // ========================================================
+            // CREATE DYNAMIC TABLE FOR SAMPLE ROWS
+            id_table=`table_sample_${combo_label}_${name}`
+            div_container_id = `#${combo_label}_${name}_sample`
+            CreateDynamicTable(desc.sample,desc.columns,id_table,div_container_id,"Sample",table_class="hover w-auto")
+            // ========================================================
+    
+        });
+        
+        // SHOW MODAL
+        $('#modal_inspect').modal('show');
 
     });
-    
-    // SHOW MODAL
-    $('#modal_inspect').modal('show');
 }
 
 
@@ -774,16 +776,19 @@ function LoadExistingDataset(sourceId,filename,metadata=null){
     if (force_describe==="undefined" || force_describe==""){
         force_describe=false
     }
-
+    notificarUsuario("Exstracting information...","info")
+    DATA_WORKFLOW = {'data':{'token_user':MESH_USER,'catalog':MESH_WORKSPACE,'filename':filename},'type':'LAKE'}
     if(metadata ==null){ //si no se proporciona metadata, se hace la consulta. normalmente esto es para los datos recien procesados
         xel_describe_dataset(filename=filename,force=force_describe).done(function(result){
             metadata = JSON.parse(result).info
+            Handler_condition_GetData(sourceId,metadata,true,filename)
         });
     }
+    else{
+        Handler_condition_GetData(sourceId,metadata,true,filename)
+    }
     // data was uploaded to the catalog MESH_WORKER by default of the user MESH USER
-    DATA_WORKFLOW = {'data':{'token_user':MESH_USER,'catalog':MESH_WORKSPACE,'filename':filename},'type':'LAKE'}
-    Handler_condition_GetData(sourceId,metadata,true,filename)
-    notificarUsuario("Dataset loaded","info")
+    
 }
 
 function fillworkspaces(sp){

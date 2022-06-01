@@ -679,7 +679,7 @@ def describeDatasetv2():
                 response['status']="ERROR"
                 response['message']="Datafile can't be described. Try with the following file extentions:csv,json, or zip."
 
-    return response
+    return jsonify(response)
 
 
 

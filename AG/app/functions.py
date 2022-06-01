@@ -100,13 +100,13 @@ def DatasetDescription(datos):
         column_description['type'] = typename
         # se cuentan nulos
         column_description['NaN'] = str(datos[col].isna().sum())
-        sample = json.loads(datos.head(100).to_json(orient="records"))
+        sample = json.loads(datos.head(500).to_json(orient="records"))
         response['sample'] = sample
 
         if typename=="object":
-            LOG.error("Se encontraron unicos")
-            unique_str = list(datos[col].unique()) # sagregan los valores unicos
-            response['unique'][col]= ["NaN" if x is np.NaN else x for x in unique_str]
+            LOG.error("Se encontraron unicos en %s" % col)
+            response['unique'][col] = pd.DataFrame({"u":datos[col].unique()}).fillna("NaN")['u'].to_list() # sagregan los valores unicos
+        
         response['info'][col] = column_description
     
 
