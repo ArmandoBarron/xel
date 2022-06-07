@@ -205,6 +205,9 @@ function contar_servicios(DAG){
     return contador
 }
 
+
+
+
 function pipe_dag(data_for_workflow){ // launch dag
     var data_to_send = {'SERVICE':'executeDAG',"HOST":SERVICE_GATEWAY, 'REQUEST':{'DAG':JSON.stringify(DAG),
         'data_map':data_for_workflow, 
@@ -1357,11 +1360,11 @@ function BTN_save_solution(){
     //TOKEN
     if (data_request.REQUEST.metadata.token!=""){data_request.REQUEST.token_solution= token}
     //DAG
-    DAG=JSON.parse(JSON.stringify(dataObject)) 
+    DAG=CloneJSON(dataObject)
 
     //transform_dag(dataObject,DAG)
     data_request.REQUEST.DAG = JSON.stringify(DAG) //list of task is sent as a string, not as a dict
-    console.log(DAG)
+
 
     if(Object.keys(DAG.children).length > 0){
         //-------------------------
@@ -1405,6 +1408,7 @@ function BTN_retrieve_solution(token_solution){
             
             // load metadata into page
             Metadata_assign(result.metadata)
+            canvasElementsCount = result.metadata.canvasElementsCount
 
             
         }

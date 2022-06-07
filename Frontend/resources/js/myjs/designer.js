@@ -206,7 +206,8 @@ $(document).ready(function () {
 
         var box_template = flowey_GetTemplate_service(id)    
         box_template.id = canvasId
-        box_template.boxid= canvasElementsCount
+        box_template.boxid= parseInt($(`#${canvasId} > .blockid`).val())
+        canvasElementsCount++;
 
         // heredar la metadata del padre, salvo que sea la primera caja
         if (first){
@@ -218,8 +219,6 @@ $(document).ready(function () {
             box_template.service_metadata = ParentBox.service_metadata
             demoflowy_lookForParent(idParent).children.push(box_template); //añadir caja al object
         }
-
-        canvasElementsCount++;
 
         // hover for the info
         console.log("ready hoverintent")
@@ -245,7 +244,7 @@ $(document).ready(function () {
 
     function demoflowy_rearranging(block, parent) {
         demoflowy_removeChild(block.id);
-        //canvasElementsCount--;
+        //canvasElementsCount = contar_servicios(dataObject.children)
         return false;
     }
 
@@ -283,6 +282,7 @@ $(document).ready(function () {
                     let newparent = demoflowy_lookForParentWithBoxId(c.parent);
                     // make a copy of the child, cuz it is removed after this
                     let chlidFound = demoflowy_lookForParentWithBoxId(c.id);
+                    console.log(chlidFound)
                     let child = JSON.parse(JSON.stringify(chlidFound));
 
                     let deleted = demoflowy_removeChildWithBoxId(c.id);
@@ -316,6 +316,7 @@ function demoflowy_lookForFather(parentId) {
     
     return Father;
 }
+
 
 function demoflowy_lookForParent(parentId) {
     var children = arguments[1] ? arguments[1] : dataObject.children;
@@ -466,7 +467,6 @@ function demoflowy_createBoxes(n, boxData) {
         var box =
             `
             <div class="blockelem row create-flowy noselect elementhover" type="${type}" id="${id}" name="${name}">
-                <input type="hidden" name='blockelemtype' class="blockelemtype" value="1">
                 <div class="col-1 fb-grab" >
                     <i class="fas fa-grip-vertical align-middle"></i>
                 </div>
@@ -682,6 +682,7 @@ function Metadata_collector(){
     obj_metadata.source_type = dataObject.source_type //type of the root box
     obj_metadata.datasource = DATA_WORKFLOW.data //dataset
     obj_metadata.datasource_type = DATA_WORKFLOW.type //kind of dataset
+    obj_metadata.canvasElementsCount = canvasElementsCount //kind of dataset
 
     return obj_metadata
 
