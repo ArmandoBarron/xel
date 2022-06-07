@@ -1054,8 +1054,7 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
                 dates += "<option value='" + item + "'>" + item + "</option>";
             });
             //rellenar combobox de criterios
-
-            $("#aas_temporal_combo").append(`<label>Temporal: </label> <select class='form-control selectpicker idfechas' data-style="btn-info" width='80%' name="combo_temporalAAS">${dates}</select><hr>`);
+            $("#aas_temporal_combo").append(`<label>Temporal: </label> <select class='form-control selectpicker idfechas' data-live-search="true" data-size="5" data-style="btn-info" width='80%' name="combo_temporalAAS">${dates}</select><hr>`);
             $(`select[name=combo_temporalAAS]`).selectpicker("refresh")
         }
     }).fail(function(){console.log("error al conectarse")});
@@ -1082,7 +1081,7 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
                     criterios += "<option value='" + item + "'>" + item + "</option>";
                 });
                 //rellenar combobox de fechas
-                $("#aas_criteria").append(`<label>Special criteria: </label> <select data-actions-box="true" class='form-control selectpicker idfechas' data-style="btn-info" width='80%' name="combo_criteriosAAS">${criterios}</select><hr>`);
+                $("#aas_criteria").append(`<label>Special criteria: </label> <select data-actions-box="true" class='form-control selectpicker idfechas' data-live-search="true" data-size="5" data-style="btn-info" width='80%' name="combo_criteriosAAS">${criterios}</select><hr>`);
                 $(`select[name=combo_criteriosAAS]`).selectpicker("refresh")
                 $("#SOM-loading").html("")
             }
@@ -1272,6 +1271,11 @@ function SetDataOnMap(dataset) {
     dataset[col_id].forEach(function(row, row_idx) {
         label_marcador = etiquetas_por_marcador[row]
         index_color = lista_clusters_ordenados.indexOf(label_marcador);
+
+        if (index_color==-1){ //try as int
+            index_color = lista_clusters_ordenados.indexOf(parseInt(label_marcador));
+        } 
+
         color = lista_colores[index_color]
         
 
