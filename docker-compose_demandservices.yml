@@ -1,0 +1,37 @@
+version: '3'
+services:
+  bb_clustering: 
+    image: sm_bb_clustering
+    build: 
+      context: ./BuildingBlocks/ClusteringAlgh
+      dockerfile: ./Dockerfile
+    restart: always
+    networks: 
+      - service_mesh
+    environment: 
+      TPS_MANAGER: http://tps_manager:5000
+      API_GATEWAY: coordinator:5555
+      NETWORK: LocalCluster
+      SERVICE_NAME: clustering_service
+      SERVICE_IP: bb_clustering
+      SERVICE_PORT: 80
+
+  bb_data_clean: 
+    image: sm_data_clean
+    build: 
+      context: ./BuildingBlocks/DataClean
+      dockerfile: ./Dockerfile
+    restart: always
+    networks: 
+      - service_mesh
+    environment: 
+      TPS_MANAGER: http://tps_manager:5000
+      API_GATEWAY: coordinator:5555
+      NETWORK: LocalCluster
+      SERVICE_NAME: cleanning
+      SERVICE_IP: bb_data_clean
+      SERVICE_PORT: 80
+
+networks:
+     service_mesh:
+        name: xel_service_mesh

@@ -58,7 +58,7 @@ class Handler:
         client= self._openConnection()
         db = client[self.db_name] #bd
         if self.Document_exist(collection_name,token_solution):
-            doc = db[collection_name].find_one({'token_solution':token_solution},{"_id":0})
+            doc = db[collection_name].find_one({'token_solution':token_solution},{"_id":0 })
 
         self._closeConnection(client)
         return doc
@@ -71,7 +71,7 @@ class Handler:
         doc = None
         client= self._openConnection()
         db = client[self.db_name] #bd
-        doc = db[collection_name].find({},{"task_list":0,"_id":0})
+        doc = db[collection_name].find({},{"task_list":0,"_id":0 , "DAG":0,"metadata.frontend":0 })
         list_cur = list(doc)
         self._closeConnection(client)
         return list_cur

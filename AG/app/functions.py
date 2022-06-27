@@ -26,6 +26,37 @@ def zip_extraction(zipfile_path):
 
 ##################################
 
+def CreateFilesTree(list_files):
+    tree = []
+    for f in list_files:
+        fpath = f.split("/")
+        tree = recoursiveFolderTree(fpath,tree,f)
+    return tree
+
+def recoursiveFolderTree(fpath,tree,originalpath):
+    list_p=fpath.copy()
+    folder = fpath[0]
+    del list_p[0]
+    tmp = {"text":folder,"children":[]}
+
+    
+    existing_folder = next((item for item in tree if item["text"] == folder), None)
+    if existing_folder is None:
+        if len(fpath)>1:# its a folder
+            tmp['children'] = recoursiveFolderTree(list_p, tmp['children'],originalpath)
+        else: #its a file
+            tmp = {"text":folder,"type":"file","path":originalpath, "id":originalpath}
+        
+        if tmp['text']!= "":
+            tree.append(tmp)
+        
+    else:
+        id_father = next((i for i, item in enumerate(tree) if item["text"] == folder))
+        tree[id_father]['children'] = recoursiveFolderTree(list_p, tree[id_father]['children'],originalpath)
+    
+    return tree
+
+
 def CreateSolutionID(params_recived):
     if 'token_solution' in params_recived:
         RN=params_recived['token_solution']

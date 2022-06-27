@@ -40,6 +40,15 @@ class Paxos:
 
         return res
 
+    def Delete(self,token_solution,auth):
+        """
+         value = {"control_number":,auth"}
+        """
+
+        value = {"control_number":token_solution,"auth":auth}
+        res= self.request2node(value,action="DELETE_SOLUTION")
+
+        return res
     
     def list_solutions(self,auth):
         """
@@ -69,6 +78,13 @@ class Paxos:
         res= self.accept(value,action="CONSULT")
         return res
 
+    def Consult_v2(self,token_project,control_number,params=None):
+        """
+         value = {"control_number":,"params":}
+        """
+        value = {"control_number":control_number,"token_project":token_project,"params":params}
+        res= self.accept(value,action="CONSULT_V2")
+        return res
 ## ========================================================= ##
 ## ====================== RESOURCES ======================== ##
 ## ========================================================= ##

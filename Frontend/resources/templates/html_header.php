@@ -53,4 +53,9 @@
   <link href="resources/css/mycss/list.css" rel="stylesheet" type="text/css" media="all" />
 
   <!--//theme-style-->
+  <link rel="stylesheet" href="resources/js/extern/Treejs/themes/default/style.min.css" />
+  <link rel="stylesheet" href="resources/js/extern/Treejs/themes/default/custom.css" />
+
+  <!--/loader/-->
+  <link href="resources/css/mycss/Loading_page.css" rel="stylesheet" type="text/css" media="all" />
 </head>

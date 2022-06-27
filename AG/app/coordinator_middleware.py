@@ -1,3 +1,4 @@
+from cgitb import reset
 import sys,os,ast
 import pandas as pd
 from threading import Thread
@@ -12,6 +13,7 @@ from base64 import b64encode,b64decode
 import io
 import tempfile
 import shutil
+import time
 
 # local imports
 from functions import *
@@ -99,7 +101,7 @@ def GetWorkspacePath(tokenuser,workspace=None):
 #service to execute applications
 def execute_service(service,metadata):
     f = open(metadata['data']['data'],"rb")
-
+    control_number = metadata['DAG']['control_number']
     LOGER.info("Coordinator is executing...%s"% service)
     errors_counter=0
     ToSend = {'service':service,'context':NETWORK} #update status of falied node
@@ -108,16 +110,18 @@ def execute_service(service,metadata):
     while(True): # AVOID ERRORS
         if res is None: #no more resources avaiable
             data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
-            WARN(params={'status':data['status'],"message":data["message"],"label":"FALSE","task":metadata['DAG']['id_service'],"type":data['type'], "index":False}) #update status
+            WARN(warn_message={'status':data['status'],"message":data["message"],"control_number":control_number,"label":"FALSE","task":metadata['DAG']['id'],"type":data['type'], "index":False}) #update status
             break
-    
+        LOGER.error(res)
+
         try:
             ip = res['ip']
             port = res['port']
-        except KeyError as ke:
-            LOGER.error("Key error: %s" %metadata )
+        except KeyError as ke_ip:
+            LOGER.error("Key error: %s" %ke_ip )
+            LOGER.error(metadata['DAG'])
             data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
-            WARN(params={'status':data['status'],"message":data["message"],"label":"FALSE","task":metadata['DAG']['id_service'],"type":data['type'], "index":False}) #update status
+            WARN(warn_message={'status':data['status'],"message":data["message"],"control_number":control_number,"label":"FALSE","task":metadata['DAG']['id'],"type":data['type'], "index":False}) #update status
             break
 
 
@@ -179,7 +183,7 @@ def ASK(params=None):
     service = params['service'] #service name
     context = params['context']
     n=1 #quantity of workload added to resource
-    force = None
+    force = True
     if 'force' in params: #option for gateways, gateways are forced to select a resource in the same context
         force = True
         n = 0
@@ -291,40 +295,80 @@ def execute_DAG():
 
     new_dag = res['DAG']
     task_list = res['task_list']
-    LOGER.info(" ========= task list========== ")
-    LOGER.info(task_list)
-    for branch in new_dag:
-        branch['control_number'] = RN
-        if branch['id'] in task_list:
-            parent = task_list[branch['id']]['parent']
-            if parent is None or parent=="": #if service has no parent
-                LOGER.info(" service has no parent ")
-                path_bk_data = data_path
-                ext_bk_data = ext
+    is_already_running = res['is_already_running']
+    if not is_already_running:
+        for branch in new_dag:
+            branch['control_number'] = RN
+            if branch['id'] in task_list:
+                parent = task_list[branch['id']]['parent']
+                if parent is None or parent=="": #if service has no parent
+                    LOGER.info(" service has no parent ")
+                    path_bk_data = data_path
+                    ext_bk_data = ext
+                else:
+                    LOGER.info(" ========= recovering data ========== Executing: %s with parent %s " % (branch['id'],parent) )
+                    path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
+                    tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
+                    path_bk_data +="/"+tmp[0]
+                    ext_bk_data = path_bk_data.split(".")[-1]
+                    LOGER.info("recovering data from %s ..." % path_bk_data)
+
+                data_format ={"data":path_bk_data,"type":ext_bk_data}
+                metadata = {"data":data_format,"DAG":branch}
+                service = branch['service'] #name of the service to send the instructions
+                thread1 = Thread(target = execute_service, args = (service,metadata))
+                thread1.start()
             else:
-                LOGER.info(" ========= recovering data ========== Executing: %s with parent %s " % (branch['id'],parent) )
-                path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
+                LOGER.info(" ========= sending Raw data ========== ")
+
+                metadata = {"data":data,"DAG":branch}
+                service = branch['service']
+                thread1 = Thread(target = execute_service, args = (service,metadata) )
+                thread1.start()
+                sleep(.5)
+    else:
+        LOGER.warning("Solution is already running")
+
+    return json.dumps({"status":"OK",'token_solution':RN,"DAG":DAG,"is_already_running":is_already_running})
+
+#service to monitoring a solution with a control number
+@app.route('/monitor/v2/<token_project>/<token_solution>', methods=['GET'])
+def monitoring_v2(token_project,token_solution):
+    ######## paxos ##########
+    paxos_response = PROPOSER.Consult_v2(token_project,token_solution) # consult request in paxos distributed memory
+    #########################
+    list_task = paxos_response['value']
+
+    if list_task is None:
+        return json.dumps({"status":"ERROR", "message":"Solution doesn't exist"})
+
+    ToSend = {"status":"OK", "list_task": list_task,"additional_messages":[],"message":"Monitoring..."}
+    for task, value in list_task.items():
+        try:
+            if 'DAG' in value: #el nodo fallo al estar procesando datos... se van a recuperar
+                dag = value['DAG']
+                parent = value['parent']
+                path_bk_data = "%s%s/%s" %(BKP_FOLDER,token_solution,parent)
                 tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
+
                 path_bk_data +="/"+tmp[0]
-                ext_bk_data = path_bk_data.split(".")[-1]
-                LOGER.info("recovering data from %s ..." % path_bk_data)
+                LOGER.info("recovering data %s ..." % path_bk_data)
 
-            data_format ={"data":path_bk_data,"type":ext_bk_data}
-            metadata = {"data":data_format,"DAG":branch}
-            service = branch['service'] #name of the service to send the instructions
-            thread1 = Thread(target = execute_service, args = (service,metadata))
-            thread1.start()
-        else:
-            LOGER.info(" ========= sending Raw data ========== ")
+                dag['control_number'] = token_solution # must be added, BB need it
+                data ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
 
-            metadata = {"data":data,"DAG":branch}
-            service = branch['service']
-            thread1 = Thread(target = execute_service, args = (service,metadata) )
-            thread1.start()
-            sleep(.5)
+                metadata = {"data":data,"DAG":dag}
+                service = dag['service'] #name of the service to send the instructions
 
-    return json.dumps({"status":"OK",'token_solution':RN,"DAG":DAG})
+                thread1 = Thread(target = execute_service, args = (service,metadata))
+                thread1.start()
+                ToSend.additional_messages.append({"task":task, "status":"RECOVERING", "message":"RECOVERING DATA FROM %s" % task})
 
+        except Exception as e:
+            LOGER.error("No se pudieron recuperar los datos del dag")
+            ToSend.additional_messages.append({"task":task, "status":"ERROR", "message":"task can not be recovered %s" % task})
+
+    return ToSend
 
 #service to monitoring a solution with a control number
 @app.route('/monitor/<RN>', methods=['POST'])
@@ -426,7 +470,7 @@ def getfileintask():
 ## ========================== Solutions ========================== ##
 ## =============================================================== ##
 
-@app.route('/RetrieveSolution', methods=['POST'])
+@app.route('/solution/retrieve', methods=['POST'])
 def retrieve_sol_from_DB():
     params = request.get_json(force=True)
     auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
@@ -436,7 +480,18 @@ def retrieve_sol_from_DB():
     #########################
     return {"status":paxos_response['status'],"info":paxos_response['value']}    
 
-@app.route('/StoreSolution', methods=['POST'])
+@app.route('/solution/delete', methods=['POST'])
+def delete_sol_from_DB():
+    params = request.get_json(force=True)
+    auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    token_solution = params['token_solution']
+     ######## paxos ##########
+    paxos_response = PROPOSER.Delete(token_solution,auth) # consult request in paxos distributed memory
+    #########################
+    return {"status":paxos_response['status'],"info":paxos_response['value']}    
+
+
+@app.route('/solution/store', methods=['POST'])
 def store_sol_in_DB():
     params = request.get_json(force=True)
     auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
@@ -452,7 +507,7 @@ def store_sol_in_DB():
     #########################
     return {"status":paxos_response['status'], "message":paxos_response['value'],"info":{"token_solution":token_solution}}
 
-@app.route('/ListSolutions', methods=['POST'])
+@app.route('/solution/list', methods=['POST'])
 def List_solutions_user():
     params = request.get_json(force=True)
 
@@ -537,9 +592,15 @@ def UploadDataset():
 @app.route('/workspace/delete/<tokenuser>/<workspace>/<filename>', methods=['GET'])
 def delete_userfile(tokenuser,workspace,filename):
     data_path= GetWorkspacePath(tokenuser,workspace)+filename
+
+
     file_exist=FileExist(data_path) #verify if data exist
     if file_exist:
         os.remove(data_path)
+        # se borra tambien el archivo desc.json
+        name,ext = data_path.split("/")[-1].split(".")
+        desc_file_path = data_path.replace("%s.%s" %(name,ext),".%s_desc.json" %(name))
+        os.remove(desc_file_path)
     return {"status":"OK"}
 
 ## =============================================================== ##
@@ -616,6 +677,7 @@ def describeDatasetv2():
             for fname in list_of_files:
                 fext = GetExtension(fname)
                 response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname,delimiter) #recursive
+            response['info']['tree'] = CreateFilesTree(list_of_files)
             
             # must delete the temp folder
             shutil.rmtree(dirpath)
@@ -648,7 +710,7 @@ def describeDatasetv2():
             valid=True
         return response,valid 
 
-
+    init = time.time()
     params = request.get_json(force=True)
     if 'force' in params:
         force_desc = True
@@ -656,8 +718,10 @@ def describeDatasetv2():
         force_desc= False
 
     separator = params['delimiter']
-
-    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+    try:
+        data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+    except ValueError as VE:
+        return {"status":"ERROR","message":"Invalid filename"}
     LOGER.info("Data must be in %s " % data_path)
 
     file_exist=FileExist(data_path) #verify if data exist
@@ -679,6 +743,7 @@ def describeDatasetv2():
                 response['status']="ERROR"
                 response['message']="Datafile can't be described. Try with the following file extentions:csv,json, or zip."
 
+    LOGER.info(init-time.time())
     return jsonify(response)
 
 

@@ -1,0 +1,391 @@
+{
+  "resources": {
+    "cleanning": {
+      "image": "sm_data_clean",
+      "build": {
+        "context": "./BuildingBlocks/DataClean",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "imputation": {
+      "image": "sm_bb_imputation",
+      "build": {
+        "context": "./BuildingBlocks/Imputation",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "clustering_service": {
+      "image": "sm_bb_clustering",
+      "build": {
+        "context": "./BuildingBlocks/ClusteringAlgh",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "fusion": {
+      "image": "sm_fusion",
+      "build": {
+        "context": "./BuildingBlocks/Fusion",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "correlation": {
+      "image": "sm_correlations",
+      "build": {
+        "context": "./BuildingBlocks/Correlations",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "split": {
+      "image": "sm_data_split",
+      "build": {
+        "context": "./BuildingBlocks/DataSplit",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "charts": {
+      "image": "sm_bb_charts",
+      "build": {
+        "context": "./BuildingBlocks/graphics",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "maps": {
+      "image": "sm_bb_maps",
+      "build": {
+        "context": "./BuildingBlocks/maps",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "catalogs": {
+      "image": "sm_bb_catalog",
+      "build": {
+        "context": "./BuildingBlocks/Catalogs",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "regression": {
+      "image": "sm_bb_regressions",
+      "build": {
+        "context": "./BuildingBlocks/Regressions",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "statistics": {
+      "image": "sm_bb_statistics",
+      "build": {
+        "context": "./BuildingBlocks/statistics",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "transform_ds": {
+      "image": "sm_bb_transform",
+      "build": {
+        "context": "./BuildingBlocks/TransformStrData",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "deeplearning": {
+      "image": "sm_bb_deeplearning",
+      "build": {
+        "context": "./BuildingBlocks/DeepLearning",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "text_preprocessing": {
+      "image": "sm_bb_text_preprocessing",
+      "build": {
+        "context": "./BuildingBlocks/TextPreprocessing",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": "service_mesh",
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "text_processing": {
+      "image": "sm_bb_text_processing",
+      "build": {
+        "context": "./BuildingBlocks/TextProcessing",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "text_classification": {
+      "image": "sm_bb_calsification",
+      "build": {
+        "context": "./BuildingBlocks/TextClassification",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "preprocessing": {
+      "image": "sm_bb_preprocessing",
+      "build": {
+        "context": "./BuildingBlocks/Preprocessing",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "Converters": {
+      "image": "sm_bb_converters",
+      "build": {
+        "context": "./BuildingBlocks/Converters",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "Acquisition": {
+      "image": "sm_bb_acquisition",
+      "build": {
+        "context": "./BuildingBlocks/Acq",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "volumes": ["./localdata/:/home/app/REQUEST/input_data"],
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      },
+      "deploy": {
+        "placement": {
+          "constraints": ["node.role == manager"]
+        }
+      }
+    },
+    "Grobid": {
+      "image": "sm_bb_grobid",
+      "build": {
+        "context": "./BuildingBlocks/Grobid",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "GROBID_URL": "grobid",
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "Glove": {
+      "image": "sm_bb_glove",
+      "build": {
+        "context": "./BuildingBlocks/Glove",
+        "dockerfile": "./Dockerfile"
+      },
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    }
+  },
+  "names": {
+    "cleanning": "bb_data_clean",
+    "imputation": "bb_imputation",
+    "clustering_service": "bb_clustering",
+    "fusion": "bb_fusion",
+    "correlation": "bb_correlations",
+    "split": "bb_data_split",
+    "charts": "bb_charts",
+    "maps": "bb_maps",
+    "catalogs": "bb_catalogs",
+    "regression": "bb_regressions",
+    "statistics": "bb_statistics",
+    "transform_ds": "bb_transform",
+    "deeplearning": "deep_learning",
+    "text_preprocessing": "text_preprocessing_1",
+    "text_processing": "text_processing_1",
+    "text_classification": "text_classification_1",
+    "preprocessing": "preprocessing",
+    "Converters": "bb_converters",
+    "Acquisition": "bb_acquisition_1",
+    "Grobid": "bb_grobid",
+    "Glove": "bb_glove"
+  }
+}

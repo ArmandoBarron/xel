@@ -29,6 +29,7 @@ LOAD_B = loadbalancer(dictionary)
     "token_solution":{
         token_solution:""
         last_update:"",
+        status:"RUNNING",
         DAG:[],
         metadata:{name:"",desc:"",tags:[],frontend:""},
         task_list: {
@@ -94,10 +95,12 @@ def update_data(value): #called on bb report
         BRANCHES[RN]["task_list"][params['task']]['parent']=''
         dag = LookForParams(BRANCHES[RN]["DAG"], params['task']) #look for the params of the task to create a fingerprint (if params are dfiferrent then the task is not the same)
         BRANCHES[RN]["task_list"][params['task']]['fingerprint']=Create_fingerprint(json.dumps(dag['params']))
+        
 
     BRANCHES[RN]["task_list"][params['task']]['data_type'] = params['type']
     BRANCHES[RN]["task_list"][params['task']]['label'] = params['label']
     BRANCHES[RN]["task_list"][params['task']]['index'] = params['index']
+    BRANCHES[RN]["task_list"][params['task']]['is_recovered']=False
     BRANCHES[RN]["task_list"][params['task']]['status'] = params['status']
     BRANCHES[RN]["task_list"][params['task']]['message'] = params['message']
     BRANCHES[RN]["task_list"][params['task']]['historic'].append({'status':params['status'],'message':params['message'],'timestamp':time_action})
@@ -108,8 +111,12 @@ def update_data(value): #called on bb report
         if params['parent'] != '':
             BRANCHES[RN]["task_list"][params['task']]['parent'] = params['parent']
 
+def update_solution_status(token_solution,status):
+    global BRANCHES
+    BRANCHES[token_solution]["last_update"]=GetCurrentTimeAction()
+    BRANCHES[token_solution]["status"] = status
 
-def update_task_status(RN,task,status,message,details=None): #called on monitoring 
+def update_task_status(RN,task,status,message,details=None,is_recovered = False, fingerprint=None): #called on monitoring 
     global BRANCHES
     time_action = GetCurrentTimeAction()
     BRANCHES[RN]['task_list'][task]['status']=status
@@ -117,6 +124,12 @@ def update_task_status(RN,task,status,message,details=None): #called on monitori
     BRANCHES[RN]['task_list'][task]['last_update']=time_action
     BRANCHES[RN]['last_update']=time_action #update solution status
     BRANCHES[RN]['task_list'][task]['timestamp']= time.time()
+
+    if (is_recovered):
+        BRANCHES[RN]['task_list'][task]['is_recovered'] = is_recovered
+
+    if fingerprint is not None:
+        BRANCHES[RN]["task_list"][task]['fingerprint']=fingerprint  # The fingerprint changed, so we save the new one
 
     if details is not None:
         BRANCHES[RN]['task_list'][task]['details']=details
@@ -131,6 +144,19 @@ def Get_solution_if_exist(token_solution,auth):
         LOG.error("==============> recuperando datos de memoria")
     elif SDB.Document_exist(auth['user'],token_solution):
         solution = SDB.Get_document(auth['user'],token_solution)
+        BRANCHES[token_solution]=solution
+        LOG.error("==============> recuperando datos de la BD")
+    return solution
+
+def GetSolutionData(token_project,token_solution): #this function will replace Get_solution_if_exist() in the future
+    global BRANCHES
+    solution = None
+    SDB=Handler()
+    if token_solution in BRANCHES:
+        solution = BRANCHES[token_solution]
+        LOG.error("==============> recuperando datos de memoria")
+    elif SDB.Document_exist(token_project,token_solution):
+        solution = SDB.Get_document(token_project,token_solution)
         BRANCHES[token_solution]=solution
         LOG.error("==============> recuperando datos de la BD")
     return solution
@@ -155,15 +181,17 @@ def validate_solution(dag, solution,token_solution,parent=''):
 
             if (Fingerprints_comparation and taskInSolution['status']=="FINISHED"):
                 #validate status and fingerprints
-                BRANCHES[token_solution]["task_list"][id_service]['status']="OK" #update status. since has finished
-
+                update_task_status(token_solution,id_service,"OK","Task has no changes",is_recovered = True)
+                #BRANCHES[token_solution]["task_list"][id_service]['status']="OK" #update status. since has finished
+                
                 children_dag = validate_solution(childrens,solution,token_solution,parent=id_service)
                 for x in children_dag:
                     new_dag.append(x)
             else:
                 new_dag.append(taskInDag)
-                BRANCHES[token_solution]["task_list"][id_service]['status']="STARTING" #update status. since it will be executed again 
-                BRANCHES[token_solution]["task_list"][id_service]['fingerprint']=fp_dag  # The fingerprint changed, so we save the new one
+                update_task_status(token_solution,id_service,"STARTING","Task has changes",fingerprint=fp_dag )
+                #BRANCHES[token_solution]["task_list"][id_service]['status']="STARTING" #update status. since it will be executed again 
+                
 
 
         else: #it is new
@@ -177,7 +205,7 @@ def validate_solution(dag, solution,token_solution,parent=''):
             BRANCHES[token_solution]["task_list"][id_service]['historic']=[]
             BRANCHES[token_solution]["task_list"][id_service]['parent']=parent
             BRANCHES[token_solution]["task_list"][id_service]['fingerprint']=fp_dag
-
+            BRANCHES[token_solution]["task_list"][id_service]['is_recovered']=False
             BRANCHES[token_solution]["task_list"][id_service]['data_type'] = ''
             BRANCHES[token_solution]["task_list"][id_service]['label'] = ''
             BRANCHES[token_solution]["task_list"][id_service]['index'] = ''
@@ -206,23 +234,29 @@ def save_data(value):
 
     #options = value['exe_opt']
     force = False
-
+    is_already_running=False
     solution =  Get_solution_if_exist(RN,auth)
     if (force is False) and solution!=None:
-        new_dag = validate_solution(dag,solution,RN)
-        BRANCHES[RN]["DAG"]=dag
-        BRANCHES[RN]["last_update"]=GetCurrentTimeAction()
-        dag = new_dag
+        if "status" not in BRANCHES[RN]: #esto es temporal, para que las soliciones que yae sten guardadas no tengan problemas
+            BRANCHES[RN]['status']="FINISHED"
 
+        LOG.error("====== STATUS DE LA SOLUCION ======")
+        LOG.error(BRANCHES[RN]['status'])
+        if BRANCHES[RN]["status"]!="RUNNING": # if solution is already running
+            new_dag = validate_solution(dag,solution,RN)
+            BRANCHES[RN]["DAG"]=dag        
+            dag = new_dag
+            update_solution_status(RN,"RUNNING")
+        else:
+            is_already_running=True
     else:
         BRANCHES[RN]=dict()
         BRANCHES[RN]["DAG"]=dag
         BRANCHES[RN]["token_solution"]=RN
         BRANCHES[RN]["task_list"]=dict()
-        BRANCHES[RN]["last_update"]=GetCurrentTimeAction()
-        #BRANCHES[RN]["metadata"]=dict()
+        update_solution_status(RN,"RUNNING")
 
-    return {"DAG":dag,"task_list":BRANCHES[RN]["task_list"]}
+    return {"DAG":dag,"task_list":BRANCHES[RN]["task_list"],"is_already_running":is_already_running}
 
 
 def store_data(value):
@@ -258,6 +292,17 @@ def store_data(value):
 
     return ""
 
+def delete_solution(value):
+    auth = value['auth'] 
+    RN = value['control_number']
+    SDB = Handler() 
+    SDB.Delete_document(auth['user'],RN)
+
+    if SDB.Document_exist(auth['user'],RN):
+        return {"status":"ERROR","message":"Solution could not be removed"}
+    else:
+        return {"status":"OK","message":"Solution removed sucessfully"}
+    
 def retrieve_solution(value):
     global BRANCHES
     auth = value['auth'] 
@@ -276,6 +321,68 @@ def list_solutions(value):
 
 
 
+
+def get_task_runtime_info(value): #new version of consult data
+    RN = str(value['control_number'])
+    token_project = str(value['token_project'])
+    list_info={}
+
+    solution = GetSolutionData(token_project,RN) # solution has a copy of the info in the current timestamp. 
+
+    n_task = len(solution['task_list'])
+
+    count_ok_task=0
+    count_error_task=0
+    for task,val in solution['task_list'].items():
+        ToSend = {'status':"WAITING"}
+        if val['status']=="RUNNING" and time.time()-val['timestamp'] > 20: #if has passed more than 20 seg of the last health check of one service
+            update_task_status(RN,task,"ERROR","Resource %s is not responding. last message: %s." % (task, val['message']),details="RESOURCE DOWN")
+
+        if val['status'] == "FINISHED" or val['status'] == "FAILED"  or val['status'] == "RUNNING":
+            st =  val['status']
+            data_type = val['data_type']
+            idx_opt = val['index']
+            is_recovered = val['is_recovered']
+            ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
+            if val['status'] != "RUNNING":
+                count_ok_task+=1
+        
+        if val['status'] == "OK":
+            st =  val['status']
+            data_type = val['data_type']
+            idx_opt = val['index']
+            is_recovered = val['is_recovered']
+            ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
+            count_ok_task+=1
+            update_task_status(RN,task,"FINISHED","Execution completed without errors")
+
+        if val['status']=="ERROR":
+            st =  val['status']
+            data_type = val['data_type']
+            idx_opt = val['index']
+            is_recovered = val['is_recovered']
+            ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
+            count_error_task+=1
+            update_task_status(RN,task,"FAILED",val['message'])
+
+            if 'details' in val: #this mean that the resource failed, so its secure to recover try to recover data
+                ToSend['DAG'] =  LookForParams(solution["DAG"],task) 
+                ToSend['parent'] =  val['parent'] 
+        
+
+
+        list_info[task]=ToSend
+    
+    if count_ok_task+count_error_task==n_task:
+        if count_error_task>0:
+            update_solution_status(RN,"FAILED")
+        else:
+            update_solution_status(RN,"FINISHED")
+
+
+
+    return list_info
+
 def consult_data(value):
     global BRANCHES
     RN = str(value['control_number'])
@@ -283,37 +390,32 @@ def consult_data(value):
 
     if params is not None: #specific task status to get data
         task = params['task']
-        #label = BRANCHES[RN]['task_list'][task]['label'] 
         return BRANCHES[RN]['task_list'][task] #{'label':label}
     else: #last update
-        for key,val in BRANCHES[RN]['task_list'].items():
+        for task,val in BRANCHES[RN]['task_list'].items():
 
             if val['status']=="RUNNING" and time.time()-val['timestamp'] > 20: #if has passed more than 20 seg of the last health check of one service
-                update_task_status(RN,key,"ERROR","Resource %s is not responding. last message: %s." % (key, val['message']),details="RESOURCE DOWN")
+                update_task_status(RN,task,"ERROR","Resource %s is not responding. last message: %s." % (task, val['message']),details="RESOURCE DOWN")
 
             if val['status'] == "OK":
-                LOG.error(val)
-
                 st =  val['status']
                 label = val['label']
-                task = key
                 data_type = val['data_type']
                 idx_opt = val['index']
 
                 ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt }
-                update_task_status(RN,key,"FINISHED","Execution completed without errors")
+                update_task_status(RN,task,"FINISHED","Execution completed without errors")
 
                 return ToSend
 
             if val['status']=="ERROR":
                 st =  val['status']
                 label = val['label']
-                task = key
                 data_type = val['data_type']
                 idx_opt = val['index']
                 
                 ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt }
-                update_task_status(RN,key,"FAILED",val['message'])
+                update_task_status(RN,task,"FAILED",val['message'])
 
                 if 'details' in val: #this mean that the resource failed, so its secure to recover try to recover data
                     ToSend['DAG'] =  LookForParams(BRANCHES[RN]["DAG"],task) 
@@ -419,6 +521,11 @@ def prepare_request():
         res = retrieve_solution(value)
         return json.dumps({"status":"OK","action":"ACCEPT","value":res})
 
+    elif action == "DELETE_SOLUTION": #save a new solution
+        value = params['value']
+        res = delete_solution(value)
+        return json.dumps({"status":"OK","action":"ACCEPT","value":res})
+
     elif action == "LIST_SOLUTIONS": #save a new solution
         value = params['value']
         res = list_solutions(value)
@@ -433,6 +540,11 @@ def prepare_request():
     elif action == "CONSULT":
         value = params['value']
         res = consult_data(value)
+        return json.dumps({"status":"OK","action":"ACCEPT","value":res})
+
+    elif action == "CONSULT_V2":
+        value = params['value']
+        res  = get_task_runtime_info(value)
         return json.dumps({"status":"OK","action":"ACCEPT","value":res})
 
     elif action == "RESOURCES":

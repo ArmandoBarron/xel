@@ -1,0 +1,15 @@
+version: '3'
+services:
+  services_creator:
+    image: ftorres/services_creator
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    working_dir: /home/app/GR-DataServices/Services_Creator
+    ports:
+      - '2000:2000'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '../:/home/app/GR-DataServices/'
+    entrypoint: python3 server.py

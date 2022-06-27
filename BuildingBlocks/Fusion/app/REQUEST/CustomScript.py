@@ -10,7 +10,7 @@ def config_env():
 def custom_app(app_params,reserved_params):
 
     #create the command
-    list_files= app_params['list_files'] #string ;
+    list_files= ','.join(app_params['list_files']) #list
     list_columns= app_params['list_columns'] #string ;
     method= app_params['method'] #string ;
 

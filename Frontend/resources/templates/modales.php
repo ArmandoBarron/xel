@@ -1,9 +1,15 @@
+
+<!-- Este no es un modal, es un loader-->
+<div class="overlay_loader"></div>
+<div class="spanner_loader">
+  <div class="loader"></div>
+  <p id="text_loader" >please be patient.</p>
+</div>
+
 <!--- MODALES -->
-
-
 <!-- Modal CREATE-->
 
-<div class="modal fade" id="modal_create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal_create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -12,7 +18,7 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body modal-body-dynamic">
 
 				</div>
 
@@ -56,7 +62,7 @@
 
 <!-- Modal LIST SOLUTIONS-->
 
-<div class="modal fade" id="modal_list-solutions" tabindex="-1" role="dialog" aria-labelledby="Save" aria-hidden="true">
+<div class="modal fade" id="modal_list-solutions" tabindex="-1" role="dialog" aria-labelledby="Save" aria-hidden="true" data-backdrop="static">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content" >
 				<div class="modal-header" id="modal_list-solutions-header">
@@ -65,7 +71,7 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-        <div id="modal_list-solutions-body" class="modal-body" style="max-height: 750px;overflow: auto;">
+        <div id="modal_list-solutions-body" class="modal-body modal-body-dynamic" style="max-height: 750px">
         
 
 				</div>
@@ -79,7 +85,7 @@
 
 <!-- Modal SAVE SOLUTIONS-->
 
-<div class="modal fade" id="modal_save-solutions" tabindex="-1" role="dialog" aria-labelledby="Save" aria-hidden="true">
+<div class="modal fade" id="modal_save-solutions" tabindex="-1" role="dialog" aria-labelledby="Save" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content" >
 				<div class="modal-header" id="modal_save-solutions-header">
@@ -124,7 +130,7 @@
 
 <!-- Modal INSPECT DATA SET-->
 
-<div class="modal fade" id="modal_inspect" tabindex="-1" role="dialog" aria-labelledby="InspectDataset" aria-hidden="true">
+<div class="modal fade" id="modal_inspect" tabindex="-1" role="dialog" aria-labelledby="InspectDataset" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content" >
 				<div class="modal-header" id="modal_inspect_header">
@@ -133,7 +139,7 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div id="modal_inspect_body" class="modal-body container" >
+				<div id="modal_inspect_body" class="modal-body container modal-body-dynamic" >
 
 				</div>
 				<div id="modal_inspect_footer" class="modal-footer">
@@ -145,7 +151,7 @@
 
 <!-- Modal MAP AAS-->
 
-<div class="modal fade" id="modal_mapAAS" tabindex="-1" role="dialog" aria-labelledby="MAP" aria-hidden="true">
+<div class="modal fade" id="modal_mapAAS" tabindex="-1" role="dialog" aria-labelledby="MAP" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content" >
 				<div class="modal-header" >
@@ -247,7 +253,7 @@
 
 <!-- Modal DESIGNER-->
 
-<div class="modal fade" id="modal_edition" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal_edition" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -256,7 +262,7 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body modal-body-dynamic">
 
 				</div>
 				<div class="modal-footer">
@@ -269,7 +275,7 @@
 
 <!-- Modal Datasource-->
 
-<div class="modal fade" id="modal_datasource" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal_datasource" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -278,7 +284,7 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body modal-body-dynamic">
 
 				</div>
 				<div class="modal-footer">

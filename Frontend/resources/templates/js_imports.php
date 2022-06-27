@@ -97,6 +97,12 @@
 <!--Data tables--
 <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js" ></script>-->
 <script src="resources/js/extern/DataTables/datatables.min.js" ></script>
+<script src="resources/js/extern/DataTables/date-euro.js" ></script>
+
+
+<!--TreeJss--
+<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js" ></script>-->
+<script src="resources/js/extern/Treejs/jstree.min.js" ></script>
 
 <!-- SELECT
 <script defer src="resources/js/extern/bootstrap-select.min.js"></script>-->

@@ -23,7 +23,20 @@
         <!-- TAB 2.5 designer tools -->
         <div class="tab-pane active container-fluid" id="xel-tab" style="height:100%">
           <div class="invisible" id="invisible_link" ></div> <!-- div invisible. unicamente para el link de descarga de datos -->
-          <hr><button id="output" class="btn btn-outline-success btn-block">EXECUTE</button><hr>
+          <hr>
+            
+          <!-- Example split danger button -->
+            <div class="btn-group btn-block">
+              <button id="output" onClick="Xel_run()" class="btn btn-outline-success col-11">RUN</button>
+              <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split col-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" onClick="Xel_run(true)">Run as a Copy</a>
+              </div>
+            </div>
+          
+          <hr>
 
           <div class ="col-sm-12" id="leftcard" style="height:100%" >
 

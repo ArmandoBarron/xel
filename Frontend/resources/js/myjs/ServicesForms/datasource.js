@@ -23,7 +23,7 @@ ServicesArr.push({
                 <div class="form-group row">
                         <label for="txttype" class="col-sm-3 col-form-label font-weight-bold">1) Select a workspace: </label>
                         <div class="col-sm-6">
-                                <select class="form-control" id="user_workspace" data-actions-box="true" onclick=fillworkspaces(this) onChange=SelectWorkspace(this)>
+                                <select class="form-control selectpicker" id="user_workspace" data-actions-box="true" onclick=fillworkspaces(this) onChange=SelectWorkspace(this)>
                                 </select>
                         </div>
                         <div class="col-sm-3">

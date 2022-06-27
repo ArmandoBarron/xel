@@ -526,17 +526,17 @@ ServicesArr.push({
         <br>
 
                 <div class="form-group row m-2">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">list of files (separateed by ,)</label>
-                        <div class="col-sm-8">
-                                <input id="list_files" type="text" class="form-control">
+                        <div class="col-sm-12 namefiles-tree" id="list_files" type="namefiles-tree">
                         </div>
                 </div>
-
                 <div class="form-group row m-2">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">list of columns (,) of each file (separateed by ;. e.g. col1,col2;col3,col4)</label>
-                        <div class="col-sm-8">
-                                <input id="list_columns" type="text" class="form-control autocomplete-column">
-                        </div>
+                        <button id="btn_files" type="button" onclick="Handler_selectedFileNames('#list_files','list_columns')" class="btn btn-block btn-outline-primary">Confirm selections</button>
+                </div>
+
+                <hr>
+
+                <div id="list_columns" type="namefiles-list">
+
                 </div>
 
                 <div class="form-group row m-2">
@@ -554,3 +554,68 @@ ServicesArr.push({
         }
     )
     
+
+
+    ServicesArr.push(
+        {
+            id: "s-FilterColumn",
+            section:SECTION,
+            name: "filter_column",
+            desc: `drop and keep columns given a rule.`,
+            columns:{
+                default: [],
+                parent: [] 
+            },
+            params: {
+                columns: [],
+                rules: [],
+                logical_operator: "",
+                operation:"",
+                SAVE_DATA:true
+            },
+            html: `
+        <div class="form-check" style="text-align: right;">
+        <input type="checkbox" checked class="form-check-input" id="SAVE_DATA">
+        <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
+        </div>
+        <br>
+        
+                <div class="form-group row m-2">
+                        <label class="col-sm-4 col-form-label col-form-label-sm">Columns to apply:</label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">If column satisfy: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="logical_operator">
+                                        <option value="and"> All the rules </option>
+                                        <option value="or"> At least one rule </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Then: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="operation">
+                                        <option value="drop"> drop the column </option>
+                                        <option value="keep"> keep the column </option>
+                                </select>
+                        </div>
+                </div>
+
+                <div class="form-group row m-2">
+                        <button id="btn_AddRule" type="button" onclick="Handler_Rules('#rules')" class="btn btn-block btn-outline-primary">Add new rule</button>
+                </div>
+
+                <hr>
+                <div class="container" id="rules" type="logical-rules" style="overflow: auto;max-height: 400px;">
+
+                </div>
+
+`
+        }
+    )

@@ -44,21 +44,27 @@ $(document).ready(function () {
         ChangeVisibileOptionsOfService("",onlyhide=false) //este muestra los divs de la seccion seleccionada
         $(".courtain").show("slow") //se muestran todos los elementos de clase courtain (para hacerlo mas bonito)
         $(".compact-dt").DataTable().columns.adjust()//se ajustan las datatable
-        Activate_Autcomplete() //se añade el evento para autocompletar
-
+        $(".selectpicker").selectpicker("refresh")
+        //Activate_Autcomplete() //se añade el evento para autocompletar
+        
     })
-    $('.modal.fade').on('hidden.bs.modal', function (e) {
+    $('.modal.fade').on('hidden.bs.modal', function (e) { // funcion que se ejecuta cuando se cierra un modal
         $(".courtain").hide("slow")
+        //$('#modal_inspect_body')
+        $('.modal-body-dynamic').html("") // se vacian todos los body
       })
 
     var popoverShow = false;
     var tempblock2;
     canvasElementsCount = 0
-    $('#output').click((e) => {
-        Exec_graph();
-        // Add verification to enable when exec_graph() is done.
-        $('#output').prop('disabled', true);
-    });
+    //$('#output').click((e) => {
+    //    Exec_graph();
+    //    // Add verification to enable when exec_graph() is done.
+    //    $('#output').prop('disabled', true);
+    //});
+    // al clickear el boton #output se ejecuta la funcion
+
+    
     $('#foutput').click((e) => {
         console.log(flowy.output());
     });
@@ -191,7 +197,7 @@ $(document).ready(function () {
                                 <div class= "serviceLoadingIcon" id="serviceLoadingIcon"></div>
                             </div>
                                 <div class="col-2" style="padding:5px; text-align:center;" > <i class="fas fa-pen-square fa-xl elementhover" onclick="demoflowy_btnEditarClick(event)"></i></div>
-                                <div class="col-2" style="padding:5px; text-align:center;" id="${canvasId}_inspect"></div>
+                                <div class="col-2 InspectDataIcon" style="padding:5px; text-align:center;" id="${canvasId}_inspect"></div>
                                 <div class="col-2 downloadDataIcon" style="padding:5px; text-align:center;" id="${canvasId}_downloadDataIcon"></div>
                                 <div class="col-2 showOnMapIcon" style="padding:5px; text-align:center;" id="${canvasId}_showOnMapIcon"></div>
                         </div>
@@ -226,6 +232,7 @@ $(document).ready(function () {
         return true;
     }
 
+    
     function demoflowy_drag(block) {
         block.classList.add("blockdisabled");
         
@@ -500,54 +507,120 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
     console.log(canvasType)
     $(`#${modal2open}`).data("sourceId", canvasId);
     template = flowey_GetTemplate_service(canvasType)
-    console.log(template)
 
     $(`#${modal2open} .modal-body`).html(template.html);
     $('.selectpicker').selectpicker('refresh') //carga los selectpicker en el modal
-    console.log(canvasId)
 
-    //if(parent.isModalReady) {
-        $(`#${modal2open} .modal-body`).ready(function ($) {
-            // first, add the current html to let the list, if there's any, as
-            // it was the last time it was modified.
-            for (let p in parent.params) {
-                // then check the type of each param of the object, and assign its value to
-                // its correspondent input on the modal form.
-                
-                let type = typeof (parent.params[p]);
-                var input = $(`#${modal2open} .modal-body #${p}`);
-
-                console.log(input[0].tagName)
-                //console.log(type)
-                if(input[0].tagName == 'SELECT') {
-                    $(`#${p}`).trigger('click'); //simulate click to load the options
-                    $(`#${p}`).selectpicker('val', parent.params[p]);
-                    //console.log(parent.params[p])
-                    var attr =  $(`#${p}`).attr('onchange'); //verify if has attr for handler
-                    console.log(attr)
-                    if (typeof attr !== 'undefined' && attr !== false) {
-                        OptionsHandler(document.getElementById(p))
-                    }
-                } 
-                else if (['string', 'number', 'boolean'].includes(type)) {
-                    if (type == 'boolean') $(`#${modal2open} .modal-body #${p}`)[0].checked = parent.params[p];
-                    else {
-                        $(`#${modal2open} .modal-body #${p}`).val(parent.params[p]);
-                    }
-                } else {
-                    //for UL
-                    // remove list elements before adding the ones on the param array
-                    input.empty();
-                    parent.params[p].forEach(li => {
-                        input.append(`<li id="${li}" class="list-group-item">${li}</li>`);
-                    });
-                    
-                }
-            }
+    $(`#${modal2open} .modal-body`).ready(function ($) {
+        // first, add the current html to let the list, if there's any, as
+        // it was the last time it was modified.
+        for (let p in parent.params) {
+            // then check the type of each param of the object, and assign its value to
+            // its correspondent input on the modal form.
             
-            init_modal()
-        });
-    //}
+            let type = typeof (parent.params[p]);
+            var input = $(`#${modal2open} .modal-body #${p}`);
+
+            //console.log(type)
+            if(input[0].tagName == 'SELECT') {
+                
+                $(`#${p}`).trigger('click'); //simulate click to load the options
+                $(`#${p}`).selectpicker('val', parent.params[p]);
+
+                var attr =  $(`#${p}`).attr('onchange'); //verify if has attr for handler
+                if (typeof attr !== 'undefined' && attr !== false) {
+                    OptionsHandler(document.getElementById(p))
+                }
+            } 
+            else if (input[0].tagName =="DIV"){ // esto quiere decir que es un from control personalizado
+                type =  input.attr("type")
+                if (type=="namefiles-tree"){
+                    fill_namefiles() //se carga la info del arbol
+                    nodes = []
+                    parent.params[p].forEach(function(selected_file){
+                        $("#"+p).jstree('select_node', selected_file);
+                    });
+                }
+                if (type=="namefiles-list"){
+                    list_selected_files =parent.params["list_files"]
+                    id_destination = p
+
+                    $("#"+id_destination).html("")
+                    // div destino 
+                    var id_tmp = 1
+                    list_selected_files.forEach(function(path){
+                            //create control
+                            htmlstring =`
+                                <div class="form-group row m-2"> 
+                                    <label for="txttype" class="col-sm-12 col-form-label col-form-label-sm">Keys of ${path}</label>
+                                    <div class="col-sm-12">
+                                        <input id="file_${id_tmp}" type="text" class="form-control">
+                                    </div>
+                                </div>`
+                            $("#"+id_destination).append(htmlstring)
+                            //se le activa el autocomplete
+                            AutocompleteByFileInfo("file_"+id_tmp, path,Modal_selector="#modal_edition")
+                            id_tmp++
+
+                    });
+                
+                    list_columns = parent.params[p].split(";")
+                    list_selector = $(`#${p} > .form-group`)
+                    list_selector.each(function(index,value){
+                        $(this).children("div").children("input").val(list_columns[index]) 
+                    })
+                }
+                if (type=="logical-rules"){
+                    ID_rule=1
+                    parent.params[p].forEach(function(rule,index){
+                        Handler_Rules(`#${p}`)
+                        i=index+1
+
+                        var [column,process,operator,values] = rule.split("::")
+                        console.log(column,process,operator,values)
+
+                        $(`#rule_${i}_column`).trigger('click'); //simulate click to load the options
+                        $(`#rule_${i}_column`).selectpicker('val',column);
+                        $(`#rule_${i}_column`).selectpicker('refresh');
+
+                        $(`#rule_${i}_process`).val(process)
+                        $(`#rule_${i}_operator`).val(operator)
+                        value_rule(i)
+
+                        if (operator!="InRange" && operator!="OutRange"){ //no es un rango
+                            $(`#rule_${i}_value1`).val(values)
+                        }
+                        else{//es un rango
+                            console.log(values)
+                            values = values.split("to")
+                            $(`#rule_${i}_value1`).val(values[0])
+                            $(`#rule_${i}_value2`).val(values[1])
+                        }
+                    });
+
+                }
+                
+    
+            }
+            else if (['string', 'number', 'boolean'].includes(type)) {
+                if (type == 'boolean') $(`#${modal2open} .modal-body #${p}`)[0].checked = parent.params[p];
+                else {
+                    $(`#${modal2open} .modal-body #${p}`).val(parent.params[p]);
+                }
+            } else {
+                //for UL
+                // remove list elements before adding the ones on the param array
+                input.empty();
+                parent.params[p].forEach(li => {
+                    input.append(`<li id="${li}" class="list-group-item">${li}</li>`);
+                });
+                
+            }
+        }
+        
+        init_modal()
+    });
+
 
     // from now on, modal always should be ready.
     //parent.isModalReady = true; //esta validacion ya no se ocupa
@@ -564,12 +637,15 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
 
 
 
-function demoflowy_saveChanges(e) {
+function demoflowy_saveChanges() {
     Modal_selector = ".modal.fade.show" // sirve para los modal activos (debe estar activo primero)
 
     var id = $(Modal_selector).data('sourceId');
     var parent = demoflowy_lookForParent(id);
     var fulltext = '';
+
+    console.log(id)
+    console.log(parent)
 
     for (let p in parent.params) {
         //console.log(p)
@@ -579,6 +655,7 @@ function demoflowy_saveChanges(e) {
         fulltext += `<strong>${p}:</strong> `;
 
         // TODO: ADD SAVES AND LOADS FOR TYPE SELECT AND SELECT MULTIPLE
+        console.log(tagname)
 
         if (tagname == 'UL') {
             // emtpy the array before adding the new list order
@@ -600,13 +677,65 @@ function demoflowy_saveChanges(e) {
                 parent.params[p].push(text);
             });
             fulltext += `</ul>`;
-        } else {
+        } 
+        else if (tagname=="DIV"){ // esto quiere decir que es un from control personalizado
+            type =  $(`#${p}`).attr("type")
+
+            if (type=="namefiles-tree"){
+                list_selected_files = $("#"+p).jstree().get_checked(["full"]) // se obtienen los nodos seleccionados
+                tmp_list = []
+                list_selected_files.forEach(function(obj){
+                    if (obj.type=="file"){
+                        tmp_list.push(obj.original.path)
+                    }
+                });
+                parent.params[p] = tmp_list
+                console.log("se guardaron los datos del files tree")
+            }
+            if (type=="namefiles-list"){
+                list_selector = $("#list_columns > .form-group")
+                list_columns = ""
+                list_selector.each(function(){
+                    list_columns += $(this).children("div").children("input").val() + ";"
+                    console.log(list_columns)
+                })
+                parent.params[p] = list_columns.slice(0, -1);
+            }
+            if (type=="logical-rules"){
+                lista_reglas = []
+                for (i=1;i<ID_rule;i++){
+                    column = $(`#rule_${i}_column`).val()
+                    process = $(`#rule_${i}_process`).val()
+                    operator = $(`#rule_${i}_operator`).val()
+                    val1 = $(`#rule_${i}_value1`).val()
+                    val2 = $(`#rule_${i}_value2`).val()
+
+                    if (column!==undefined){
+                        if (operator!="InRange" && operator!="OutRange"){ //no es un rango
+                            rule = `${column}::${process}::${operator}::${val1}`
+                        }
+                        else{//es un rango
+                            rule = `${column}::${process}::${operator}::${val1}to${val2}`
+                        }
+                        lista_reglas.push(rule)
+                    }
+                    else{
+                        console.log(`la regla ${i} no existe`)
+                    }
+
+                }
+                parent.params[p] = lista_reglas
+                console.log(lista_reglas)
+            }
+
+        }
+        else {
             let value = $(`#${p}`).val()
             let type = input.type;
+            console.log(type)
             if (type == 'checkbox'){
                 parent.params[p] = input.checked;
                 fulltext += `<label class="text-danger">${parent.params[p]}</label><br>`;
-
             }
             else if (value === "" || value === null) {
                 parent.params[p] = "";
@@ -672,8 +801,6 @@ function Metadata_collector(){
     name = $("#modal_save-solutions-form-name").val()
     desc= $("#modal_save-solutions-form-desc").val()
     tags= $("#modal_save-solutions-form-tags").val().split(",")
-
-
     obj_metadata.name= name
     obj_metadata.desc= desc
     obj_metadata.tags= tags
@@ -683,23 +810,77 @@ function Metadata_collector(){
     obj_metadata.datasource = DATA_WORKFLOW.data //dataset
     obj_metadata.datasource_type = DATA_WORKFLOW.type //kind of dataset
     obj_metadata.canvasElementsCount = canvasElementsCount //kind of dataset
-
     return obj_metadata
 
 }
 
 function Metadata_assign(meta){
-    $("#modal_save-solutions-form-tokensolution").val(meta.token)
     $("#modal_save-solutions-form-name").val(meta.name)
     $("#modal_save-solutions-form-desc").val(meta.desc)
     $("#modal_save-solutions-form-tags").val(meta.tags)
     // load token
-    TOKEN_SOLUTION = meta.token
-
+    Set_Tokensolution(meta.token)
     //import dataset info
-    DATA_WORKFLOW = {'data':meta.datasource,'type':meta.datasource_type};
+    Set_DatasourceMap(meta.datasource,meta.datasource_type)
 }
+
+function Set_Tokensolution(token){
+    TOKEN_SOLUTION = token
+    $("#modal_save-solutions-form-tokensolution").val(token)
+}
+function Set_DatasourceMap(datasource_Obj,type_dataset)
+{
+    DATA_WORKFLOW = {'data':datasource_Obj,'type':type_dataset};
+}
+
+
+function contar_servicios(DAG){
+    contador = DAG.length
+    for (let i = 0; i < DAG.length; i++) {
+        contador= contador + contar_servicios(DAG[i].children)
+    }
+    return contador
+}
+
+function Listar_tareas(lista_tareas, objeto_padre){
+
+    objeto_padre.forEach(function(task){ 
+        lista_tareas.push(task.id)
+        // se recorren los hijos de esa tarea
+        lista_tareas = Listar_tareas(lista_tareas,task.children) 
+    });
+    return lista_tareas
+}
+
+
 
 function CloneJSON(js){
     return copiedjson = JSON.parse(JSON.stringify(js));
+}
+
+function arrayRemove(arr, value) { 
+    return arr.filter(function(ele){ 
+        return ele != value; 
+    });
+}
+
+function Toggle_Modal(action="show",Modal_selector=".modal.fade.show"){ //por defecto cierra el modal que se esta mostrando
+    $(Modal_selector).modal(action);
+}
+
+function Toggle_Loader(action="show",text="Loading... Please wait."){
+    console.log(action)
+    if (action=="show"){
+        $(".overlay_loader").show()
+        $(".spanner_loader").show()
+        $("#text_loader").html(text)
+    }
+    if (action=="message"){
+        $("#text_loader").html(text)
+    }
+    if (action=="hide"){
+        $(".overlay_loader").hide()
+        $(".spanner_loader").hide()
+    }
+    
 }
