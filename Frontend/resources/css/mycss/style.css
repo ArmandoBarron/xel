@@ -492,7 +492,7 @@ button[aria-expanded=false] .glyphicon-chevron-down {
 
 /* The side navigation menu */
 .sidenav {
-  height: 96%; /* 100% Full-height */
+  height: 100%; /* 100% Full-height */
   width: 0; /* 0 width - change this with JavaScript */
   position: fixed; /* Stay in place */
   z-index: 1; /* Stay on top */
@@ -581,7 +581,7 @@ button[aria-expanded=false] .glyphicon-chevron-down {
 .ui-state-focus {
   text-decoration: none;
   color: #262626;
-  background-color: #f5f5f5;
+  background-color: #f89393;
   cursor: pointer;
 }
 
@@ -595,3 +595,9 @@ button[aria-expanded=false] .glyphicon-chevron-down {
   position: absolute;
   width: 1px;
 }
+
+
+.invisible-input{
+  border: none;
+  background: transparent;
+} 

@@ -444,7 +444,7 @@ ServicesArr.push({
                         <div class="form-group row m-2" servopt="MAPR" >
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Optional query:</label>
                                 <div class="col-sm-8">
-                                        <input id="query_str" type="text" class="form-control" placeholder="e.g. Fecha < 1990 && Fecha > 1980">
+                                        <input id="query_str" type="text" class="form-control autocomplete-column" placeholder="e.g. Fecha < 1990 && Fecha > 1980">
                                 </div>
                         </div>
 

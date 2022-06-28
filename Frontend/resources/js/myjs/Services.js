@@ -24,15 +24,11 @@ var ID_rule = 1 // Filtercolumn
 function Clean_graph_data(){
     DATA_WORKFLOW_STATUS = false
     notificarUsuario("No dataset loaded.", 'info');
-    //$("#files").hide();
     $("#group-upload").show("fast");
     $("#cleandata_button").hide("fast");
-    //$("#rawdata_button").show();
-    $(".serviceLoadingIcon-raw").html("")
-    $(".showOnMapIcon-raw").html("")
-    $(".downloadDataIcon-raw").html("")
-    //$("#files").show();
-    $("#listOfDatasources").html("no data source selected.")
+    $(".serviceLoadingIcon-root").html("")
+    $(".showOnMapIcon-root").html("")
+    $(".downloadDataIcon-root").html("")
 
 }
 
@@ -41,7 +37,7 @@ function Upload_graph_data(){
         raw_file= $('#files')[0].files[0];
         if (raw_file==undefined){console.log("select a data source");return 0}
 
-        $("#"+sourceId+" > div.row > div.service-options > #serviceLoadingIcon").html("<img style='width:25%; height:100%' src='resources/imgs/loading.gif'></img>")
+        $("#"+sourceId+" > div.row > div.service-options > #serviceLoadingIcon-root").html("<img style='width:25%; height:100%' src='resources/imgs/loading.gif'></img>")
         $("#group-upload").hide();
         //$("#cleandata_button").show();
         //$("#files").hide();
@@ -102,23 +98,6 @@ function Xel_run(as_copy=false){
 }
 
 
-function Pre_exe_graph(){ //get data from data source
-    if(DATA_WORKFLOW_STATUS==false) {
-        console.log("IS VOID");
-        $("#serviceLoadingIcon-raw").html("<img style='width:25%; height:100%' src='resources/imgs/loading.gif'></img>")
-        $("#showOnMapIcon-raw").html("")
-        $("#downloadDataIcon-raw").html("")
-        PIPELINE= true;
-        setTimeout(toResults, 1000);
-        //toResults() //exec function to results
-        DATA_WORKFLOW_STATUS = true
-        $("#files").hide();
-        $("#files_button").hide();
-        $("#cleandata_button").show();
-        $("#rawdata_button").hide();
-    }
-}
-
 function Exec_graph(){
     Download_log = false
     DAG = [] //CLEAN
@@ -127,10 +106,10 @@ function Exec_graph(){
     SERVICE_GATEWAY = $("#ip_gateway").val()
     transform_dag(data_obj,DAG)
     console.log("EL DAG ...") ;console.log(DAG);
-    $(".serviceLoadingIcon").html("<img style='width:25%; height:100%' src='resources/imgs/loading.gif'></img>")
-    $(".showOnMapIcon").html("")
-    $(".downloadDataIcon").html("")
-    $(".InspectDataIcon").html("")
+    $(".serviceLoadingIcon-task").html("<img style='width:25%; height:100%' src='resources/imgs/loading.gif'></img>")
+    $(".showOnMapIcon-task").html("")
+    $(".downloadDataIcon-task").html("")
+    $(".InspectDataIcon-task").html("")
 
     // send request to exec dag
     pipe_dag(DATA_WORKFLOW)
@@ -200,9 +179,9 @@ function postExecutionStop(rn,error=true,message="Execution failed, check the pa
                     type: 'POST',
                     data:data_request,
                     success: function(liga) {  
-                        $(".serviceLoadingIcon-raw").html(`<a id='temporal_log_link' href='${liga}' target='_blank' ></a>`)
+                        $(".serviceLoadingIcon-root").html(`<a id='temporal_log_link' href='${liga}' target='_blank' ></a>`)
                         $('#temporal_log_link').get(0).click();
-                        $(".serviceLoadingIcon-raw").html("")
+                        $(".serviceLoadingIcon-root").html("")
                     }
                 });
             }
@@ -247,9 +226,6 @@ function pipe_dag(data_for_workflow){ // launch dag
 
                 Set_Tokensolution(response['token_solution'])
 
-                //var config_monitoring = {max_errors:10000000,errors:0,i:1,monitor: false}
-                //var interv = setInterval(pipe_monitoring,1000,TOKEN_SOLUTION,config_monitoring)
-                //config_monitoring.interv = interv    
                 lista_tareas = Listar_tareas([],dataObject.children)
                 ServiceMonitor(MESH_USER,TOKEN_SOLUTION,lista_tareas)
             }
@@ -368,14 +344,14 @@ function Handler_condition_GetData(task_id,description,isRaw,filename=null,token
     if (if_metadata){
         tsk = demoflowy_lookForParent(task_id) //obtener los valores de la caja (json) por su id, se obtiene una instancia del json
         parentfilename = description.parent_filename
-        console.log(description)
-        tsk.service_metadata = description
+        tsk.service_metadata.this = description
+        tsk.it_produced_data = true
         if (description.files_info[parentfilename]==undefined){
             columnas_del_servicio=[]
         }
         else{
              //columnas que procesa el servicio en mayusculas  
-            columnas_del_servicio = [...tsk.service_metadata.files_info[parentfilename].columns ].map(function(x){ return x.toUpperCase(); })  
+            columnas_del_servicio = [...tsk.service_metadata.this.files_info[parentfilename].columns ].map(function(x){ return x.toUpperCase(); })  
         }
         //buscar si el servicio tiene columnas para geolocalizar en el mapa
         isMarkable = columnas_del_servicio.some( ai => ifCoordinates.includes(ai) ); 
@@ -447,7 +423,6 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                         {
                             let task_id = task_info['task']
                             let task_data = CloneJSON(task_info)
-                            //$("#"+task_id+" > div.row > div.service-options > #serviceLoadingIcon").html("")
                             Handler_condition_GetData(task_id,{},false,'',token_solution,task_data)
                             notificarUsuario("ERROR "+task_id+": "+ task_info['message'], 'danger');
                             list_remain_task = arrayRemove(list_remain_task,task) // se elimina de la lista
@@ -482,12 +457,7 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                     if (lista_tareas.length == LIST_TASK_OVER.length){
                         $('#output').prop('disabled', false); //se desactiva el bloqueo del boton
                         // se remueven todos los iconos de carga
-                        var allFootersIcons = $('.serviceLoadingIcon');
-                        console.log('allFootersIcons: ', allFootersIcons);
-                        for(let i = 0;i < allFootersIcons.length;i++) {
-                            console.log(`el ${i}: `, allFootersIcons[i]);
-                            allFootersIcons[i].innerHTML = "";
-                        }
+                        $('.serviceLoadingIcon-root').html("")
     
                         var tiempo_ejecucion = ((Date.now() -INIT_TIME)/1000) -2 ; // se le quitan los 2 segundos que se agregan
                         notificarUsuario("Solution Complete. Response Time: "+tiempo_ejecucion , 'info')
@@ -509,9 +479,9 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                                     type: 'POST',
                                     data:data_request,
                                     success: function(liga) {  
-                                        $(".serviceLoadingIcon-raw").html(`<a id='temporal_log_link' href='${liga}' target='_blank' ></a>`)
+                                        $(".serviceLoadingIcon-root").html(`<a id='temporal_log_link' href='${liga}' target='_blank' ></a>`)
                                         $('#temporal_log_link').get(0).click();
-                                        $(".serviceLoadingIcon-raw").html("")
+                                        $(".serviceLoadingIcon-root").html("")
                                     }
                                 });
                             }
@@ -547,78 +517,6 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
     });
 }
 
-
-function pipe_monitoring(RN,cfg) {
-    if (cfg.monitor==true){
-        console.log("THERE IS ALREADY A MONITOR")
-        return 0
-    }
-    cfg.monitor=true
-
-    let data_request = {"rn":RN,'host':SERVICE_GATEWAY}
-    var xhr = new XMLHttpRequest();
-    var url = "includes/dag_monitor.php";
-    xhr.open("POST", url, true); //False significa que es sincrona la consulta
-    xhr.setRequestHeader("Content-Type", "application/json");
-    var send = JSON.stringify(data_request); //lo convertimos en una cadena
-    xhr.onreadystatechange = function (aEvt) {
-        if (xhr.status == 200 && xhr.readyState===4) {
-            if (xhr.responseText != ""){dataRet = JSON.parse(xhr.responseText);}
-            else {dataRet={'status':""}}
-
-            if (dataRet['status']=="OK")
-            {
-                // describir dataset intermedio
-                task_id = dataRet['task']
-                task_data = CloneJSON(dataRet)
-                context={token_solution:RN,task:task_id,type_dataset:"SOLUTION",catalog:MESH_WORKSPACE}
-                xel_describe_dataset(filename=null,force=true,context=context).done(function(result){
-                    description = JSON.parse(result).info
-                    console.log(task_data)
-                    Handler_condition_GetData(task_id,description,false,'',RN,task_data)
-                    cfg.errors=0 //reset errors counter
-                    notificarUsuario("Task "+task_id+" has finished", 'success');
-                    cfg.i++
-                    cfg.monitor=false
-                });
-            }
-            if (dataRet['status']=="INFO")
-            {
-                notificarUsuario('An error was detected...'+dataRet['message'], 'info');
-                cfg.monitor=false
-            }
-            if (dataRet['status']=="ERROR")
-            {
-                //get data
-                task_id = dataRet['task']
-                tsk = task_id.split("-")
-                tsk = tsk[tsk.length -1]
-                console.log(dataRet)
-                $("#"+task_id+" > div.row > div.service-options > #serviceLoadingIcon").html("")
-                cfg.errors=0
-                notificarUsuario("ERROR "+task_id+": "+ dataRet['message'], 'danger');
-                cfg.i++
-                cfg.monitor=false
-            }
-            if (dataRet['status']=="WAITING"){
-                console.log("monitoring:" + cfg.errors)
-                if(cfg.errors == 15)notificarUsuario('We keep working in your request...', 'info');
-                if (cfg.errors>=cfg.max_errors){
-                    //clearInterval(cfg.interv);	
-                    //PIPELINE = false;
-                    //postExecutionStop(RN);
-                } //debuging option
-                if (cfg.i>contar_servicios(dataObject.children)){clearInterval(cfg.interv);	PIPELINE = false; postExecutionStop(RN,error=false);} //debuging option
-                cfg.errors++
-                cfg.monitor=false
-            }
-    
-        } 
-        
-    };
-    xhr.send(send); //se envia el json
-
-}
 
 function download_data_pipe(rn,task,file_ext,file_name=null,raw=false){ //descargar datos de cualquier punto de el grafo
     notificarUsuario("Data is almost ready", 'info');
@@ -987,19 +885,15 @@ function LoadExistingDataset(sourceId,filename,metadata=null){
 }
 
 function fill_namefiles(){
-    let BOX = demoflowy_lookForParent($("#modal_edition").data("sourceId")); //fill select
-    console.log(BOX.service_metadata)
 
-    if (BOX.service_metadata===undefined || Object.keys(BOX.service_metadata).length == 0){ //si es null se va a forzar la herencia
-        BOX.service_metadata = demoflowy_lookForFather($("#modal_edition").data("sourceId")).service_metadata //father
-    }
-
-    if (!(BOX.service_metadata===undefined)){
-        
+    id_box = $("#modal_edition").data("sourceId")
+    if_metadata_exist = reload_metadata_fromBox(id_box)
+    if (if_metadata_exist){
+        let BOX = demoflowy_lookForParent(id_box); //fill select
         $('.namefiles-tree').jstree({
             'core' : {
                 "themes": {"variant": "large","responsive": false},
-                'data' : BOX.service_metadata.tree
+                'data' : BOX.service_metadata.father.tree
             },
             "types" : {
                 "default": {
@@ -1008,14 +902,16 @@ function fill_namefiles(){
                 "file" : {
                     "icon" : "far fa-file"
                 }
-              },
-              "plugins" : [
+                },
+                "plugins" : [
                 "contextmenu", "checkbox", "search",
                 "state", "types", "wholerow"
-              ]
+                ]
         });
-
     }
+
+
+
 }
 
 
@@ -1144,21 +1040,24 @@ function fillselect(sp,mult=true){
     console.log(id_element)
     sp = $("#"+id_element)
 
-    let BOX = demoflowy_lookForParent($("#modal_edition").data("sourceId")); //fill select
-    console.log(BOX.service_metadata)
-    if (BOX.service_metadata===undefined || Object.keys(BOX.service_metadata).length == 0){ //si es null se va a forzar la herencia
-        BOX.service_metadata = demoflowy_lookForFather($("#modal_edition").data("sourceId")).service_metadata //father
+    id_box = $("#modal_edition").data("sourceId")
+    if_metadata_exist = reload_metadata_fromBox(id_box)
+    if (!if_metadata_exist){ console.log("no existen columnas para rellenar los comboboxes");return 0;}
+
+    let BOX = demoflowy_lookForParent(id_box); //fill select
+
+  
+    parentfilename = BOX.service_metadata.father.parent_filename
+    if (BOX_columns = BOX.service_metadata.father.files_info[parentfilename]===undefined){
+        notificarUsuario(`File ${parentfilename} has no columns (could be a zip). Check the configuration of the box. `,"danger")
+        return 0
     }
 
-    //sp.append('<option value=""></option>'); // se añade un valor nulo
-    if (!(BOX.service_metadata===undefined)){
-        parentfilename = BOX.service_metadata.parent_filename
-        BOX_columns = BOX.service_metadata.files_info[parentfilename].columns
-        BOX_columns.forEach(function(col){
-            sp.append('<option value="'+col+'">' + col + '</option>');
-        });
-    }
-
+    BOX_columns = BOX.service_metadata.father.files_info[parentfilename].columns
+    BOX_columns.forEach(function(col){
+        sp.append('<option value="'+col+'">' + col + '</option>');
+    });
+    
     // addd multiple attributte
     if(mult==true){
         sp.attr("multiple","multiple")
@@ -1214,7 +1113,7 @@ function ShowModal_map_AAS(rn,id_servicio){
     lista_comboboxes.forEach(function(combo){
         sp = $(combo)
         let BOX = demoflowy_lookForParent(id_servicio); //columnas del servicio
-        c = BOX.service_metadata //columnas que procesa el servicio
+        c = BOX.service_metadata.this //columnas que procesa el servicio
         columnas_del_servicio = c.files_info[c.parent_filename].columns
 
         if (!(columnas_del_servicio===null)){
@@ -1696,7 +1595,7 @@ function BTN_retrieve_solution(token_solution){
             Metadata_assign(result.metadata)
             canvasElementsCount = result.metadata.canvasElementsCount
             Toggle_Modal("hide")
-            
+            $(".block-hoverinfo").hoverIntent( confighover )
         }
     }).fail(function(){console.log("error al conectarse")});
 
@@ -1786,9 +1685,9 @@ function extractLast(term) {
 
 String.prototype.replaceBetween = function(start, end, what) {
     return this.substring(0, start) + what + this.substring(end);
-  };
+  };// don't navigate away from the field on tab when selecting an item
 
-// don't navigate away from the field on tab when selecting an item
+
 
 function AutocompleteByFileInfo(id_inputbox,id_file,Modal_selector=".modal.fade.show"){
     tag_4_auto = "#"+id_inputbox    // TAG FOR THE AUTOCOMPLETE
@@ -1796,28 +1695,14 @@ function AutocompleteByFileInfo(id_inputbox,id_file,Modal_selector=".modal.fade.
     console.log("se esta activando el autocomplete para " + id_file)
 
     sourceid = $(Modal_selector).data("sourceId")
+    if_metadata_exist =  reload_metadata_fromBox(sourceid)
+    if (!if_metadata_exist){ console.log("no se requiere autocomplete");return 0;}
+
     let BOX = demoflowy_lookForParent(sourceid); //fill select
-    const isEmpty = Object.keys(BOX).length === 0
-    //si es null no se hace nada
-    if (BOX===null || isEmpty){ console.log("no se requiere autocomplete");return 0;}
 
     console.log("se activara el autocomplete")
 
-    if (BOX.service_metadata===undefined){ //si es null se va a forzar la herencia
-        console.log("heredando valores")
-        let fatherBOX = demoflowy_lookForFather(sourceid) //father
-        if (fatherBOX===null){ //si es null no se hace nada
-            console.log("La caja padre no tiene info para autocompletar")
-            return 0
-        }
-        BOX.service_metadata = fatherBOX.service_metadata
-    }
-    if (BOX.service_metadata===undefined){ //si aun asi es undefined, se cierra el proceso
-        notificarUsuario("No dataset detected.", "warning")
-        return 0
-    }
-
-    let availableTags = BOX.service_metadata.files_info[id_file].columns
+    let availableTags = BOX.service_metadata.father.files_info[id_file].columns
     console.log("activando")
 
     $(tag_4_auto).bind("keydown", function(event) {
@@ -1849,8 +1734,8 @@ function AutocompleteByFileInfo(id_inputbox,id_file,Modal_selector=".modal.fade.
                 Fathercolumn = Fathercolumn.substring(
                     Fathercolumn.lastIndexOf(" ") + 1);
 
-                if ( Object.keys(BOX.service_metadata.files_info[parentfilename].unique).includes(Fathercolumn)){
-                    tagscol =  BOX.service_metadata.files_info[parentfilename].unique[Fathercolumn] 
+                if ( Object.keys(BOX.service_metadata.father.files_info[parentfilename].unique).includes(Fathercolumn)){
+                    tagscol =  BOX.service_metadata.father.files_info[parentfilename].unique[Fathercolumn] 
                     results = $.ui.autocomplete.filter(tagscol, term);
                 }
             }
@@ -1892,37 +1777,20 @@ function AutocompleteByFileInfo(id_inputbox,id_file,Modal_selector=".modal.fade.
 
 
 
-function Activate_Autcomplete() { 
-    Modal_selector = ".modal.fade.show" // sirve para los modal activos (debe estar activo primero)
-    tag_4_auto = ".autocomplete-column"    // TAG FOR THE AUTOCOMPLETE
+function Activate_Autcomplete(tag_4_auto, Modal_selector= ".modal.fade.show" ) { 
+    // .modal.fade.show sirve para los modal activos (debe estar activo primero)
+    //tag_4_auto = ".autocomplete-column"    // TAG FOR THE AUTOCOMPLETE
 
     sourceid = $(Modal_selector).data("sourceId")
-
-    let BOX = demoflowy_lookForParent(sourceid); //fill select
-    const isEmpty = Object.keys(BOX).length === 0
-    //si es null no se hace nada
-    if (BOX===null || isEmpty){ console.log("no se requiere autocomplete");return 0;}
-
+    if_metadata_exist = reload_metadata_fromBox(sourceid)
+    
+    if (!if_metadata_exist){ console.log("no se requiere autocomplete");return 0;}
     console.log("se activo el autocomplete")
-
-    if (BOX.service_metadata===undefined){ //si es null se va a forzar la herencia
-        console.log("heredando valores")
-        let fatherBOX = demoflowy_lookForFather(sourceid) //father
-        if (fatherBOX===null){ //si es null no se hace nada
-            console.log("La caja padre no tiene info para autocompletar")
-            return 0
-        }
-        BOX.service_metadata = fatherBOX.service_metadata
-    }
-    if (BOX.service_metadata===undefined){ //si aun asi es undefined, se cierra el proceso
-        notificarUsuario("No dataset detected.", "warning")
-        return 0
-    }
-
-    parentfilename = BOX.service_metadata.parent_filename
-    availableTags = BOX.service_metadata.files_info[parentfilename].columns
+    let BOX = demoflowy_lookForParent(sourceid); //fill select
 
 
+    parentfilename = BOX.service_metadata.father.parent_filename
+    let availableTags = BOX.service_metadata.father.files_info[parentfilename].columns
 
     $(tag_4_auto).bind("keydown", function(event) {
         if (event.keyCode === $.ui.keyCode.TAB && $(this).data("autocomplete").menu.active) {
@@ -1953,8 +1821,8 @@ function Activate_Autcomplete() {
                 Fathercolumn = Fathercolumn.substring(
                     Fathercolumn.lastIndexOf(" ") + 1);
 
-                if ( Object.keys(BOX.service_metadata.files_info[parentfilename].unique).includes(Fathercolumn)){
-                    tagscol =  BOX.service_metadata.files_info[parentfilename].unique[Fathercolumn] 
+                if ( Object.keys(BOX.service_metadata.father.files_info[parentfilename].unique).includes(Fathercolumn)){
+                    tagscol =  BOX.service_metadata.father.files_info[parentfilename].unique[Fathercolumn] 
                     results = $.ui.autocomplete.filter(tagscol, term);
                 }
             }

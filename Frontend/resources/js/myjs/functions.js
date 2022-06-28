@@ -6510,7 +6510,7 @@ function CalcularRegresionLinear(xArray,yArray){
 /* FUNCIONES DE MEJORA VISUAL - HOVER Y NAVBAR */
 
 function openNav() {
-    document.getElementById("mySidenav").style.width = "350px";
+    document.getElementById("mySidenav").style.width = "380px";
     console.log("opening")
   }
   

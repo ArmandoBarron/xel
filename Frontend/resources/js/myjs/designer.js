@@ -120,6 +120,7 @@ $(document).ready(function () {
             Metadata_assign(result.metadata)
             
             currentLayout = [...flowy.output().blockarr]
+            $(".block-hoverinfo").hoverIntent( confighover )
         }
         fr.readAsText(files.item(0));
     });
@@ -164,8 +165,8 @@ $(document).ready(function () {
                 idParent = canvasId // init data object
                 ///dataObject = {id: "root", boxid: 0, type: id, service_type:service_type, columns: { default: [], parent: [] }, name: "root", root: true, children: []}
             }else{
-                notificarUsuario("wrong datasource.","danger")
-                //throw "Error: select a datasource first"
+                notificarUsuario("Select a datasource first.","warning")
+                drag.innerHTML=""
                 flowy.deleteBlocks()
                 return false
             }
@@ -186,20 +187,28 @@ $(document).ready(function () {
         drag.classList.add('position-absolute');
         drag.classList.remove('row');
 
+        if (first){
+            class_type_box = "root"
+        }
+        else{
+            class_type_box = "task"
+        }
+
+
         bcontent = `<div type="${id}" id="${canvasId}" class="card c-block container">
                         <div class="row card-header" style="background-color:#fff" >
-                            <div class="col-12 text-left text-uppercase" style="padding-left: 3px;padding-right: 3px;padding-bottom: 3px;">
-                                <i style="margin-right:5px" class="fas fa-info-circle fa-lg block-hoverinfo" idcanvas="${canvasId}"></i> <em>${canvasId}</em>
+                            <div class="col-12 text-left text-uppercase d-inline-block text-truncate" style="padding-left: 3px;padding-right: 3px;padding-bottom: 3px;">
+                                <i style="margin-right:5px" class="fas fa-info-circle fa-lg block-hoverinfo" idcanvas="${canvasId}"></i> <em id="${canvasId}_alias" >${canvasId}</em>
                             </div>
                         </div>
                         <div class="row" style="padding:4px; overflow:auto">
                             <div class="service-options col-12 justify-content-center">
-                                <div class= "serviceLoadingIcon" id="serviceLoadingIcon"></div>
+                                <div class= "serviceLoadingIcon-${class_type_box}" id="serviceLoadingIcon"></div>
                             </div>
                                 <div class="col-2" style="padding:5px; text-align:center;" > <i class="fas fa-pen-square fa-xl elementhover" onclick="demoflowy_btnEditarClick(event)"></i></div>
-                                <div class="col-2 InspectDataIcon" style="padding:5px; text-align:center;" id="${canvasId}_inspect"></div>
-                                <div class="col-2 downloadDataIcon" style="padding:5px; text-align:center;" id="${canvasId}_downloadDataIcon"></div>
-                                <div class="col-2 showOnMapIcon" style="padding:5px; text-align:center;" id="${canvasId}_showOnMapIcon"></div>
+                                <div class="col-2 InspectDataIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_inspect"></div>
+                                <div class="col-2 downloadDataIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_downloadDataIcon"></div>
+                                <div class="col-2 showOnMapIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_showOnMapIcon"></div>
                         </div>
                     </div>
                 `;
@@ -212,6 +221,8 @@ $(document).ready(function () {
 
         var box_template = flowey_GetTemplate_service(id)    
         box_template.id = canvasId
+        box_template.alias = canvasId
+
         box_template.boxid= parseInt($(`#${canvasId} > .blockid`).val())
         canvasElementsCount++;
 
@@ -222,17 +233,22 @@ $(document).ready(function () {
         }
         else{
             ParentBox = JSON.parse(JSON.stringify(demoflowy_lookForParent(idParent)))
-            box_template.service_metadata = ParentBox.service_metadata
+
+            if(ParentBox.it_produced_data){ // si la caja padre ha producido datos entonces se heredan esos
+                box_template.service_metadata.father = ParentBox.service_metadata.this
+            }
+            else{ // de lo contrario se heredan los del padre del padre
+                box_template.service_metadata.father = ParentBox.service_metadata.father
+            }
             demoflowy_lookForParent(idParent).children.push(box_template); //añadir caja al object
         }
 
         // hover for the info
-        console.log("ready hoverintent")
         $(".block-hoverinfo").hoverIntent( confighover )
         return true;
     }
 
-    
+
     function demoflowy_drag(block) {
         block.classList.add("blockdisabled");
         
@@ -243,6 +259,7 @@ $(document).ready(function () {
     }
 
     function demoflowy_release() {
+        console.log("release")
         all_arrows = $('.arrowblock');
         all_blocks = $('#c1-s-1');
         //tempblock2.classList.add("elementhover");
@@ -257,7 +274,7 @@ $(document).ready(function () {
 
 
     function demoflowy_onBlockChange(type) {
-        
+
         console.log(type)
         if (type == 'add') {
             currentLayout = [...flowy.output().blockarr]
@@ -301,11 +318,29 @@ $(document).ready(function () {
             }
         }
         // hover for the info
-        console.log("ready hoverintent")
         $(".block-hoverinfo").hoverIntent( confighover )
 
     }
 });
+
+function reload_metadata_fromBox(id_box){
+
+    box = demoflowy_lookForParent(id_box)
+    FatherBox = demoflowy_lookForFather(id_box)
+    console.log(id_box)
+    console.log(`La caja padre de ${id_box} produjo datos?: ${FatherBox.it_produced_data}`)
+    if(FatherBox.it_produced_data){ // si la caja padre ha producido datos entonces se heredan esos
+        box.service_metadata.father = CloneJSON(FatherBox.service_metadata.this)
+    }
+    else{ // de lo contrario se heredan los del padre del padre
+        box.service_metadata.father = CloneJSON(FatherBox.service_metadata.father)
+    }
+
+    const isEmpty = Object.keys(box.service_metadata.father).length === 0 //si es null no se hace nada
+    if(isEmpty){return false}
+    else{return true}
+} 
+
 
 function demoflowy_lookForFather(parentId) {
     var unknownBOX = arguments[1] ? arguments[1] : dataObject;
@@ -436,9 +471,10 @@ function flowey_ConfigServices(){
     n = ServicesArr.length
     for (let i = 0; i < n; i++) {
         //create a new key for service metadata. columns, data, filenames, etc 
-        ServicesArr[i].service_metadata={}
+        ServicesArr[i].service_metadata={"father":{}, "this":{} }
+        ServicesArr[i].it_produced_data=false
         ServicesArr[i].children=[]
-
+        ServicesArr[i].alias=""
     }
 }
 
@@ -504,7 +540,7 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
     //modal que se abrira
     if (parent.service_type =="DATASOURCE"){modal2open = "modal_datasource"}
     else{modal2open = "modal_edition"}
-    console.log(canvasType)
+
     $(`#${modal2open}`).data("sourceId", canvasId);
     template = flowey_GetTemplate_service(canvasType)
 
@@ -604,7 +640,16 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
             }
             else if (['string', 'number', 'boolean'].includes(type)) {
                 if (type == 'boolean') $(`#${modal2open} .modal-body #${p}`)[0].checked = parent.params[p];
-                else {
+                else if (type == 'string'){ //string 
+                    $(`#${modal2open} .modal-body #${p}`).val(parent.params[p]);
+
+                    if_has_autocomplete= $(`#${modal2open} .modal-body #${p}`).hasClass("autocomplete-column")
+                    if (if_has_autocomplete){
+                        Activate_Autcomplete(`#${modal2open} .modal-body #${p}`,Modal_selector="#"+modal2open)
+                        
+                    }
+                }
+                else {  //number
                     $(`#${modal2open} .modal-body #${p}`).val(parent.params[p]);
                 }
             } else {
@@ -630,7 +675,9 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
 
     // SHOW MODAL
     $(`#${modal2open}`).modal('show');
-    $(`#${modal2open} .modal-title`).text(`${$(`#${modal2open}`).data('sourceId')}`);
+    //$(`#${modal2open} .modal-title`).text(parent.alias);
+    $(`#${modal2open} .modal-title`).html(`<input type="text" class="invisible-input" id="alias_for_service" value="${parent.alias}" /> `);
+
 
 }
 
@@ -644,8 +691,9 @@ function demoflowy_saveChanges() {
     var parent = demoflowy_lookForParent(id);
     var fulltext = '';
 
-    console.log(id)
-    console.log(parent)
+    // primero se guarda metadata externa a los parametros 
+    parent.alias= $(`${Modal_selector} .modal-title #alias_for_service`).val()
+    $(`#${canvasId}_alias`).text(parent.alias)
 
     for (let p in parent.params) {
         //console.log(p)
@@ -655,7 +703,7 @@ function demoflowy_saveChanges() {
         fulltext += `<strong>${p}:</strong> `;
 
         // TODO: ADD SAVES AND LOADS FOR TYPE SELECT AND SELECT MULTIPLE
-        console.log(tagname)
+        //console.log(tagname)
 
         if (tagname == 'UL') {
             // emtpy the array before adding the new list order
@@ -697,7 +745,6 @@ function demoflowy_saveChanges() {
                 list_columns = ""
                 list_selector.each(function(){
                     list_columns += $(this).children("div").children("input").val() + ";"
-                    console.log(list_columns)
                 })
                 parent.params[p] = list_columns.slice(0, -1);
             }
@@ -732,7 +779,6 @@ function demoflowy_saveChanges() {
         else {
             let value = $(`#${p}`).val()
             let type = input.type;
-            console.log(type)
             if (type == 'checkbox'){
                 parent.params[p] = input.checked;
                 fulltext += `<label class="text-danger">${parent.params[p]}</label><br>`;
@@ -771,9 +817,9 @@ function ShowBoxParametersNav(el){
     var box = demoflowy_lookForParent(id);
     
     i = 1
-    content = `<div class='row col-12'><h1>${id}</h1></div>`
-    content+=`<table class="table table-striped table-responsive">
-                <thead>
+    content = `<div class='row col-12'><h1>${box.alias}</h1></div>`
+    content+=`<table class="table">
+                <thead class="thead-dark">
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Params</th>
