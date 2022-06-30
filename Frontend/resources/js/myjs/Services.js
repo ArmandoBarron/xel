@@ -416,7 +416,9 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                             xel_describe_dataset(filename=null,force=is_recovered,context=context).done(function(result){
                                 description = JSON.parse(result).info
                                 Handler_condition_GetData(task_id,description,false,'',token_solution,task_data)
-                                notificarUsuario("Task "+task_id+" has finished", 'success');
+                                if(is_recovered){ //es lo contrario, es decir, si es falso
+                                    notificarUsuario("Task "+task_id+" has finished", 'success');
+                                }
                             });
                         }
                         if (task_info['status']=="ERROR" || task_info['status']=="FAILED")

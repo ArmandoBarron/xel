@@ -280,6 +280,7 @@ ServicesArr.push(
                         method: '',
                         periods:'',
                         columns:[],
+                        group_by:[],
                         SAVE_DATA:true
                 },
                 html: `
@@ -315,6 +316,12 @@ ServicesArr.push(
                                 </div>
                         </div>
 
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Group by (optional):</label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="group_by" data-actions-box="true" onclick=fillselect(this)></select>
+                                </div>
+                        </div>
 
                 `
             }

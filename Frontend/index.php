@@ -33,7 +33,7 @@ PageManagment::loadHTMLHeader($lngarr['searcher']); ?>
 <body style="height: 99vh;overflow: auto">
   <?php
 
-  echo "<div id='container-fluid wrapper'>";
+  echo "<div id='container-fluid wrapper' style='height:100%'>";
     //CARGA EL HEADER DE LA PÁGINA
     PageManagment::loadHTMLFile("header");
 

@@ -1,11 +1,11 @@
-<div class="row" style="margin-left: 0;margin-right: 0;">
+<div class="row" style="margin-left: 0;margin-right: 0; height:calc(100% - 64px)">
 
 <div id="mySidenav" class="sidenav">
   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
   <div id="sidebar-content" class='container'> </div>
 </div>
 
-    <div class="col-xl-3 col-md-5 d-none d-md-block container" >
+    <div class="col-xl-3 col-md-5 d-none d-md-block container"  style="height:100%">
 
       <ul id="mytabs" class="nav nav-tabs nav-fill" role="tablist">
         <li class="nav-item" >
@@ -18,7 +18,7 @@
         </li>
       </ul>
 
-      <div class="tab-content" style="height:100vh;overflow:auto">
+      <div class="tab-content" style="height:calc(100% - 42px);overflow:auto">
 
         <!-- TAB 2.5 designer tools -->
         <div class="tab-pane active container-fluid" id="xel-tab" style="height:100%">
@@ -135,7 +135,7 @@
     </div>
 
 
-    <div class="col-xl-9 col-md-7 col-sm-12">
+    <div class="col-xl-9 col-md-7 col-sm-12" style="height:100%">
       <ul id="tabs_show" class="nav nav-tabs">
         <li class="nav-item ml-auto"><a class="nav-link active" href="#designer" data-toggle="tab">Designer <i class="fas fa-pen-alt"></i></a></li>
         <li class="nav-item"><a aria-current="page" class="nav-link" href="#mapContainer" data-toggle="tab"> Map <i class="fas fa-map-marker-alt"></i></a></li>
@@ -147,7 +147,7 @@
         </li>-->
       </ul>
 
-      <div class="tab-content" style="height:100vh">
+      <div class="tab-content" style="height:calc(100% - 42px)">
 
         <!-- TAB 1-->
         <div class="col-12 tab-pane options" style="height:100%" id="mapContainer"> 

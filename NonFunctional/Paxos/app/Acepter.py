@@ -116,6 +116,22 @@ def update_solution_status(token_solution,status):
     BRANCHES[token_solution]["last_update"]=GetCurrentTimeAction()
     BRANCHES[token_solution]["status"] = status
 
+def update_task_status_in_cascade(token_solution,childrens,status,message,parent=''):
+
+    for child in childrens:
+        params =json.dumps(child['params'])
+        fp_dag = Create_fingerprint(params)
+        id_service =child['id']
+        if_exist=create_service_if_not_exist(token_solution,id_service,fp_dag,parent)
+        if if_exist:
+            update_task_status(token_solution,id_service,status,message,fingerprint=fp_dag)
+
+        if 'childrens' in child:
+            update_task_status_in_cascade(token_solution,child['childrens'],status,message,parent=id_service)
+
+    return 0
+
+
 def update_task_status(RN,task,status,message,details=None,is_recovered = False, fingerprint=None): #called on monitoring 
     global BRANCHES
     time_action = GetCurrentTimeAction()
@@ -161,6 +177,30 @@ def GetSolutionData(token_project,token_solution): #this function will replace G
         LOG.error("==============> recuperando datos de la BD")
     return solution
 
+def create_service_if_not_exist(token_solution,id_service,fp_dag,parent):
+    global BRANCHES
+    task_list =  BRANCHES[token_solution]["task_list"]
+    if id_service in task_list:
+        return True
+    else:
+        #must be registred in the task list 
+        time_action = GetCurrentTimeAction()
+
+        BRANCHES[token_solution]["task_list"][id_service]=dict()
+        BRANCHES[token_solution]["task_list"][id_service]['historic']=[]
+        BRANCHES[token_solution]["task_list"][id_service]['parent']=parent
+        BRANCHES[token_solution]["task_list"][id_service]['fingerprint']=fp_dag
+        BRANCHES[token_solution]["task_list"][id_service]['is_recovered']=False
+        BRANCHES[token_solution]["task_list"][id_service]['data_type'] = ''
+        BRANCHES[token_solution]["task_list"][id_service]['label'] = ''
+        BRANCHES[token_solution]["task_list"][id_service]['index'] = ''
+        BRANCHES[token_solution]["task_list"][id_service]['status'] = 'STARTING'
+        BRANCHES[token_solution]["task_list"][id_service]['message'] = 'NEW SERVICE ADDED.. STARTING EXECUTION.'
+        BRANCHES[token_solution]["task_list"][id_service]['last_update'] = time_action
+        BRANCHES[token_solution]["task_list"][id_service]['timestamp'] = time.time()
+        return False
+
+
 def validate_solution(dag, solution,token_solution,parent=''):
     global BRANCHES
     #compare dag with task list in the solution
@@ -172,8 +212,9 @@ def validate_solution(dag, solution,token_solution,parent=''):
         id_service =taskInDag['id']
         params =json.dumps(taskInDag['params'])
         fp_dag = Create_fingerprint(params)
+        if_exist=create_service_if_not_exist(token_solution,id_service,fp_dag,parent)
 
-        if id_service in solution['task_list']:
+        if if_exist:
 
             taskInSolution = solution['task_list'][id_service]
             Fingerprints_comparation = Compare_fingerprints(taskInSolution['fingerprint'],fp_dag)
@@ -187,33 +228,16 @@ def validate_solution(dag, solution,token_solution,parent=''):
                 children_dag = validate_solution(childrens,solution,token_solution,parent=id_service)
                 for x in children_dag:
                     new_dag.append(x)
-            else:
+            
+            elif taskInSolution['status']=="STARTING":
+                pass
+            else:    
                 new_dag.append(taskInDag)
                 update_task_status(token_solution,id_service,"STARTING","Task has changes",fingerprint=fp_dag )
+                update_task_status_in_cascade(token_solution,childrens,"STARTING","Father task has changes",parent=id_service)
                 #BRANCHES[token_solution]["task_list"][id_service]['status']="STARTING" #update status. since it will be executed again 
-                
-
 
         else: #it is new
-            #must be registred in the task list 
-            time_action = GetCurrentTimeAction()
-            #if not 'task_list' in BRANCHES[token_solution]:
-            #    BRANCHES[token_solution]["task_list"]=dict()
-            #LOG.error(BRANCHES[token_solution]["task_list"])
-
-            BRANCHES[token_solution]["task_list"][id_service]=dict()
-            BRANCHES[token_solution]["task_list"][id_service]['historic']=[]
-            BRANCHES[token_solution]["task_list"][id_service]['parent']=parent
-            BRANCHES[token_solution]["task_list"][id_service]['fingerprint']=fp_dag
-            BRANCHES[token_solution]["task_list"][id_service]['is_recovered']=False
-            BRANCHES[token_solution]["task_list"][id_service]['data_type'] = ''
-            BRANCHES[token_solution]["task_list"][id_service]['label'] = ''
-            BRANCHES[token_solution]["task_list"][id_service]['index'] = ''
-            BRANCHES[token_solution]["task_list"][id_service]['status'] = 'STARTING'
-            BRANCHES[token_solution]["task_list"][id_service]['message'] = 'NEW SERVICE ADDED.. STARTING EXECUTION.'
-            BRANCHES[token_solution]["task_list"][id_service]['last_update'] = time_action
-            BRANCHES[token_solution]["task_list"][id_service]['timestamp'] = time.time()
-
             new_dag.append(taskInDag)
 
     return new_dag

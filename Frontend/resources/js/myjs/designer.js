@@ -693,7 +693,7 @@ function demoflowy_saveChanges() {
 
     // primero se guarda metadata externa a los parametros 
     parent.alias= $(`${Modal_selector} .modal-title #alias_for_service`).val()
-    $(`#${canvasId}_alias`).text(parent.alias)
+    $(`#${id}_alias`).text(parent.alias)
 
     for (let p in parent.params) {
         //console.log(p)

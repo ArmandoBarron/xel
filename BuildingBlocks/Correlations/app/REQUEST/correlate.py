@@ -4,6 +4,8 @@ from pandas.errors import ParserError
 import seaborn as sns
 import logging
 import os
+import matplotlib.pyplot as plt
+
 ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 
 '''
@@ -39,6 +41,12 @@ if len(sys.argv) <= 5:
 Obtener el archivo del dataset como primer argumento
 '''
 dataset_file = sys.argv[1]
+group_by = sys.argv[6]
+if group_by !='0':
+    group_by = group_by.split(",")
+else:
+    group_by=[]
+    
 print('dataset a correlacionar:', dataset_file)
 
 '''
@@ -109,60 +117,73 @@ except Exception as exc:
     logger.error(str(exc_type) + ", " + str(fname) + ", " + str(exc_tb.tb_lineno))
     quit()
 
-'''
-Ejecuta el cálculo de la correlación utilizando el método ingresado y las columnas indicadas.
-'''
-if use_all_columns == True:
-    print('Calculando la correlación en todas las columnas utilizando el método ' + correlation_method + ' con' + str(periods) + ' periodos')
-    result_df = data_frame.corr(method=correlation_method, min_periods=periods)
-else:
-    print('Calculando correlación en las columnas ' + str(column_list) +  ' usando el método ' + correlation_method + ' con ' + str(periods) + ' periodos')
-    columns_to_correlate = []
-    for column in column_list:
-        columns_to_correlate.append(column)
-    #print(columns_to_correlate)
-    result_df = data_frame[columns_to_correlate].corr(method=correlation_method, min_periods=periods)
-    
-'''
-Escribe la matríz de valores resultante en un archivo .csv en la ubicación indicada.
-'''
-output_dir = sys.argv[5]
-print('directorio de salida:', output_dir)
-try:
-    result_df.to_csv(output_dir + '.csv', index=False)
-    print('Matríz de valores almacenada en', output_dir + '.csv')
-except Exception as exc:
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    print(exc_type, fname, exc_tb.tb_lineno)
-    logger.error(str(exc_type) + ", " + str(fname) + ", " + str(exc_tb.tb_lineno))
-    
-'''
-Genera el heatmap usando el DataFrame con los resultados de la correlación
-'''
-try:
-    result_df = result_df.astype(float)
-    print(result_df.dtypes)
-    plt = sns.heatmap(result_df)
 
-except Exception as exc:
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    print(exc_type, fname, exc_tb.tb_lineno)
-    print(exc)
-    #logger.error(str(exc_type) + ", " + str(fname) + ", " + str(exc_tb.tb_lineno))
-    quit()
-    
-'''
-Almacena el heatmap de correlación en una imágen .png en la ubicación indicada. 
-'''
-try: 
-    fig = plt.get_figure()
-    fig.savefig(output_dir + '.png')
-    print('Heatmap de resultados almacenado en', output_dir + '.png')
-except Exception as exc:
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    print(exc_type, fname, exc_tb.tb_lineno)
-    logger.error(str(exc_type) + ", " + str(fname) + ", " + str(exc_tb.tb_lineno))
-    
+def calc_corr(df_group,df_name):
+    '''
+    Ejecuta el cálculo de la correlación utilizando el método ingresado y las columnas indicadas.
+    '''
+    if use_all_columns == True:
+        print('Calculando la correlación en todas las columnas utilizando el método ' + correlation_method + ' con' + str(periods) + ' periodos')
+        result_df = df_group.corr(method=correlation_method, min_periods=periods)
+    else:
+        print('Calculando correlación en las columnas ' + str(column_list) +  ' usando el método ' + correlation_method + ' con ' + str(periods) + ' periodos')
+        columns_to_correlate = []
+        for column in column_list:
+            columns_to_correlate.append(column)
+        #print(columns_to_correlate)
+        result_df = df_group[columns_to_correlate].corr(method=correlation_method, min_periods=periods)
+        
+    '''
+    Escribe la matríz de valores resultante en un archivo .csv en la ubicación indicada.
+    '''
+    output_dir = sys.argv[5]
+    print('directorio de salida:', output_dir)
+    try:
+        result_df.to_csv(output_dir + '_'+ df_name +'.csv', index=False)
+        print('Matríz de valores almacenada en', output_dir + '.csv')
+    except Exception as exc:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        logger.error(str(exc_type) + ", " + str(fname) + ", " + str(exc_tb.tb_lineno))
+        
+    '''
+    Genera el heatmap usando el DataFrame con los resultados de la correlación
+    '''
+    try:
+        plt.figure(figsize = (16,16))
+        result_df = result_df.astype(float)
+        print(result_df.dtypes)
+        plot = sns.heatmap(result_df,  annot=True)
+
+    except Exception as exc:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        print(exc)
+        #logger.error(str(exc_type) + ", " + str(fname) + ", " + str(exc_tb.tb_lineno))
+        quit()
+        
+    '''
+    Almacena el heatmap de correlación en una imágen .png en la ubicación indicada. 
+    '''
+    try: 
+
+        fig = plot.get_figure()
+        fig.savefig(output_dir +'_'+ df_name + '.png')
+        plt.clf()
+        print('Heatmap de resultados almacenado en', output_dir + '.png')
+    except Exception as exc:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        logger.error(str(exc_type) + ", " + str(fname) + ", " + str(exc_tb.tb_lineno))
+
+
+
+if len(group_by)>0:
+    subgroup = data_frame.groupby(group_by)
+    for df_name, df_group in subgroup:
+        calc_corr(df_group,str(df_name))
+else:
+    calc_corr(data_frame,"complete")
