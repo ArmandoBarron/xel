@@ -112,6 +112,7 @@ ServicesArr.push(
                 colorscale_column:"",
                 column_x:"",
                 column_y:"",
+                column_z:"",
                 temporal_column:"",
                 subgroup:"",
                 size:"",
@@ -138,6 +139,7 @@ ServicesArr.push(
                                             <option value="5"> Line plot </option>
                                             <option value="6"> Sunbrust </option>
                                             <option value="7"> Scatter </option>
+                                            <option value="8"> 3D Scatter </option>
                                     </select>
                                     </div>
                             </div>
@@ -161,7 +163,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="2 4 5 6 7" >
+                            <div class="form-group row m-2" servopt="2 4 5 6 7 8" >
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Label variable: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="label_column" onclick=fillselect(this,multi=false)></select>
@@ -175,17 +177,24 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="4 5 7">
+                            <div class="form-group row m-2" servopt="4 5 7 8">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable x: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_x" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="4 5 7">
+                            <div class="form-group row m-2" servopt="4 5 7 8">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable y: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_y" onclick=fillselect(this,multi=false)></select>
+                                    </div>
+                            </div>
+
+                            <div class="form-group row m-2" servopt="8">
+                                    <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable z: </label>
+                                    <div class="col-sm-8">
+                                    <select class="form-control" id="column_z" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 

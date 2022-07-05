@@ -61,6 +61,7 @@ GROUPS_PATH = sys.argv[14] #  "cve_ent_mun,sexo".split(",")
 #for any chart
 TITLE = sys.argv[15] # "PLOT"
 
+COLUMN_Z = sys.argv[16] # "suicSinDerhab"
 
 #validations
 
@@ -203,7 +204,16 @@ if chart_template==7:
 
     export_figures(fig,outputpath,imagefile_name,config)
 
+if chart_template==8: # 3D scatter matrix
+    imagefile_name = "3d_scatter"
+    params = dict(x=COLUMN_X, y=COLUMN_Y,z=COLUMN_Z)
 
+    if validate_att(LABEL_COLUMN): # si hay colores
+        params['color']=LABEL_COLUMN
+
+    fig = px.scatter_3d(df, **params)
+
+    export_figures(fig,outputpath,imagefile_name,config)
 
 
 

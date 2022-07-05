@@ -46,7 +46,7 @@
           </p>
 
 
-          <div id="sectionDIV" style="height:60%; overflow-y:auto; overflow-x:hidden" >
+          <div id="sectionDIV" style="height:100%; overflow-y:auto; overflow-x:hidden" >
               <div class="container-fluid" id="blocklist">
                 <div class="accordion" id="faq">
                   </div> <!-- end section of cards-->
