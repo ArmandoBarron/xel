@@ -635,7 +635,17 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
                     });
 
                 }
-                
+                if (type=="shopping-car-list"){
+                    ID_CAR_ELEMENT = 1
+                    parent.params[p].forEach(function(element,index){
+                        console.log("se deberia estar añadiendo")
+                        console.log(element)
+                        console.log("#"+p)
+
+                        ShoppingCar_add_element(element,element,"#"+p)
+                    });
+    
+                }
     
             }
             else if (['string', 'number', 'boolean'].includes(type)) {
@@ -747,6 +757,10 @@ function demoflowy_saveChanges() {
                     list_columns += $(this).children("div").children("input").val() + ";"
                 })
                 parent.params[p] = list_columns.slice(0, -1);
+            }
+            if (type=="shopping-car-list"){
+                parent.params[p] = ShoppingCar_get_list("#"+p)
+
             }
             if (type=="logical-rules"){
                 lista_reglas = []

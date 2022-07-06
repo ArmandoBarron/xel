@@ -24,6 +24,17 @@ def zip_extraction(zipfile_path):
         zipObj.extractall(dirpath)
     return dirpath,list_of_files
 
+
+### tools for compressed files ###
+def zip_creation(list_files_paths,filename,destination ):
+    final_path =destination+filename+'.zip'
+    with zipfile.ZipFile(final_path, 'w') as zipMe:        
+        for file in list_files_paths:
+            zipMe.write(file,os.path.basename(file))
+
+    return final_path
+
+
 ##################################
 
 def CreateFilesTree(list_files):

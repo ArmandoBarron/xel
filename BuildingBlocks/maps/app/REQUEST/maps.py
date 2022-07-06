@@ -18,9 +18,7 @@ GROUPBY_COLUMN= sys.argv[6] #"anio_regis"
 VARIABLE = sys.argv[7].split(",") #"Tras. ment. & Uso sust._Hombre_Sexo,Otra causa_Mujer_Sexo".split(",")
 CLASS_COLUMN = sys.argv[8] #"class"
 NORMALIZE =int(sys.argv[9]) #"0 1
-
-#HARCODEADO
-LABEL = "nombre municipio"
+LABEL = sys.argv[10] #label to identify the point
 
 
 COLORS = [
@@ -133,11 +131,16 @@ def plot_maps(df):
                         #folium.Marker([location_info[LAT_COLUMN], location_info[LON_COLUMN]],icon=folium.Icon(color=)).add_to(map_layer)
     
         #save image
-        image_path = '%s%s.html'%(out_path,gb_c)
-        LOGER.error("GUARDANDO")
-        map_layer.save(image_path)
-        del map_layer
-        LOGER.error(image_path)
+        try:
+            image_path = '%s%s.html'%(out_path,gb_c)
+            LOGER.error("GUARDANDO")
+            map_layer.save(image_path)
+            del map_layer
+            LOGER.error(image_path)
+
+        except Exception as e:
+            LOGER.error("================= NO SE PUDO GUARDAR =======================")
+
 
 
 

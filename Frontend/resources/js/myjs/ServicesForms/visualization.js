@@ -22,6 +22,7 @@ ServicesArr.push(
             variables:"",
             class:"",
             normalize:"0",
+            label:"",
             SAVE_DATA:true
         },
         html: `
@@ -75,6 +76,13 @@ ServicesArr.push(
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">class label: </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="class" onclick=fillselect(this,mult=false)></select>
+                                </div>
+                        </div>
+
+                        <div servopt="1" class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">ID (to identify the points in map): </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="label" onclick=fillselect(this,mult=false)></select>
                                 </div>
                         </div>
 

@@ -5,7 +5,7 @@
             "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "python @{CWD}maps.py @{SOURCE} @{SINK} '@{map_type}' '@{lat}' '@{lon}' '@{groupby}' '@{variables}' '@{class}' '@{normalize}'",
+        "COMMAND": "python @{CWD}maps.py @{SOURCE} @{SINK} '@{map_type}' '@{lat}' '@{lon}' '@{groupby}' '@{variables}' '@{class}' '@{normalize}' '@{label}'",
         "CUSTOM_APP":false
     },
     "LOAD":{

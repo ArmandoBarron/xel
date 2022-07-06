@@ -586,7 +586,40 @@ def UploadDataset():
     f.save(os.path.join(workspace_path, filename)) #añadir DS al catalogo de fuentes de datos
     LOGER.info("Data saved in %s" % workspace_path+filename)
 
-    return {"status":"OK"}
+    return {"status":"OK"} 
+
+@app.route('/CreatePackage', methods=['POST'])
+def CreatePackage():
+    """
+    function to create a zip with csv in the LAKE
+    {
+        "tokenuser":<tokenuser>
+        "name_package":"fusion_AandB"
+        "list_files":["<workspace>/<filename>","<workspace>/<filename>","<workspace>/<filename>"],
+        "destination":<workspace>,
+        "force_cration":true/false
+        
+    }
+    return: ::: {"status":"OK", "filename":<filename>}
+    """
+    params = request.get_json(force=True)
+    list_paths= []
+    LOGER.error(params)
+    # verify if zip already exist
+    destination = GetWorkspacePath(params['tokenuser'],params['destination'])
+
+    file_exist=FileExist(destination+params['name_package']) #verify if data exist
+    if not file_exist or params['force_cration']:
+
+        for Pathfile in params["list_files"]:
+            workspace,filename=Pathfile.split("/")
+            list_paths.append(GetWorkspacePath(params['tokenuser'],workspace)+filename)
+
+        zip_creation(list_paths,params['name_package'],destination)
+
+    return {"status":"OK", "filename":params['name_package']+".zip"}
+
+
 
 ## =========== DELETE DATA ============ ##
 @app.route('/workspace/delete/<tokenuser>/<workspace>/<filename>', methods=['GET'])

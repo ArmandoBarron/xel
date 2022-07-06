@@ -19,6 +19,7 @@ var ifCoordinates = ["latitud","longitud","lat","lon"].map(function(x){ return x
 
 // variables globales pero para que funcionen algunos servicios
 var ID_rule = 1 // Filtercolumn
+var ID_CAR_ELEMENT = 1 // Filtercolumn
 
 
 function Clean_graph_data(){
@@ -851,7 +852,11 @@ function DeleteDataset(id_row,filename,table){
     }).fail(function(){console.log("error al conectarse")});
 }
 
-function LoadExistingDataset(sourceId,filename,metadata=null){
+function LoadExistingDataset(sourceId,filename,metadata=null,workspace=null){
+    if (workspace == null){workspace=MESH_WORKSPACE}
+    else{ MESH_WORKSPACE = workspace}
+
+
     Toggle_Loader("show","mining dataset...")
     demoflowy_saveChanges()
     force_describe =$("#force_describe").is(':checked')
@@ -862,7 +867,7 @@ function LoadExistingDataset(sourceId,filename,metadata=null){
         Toggle_Loader("message","Mining metadata...")
     }
     notificarUsuario("Collecting metadata, please wait...","info")
-    Set_DatasourceMap({'token_user':MESH_USER,'catalog':MESH_WORKSPACE,'filename':filename},'LAKE')
+    Set_DatasourceMap({'token_user':MESH_USER,'catalog':workspace,'filename':filename},'LAKE')
 
     if(metadata ==null){ //si no se proporciona metadata, se hace la consulta. normalmente esto es para los datos recien procesados
         xel_describe_dataset(filename=filename,force=force_describe).done(function(result){
@@ -981,7 +986,7 @@ function fillworkspaces(sp,Modal_selector="#modal_datasource"){
     }).fail(function(){console.log("error al conectarse")});
 
 }
-function fillWorkspaceFilesliest(){
+function fillWorkspaceFilesliest(if_multiple=false){
     MESH_WORKSPACE= $("#user_workspace").val()
     sourceId = $('#modal_datasource').data('sourceId');
 
@@ -1017,9 +1022,16 @@ function fillWorkspaceFilesliest(){
                 headeres.forEach(function(h){
                     content += `<td>${file[h]}</td>`
                 });
-                content +=`<td><button onclick="LoadExistingDataset('${sourceId}','${file['filename']}')" class="btn btn-outline-info btn-block">Read <i class="far fa-check-circle"></i></button>
-                                <button onclick="DeleteDataset('${file_id}','${file['filename']}','table_LoadedFiles' )" class="btn btn-outline-danger btn-block">Delete <i class="fas fa-trash"></i></button>
-                </td>`
+                if (if_multiple){
+                    content +=`<td><button onclick="ShoppingCar_add_element('${MESH_WORKSPACE}/${file['filename']}','${MESH_WORKSPACE}/${file['filename']}', '.ShoppingCar-list')" class="btn btn-outline-info btn-block">Add <i class="far fa-check-circle"></i></button>
+                    </td>`
+                }
+                else{
+                    content +=`<td><button onclick="LoadExistingDataset('${sourceId}','${file['filename']}')" class="btn btn-outline-info btn-block">Read <i class="far fa-check-circle"></i></button>
+                    <button onclick="DeleteDataset('${file_id}','${file['filename']}','table_LoadedFiles' )" class="btn btn-outline-danger btn-block">Delete <i class="fas fa-trash"></i></button>
+                    </td>`
+                }
+
                 content +=`</tr>`
                 file_id+=1
             });
@@ -1981,6 +1993,78 @@ function TriggerDelete(ToDelete){
     }
 
 }
+
+
+function ShoppingCar_add_element(name,value,id_div_destination){
+    htmlstring = `
+    
+    <div class="form-group row col-12" id='ShoppingCar_product_${ID_CAR_ELEMENT}'>
+        <label for="txttype" class="col-sm-2 col-form-label col-form-label-sm">Dataset: </label>
+        <div class="col-sm-7">
+                <input type="text" class="form-control" readonly value='${name}'>
+        </div>
+        <div class="form-group col-2">
+            <button type="button" onclick="$('#ShoppingCar_product_${ID_CAR_ELEMENT}').remove()" class="btn btn-block btn-outline-danger"><i class="far fa-trash-alt"></i></button>
+        </div>
+        <div class="col-sm-1 value" >
+            <input type="text" class="form-control d-none" readonly id='ShoppingCar_product_${ID_CAR_ELEMENT}_value' value='${value}'>
+        </div>
+    </div>`
+    ID_CAR_ELEMENT++
+    $(id_div_destination).append(htmlstring)
+}
+
+function ShoppingCar_get_list(div_selector){
+    list_selector = $(`${div_selector} > .form-group`)
+    list_values = []
+    list_selector.each(function(){
+        list_values.push($(this).children("div").children("input").val())
+    })
+
+    return list_values
+}
+
+
+function CreateDatasetsPackage(id_list,destination_selector,packagename_selector ){
+    sourceId = $('#modal_datasource').data('sourceId');    
+
+    list_files = ShoppingCar_get_list(id_list)
+    workspacename = $(destination_selector).val()
+    package_name = $(packagename_selector).val()
+
+    force_zip =$("#force_describe").is(':checked')
+    if (force_zip==="undefined" || force_zip==""){
+        force_zip=false
+    }
+
+
+    let data_request = {
+        "SERVICE":"CreatePackage",
+            'REQUEST':{
+                "tokenuser": MESH_USER,
+                "name_package":package_name,
+                "list_files":list_files,
+                "destination":workspacename,
+                "force_creation":force_zip
+    }}
+
+    // se crea el dataset
+    $.ajax({ // ajax para rellenar valores de workspaces
+        url: 'includes/xel_Request.php',
+        type: 'POST',
+        dataType: 'json',
+        data:data_request,
+        success: function(result) {  
+            if (result['status']=="OK"){
+                // se carga el dataset
+                LoadExistingDataset(sourceId,result['filename'],metadata=null,workspace=workspacename )
+            }
+        }
+    }).fail(function(){console.log("error al conectarse")});
+
+
+}
+
 
 //// funcione smuys especificas para servicios, en un futuro se van a cambiar
 
