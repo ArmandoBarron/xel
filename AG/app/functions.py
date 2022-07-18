@@ -142,7 +142,7 @@ def DatasetDescription(datos):
         column_description['type'] = typename
         # se cuentan nulos
         column_description['NaN'] = str(datos[col].isna().sum())
-        sample = json.loads(datos.head(500).to_json(orient="records"))
+        sample = json.loads(datos.head(150).to_json(orient="records"))
         response['sample'] = sample
 
         if typename=="object":

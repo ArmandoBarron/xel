@@ -113,7 +113,8 @@ ServicesArr.push({
             user_workspace:"Default",
             force_describe:false,
             destination_workspace:"Default",
-            name_package:""
+            name_package:"",
+            list_files:[]
         },
         html: `
 

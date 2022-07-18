@@ -51,7 +51,11 @@ $(document).ready(function () {
     $('.modal.fade').on('hidden.bs.modal', function (e) { // funcion que se ejecuta cuando se cierra un modal
         $(".courtain").hide("slow")
         //$('#modal_inspect_body')
-        $('.modal-body-dynamic').html("") // se vacian todos los body
+        
+        if ($('.modal.show').length <= 0)
+        {
+            $('.modal-body-dynamic').html("") // se vacian todos los body
+        }
       })
 
     var popoverShow = false;
@@ -565,7 +569,8 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
 
                 var attr =  $(`#${p}`).attr('onchange'); //verify if has attr for handler
                 if (typeof attr !== 'undefined' && attr !== false) {
-                    OptionsHandler(document.getElementById(p))
+                    $(`#${p}`).trigger("change");
+                    //OptionsHandler(document.getElementById(p))
                 }
             } 
             else if (input[0].tagName =="DIV"){ // esto quiere decir que es un from control personalizado

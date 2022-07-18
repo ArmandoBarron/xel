@@ -95,6 +95,25 @@ services:
 #          - node.role == manager
   
 ########### BB services ############################
+  bb_advanced_map:
+    image: sm_advanced_map
+    build:
+      context: ./BuildingBlocks/AdvancedMaps
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: advanced_maps
+      SERVICE_IP: bb_advanced_map
+      SERVICE_PORT: 80
+
+
   bb_filtercolumn:
     image: sm_filtercolumn
     build:

@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"Scatter Map",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}ScatterMap.py @{SOURCE} @{SINK} '@{lon}' '@{lat}' '@{class}' '@{label}' '@{size}' '@{title}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"scatterMap.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

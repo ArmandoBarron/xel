@@ -327,38 +327,7 @@
   </div>
 </div>
 
-<!-- Modal PATH/ROW-->
-<div class="modal fade" id="modPathRow" role="dialog">
-  <div class="modal-dialog ">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"><?php echo $lngarr['titlepr'] ?></h4>
-      </div>
 
-
-      <div class="modal-body">
-        <?php echo $lngarr['description'] ?><br><br>
-        <form method="post" id="frmPathRow" class="form-inline">
-          <div class="form-group">
-            <label ><?php echo $lngarr['path'] ?></label>
-            <input type="text"  class="form-control solo-numero" name="path" id="txtPath" placeholder="<?php echo $lngarr['path'] ?>"  maxlength="3" required>
-
-           </div>
-          <div class="form-group">
-            <label ><?php echo $lngarr['row'] ?></label>
-            <input type="text"  class="form-control"  id="txtRow" placeholder="<?php echo $lngarr['row'] ?>" name="row"  maxlength="3" required>
-
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" id="btnAddPolygon" class="btn btn-primary"><?php echo $lngarr['add'] ?></button>
-        <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $lngarr['close'] ?></button>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 <!-- Modal CHOOSE IMAGE/META-->
@@ -571,45 +540,6 @@
   </div>
 </div>
 
-<!-- MODAL PRODUCTOS  -->
-<div class="modal fade" id="productsmodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-admin modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 id="titleModProducs" class="modal-title"></h4>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-5">
-            <img src="" height="400px" id="imgproduct" >
-            <p id="imgdescription"></p>
-          </div>
-          <div class="col-md-7">
-            <div class="table-responsive"  id="tblHijos">
-              <table class='table'>
-                <thead>
-                  <tr>
-                    <th><?php echo $lngarr['name'] ?></th>
-                    <th><?php echo $lngarr['descprod'] ?></th>
-                    <th><?php echo $lngarr['download'] ?></th>
-                    <th><?php echo $lngarr['rate'] ?></th>
-                    <th><?php echo $lngarr['url'] ?></th>
-                  </tr>
-                </thead>
-                <tbody id="tblchilds">
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $lngarr['close'] ?></button>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 <!-- MODAL GALLERY  -->
@@ -711,25 +641,6 @@
         <button type="button" id="btnCleanCar" class="btn btn-warning">Clean</button>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $lngarr['close'] ?></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- MODAL PRODUCTOS  -->
-<div class="modal fade" id="notificacionesmod" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 id="titleModProducs" class="modal-title"></h4>
-      </div>
-      <div class="modal-body">
-        <div id="bodynots"></div>
-      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $lngarr['close'] ?></button>
       </div>

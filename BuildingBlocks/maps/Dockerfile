@@ -11,6 +11,9 @@ RUN pip install branca --user
 RUN pip install imageio --user 
 RUN pip install markupsafe==2.0.1 --user
 
+RUN pip install geopandas --user
+RUN pip install plotly --user
+
 
 COPY ./app app
 WORKDIR /home/app

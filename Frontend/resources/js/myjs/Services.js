@@ -15,7 +15,7 @@ var MESH_USER = "Geoportal"
 var ServicesArr = []
 var PARAMS_MAP = {}
 var TOKEN_SOLUTION=''
-var ifCoordinates = ["latitud","longitud","lat","lon"].map(function(x){ return x.toUpperCase();}) 
+var ifCoordinates = ["latitud","longitud","lat","lon", "x", "y"].map(function(x){ return x.toUpperCase();}) 
 
 // variables globales pero para que funcionen algunos servicios
 var ID_rule = 1 // Filtercolumn
@@ -916,9 +916,38 @@ function fill_namefiles(){
                 ]
         });
     }
+}
+
+function fill_namefiles_select(sp){
+
+    id_element = sp.id
+    sp = $("#"+id_element)
+    
+    id_box = $("#modal_edition").data("sourceId")
+    if_metadata_exist = reload_metadata_fromBox(id_box)
+    if (!if_metadata_exist){ console.log("no existen columnas para rellenar los comboboxes");return 0;}
+
+    let BOX = demoflowy_lookForParent(id_box); //fill select
+
+    BOX_columns = BOX.service_metadata.father.list_of_files
+    BOX_columns.forEach(function(col){
+        sp.append('<option value="'+col+'">' + col + '</option>');
+    });
+    
+    sp.attr("data-size","5")
+    sp.attr("data-live-search","true")
+    sp.addClass("selectpicker");
+    sp.selectpicker('refresh');
 
 
+}
 
+
+function UpdateSelectBoxByClass(class_name){
+    if(class_name!=null){
+        console.log("se actualiza con click")
+        $("."+class_name).click()
+    }
 }
 
 
@@ -1049,10 +1078,11 @@ function fillWorkspaceFilesliest(if_multiple=false){
 }
 
 
-function fillselect(sp,mult=true){
+function fillselect(sp,mult=true,source=null){
     id_element = sp.id
     console.log(id_element)
     sp = $("#"+id_element)
+    sp.empty()
 
     id_box = $("#modal_edition").data("sourceId")
     if_metadata_exist = reload_metadata_fromBox(id_box)
@@ -1060,12 +1090,24 @@ function fillselect(sp,mult=true){
 
     let BOX = demoflowy_lookForParent(id_box); //fill select
 
-  
-    parentfilename = BOX.service_metadata.father.parent_filename
+    if (source== null){
+        parentfilename = BOX.service_metadata.father.parent_filename
+    }
+    else{
+        parentfilename =$(source).val()
+        console.log(parentfilename)
+        if (parentfilename == null){
+            console.log("aun no se selecciona nada")
+            return 0
+        }
+
+    }
+
     if (BOX_columns = BOX.service_metadata.father.files_info[parentfilename]===undefined){
-        notificarUsuario(`File ${parentfilename} has no columns (could be a zip). Check the configuration of the box. `,"danger")
+        notificarUsuario(`File ${parentfilename} has no columns (could be a zip). Check the configuration of the box. `,"warning")
         return 0
     }
+
 
     BOX_columns = BOX.service_metadata.father.files_info[parentfilename].columns
     BOX_columns.forEach(function(col){
@@ -1106,13 +1148,7 @@ function ChangeOrientationJSON(obj_json){
 
 function ShowModal_map_AAS(rn,id_servicio){
 
-    lista_filtros = ['Entidad','class']
-    variable_clase = "class"
-    variable_entidad ="Entidad"
-    variable_municipio ="Municipio"
-    variable_temporal ="Anio"
-
-
+    // vaciar lista del selectbox 
     $(`select[name=SOM-lat]`).empty();
     $(`select[name=SOM-lon]`).empty();
     $(`select[name=SOM-temporal]`).empty();
@@ -1141,15 +1177,28 @@ function ShowModal_map_AAS(rn,id_servicio){
 
     $(`#SOM-id_service`).val(id_servicio)
     $(`#SOM-rn`).val(rn)
+    console.log('lon' in PARAMS_MAP)
 
-    $(`#SOM-lat`).selectpicker('val', 'lat');
-    $(`#SOM-lon`).selectpicker("val","lon");
-    $(`#SOM-temporal`).selectpicker('val', "anio_ocur");
-    $(`#SOM-spatial-filter`).selectpicker('val', "ent_ocurr");
-    $(`#SOM-value-filter`).selectpicker('val', "");
-    $(`#SOM-columna_class`).selectpicker('val', "");
-    $(`#SOM-values`).selectpicker('val', "count");
-    $(`#SOM-id`).selectpicker('val', "nombre");
+    var_lat =  ('lat' in PARAMS_MAP) ? PARAMS_MAP.lat:'lat';
+    var_lon = ('lon' in PARAMS_MAP) ? PARAMS_MAP.lon : 'lon';
+    var_temporal = ('temporal' in PARAMS_MAP) ? PARAMS_MAP.temporal : 'year';
+    var_spatial_filter = ('spatial_filter' in PARAMS_MAP) ? PARAMS_MAP.spatial_filter : 'ent_ocurr';
+    var_value_filter = ('value_filter' in PARAMS_MAP) ?  PARAMS_MAP.value_filter :'';
+    var_label = ('label' in PARAMS_MAP) ? PARAMS_MAP.label :'class';
+    var_values = ('values' in PARAMS_MAP) ? PARAMS_MAP.values :'';
+    var_k = ('k' in PARAMS_MAP) ?  PARAMS_MAP.k :'k';
+    var_id = ('id' in PARAMS_MAP) ? PARAMS_MAP.id : '';
+
+
+    $(`#SOM-lat`).selectpicker('val', var_lat);
+    $(`#SOM-lon`).selectpicker("val",var_lon);
+    $(`#SOM-temporal`).selectpicker('val', var_temporal);
+    $(`#SOM-spatial-filter`).selectpicker('val', var_spatial_filter);
+    $(`#SOM-value-filter`).selectpicker('val', var_value_filter);
+    $(`#SOM-columna_class`).selectpicker('val', var_label);
+    $(`#SOM-values`).selectpicker('val', var_values);
+    $(`#SOM-k`).selectpicker('val', var_k);
+    $(`#SOM-id`).selectpicker('val', var_id);
 
     
     //$("#modal_mapAAS").modal("show")
@@ -1157,8 +1206,6 @@ function ShowModal_map_AAS(rn,id_servicio){
     $('.selectpicker').selectpicker('refresh')
 }
 
-var lista_global_filtros={}
-var LISTA_CLUST_ORDENADOS=[]
 
 function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones para consulta
     // validar
@@ -1180,7 +1227,6 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
     PARAMS_MAP.id=$(`select[name=SOM-id]`).val();
     PARAMS_MAP.label=$(`select[name=SOM-columna_class]`).val();
     PARAMS_MAP.k=$(`#SOM-k`).val();
-
     PARAMS_MAP.task= $("#SOM-id_service").val();
     PARAMS_MAP.rn= $("#SOM-rn").val();
 
@@ -1433,8 +1479,8 @@ function SetDataOnMap(dataset) {
     }
 
     //GRAFICAS
-    if (columns.length>=2){ CreatePlotCluster(dataset[columns[0]],dataset[columns[1]],null,null,xlabel = columns[0], ylabel=columns[1],color_list=null,div_container="cluster-plot-container")}
-    else { CreatePlotCluster(dataset[columns[0]],dataset[columns[0]],null,null,xlabel = columns[0], ylabel=columns[0],color_list=null,div_container="cluster-plot-container")}
+    if (columns.length>=2){ CreatePlotCluster(dataset[columns[0]],dataset[columns[1]],null,null,xlabel = columns[0], ylabel=columns[1],color_list=lista_colores,div_container="cluster-plot-container")}
+    else { CreatePlotCluster(dataset[columns[0]],dataset[columns[0]],null,null,xlabel = columns[0], ylabel=columns[0],color_list=lista_colores,div_container="cluster-plot-container")}
  
     CreatePlotHistogram(dataset,columns,div_container="boxplot-plot-container")
 

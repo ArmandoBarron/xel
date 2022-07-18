@@ -53,6 +53,10 @@ LOGER.info(ACCEPTORS_LIST)
 PROPOSER = Paxos(ACCEPTORS_LIST)
 ########## END GLOBAL VARIABLES ##########
 
+
+def GetSolutionPath(token_solution):
+    return "%s%s/" %(BKP_FOLDER,token_solution)
+
 def GetDataPath(params):
     typeOfData = params['type']
     credentials = params['data']
@@ -487,6 +491,8 @@ def delete_sol_from_DB():
     token_solution = params['token_solution']
      ######## paxos ##########
     paxos_response = PROPOSER.Delete(token_solution,auth) # consult request in paxos distributed memory
+    solution_path = GetSolutionPath(token_solution)
+    shutil.rmtree(solution_path)
     #########################
     return {"status":paxos_response['status'],"info":paxos_response['value']}    
 
