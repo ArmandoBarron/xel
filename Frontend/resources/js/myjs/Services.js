@@ -1118,6 +1118,7 @@ function fillselect(sp,mult=true,source=null){
     console.log(id_element)
     sp = $("#"+id_element)
     sp.empty()
+    sp.addClass("selectpicker");
 
     id_box = $("#modal_edition").data("sourceId")
     if_metadata_exist = reload_metadata_fromBox(id_box)
@@ -1130,34 +1131,36 @@ function fillselect(sp,mult=true,source=null){
     }
     else{
         parentfilename =$(source).val()
-        console.log(parentfilename)
         if (parentfilename == null){
             console.log("aun no se selecciona nada")
-            return 0
+            return false
         }
 
     }
 
     if (BOX_columns = BOX.service_metadata.father.files_info[parentfilename]===undefined){
         notificarUsuario(`File ${parentfilename} has no columns (could be a zip). Check the configuration of the box. `,"warning")
-        return 0
+        return false
     }
 
 
     BOX_columns = BOX.service_metadata.father.files_info[parentfilename].columns
+    console.log(BOX_columns)
     BOX_columns.forEach(function(col){
         sp.append('<option value="'+col+'">' + col + '</option>');
     });
     
     // addd multiple attributte
-    if(mult==true){
+
+
+    if(mult){
+        console.log("se activan las multiples opciones")
         sp.attr("multiple","multiple")
         sp.attr("data-actions-box","true")
     }
 
     sp.attr("data-size","5")
     sp.attr("data-live-search","true")
-    sp.addClass("selectpicker");
     sp.selectpicker('refresh');
 
 }

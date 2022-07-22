@@ -426,12 +426,12 @@ ServicesArr.push(
                 },
                 params: {
                         actions: '',
-                        var_x:'',
-                        list_var_x:[],
-                        var_y: '',
-                        filter_column: '',
-                        filter_value: '',
-                        alpha: .05,
+                        columns:"",
+                        class:"",
+                        n_neighbors:3,
+                        filename_dataset:"",
+                        filename_model:"",
+                        columns_classification:"",
                         SAVE_DATA:true
                 },
                 html: `
@@ -444,44 +444,64 @@ ServicesArr.push(
                         <div class="form-group row m-2">
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm"> Alghoritm: </label>
                                 <div class="col-sm-8">
-                                <select class="form-control" id="actions" onchange="ChangeVisibileOptionsOfService(this)">
+                                <select class="form-control" id="actions" onchange="OptionsHandler(this)">
                                         <option value=""></option>
                                         <option value="KNN"> K neareast neigbors </option>
+                                        <option value="CLASIFICAR"> classification </option>
                                 </select>
                                 </div>
                         </div>
 
-                        <h4>Input variable/s (x): </h4>
-                        <div servopt="LINEARM LOGM" class="form-group">
-                                <select class=" form-control" id="list_var_x" data-actions-box="true" onclick=fillselect(this)></select>
-                        </div>
-                        <div servopt="LINEARS LOGS" class="form-group">
-                                <select class="form-control" id="var_x" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+
+                        <div opth opt-actions="KNN">
+
+                                <div class="form-group row m-2">
+                                        <label class="col-sm-4 col-form-label col-form-label-sm">Columns:</label>
+                                        <div class="col-sm-8">
+                                                <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
+                                        </div>
+                                </div>
+
+                                <div class="form-group row m-2">
+                                        <label class="col-sm-4 col-form-label col-form-label-sm">Class column:</label>
+                                        <div class="col-sm-8">
+                                                <select class="form-control" id="class" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                                        </div>
+                                </div>
                         </div>
 
-                        <h4>target variables (y): </h4>
-                        <div class="form-group">
-                                <select class="form-control" id="var_y" data-actions-box="true" onclick=fillselect(this)></select>
+                        <div opth opt-actions="KNN">
+                                <div class="form-group row m-2">
+                                        <label class="col-sm-4 col-form-label col-form-label-sm">Neighbors:</label>
+                                        <div class="col-sm-4">
+                                                <input type="number" class="form-control solo-numero" min="3" id="n_neighbors">
+                                        </div>
+                                </div>
                         </div>
 
-                        <h4>Filter data by the column:</h4>
-                        <div class="form-group">
-                                <select class="form-control" id="filter_column" data-actions-box="true" onclick=fillselect(this,mult=false)>
-                                <option value=""></option>
-                                </select>
-                        </div>
-                        <h4>... with the value of: </h4>
-                        <div class="form-group">
-                                <input type="text" class="form-control" id="filter_value" value=''>
-                        </div>
+                        <div opth opt-actions="CLASIFICAR">
 
-                
-                        <h4>Alpha (Acceptable error rate)</h4>
-                        <div class="form-group">
-                                <input id="alpha" type="number" class="form-control form-control-sm"  min="0" max="1" value=".05">
-                        </div>
-                        <span class="help-block">For example, 0.05 acceptable error is equivalent to 95% reliability of the model.</span>
+                                <div class="form-group row m-2">
+                                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Data file</label>
+                                        <div class="col-sm-8">
+                                        <select class="form-control" id="filename_dataset" onclick=fill_namefiles_select(this) onChange=UpdateSelectBoxByClass("filename_dataset") ></select>
+                                        </div>
+                                </div>
 
+                                <div class="form-group row m-2">
+                                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Model file</label>
+                                        <div class="col-sm-8">
+                                        <select class="form-control" id="filename_model" onclick=fill_namefiles_select(this)></select>
+                                        </div>
+                                </div>
+
+                                <div class="form-group row m-2">
+                                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Columns: </label>
+                                        <div class="col-sm-8">
+                                        <select class="form-control filename_dataset" id="columns_classification" onclick=fillselect(this,mult=true,"#filename_dataset") data-actions-box=true data-live-search=true data-size=5 multiple=multiple data-actions-box=true></select>
+                                        </div>
+                                </div>
+                        </div>
 
                 `
             }

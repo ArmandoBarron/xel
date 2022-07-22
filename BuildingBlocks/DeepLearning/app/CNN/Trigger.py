@@ -51,6 +51,8 @@ def execute(params,AppConfig):
     if Extract_config['COMPRESS']: #inputs are zip...
         utils.UncompressFile(RESERVED_PARAMS['SOURCE'],params['BBOX_TEMP_PATH'])
         RESERVED_PARAMS['SOURCE'] = params['BBOX_TEMP_PATH'] #now the folder is the source
+        #LOGER.error(os.listdir(RESERVED_PARAMS['SOURCE']))
+        #LOGER.error(RESERVED_PARAMS['SOURCE'])
 
     ############## develepores can modify this function in order to set the envirioment to the app ###########
     CustomScript.config_env()
@@ -112,7 +114,7 @@ def execute(params,AppConfig):
         #clean everything
         #shutil.rmtree(params['BBOX_INPUT_PATH'],ignore_errors=True)
         os.remove(params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'])
-        shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True)
+        shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True) #esto remueve los datos de entrada
         shutil.rmtree(params['BBOX_OUTPUT_PATH'],ignore_errors=True)
 
         name,ext = result.split(".")

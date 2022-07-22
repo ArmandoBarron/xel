@@ -2,10 +2,10 @@
     "NAME_APPLICATION":"KNN model",
     "INPUT_DATA_FORMAT":["csv"],
     "EXTRACT":{
-            "COMPRESS":true
+            "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "python3 @{CWD}entrenamiento_knn.py --ruta_entrada_entrenamiento \"@{SOURCE}\" --ruta_salida_prueba \"@{SINK}\" --ruta_salida_imagen \"@{SINK}\" --ruta_salida_reporte \"@{SINK}\" --ruta_salida_clasificador \"@{SINK}\" --n_neighbors \"@{n_neighbors}\" --columna_clase \"@{class}\" --columnas_interes \"@{columns}\" ",
+        "COMMAND": "python3 @{CWD}entrenamiento_knn.py \"@{SOURCE}\" --ruta_salida_prueba \"@{SINK}\" --ruta_salida_imagen \"@{SINK}\" --ruta_salida_reporte \"@{SINK}\" --ruta_salida_clasificador \"@{SINK}\" --n_neighbors \"@{n_neighbors}\" --columna_clase \"@{class}\" --columnas_interes \"@{columns}\" ",
         "CUSTOM_APP":false
     },
     "LOAD":{

@@ -18,7 +18,8 @@ def clasificar_csv (ruta_entrada, ruta_modelo,columnas_interes, ruta_salida=None
 
     modelo=funciones.cargar_pickle(ruta_modelo)
     clases_salida=clasificar (datos_entrada[columnas_interes], modelo)
-    funciones.guardar_csv (pd.DataFrame(clases_salida, columns = ['clase']), ruta_entrada, ruta_salida, prefijo="predicciones")
+    datos_entrada['class'] = clases_salida
+    funciones.guardar_csv (datos_entrada, ruta_entrada, ruta_salida, prefijo="predicciones")
 
 
 def parse_args():

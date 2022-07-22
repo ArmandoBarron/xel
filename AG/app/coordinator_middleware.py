@@ -752,6 +752,8 @@ def describeDatasetv2():
             response['info']['files_info'][filename] = DatasetDescription(dataset)
             response['info']['list_of_files'].append(filename)
             valid=True
+        else:
+            response['info']['list_of_files'].append(filename)
         return response,valid 
 
     init = time.time()
@@ -798,6 +800,6 @@ def getLogFile(RN):
     return send_file(logs_folder+'log_'+RN+'.txt',as_attachment=True)
 
 if __name__ == '__main__':
-    #app.run(host='0.0.0.0', port=5555,debug = True) #for development
-    serve(app, host='0.0.0.0', port=5555)
+    app.run(host='0.0.0.0', port=5555,debug = True) #for development
+    #serve(app, host='0.0.0.0', port=5555)
 

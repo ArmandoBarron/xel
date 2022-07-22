@@ -5,7 +5,7 @@
             "COMPRESS":true
         },
     "TRANSFORM":{
-        "COMMAND": "python3 @{CWD}clasificara.py --ruta_entrada \"@{SOURCE}@{filename_dataset}\" --ruta_modelo \"@{SINK}@{filename_model}\" --ruta_salida \"@{SINK}\" --columnas_interes \"@{columns}\" ",
+        "COMMAND": "python3 @{CWD}clasificar.py \"@{SOURCE}@{filename_dataset}\" \"@{SOURCE}@{filename_model}\" --ruta_salida \"@{SINK}\" --columnas_interes \"@{columns_classification}\" ",
         "CUSTOM_APP":false
     },
     "LOAD":{
