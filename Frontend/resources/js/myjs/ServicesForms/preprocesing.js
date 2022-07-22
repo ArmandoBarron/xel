@@ -5,6 +5,7 @@ ServicesArr.push(
     {
         id: "s-preproc",
         section:SECTION,
+        valid_datatypes:{input:["CSV"],output:["CSV"]},
         name: "preprocessing",
         desc: `Service to preprocess data`,
         columns:{
@@ -72,8 +73,9 @@ ServicesArr.push(
         {
             id: "data_clean",
             section:SECTION,
+            valid_datatypes:{input:["CSV"],output:["CSV"]},
             name: "cleanning",
-            desc: `Outliers detection<br>Normalization<br>Symbols removal`,
+            desc: `Outliers detection, Normalization, Remove unwanted symbols, Transform categorical data to numeric values. `,
             columns:{
                 default: [],
                 parent: [] 
@@ -83,6 +85,7 @@ ServicesArr.push(
                 columns: [],
                 outliers_detection: "",
                 method:"",
+                encoding_method:"",
                 n_standard_desviations:2,
                 min_range:1,
                 max_range:1,
@@ -104,7 +107,8 @@ ServicesArr.push(
                                 <select class="form-control" id="actions" onchange="OptionsHandler(this)">
                                         <option value="OUTLIERS"> Outliers removal </option>
                                         <option value="NORMALIZATION"> Normalize and standarize </option>
-                                        <option value="CLEAN"> Data removal </option>
+                                        <option value="CLEAN">Remove unwanted values from dataset </option>
+                                        <option value="TOKENIZATION">Categorical columns to numeric</option>
                                 </select>
                         </div>
                 </div>
@@ -131,7 +135,18 @@ ServicesArr.push(
                         </div>
                 </div>
 
-                <div class="form-group row m-2" >
+               <div class="form-group row m-2" opth opt-actions="TOKENIZATION">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Encoding method: </label>
+                        <div class="col-sm-8">
+                                <select class="form-control" id="encoding_method">
+                                        <option value="ENCODING"> Replace column by the encoded values </option>
+                                        <option value="DUMMY"> Create a new column for every categorical value () </option>
+                                </select>
+                        </div>
+                </div>
+
+
+                <div class="form-group row m-2">
                         <label class="col-sm-4 col-form-label col-form-label-sm">Variables:</label>
                         <div class="col-sm-8">
                                 <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
@@ -190,6 +205,7 @@ ServicesArr.push(
         {
             id: "s-imputation",
             section:SECTION,
+            valid_datatypes:{input:["CSV"],output:["CSV"]},
             name: "imputation",
             desc: `Fill missing values`,
             columns:{
@@ -204,6 +220,9 @@ ServicesArr.push(
                 groupby:"",
                 n_neighbors:2,
                 fill_value:"",
+                method:"any",
+                n_na:0,
+                to_drop:"",
                 SAVE_DATA:true
             },
             html: `
@@ -217,25 +236,14 @@ ServicesArr.push(
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Process:</label>
                         <div class="col-sm-8">
                                 <select class="form-control" id="actions" onchange="ChangeVisibileOptionsOfService(this)">
-                                        <option value="IMPUTATION"> Imputation </option>
+                                        <option value="IMPUTATION"> Imputation of Na values </option>
+                                        <option value="DROP"> Drop Na values  </option>
+
                                 </select>
                         </div>
                 </div>
 
-                <div class="form-group row m-2">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Imputation type: </label>
-                        <div class="col-sm-8">
-                                <select class="form-control" id="imputation_type" onchange="ChangeVisibileOptionsOfService(this)">
-                                        <option value="Single_N"> Single column </option>
-                                        <option value="Single_G"> Single column by group </option>
-                                        <option value="Iter_N"> Iterative </option>
-                                        <option value="Iter_G"> "Iterative by group </option>
-                                        <option value="Knn_N"> KNN </option>
-                                        <option value="Knn_G"> KNN by group </option>
-                                        <option value="Constant_N"> fill with a constant </option>
-                                </select>
-                        </div>
-                </div>
+
 
                 <div class="form-group row m-2">
                         <label class="col-sm-4 col-form-label col-form-label-sm">Variables:</label>
@@ -244,37 +252,90 @@ ServicesArr.push(
                         </div>
                 </div>
 
-                <div class="form-group row m-2" servopt="Single_N Single_G">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Strategy: </label>
-                        <div class="col-sm-8">
-                                <select class="form-control" id="strategy">
-                                        <option value="mean"> Mean </option>
-                                        <option value="median"> Median </option>
-                                        <option value="most_frequent"> Most frequent </option>
-                                </select>
+                <div servopt="IMPUTATION">
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Imputation type: </label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="imputation_type" onchange="ChangeVisibileOptionsOfService(this)">
+                                                <option value="Single_N"> Single column </option>
+                                                <option value="Single_G"> Single column by group </option>
+                                                <option value="Iter_N"> Iterative </option>
+                                                <option value="Iter_G"> "Iterative by group </option>
+                                                <option value="Knn_N"> KNN </option>
+                                                <option value="Knn_G"> KNN by group </option>
+                                                <option value="Constant_N"> fill with a constant </option>
+                                        </select>
+                                </div>
+                        </div>
+
+
+                        <div class="form-group row m-2" servopt="Single_N Single_G">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Strategy: </label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="strategy">
+                                                <option value="mean"> Mean </option>
+                                                <option value="median"> Median </option>
+                                                <option value="most_frequent"> Most frequent </option>
+                                        </select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" servopt="Knn_N Knn_G">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">neighbors:</label>
+                                <div class="col-sm-4">
+                                        <input type="number" class="form-control solo-numero" min="2" id="n_neighbors">
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" servopt="Single_G Iter_G Knn_G">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Group by:</label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="groupby" data-actions-box="true" onclick=fillselect(this)></select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" servopt="Constant_N">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Fill value:</label>
+                                <div class="col-sm-8">
+                                        <input id="fill_value" type="text" class="form-control" placeholder="-99, missing value, wtc">
+                                </div>
                         </div>
                 </div>
 
-                <div class="form-group row m-2" servopt="Knn_N Knn_G">
-                        <label class="col-sm-4 col-form-label col-form-label-sm">neighbors:</label>
-                        <div class="col-sm-4">
-                                <input type="number" class="form-control solo-numero" min="2" id="n_neighbors">
+                <div servopt="DROP">
+
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Drop if: </label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="method">
+                                                <option value="any"> Some columns </option>
+                                                <option value="all"> All the columns </option>
+                                        </select>
+                                </div>
                         </div>
+
+                        <div class="form-group row m-2">
+                                <label class="col-sm-6 col-form-label col-form-label-sm">If exist the following n columns with na, where n=</label>
+                                <div class="col-sm-4">
+                                        <input type="number" class="form-control solo-numero" min="0" id="n_na">
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Then drop: </label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="to_drop" >
+                                                <option value="1"> The columns </option>
+                                                <option value="0"> The row </option>
+                                        </select>
+                                </div>
+                        </div>
+
+
                 </div>
 
-                <div class="form-group row m-2" servopt="Single_G Iter_G Knn_G">
-                        <label class="col-sm-4 col-form-label col-form-label-sm">Group by:</label>
-                        <div class="col-sm-8">
-                                <select class="form-control" id="groupby" data-actions-box="true" onclick=fillselect(this)></select>
-                        </div>
-                </div>
+               
 
-                <div class="form-group row m-2" servopt="Constant_N">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Fill value:</label>
-                        <div class="col-sm-8">
-                                <input id="fill_value" type="text" class="form-control" placeholder="-99, missing value, wtc">
-                        </div>
-                </div>
 
 
 `
@@ -285,6 +346,7 @@ ServicesArr.push(
         {
             id: "s-split",
             section:SECTION,
+            valid_datatypes:{input:["CSV"],output:["CSV"]},
             name: "split",
             desc: `split values.`,
             columns:{
@@ -353,6 +415,7 @@ ServicesArr.push(
 ServicesArr.push({
         id: "DST",
         name: "transform_ds",
+        valid_datatypes:{input:["CSV"],output:["CSV"]},
         section:SECTION,
         desc: `Map reduce: Group dataset to reduce data using a operator. \n Eval: create columns or traansfom your dataset.`,
         columns:{
@@ -506,6 +569,7 @@ ServicesArr.push({
         {
             id: "s-merge",
             section:SECTION,
+            valid_datatypes:{input:["ZIP"],output:["CSV"]},
             name: "fusion",
             desc: `Service to fusion datasources in a zip.`,
             columns:{
@@ -560,6 +624,7 @@ ServicesArr.push({
         {
             id: "s-FilterColumn",
             section:SECTION,
+            valid_datatypes:{input:["CSV"],output:["CSV"]},
             name: "filter_column",
             desc: `drop and keep columns given a rule.`,
             columns:{

@@ -2,6 +2,7 @@
 SECTION = "sec-tools"
 ServicesArr.push({
     id: "Data_acquisition",
+    valid_datatypes:{input:["NA"],output:["CSV","ZIP"]},
     name: "Acquisition",
     section:SECTION,
     desc: `Acquire data directly from a repository (Google Drive, HydroShare, FTP server, etc.).`,
@@ -81,6 +82,7 @@ ServicesArr.push(
     {
         id: "Format_converter",
         name: "Converters",
+        valid_datatypes:{input:["NA"],output:["NA"]},
         section:SECTION,
         desc: `Convert a file to a different format.`,
         columns:{
@@ -115,6 +117,7 @@ ServicesArr.push(
 ServicesArr.push({
     id: "grobid_service",
     name: "Grobid",
+    valid_datatypes:{input:["ZIP"],output:["ZIP"]},
     section:SECTION,
     desc: `Text mining`,
     columns:{
@@ -153,6 +156,7 @@ ServicesArr.push({
 ServicesArr.push(
     {
         id: "Glove_service",
+        valid_datatypes:{input:["ZIP"],output:["ZIP"]},
         name: "Glove",
         section:SECTION,
         desc: `Text mining`,

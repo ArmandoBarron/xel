@@ -7,6 +7,8 @@ SECTION = "sec-mining"
 ServicesArr.push(    {
     id: "s-txt-class",
     name: "text_classification",
+    valid_datatypes:{input:["CSV"],output:["ZIP"]},
+
     section:SECTION,
     desc: `Classification algorithms for plain text`,
     columns:{
@@ -198,6 +200,7 @@ ServicesArr.push(
     {
         id: "s-txtProc",
         name: "text_processing",
+        valid_datatypes:{input:["ZIP"],output:["ZIP"]},
         section:SECTION,
         desc: `Clustering algorithms for plain text.`,
         columns:{
@@ -455,6 +458,7 @@ ServicesArr.push(
     {
         id: "s-txtPreproc",
         name: "text_preprocessing",
+        valid_datatypes:{input:["ZIP"],output:["ZIP"]},
         section:SECTION,
         desc: `Preprocessing tools for plain text.`,
         columns:{

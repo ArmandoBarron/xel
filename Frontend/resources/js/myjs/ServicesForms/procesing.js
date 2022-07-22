@@ -7,6 +7,7 @@ SECTION = "sec-proc"
 ServicesArr.push({
         id: "s-neural-networks",
         name: "deeplearning",
+        valid_datatypes:{input:["CSV"],output:["ZIP"]},
         section:SECTION,
         columns:{
             default: ['class'],
@@ -153,6 +154,7 @@ ServicesArr.push(
         {
                 id: "clustering-algh",
                 name: "clustering_service",
+                valid_datatypes:{input:["CSV"],output:["CSV","ZIP"]},
                 section:SECTION,
                 desc: `Set of clustering algorithms. Group a dataset records in K groups`,
                 columns:{
@@ -270,6 +272,8 @@ ServicesArr.push(
         {
                 id: "s-corr",
                 name: "correlation",
+                valid_datatypes:{input:["CSV"],output:["ZIP","JPEG"]},
+
                 section:SECTION,
                 desc: `See the correlations between variables in a dataset.`,
                 columns:{
@@ -333,6 +337,7 @@ ServicesArr.push(
         {
                 id: "regression_serv",
                 name: "regression",
+                valid_datatypes:{input:["CSV"],output:["ZIP","JPEG"]},
                 section:SECTION,
                 desc: `service with linear and logarithmic regression models.`,
                 columns:{
@@ -365,6 +370,83 @@ ServicesArr.push(
                                         <option value="LINEARM"> Linear - multivariable  </option>
                                         <option value="LOGS"> logarithmic - simple </option>
                                         <option value="LOGM"> logarithmic - multivariable  </option>
+                                </select>
+                                </div>
+                        </div>
+
+                        <h4>Input variable/s (x): </h4>
+                        <div servopt="LINEARM LOGM" class="form-group">
+                                <select class=" form-control" id="list_var_x" data-actions-box="true" onclick=fillselect(this)></select>
+                        </div>
+                        <div servopt="LINEARS LOGS" class="form-group">
+                                <select class="form-control" id="var_x" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                        </div>
+
+                        <h4>target variables (y): </h4>
+                        <div class="form-group">
+                                <select class="form-control" id="var_y" data-actions-box="true" onclick=fillselect(this)></select>
+                        </div>
+
+                        <h4>Filter data by the column:</h4>
+                        <div class="form-group">
+                                <select class="form-control" id="filter_column" data-actions-box="true" onclick=fillselect(this,mult=false)>
+                                <option value=""></option>
+                                </select>
+                        </div>
+                        <h4>... with the value of: </h4>
+                        <div class="form-group">
+                                <input type="text" class="form-control" id="filter_value" value=''>
+                        </div>
+
+                
+                        <h4>Alpha (Acceptable error rate)</h4>
+                        <div class="form-group">
+                                <input id="alpha" type="number" class="form-control form-control-sm"  min="0" max="1" value=".05">
+                        </div>
+                        <span class="help-block">For example, 0.05 acceptable error is equivalent to 95% reliability of the model.</span>
+
+
+                `
+            }
+)
+
+
+// Clasificadores Genericos 
+//====================================================================================
+ServicesArr.push(
+        {
+                id: "class-model",
+                name: "classificators",
+                valid_datatypes:{input:["CSV","ZIP"],output:["ZIP","CSV"]},
+                section:SECTION,
+                desc: `Clasifications models.`,
+                columns:{
+                    default: [],
+                    parent: [] 
+                },
+                params: {
+                        actions: '',
+                        var_x:'',
+                        list_var_x:[],
+                        var_y: '',
+                        filter_column: '',
+                        filter_value: '',
+                        alpha: .05,
+                        SAVE_DATA:true
+                },
+                html: `
+                <div class="form-check" style="text-align: right;">
+                    <input type="checkbox" checked class="form-check-input" id="SAVE_DATA">
+                    <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
+                </div>
+                <br>
+
+                        <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm"> Alghoritm: </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="actions" onchange="ChangeVisibileOptionsOfService(this)">
+                                        <option value=""></option>
+                                        <option value="KNN"> K neareast neigbors </option>
                                 </select>
                                 </div>
                         </div>

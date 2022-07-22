@@ -85,12 +85,12 @@ The solutions are designed based on instructions defined as a tree, following th
  "auth":{"workspace": "<catalog>", "user": "<token_user>"},
  "DAG":{ 
     "id": "root",
-    "name": "root",
+    "service": "root",
     "root": true,
-    "children": [
+    "childrens": [
       {
         "name": "Acquisition",
-        "children": [],
+        "childrens": [],
         "params": {
           "DOWNLOAD_server": "BB_FILES",
           "NAMEFILE": "Covid(reduced)",
@@ -107,9 +107,9 @@ The solutions are designed based on instructions defined as a tree, following th
 }
 ```
 where:
-+ **name** is the name of the service defined in docker-compose.yml file.
++ **service** is the name of the service defined in docker-compose.yml file.
 + **params** is a set of params defined in a key-valye format that will be used for the app to preform the data transformation.
-+ **children** is a set of childres with the instructions to be executed for services after finish _this_ parent.
++ **childrens** is a set of childres with the instructions to be executed for services after finish _this_ parent.
 
 As well as the instructions, the dataset to be transformed must be sent. Below are the available ways up to this version of xel to provide a dataset
 

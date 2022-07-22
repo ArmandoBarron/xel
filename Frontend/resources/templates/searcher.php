@@ -28,7 +28,7 @@
           <!-- Example split danger button -->
             <div class="btn-group btn-block">
               <button id="output" onClick="Xel_run()" class="btn btn-outline-success col-11">RUN</button>
-              <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split col-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <button id="run_dropdown" type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split col-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="sr-only">Toggle Dropdown</span>
               </button>
               <div class="dropdown-menu">
@@ -37,7 +37,8 @@
             </div>
           
           <hr>
-
+          <button onClick="Xel_clean()" class="btn btn-outline-secondary col-12">Clean</button>
+          <hr>
           <div class ="col-sm-12" id="leftcard" style="height:100%" >
 
           <p class="text-left text-uppercase font-italic" data-toggle="popover"

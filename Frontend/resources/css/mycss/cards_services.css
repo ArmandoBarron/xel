@@ -21,16 +21,25 @@
     padding: 0px!important;
     font-family: Roboto;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 14px;
     color: #2A2B2A;
 }
 .blockdesc {
     margin-top: 5px;
     font-family: Roboto;
     color: #808292;
-    font-size: 14px;
-    line-height: 21px;
+    font-size: 13px;
+    line-height: 18px;
 }
+
+.blocktag {
+    margin-bottom: 5px;
+    font-family: Roboto;
+    color: #393C44;
+    font-size: 13px;
+    line-height: 18px;
+}
+
 
 .elementhover {
     transition: transform .2s; /* Animation */
@@ -43,9 +52,29 @@
 .blockelem:hover {
     box-shadow: 0px 4px 30px rgba(22, 33, 74, 0.08);
     border-radius: 10px;
-    background-color: #98DFEA;
+    background-color: #bb415c/*#98DFEA*/;
+    opacity: .9;
     cursor: pointer;
 }
+.blockelem:hover .blocktitle {
+    color: #F0F2F9/*#98DFEA*/;
+    font-weight: 900;
+    font-size: 16px;
+}
+.blockelem:hover .blocktag {
+    color: #F0F2F9/*#98DFEA*/;
+    font-weight: 500;
+    font-size: 14px;
+}
+.blockelem:hover .fb-grab {
+    color: #F0F2F9/*#98DFEA*/;
+}
+.blockelem:hover .blockdesc {
+    color: #2A2B2A/*#98DFEA*/;
+    font-weight: 700;
+    font-size: 14px;
+}
+
 .grabme, .blockico {
     display: inline-block;
 }

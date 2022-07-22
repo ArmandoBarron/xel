@@ -30,11 +30,23 @@ var confighover = {
 
 $(document).ready(function () {
 
+
+
     flowey_createSections()
     // add dinamic parameters to services in ServiceArr
     flowey_ConfigServices()
     // data contains the static values for the 'services'
     demoflowy_createBoxes(ServicesArr.length, ServicesArr);
+
+    $( ".blockdesc" ).hover(
+        function() {
+            $(this).toggleClass("text-truncate");
+        }, function() {
+            $(this).toggleClass("text-truncate");
+        }
+    );
+
+    
     // init flowy
     flowy(document.getElementById("canvas"), demoflowy_drag, demoflowy_release,
         demoflowy_snapping, demoflowy_rearranging, demoflowy_onBlockChange, 30, 25);
@@ -184,12 +196,16 @@ $(document).ready(function () {
 
         // Se configura el front end de la caja
 
-        var grab = drag.querySelector(".fb-grab");
+        grab = drag.querySelector(".fb-grab");
         grab.parentNode.removeChild(grab);
-        var blockin = drag.querySelector(".fb-desc");
+        blockin = drag.querySelector(".fb-desc");
         blockin.parentNode.removeChild(blockin);
+        blockin = drag.querySelector(".row-cols-2");
+        blockin.parentNode.removeChild(blockin);
+
         drag.classList.add('position-absolute');
         drag.classList.remove('row');
+        drag.classList.remove('container-fluid'); // ya no se usara row
 
         if (first){
             class_type_box = "root"
@@ -499,29 +515,51 @@ function demoflowy_createBoxes(n, boxData) {
         let name = boxData[i].name;
         let desc = boxData[i].desc;
         let type = boxData[i].service_type; //SERVICE OR DATASOURCE
+        let IN_OUT = boxData[i].valid_datatypes; //{input:[], output:[]}
+
+        Input_list =""
+        Output_list =""
+
+        IN_OUT.input.forEach(function(valid_file_format){
+            Input_list += valid_file_format=="NA" ?  `<i class="fas fa-cloud" data-toggle="tooltip" data-placement="bottom" title="From repository"></i> `: ``;
+            Input_list += valid_file_format=="CSV" ?  `<i class="fas fa-file-csv" data-toggle="tooltip" data-placement="bottom" title="CSV file"></i> `: ``;
+            Input_list += valid_file_format=="ZIP" ?  `<i class="fas fa-file-archive"  data-toggle="tooltip" data-placement="bottom" title="ZIP file"></i> `: ``;
+            Input_list += valid_file_format=="JPEG" ?  `<i class="fas fa-file-image  data-toggle="tooltip" data-placement="bottom" title="JPEG Image""></i> `: ``;
+            Input_list += valid_file_format=="HTML" ?  `<i class="fab fa-html5"></i>  data-toggle="tooltip" data-placement="bottom" title="HTML file"`: ``;
+            Input_list += valid_file_format=="JSON" ||  valid_file_format=="TXT"  ?  `<i class="fas fa-file-alt"></i>  data-toggle="tooltip" data-placement="bottom" title="Plaintext file"`: ``;
+        });
+        IN_OUT.output.forEach(function(valid_file_format){
+            Output_list += valid_file_format=="NA" ?  `<i class="fas fa-cloud" data-toggle="tooltip" data-placement="bottom" title="From repository"></i> `: ``;
+            Output_list += valid_file_format=="CSV" ?  `<i class="fas fa-file-csv" data-toggle="tooltip" data-placement="bottom" title="CSV file"></i> `: ``;
+            Output_list += valid_file_format=="ZIP" ?  `<i class="fas fa-file-archive"  data-toggle="tooltip" data-placement="bottom" title="ZIP file"></i> `: ``;
+            Output_list += valid_file_format=="JPEG" ?  `<i class="fas fa-file-image  data-toggle="tooltip" data-placement="bottom" title="JPEG Image""></i> `: ``;
+            Output_list += valid_file_format=="HTML" ?  `<i class="fab fa-html5"></i>  data-toggle="tooltip" data-placement="bottom" title="HTML file"`: ``;
+            Output_list += valid_file_format=="JSON" ||  valid_file_format=="TXT"  ?  `<i class="fas fa-file-alt"></i>  data-toggle="tooltip" data-placement="bottom" title="Plaintext file"`: ``;
+        });
+
+
 
         if (type==undefined){type="SERVICE"}
 
         let section  = boxData[i].section;
 
-        //var box =
-        //    `<div type="${type}" id="${id}" name="${name}" class="card create-flowy blockelem leftpanel-block noselect">
-        //        <div class="card-header bg-primary text-uppercase">
-        //            <strong>${name}</strong><strong>${id}</strong>
-        //        </div>
-        //        <div class="card-body text-center"><strong>Description:</strong> ${desc}</div></div>`;
-        //
         var box =
             `
-            <div class="blockelem row create-flowy noselect elementhover" type="${type}" id="${id}" name="${name}">
-                <div class="col-1 fb-grab" >
-                    <i class="fas fa-grip-vertical align-middle"></i>
-                </div>
-                <div class="col-10 fb-desc">
-                    <div>
-                        <p class="blocktitle">${name}</p>
-                        <p class="blockdesc">${desc}</p>
+            <div class="blockelem container-fluid create-flowy noselect elementhover" type="${type}" id="${id}" name="${name}">
+                <div class="row" style="margin:0px">
+                    <div class="col-1 fb-grab" >
+                        <i class="fas fa-grip-vertical align-middle"></i>
                     </div>
+                    <div class="col-10 fb-desc">
+                        <div>
+                            <p class="blocktitle">${name}</p>
+                            <p class="blockdesc text-truncate">${desc}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row row-cols-2" style="margin:0px">
+                    <div class="col blocktag text-center"> Input: ${Input_list}</i> </div>
+                    <div class="col blocktag text-center"> Output: ${Output_list} </div>
                 </div>
             </div>
             `

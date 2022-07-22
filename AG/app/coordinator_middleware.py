@@ -3,7 +3,7 @@ import sys,os,ast
 import pandas as pd
 from threading import Thread
 from flask import Flask,request,jsonify,send_file
-#from waitress import serve
+from waitress import serve
 
 import json
 from time import sleep
@@ -346,7 +346,8 @@ def monitoring_v2(token_project,token_solution):
     if list_task is None:
         return json.dumps({"status":"ERROR", "message":"Solution doesn't exist"})
 
-    ToSend = {"status":"OK", "list_task": list_task,"additional_messages":[],"message":"Monitoring..."}
+    ToSend = {"status":"OK", "list_task": list_task,"message":"Monitoring..."}
+    ToSend['additional_messages']=[]
     for task, value in list_task.items():
         try:
             if 'DAG' in value: #el nodo fallo al estar procesando datos... se van a recuperar
@@ -492,7 +493,11 @@ def delete_sol_from_DB():
      ######## paxos ##########
     paxos_response = PROPOSER.Delete(token_solution,auth) # consult request in paxos distributed memory
     solution_path = GetSolutionPath(token_solution)
-    shutil.rmtree(solution_path)
+    try:
+        shutil.rmtree(solution_path)
+    except Exception as e:
+        LOGER.info("No se requiere borrar un directorio")
+        
     #########################
     return {"status":paxos_response['status'],"info":paxos_response['value']}    
 
@@ -793,6 +798,6 @@ def getLogFile(RN):
     return send_file(logs_folder+'log_'+RN+'.txt',as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5555,debug = True) #for development
-    #serve(app, host='0.0.0.0', port=5555)
+    #app.run(host='0.0.0.0', port=5555,debug = True) #for development
+    serve(app, host='0.0.0.0', port=5555)
 

@@ -6,6 +6,7 @@ SECTION = "sec-datasource"
 ServicesArr.push({
         id: "ds",
         service_type:"DATASOURCE",
+        valid_datatypes:{input:["NA"],output:["CSV"]},
         name: "Simple datasouce",
         section:SECTION,
         desc: `Upload your data to Xel`,
@@ -100,6 +101,7 @@ ServicesArr.push({
 SECTION = "sec-datasource"
 ServicesArr.push({
         id: "MultiDS",
+        valid_datatypes:{input:["NA"],output:["ZIP"]},
         service_type:"DATASOURCE",
         name: "Multiple Datasources",
         section:SECTION,

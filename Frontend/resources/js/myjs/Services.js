@@ -16,7 +16,7 @@ var ServicesArr = []
 var PARAMS_MAP = {}
 var TOKEN_SOLUTION=''
 var ifCoordinates = ["latitud","longitud","lat","lon", "x", "y"].map(function(x){ return x.toUpperCase();}) 
-
+var FORCE_EXECUTION_STOP= false
 // variables globales pero para que funcionen algunos servicios
 var ID_rule = 1 // Filtercolumn
 var ID_CAR_ELEMENT = 1 // Filtercolumn
@@ -88,14 +88,39 @@ function Upload_graph_data(){
         }
 }
 
+function Xel_clean(){
+    Set_Tokensolution("")
+    flowy.deleteBlocks()
+    Set_DatasourceMap('','DUMMY')
+    notificarUsuario("Workspace is now clean",'secondary')
+    canvasElementsCount=0
+}
+
+function Toggle_run_button(){
+    let text= $("#output").text()
+    $("#output").toggleClass("btn-outline-success btn-outline-danger");
+    $("#run_dropdown").toggleClass("btn-outline-success btn-outline-danger");
+    $("#output").text(text == "RUN" ? "FORCE STOP" : "RUN");
+}
+
+
 function Xel_run(as_copy=false){
-    
-    if (as_copy){
-        Set_Tokensolution("")
-    }
-    Exec_graph();
-    // Add verification to enable when exec_graph() is done.
     $('#output').prop('disabled', true);
+    text= $("#output").text() 
+    if (text=="RUN"){ 
+        if (as_copy){
+            Set_Tokensolution("")
+        }
+        
+        Exec_graph();
+        $('#output').prop('disabled', false);
+        Toggle_run_button()
+    }
+    else{ //stopping solution
+        FORCE_EXECUTION_STOP=true
+    }
+
+
 }
 
 
@@ -448,23 +473,31 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
 
                 //despues de revisar el estatus de cada tarea, la funcion se llama a si misma si aun existen valores en la lista
                 console.log(list_remain_task)
-                if(list_remain_task.length>=1){
+                if (FORCE_EXECUTION_STOP){ //detener el monitoreo
+                    var tiempo_ejecucion = ((Date.now() -INIT_TIME)/1000) -2 ; // se le quitan los 2 segundos que se agregan
+                    notificarUsuario("Solution has been stopped. Response Time: "+tiempo_ejecucion , 'warning')
+                    FORCE_EXECUTION_STOP =false
+                    Toggle_run_button()
+                    $('#output').prop('disabled', false);
+
+                }
+                else if(list_remain_task.length>=1){
                     setTimeout(function() {
                         ServiceMonitor(token_project,token_solution,list_remain_task)
                     }, 2000)                    
-                    //setTimeout(ServiceMonitor(token_project,token_solution,list_remain_task), 4000);
                 }
                 else{ // esto quiere decir que todas las task devolvieron ya un status, pero puede que aun no terminen
                     
                     lista_tareas = Listar_tareas([],dataObject.children)
                     if (lista_tareas.length == LIST_TASK_OVER.length){
-                        $('#output').prop('disabled', false); //se desactiva el bloqueo del boton
+                        
                         // se remueven todos los iconos de carga
                         $('.serviceLoadingIcon-root').html("")
     
                         var tiempo_ejecucion = ((Date.now() -INIT_TIME)/1000) -2 ; // se le quitan los 2 segundos que se agregan
                         notificarUsuario("Solution Complete. Response Time: "+tiempo_ejecucion , 'info')
-                
+                        Toggle_run_button()
+
                         if ($("#dag_saveresults").is(":checked")){ //auto download log
                             for (var i = 0; i < LIST_TASK_OVER.length; i++) {
                                 if (LIST_TASK_OVER[i]["ifdownload"]){
@@ -516,7 +549,9 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
 
         }
     }).fail(function(){
-        console.log("error al conectarse")
+        notificarUsuario("Solution has stopped by an unexpected failure. Response Time: "+tiempo_ejecucion , 'warning')
+        Toggle_run_button()
+        $(".serviceLoadingIcon").html("")
     });
 }
 
@@ -1700,6 +1735,10 @@ function BTN_list_solution(){
                 headeres.forEach(function(h){
                     if (h=="token_solution" || h =="last_update"){
                         content += `<td>${value[h]}</td>`
+                    }
+                    //text-break
+                    else if (h=="desc"){
+                        content += `<td><p class="text-break">${value['metadata'][h]}</p></td>`
                     }
                     else{
                         content += `<td>${value['metadata'][h]}</td>`

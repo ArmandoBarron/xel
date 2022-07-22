@@ -1,0 +1,18 @@
+{
+    "NAME_APPLICATION":"Clasification process",
+    "INPUT_DATA_FORMAT":["zip"],
+    "EXTRACT":{
+            "COMPRESS":true
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}clasificara.py --ruta_entrada \"@{SOURCE}@{filename_dataset}\" --ruta_modelo \"@{SINK}@{filename_model}\" --ruta_salida \"@{SINK}\" --columnas_interes \"@{columns}\" ",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"predicciones_output.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        },
+    "METADATA":{
+    }
+}

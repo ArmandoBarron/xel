@@ -73,6 +73,7 @@ fig = px.scatter_mapbox(df_markers,
                         color=label,
                         size=size,
                         zoom=7,
+                        color_continuous_scale=px.colors.cyclical.IceFire,
                         mapbox_style = "carto-positron")
 
 

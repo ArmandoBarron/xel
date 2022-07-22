@@ -7,6 +7,7 @@ SECTION = "sec-visualitation"
 ServicesArr.push(
     {
         id: "maps",
+        valid_datatypes:{input:["CSV"],output:["HTML"]},
         name: "maps",
         section:SECTION,
         desc: `Visalize data in a map`,
@@ -144,9 +145,10 @@ ServicesArr.push(
         {
             id: "charts-sv",
             endpoint:"charts",
+            valid_datatypes:{input:["CSV"],output:["HTML","ZIP"]},
             name: "charts",
             section:SECTION,
-            desc: `Visalize data in a map`,
+            desc: `Visalize data in a graph`,
             columns:{
                 default: null,
                 parent: [] 
@@ -335,6 +337,7 @@ ServicesArr.push(
 ServicesArr.push(
         {
             id: "AdvMap",
+            valid_datatypes:{input:["ZIP"],output:["HTML"]},
             name: "advanced_maps",
             section:SECTION,
             desc: `Visalize data in a map`,

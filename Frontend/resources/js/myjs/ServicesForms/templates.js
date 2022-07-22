@@ -1,4 +1,7 @@
 
+// estos no se usan en el codigo, es para copiarlos por si los necesito
+
+
 a = {
         select_multiple_fromlist : `
         <div class="form-group row m-2">

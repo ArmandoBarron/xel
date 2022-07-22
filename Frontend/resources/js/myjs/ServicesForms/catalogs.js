@@ -1,12 +1,13 @@
 
 
 
-/// SERVICOS DE PREPROCESAMIENTO
+/// SERVICOS DE CATALOGO
 SECTION = "sec-catalogs"
 ServicesArr.push({
         id: "data-catalogs",
         name: "catalogs",
         section:SECTION,
+        valid_datatypes:{input:["CSV"],output:["CSV"]},
         desc: `data catalogs with geographical data.`,
         columns:{
             default: null,

@@ -5,6 +5,7 @@ ServicesArr.push(
     {
         id: "stats-serv",
         name: "statistics",
+        valid_datatypes:{input:["CSV"],output:["TXT"]},
         section:SECTION,
         desc: `Statisticl analysis of  datasets. Correlation, covariance, etc.`,
         columns:{
