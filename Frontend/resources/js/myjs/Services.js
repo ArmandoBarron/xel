@@ -888,8 +888,13 @@ function DeleteDataset(id_row,filename,table){
 }
 
 function LoadExistingDataset(sourceId,filename,metadata=null,workspace=null){
-    if (workspace == null){workspace=MESH_WORKSPACE}
+    console.log(workspace)
+    if (workspace == null){
+        workspace=MESH_WORKSPACE
+        console.log("es nulo")
+    }
     else{ MESH_WORKSPACE = workspace}
+    console.log(workspace)
 
 
     Toggle_Loader("show","mining dataset...")
@@ -1270,19 +1275,19 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
 
     //aqui se descargan los datos y se guardan en PARAMS_MAP
 
-    $("#SOM-loading").html("<img style='width:25%; height: 160px; margin-top: 50px; position: fixed; margin-left: 170px;' src='resources/imgs/loading.gif'></img")
+    //$("#SOM-loading").html("<img style='width:25%; height: 160px; margin-top: 50px; position: fixed; margin-left: 170px;' src='resources/imgs/loading.gif'></img")
 
     rn = $("#SOM-rn").val();
     task = $("#SOM-id_service").val();
 
 
     // aqui creo el combobox y mando llamar Show_data_on_map con un posible valor temporal
-    $("#results2").html("")
-    $("#results2").append("<div id='aas_temporal_combo' style='width:100%'></div>"); //div para combo de fechas
-    $("#results2").append("<div id='aas_criteria' style='width:100%'></div>"); // div para combo de criterios
-    $("#results2").append(`<button onclick="Show_data_on_map()" class="btn btn-outline-info btn-block">Request</button>`); // boton para mostrar resultados
-    $("#results2").append("<div id='filtros-dinamicos' style='width:100%;max-height:400px; overflow-y:auto;'></div>"); //div para filtros
-    $("#results2").append("<div id='clust_res' style='width:100%'></div>"); //div para resultados
+    $("#results_panel").html("")
+    $("#results_panel").append("<div id='aas_temporal_combo' class='row col-12 justify-content-md-center'></div>"); //div para combo de fechas
+    $("#results_panel").append("<div id='aas_criteria' class='row col-12 justify-content-md-center'></div>"); // div para combo de criterios
+    $("#results_panel").append(`<button onclick="Show_data_on_map()" class="btn btn-outline-info btn-block" style="margin:5px">Request</button>`); // boton para mostrar resultados
+    $("#results_panel").append("<div id='filtros-dinamicos' class='row col-12' style='max-height:400px; overflow-y:auto;'></div>"); //div para filtros
+    $("#results_panel").append("<div id='clust_res' class='row col-12'></div>"); //div para resultados
 
     //vaciar lista de filtros global
     lista_global_filtros={}
@@ -1323,7 +1328,7 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
     data_request2.REQUEST.data.token_solution=PARAMS_MAP.rn
     data_request2.REQUEST.data.task=PARAMS_MAP.task
 
-    if (PARAMS_MAP.value_filter!=null){ //el filtro por valor es opcional
+    if (PARAMS_MAP.value_filter!=null && PARAMS_MAP.value_filter!=undefined && PARAMS_MAP.value_filter!=""){ //el filtro por valor es opcional
         data_request2.REQUEST.ask = [{"request":"unique","value":PARAMS_MAP.value_filter}]
         $.ajax({ // ajax para rellenar valores de criterio
             url: 'includes/xel_Request.php',
@@ -1345,13 +1350,12 @@ function Handler_map(raw=false){ //rellena los comboboxes y prepara funciones pa
                 $("#SOM-loading").html("")
             }
         }).fail(function(){console.log("error al conectarse")});
-    
-        $('[opth]').hide()
-        //$("#modal_mapAAS").modal('toggle');
-        Toggle_Modal("hide","#modal_mapAAS")
-        $('#mytabs a[href="#results-tab"]').tab('show');
-        $('#tabs_show a[href="#mapContainer"]').tab('show');
     }   
+
+    $('[opth]').hide()
+    Toggle_Modal("hide","#modal_mapAAS")
+    $('#mytabs a[href="#results-tab"]').tab('show');
+    $('#tabs_show a[href="#mapContainer"]').tab('show');
 
 }
 
@@ -1400,7 +1404,6 @@ function Show_data_on_map(){
         }
     }
     
-    //console.log(criterio_value.length)
     console.log(query)
     data_request.REQUEST.ask = [{"request":"query","value":query }]
     $.ajax({
@@ -1409,13 +1412,19 @@ function Show_data_on_map(){
         dataType: 'json',
         data:data_request,
         success: function(result) {  
-            console.log(result)
             datos = JSON.parse(result.info[0])
-            datatemp = ChangeOrientationJSON(datos)
-            //document.bkp_data = datatemp // se guardan los datos en memoria
-            SetDataOnMap(datatemp)
-            $('#mytabs a[href="#3b"]').tab('show');
-            $('#tabs_show a[href="#mapContainer"]').tab('show');
+            console.log(datos)
+            if (datos.length < 1){
+                notificarUsuario("No data for the selected values.","warning")
+            }
+            else{
+                datatemp = ChangeOrientationJSON(datos)
+                //document.bkp_data = datatemp // se guardan los datos en memoria
+                SetDataOnMap(datatemp)
+                $('#mytabs a[href="#3b"]').tab('show');
+                $('#tabs_show a[href="#mapContainer"]').tab('show');
+            }
+
 
         }
     }).fail(function(){console.log("error al conectarse")});
@@ -1517,8 +1526,8 @@ function SetDataOnMap(dataset) {
     }
 
     //GRAFICAS
-    if (columns.length>=2){ CreatePlotCluster(dataset[columns[0]],dataset[columns[1]],null,null,xlabel = columns[0], ylabel=columns[1],color_list=lista_colores,div_container="cluster-plot-container")}
-    else { CreatePlotCluster(dataset[columns[0]],dataset[columns[0]],null,null,xlabel = columns[0], ylabel=columns[0],color_list=lista_colores,div_container="cluster-plot-container")}
+    if (columns.length>=2){ CreatePlotCluster(dataset[columns[0]],dataset[columns[1]], dataset[col_label],lista_clusters_ordenados,xlabel = columns[0], ylabel=columns[1],color_list=lista_colores,div_container="cluster-plot-container")}
+    else { CreatePlotCluster(dataset[columns[0]],dataset[columns[0]],dataset[col_label],lista_clusters_ordenados,xlabel = columns[0], ylabel=columns[0],color_list=lista_colores,div_container="cluster-plot-container")}
  
     CreatePlotHistogram(dataset,columns,div_container="boxplot-plot-container")
 
@@ -2145,7 +2154,7 @@ function CreateDatasetsPackage(id_list,destination_selector,packagename_selector
         success: function(result) {  
             if (result['status']=="OK"){
                 // se carga el dataset
-                LoadExistingDataset(sourceId,result['filename'],metadata=null,workspace=workspacename )
+                LoadExistingDataset(sourceId,result['filename'],metadata=null,workspace=workspacename)
             }
         }
     }).fail(function(){console.log("error al conectarse")});

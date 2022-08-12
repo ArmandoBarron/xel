@@ -110,20 +110,8 @@
           <div class="row">
             <h2><?php echo $lngarr['results'] ?></h2>
           </div>
-          <div class="row">
-            <div class="configuraciones col-12" style="visibility:collapse" id="ForDataDownload"></div>
-            <a class=" dropdown-toggle" id="addAll" href="javascript:void(0);" type="button" data-toggle="dropdown"> <span class="glyphicon glyphicon-save" aria-hidden="true"></span></a>
-            <div id="DropImages" class="dropdown dropdown2">
-              <a class=" dropdown-toggle" id="menu2" href="javascript:void(0);" type="button" data-toggle="dropdown"> <span class="glyphicon glyphicon-picture" aria-hidden="true"></span></a>
-              <ul id="dropconfig" class="dropdown-menu" role="menu" aria-labelledby="menu2">
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="" download='ImagesByStat.tar' id='imgStat' target='_blank' onclick=""><?php echo $lngarr['d_img_stat'] ?></a></li>
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="" download='ImagesByDate.tar' id='imgDate' target='_blank' onclick=""><?php echo $lngarr['d_img_date'] ?></a></li>
-              </ul>
-            </div>
-            <div id="dropyears"></div>
-          </div>
 
-          <div class="row container-fluid">
+          <div id="results_panel" class="container-fluid">
             <div  id="results" class="col-12" ></div>
             <div  id="results2" class="col-12"> </div>
           </div>

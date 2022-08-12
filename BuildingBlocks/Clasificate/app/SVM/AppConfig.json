@@ -1,0 +1,18 @@
+{
+    "NAME_APPLICATION":"SVM model",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}entrenamiento_svm.py \"@{SOURCE}\" --ruta_salida_prueba \"@{SINK}\" --ruta_salida_imagen \"@{SINK}\" --ruta_salida_reporte \"@{SINK}\" --ruta_salida_clasificador \"@{SINK}\" --columna_clase \"@{class}\" --columnas_interes \"@{columns}\" ",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
+            "ignore_list":[]
+        },
+    "METADATA":{
+    }
+}

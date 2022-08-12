@@ -189,6 +189,8 @@ ServicesArr.push(
                                             <option value="6"> Sunbrust </option>
                                             <option value="7"> Scatter </option>
                                             <option value="8"> 3D Scatter </option>
+                                            <option value="9"> 3D Scatter with PCA </option>
+
                                     </select>
                                     </div>
                             </div>
@@ -205,14 +207,14 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="1 2 3">
+                            <div class="form-group row m-2" servopt="1 2 3 9">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">columns: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="columns" onclick=fillselect(this)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="2 4 5 6 7 8" >
+                            <div class="form-group row m-2" servopt="2 4 5 6 7 8 9" >
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Label variable: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="label_column" onclick=fillselect(this,multi=false)></select>

@@ -569,15 +569,50 @@
 </div>
 
 
+<div id="loginmodal" class="modal fade">
+	<div class="modal-dialog modal-login">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="avatar">
+					<img src="/resources/imgs/avatar.png" alt="Avatar">
+				</div>				
+				<h4 class="modal-title">Login</h4>	
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body">
+				<form action="/examples/actions/confirmation.php" method="post">
+					<div class="form-group">
+						<input type="text" class="form-control" name="username" placeholder="Username" required="required">		
+					</div>
+					<div class="form-group">
+						<input type="password" class="form-control" name="password" placeholder="Password" required="required">	
+					</div>        
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary btn-lg btn-block login-btn">Login</button>
+					</div>
+					<div class="form-group">
+						<button id="btnLogGhest" type="submit" class="btn btn-outline-primary btn-lg btn-block login-btn"><?php echo $lngarr['invitado'];?></button>
+					</div>
+
+				</form>
+			</div>
+			<div class="modal-footer">
+				<a id="btnResetPass" href="#">Forgot Password?</a>
+			</div>
+		</div>
+	</div>
+</div>     
+
+
 <!-- LOG IN -->
-<div class="modal fade " id="loginmodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+<div class="modal fade " id="loginmodal_legacy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-body" style="background-color:#272424;">
         <div class="loginbody">
           <div class="logo" style="margin-bottom: 30px;padding-left: 30px">
             <center>
-              <a href="index.php"><img width="350px" height="50px" src="./resources/imgs/METEOlogo.png" alt="Geoportal ECOSUR" /></a>
+              <a href="index.php"><img width="350px" height="50px" src="./resources/imgs/METEOlogo.png" alt="Xelhua" /></a>
             </center>
           </div>
           <div id="logindiv">

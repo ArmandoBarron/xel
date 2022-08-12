@@ -6,6 +6,7 @@ import plotly.figure_factory as ff
 import math
 import sys
 import numpy as np
+from sklearn.decomposition import PCA
 
 def validate_att(att): #esta funcion sirve para validar que un argumento viene vacio o no
     if att =="" or att =="-":
@@ -214,6 +215,28 @@ if chart_template==8: # 3D scatter matrix
     fig = px.scatter_3d(df, **params)
 
     export_figures(fig,outputpath,imagefile_name,config)
+
+if chart_template==9: # 3D scatter with PCA
+    imagefile_name = "3d_scatter"
+    pca = PCA(n_components=3)
+    principalComponents = pca.fit_transform(df[COLUMNS])
+    pca_df = pd.DataFrame(principalComponents,columns=["x","y","z"])
+    pca_df.index.name="id"
+
+    params = dict(x="x", y="y",z="z")
+
+    if validate_att(LABEL_COLUMN): # si hay colores
+        pca_df = pca_df.join(df[LABEL_COLUMN])
+
+        #pca_df = pca_df.merge(df[LABEL_COLUMN],on=["id"],how="inner")
+        params['color']=LABEL_COLUMN
+
+    fig = px.scatter_3d(pca_df, **params)
+
+    export_figures(fig,outputpath,imagefile_name,config)
+
+
+
 
 
 

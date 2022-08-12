@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"catalog_municipios",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}EtiquetarMunicipios.py @{SOURCE} @{SINK}dataset_municipios.csv '@{lat}' '@{lon}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"dataset_municipios.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

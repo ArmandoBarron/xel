@@ -5677,7 +5677,7 @@ function CreatePlotHistogram(dataset,columnas,div_container="H-Gclust"){
           data.push(trace)
     })
 
-    var layout = {barmode:"overlay",width: 500,height: 600,
+    var layout = {barmode:"overlay",width: 350,height: 420,
     xaxis: {
         autorange: true,
         autotick: true,
@@ -5753,13 +5753,13 @@ function CreatePlotCluster(arr_x,arr_y,arr_labels,lista_clusters_ordenados,xlabe
 
     var layoutClust = {
         autosize: false,
-        width: 480,
-        height: 500,
+        width: 350,
+        height: 400,
         title: {
             text: 'Clusters',
             font: {
                 family: 'Courier New, monospace',
-                size: 18
+                size: 16
             },
             xref: ' ',
             x: 0.03,
@@ -5769,7 +5769,7 @@ function CreatePlotCluster(arr_x,arr_y,arr_labels,lista_clusters_ordenados,xlabe
                 text: xlabel,
                 font: {
                     family: 'Courier New, monospace',
-                    size: 14,
+                    size: 12,
                     color: '#7f7f7f'
                 }
             },
@@ -5779,7 +5779,7 @@ function CreatePlotCluster(arr_x,arr_y,arr_labels,lista_clusters_ordenados,xlabe
                 text: ylabel,
                 font: {
                     family: 'Courier New, monospace',
-                    size: 14,
+                    size: 12,
                     color: '#7f7f7f'
                 }
             }

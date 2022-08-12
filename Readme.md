@@ -106,6 +106,7 @@ The solutions are designed based on instructions defined as a tree, following th
     }
 }
 ```
+
 where:
 + **service** is the name of the service defined in docker-compose.yml file.
 + **params** is a set of params defined in a key-valye format that will be used for the app to preform the data transformation.
@@ -128,7 +129,45 @@ As well as the instructions, the dataset to be transformed must be sent. Below a
   ```json
     {"data_map":{"data":,"type":"DUMMY"}}
   ```
-  
+#### Examples
+  ```json
+  "data_map":{
+    "data": {
+        "token_user": "Geoportal",
+        "catalog": "INSP",
+        "filename": "conteos_enfermedadesRespiratorias.csv"
+    },
+    "type": "LAKE"
+  },
+  "auth":{"workspace": "<catalog>", "user": "<token_user>"},
+  "DAG": [
+    {
+        "id": "c1-clustering-algh",
+        "service": "clustering_service",
+        "childrens": [],
+        "actions": [
+            "CLUSTERING"
+        ],
+        "params": {
+            "CLUSTERING": {
+                "algh": "kmeans",
+                "actions": [
+                    "CLUSTERING"
+                ],
+                "k": 3,
+                "columns": "count",
+                "clustering_params": "{\"dbscan\":{\"eps\":0.5,\"min_samples\":10},\"agglomerative\":{\"linkage\":\"ward\"}}",
+                "sample_size": "",
+                "if_sil_score": 1,
+                "if_cal_score": 1,
+                "if_dav_score": 1,
+                "SAVE_DATA": true
+            }
+        }
+    }
+  ]
+```
+
 ### Execution
 
 To execute the solutions can be done in 2 ways:

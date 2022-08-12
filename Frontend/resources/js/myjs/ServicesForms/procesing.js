@@ -447,13 +447,15 @@ ServicesArr.push(
                                 <select class="form-control" id="actions" onchange="OptionsHandler(this)">
                                         <option value=""></option>
                                         <option value="KNN"> K neareast neigbors </option>
+                                        <option value="SVM"> Support vector machine (SVM) </option>
+                                        <option value="GAUSSIAN"> Naive bayes </option>
                                         <option value="CLASIFICAR"> classification </option>
                                 </select>
                                 </div>
                         </div>
 
 
-                        <div opth opt-actions="KNN">
+                        <div opth opt-actions="KNN SVM GAUSSIAN">
 
                                 <div class="form-group row m-2">
                                         <label class="col-sm-4 col-form-label col-form-label-sm">Columns:</label>

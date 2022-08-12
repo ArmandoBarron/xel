@@ -10,6 +10,7 @@ RUN pip install statsmodels --user
 RUN pip install plotly --user
 RUN pip install kaleido --user
 RUN pip install scipy --user
+RUN pip install scikit-learn==1.0.1
 
 
 COPY ./app app
