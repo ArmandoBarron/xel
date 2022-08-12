@@ -42,9 +42,9 @@ ServicesArr.push({
 
                 <div opth opt-actions="MUNICIPIOS">
                         <div class="form-group row m-2">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">catalog </label>
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">catalog </label>
                                 <div class="col-sm-8">
-                                <select class="form-control" id="mode" onchange="ChangeVisibileOptionsOfService(this)">
+                                <select class="form-control" id="mode" onchange="OptionsHandler(this)">
                                         <option value="1"> Clave entidad y clave municipio </option>
                                         <option value="2"> Clave Entidad-municipio </option>
                                         <option value="3"> Nombre municipio </option>

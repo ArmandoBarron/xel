@@ -90,8 +90,8 @@ ServicesArr.push(
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="MARKER">
-                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Group by: </label>
+                        <div class="form-group row m-2" servopt="MARKER SCATTERMAP">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">(optional) Group by: </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="groupby" onclick=fillselect(this,mult=false)>
                                 </select>

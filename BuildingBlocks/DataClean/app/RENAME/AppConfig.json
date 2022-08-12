@@ -1,0 +1,16 @@
+{
+    "NAME_APPLICATION":"rename numeric labels",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}renombrar.py @{SOURCE} -lista_clases \"@{list_labels}\" --columna_clase \"@{label_column}\" --ruta_salida @{SINK}renamed.csv ",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"renamed.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+}

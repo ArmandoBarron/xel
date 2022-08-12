@@ -432,6 +432,7 @@ ServicesArr.push(
                         filename_dataset:"",
                         filename_model:"",
                         columns_classification:"",
+                        hidden_layer:"(100,)",
                         SAVE_DATA:true
                 },
                 html: `
@@ -446,6 +447,7 @@ ServicesArr.push(
                                 <div class="col-sm-8">
                                 <select class="form-control" id="actions" onchange="OptionsHandler(this)">
                                         <option value=""></option>
+                                        <option value="NN"> Neural Network </option>
                                         <option value="KNN"> K neareast neigbors </option>
                                         <option value="SVM"> Support vector machine (SVM) </option>
                                         <option value="GAUSSIAN"> Naive bayes </option>
@@ -455,7 +457,7 @@ ServicesArr.push(
                         </div>
 
 
-                        <div opth opt-actions="KNN SVM GAUSSIAN">
+                        <div opth opt-actions="KNN SVM GAUSSIAN NN">
 
                                 <div class="form-group row m-2">
                                         <label class="col-sm-4 col-form-label col-form-label-sm">Columns:</label>
@@ -468,6 +470,15 @@ ServicesArr.push(
                                         <label class="col-sm-4 col-form-label col-form-label-sm">Class column:</label>
                                         <div class="col-sm-8">
                                                 <select class="form-control" id="class" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                                        </div>
+                                </div>
+                        </div>
+
+                        <div opth opt-actions="NN">
+                                <div class="form-group row m-2">
+                                        <label class="col-sm-4 col-form-label col-form-label-sm">Hidden layer:</label>
+                                        <div class="col-sm-4">
+                                                <input type="text" class="form-control" id="hidden_layer">
                                         </div>
                                 </div>
                         </div>

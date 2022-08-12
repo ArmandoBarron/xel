@@ -92,6 +92,8 @@ ServicesArr.push(
                 norm_method:"",
                 list_values:"",
                 replace_with:"",
+                label_column:"",
+                list_labels:"",
                 SAVE_DATA:true
             },
             html: `
@@ -109,6 +111,8 @@ ServicesArr.push(
                                         <option value="NORMALIZATION"> Normalize and standarize </option>
                                         <option value="CLEAN">Remove unwanted values from dataset </option>
                                         <option value="TOKENIZATION">Categorical columns to numeric</option>
+                                        <option value="RENAME">Rename numeric labels</option>
+
                                 </select>
                         </div>
                 </div>
@@ -140,13 +144,13 @@ ServicesArr.push(
                         <div class="col-sm-8">
                                 <select class="form-control" id="encoding_method">
                                         <option value="ENCODING"> Replace column by the encoded values </option>
-                                        <option value="DUMMY"> Create a new column for every categorical value () </option>
+                                        <option value="DUMMY"> Create a new column for every categorical value</option>
                                 </select>
                         </div>
                 </div>
 
 
-                <div class="form-group row m-2">
+                <div class="form-group row m-2" opth opt-actions="OUTLIERS NORMALIZATION CLEAN TOKENIZATION">
                         <label class="col-sm-4 col-form-label col-form-label-sm">Variables:</label>
                         <div class="col-sm-8">
                                 <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>
@@ -196,6 +200,22 @@ ServicesArr.push(
                         </div>
                 </div>
 
+                <div opth opt-actions="RENAME">
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Label column:</label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="label_column" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">list of labels separated by ,</label>
+                                <div class="col-sm-8">
+                                        <input id="list_labels" type="text" class="form-control">
+                                </div>
+                        </div>
+
+                </div>
 `
         }
     )

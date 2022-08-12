@@ -1,3 +1,4 @@
+from logging import exception
 from unicodedata import name
 import pandas as pd
 import json
@@ -52,34 +53,50 @@ label = sys.argv[5]
 id_marker = sys.argv[6]
 size_point = sys.argv[7]
 title = sys.argv[8]
+groupby_columns = sys.argv[9]
 
 
 
 df_markers = pd.read_csv(inputpath_markers)
 
-if not validate_att(size_point):
-    size = 7
-else:
-    size = df_markers[size_point]
-    
+
 #$df_markers['cat_id'] = df_markers[label].astype('category')
 #$df_markers['cat_id']= df_markers['cat_id'].cat.codes
 #$list_colores=list(df_markers['cat_id'])
 
-fig = px.scatter_mapbox(df_markers,
-                        lat=y_column,
-                        lon=x_column,
-                        hover_name=id_marker,
-                        color=label,
-                        size=size,
-                        zoom=7,
-                        color_continuous_scale=px.colors.cyclical.IceFire,
-                        mapbox_style = "carto-positron")
 
 
+def CreateMap(df):
 
-fig.update_layout(legend=dict(x=0.03))
+    if groupby_columns != "":
+        gb_c = df[groupby_columns].values[0]
+    else:
+        gb_c = ""
 
+    if not validate_att(size_point):
+        size = 7
+    else:
+        size = df[size_point]
+    
+    print(gb_c)
 
-export_figures(fig,outputpath,"scatterMap",title)
+    try:
+        fig = px.scatter_mapbox(df,
+                                lat=y_column,
+                                lon=x_column,
+                                hover_name=id_marker,
+                                color=label,
+                                size=size,
+                                zoom=7,
+                                color_continuous_scale=px.colors.sequential.Bluered,
+                                mapbox_style = "carto-positron")
 
+        fig.update_layout(legend=dict(x=0.03))
+        export_figures(fig,outputpath,"ScatterMap_%s" %(gb_c) ,title)
+    except Exception as e:
+        print(e)
+
+if groupby_columns =='' or groupby_columns == '-':
+    CreateMap(df_markers)
+else:
+    df_markers.groupby(groupby_columns).apply(CreateMap)

@@ -5,12 +5,12 @@
             "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "python @{CWD}ScatterMap.py @{SOURCE} @{SINK} '@{lon}' '@{lat}' '@{class}' '@{label}' '@{size}' '@{title}'",
+        "COMMAND": "python @{CWD}ScatterMap.py @{SOURCE} @{SINK} '@{lon}' '@{lat}' '@{class}' '@{label}' '@{size}' '@{title}' '@{groupby}'",
         "CUSTOM_APP":false
     },
     "LOAD":{
-            "OUTPUT_NAMEFILE":"scatterMap.html",
-            "COMPRESS":false,
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
             "ignore_list":[]
         }
 

@@ -525,7 +525,7 @@ function demoflowy_createBoxes(n, boxData) {
             Input_list += valid_file_format=="CSV" ?  `<i class="fas fa-file-csv" data-toggle="tooltip" data-placement="bottom" title="CSV file"></i> `: ``;
             Input_list += valid_file_format=="ZIP" ?  `<i class="fas fa-file-archive"  data-toggle="tooltip" data-placement="bottom" title="ZIP file"></i> `: ``;
             Input_list += valid_file_format=="JPEG" ?  `<i class="fas fa-file-image  data-toggle="tooltip" data-placement="bottom" title="JPEG Image""></i> `: ``;
-            Input_list += valid_file_format=="HTML" ?  `<i class="fab fa-html5"></i>  data-toggle="tooltip" data-placement="bottom" title="HTML file"`: ``;
+            Input_list += valid_file_format=="HTML" ?  `<i class="fab fa-html5" data-toggle="tooltip" data-placement="bottom" title="HTML file"></i>`: ``;
             Input_list += valid_file_format=="JSON" ||  valid_file_format=="TXT"  ?  `<i class="fas fa-file-alt"></i>  data-toggle="tooltip" data-placement="bottom" title="Plaintext file"`: ``;
         });
         IN_OUT.output.forEach(function(valid_file_format){
@@ -533,7 +533,7 @@ function demoflowy_createBoxes(n, boxData) {
             Output_list += valid_file_format=="CSV" ?  `<i class="fas fa-file-csv" data-toggle="tooltip" data-placement="bottom" title="CSV file"></i> `: ``;
             Output_list += valid_file_format=="ZIP" ?  `<i class="fas fa-file-archive"  data-toggle="tooltip" data-placement="bottom" title="ZIP file"></i> `: ``;
             Output_list += valid_file_format=="JPEG" ?  `<i class="fas fa-file-image  data-toggle="tooltip" data-placement="bottom" title="JPEG Image""></i> `: ``;
-            Output_list += valid_file_format=="HTML" ?  `<i class="fab fa-html5"></i>  data-toggle="tooltip" data-placement="bottom" title="HTML file"`: ``;
+            Output_list += valid_file_format=="HTML" ?  `<i class="fab fa-html5" data-toggle="tooltip" data-placement="bottom" title="HTML file"></i>`: ``;
             Output_list += valid_file_format=="JSON" ||  valid_file_format=="TXT"  ?  `<i class="fas fa-file-alt"></i>  data-toggle="tooltip" data-placement="bottom" title="Plaintext file"`: ``;
         });
 
