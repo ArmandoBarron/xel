@@ -156,7 +156,7 @@ def parse_args():
                         type=str, nargs='?', default=None)
     parser.add_argument("--is_indexed",
                         help="Es necesario que los datos del archivo .CSV estén indexados en la primer columna, en caso de que no lo estén, ingrese --is_indexed=False para asignar uno en automático. --is_indexed=True por defecto",
-                        type=str, nargs='?', default="True")
+                        type=str, nargs='?', default="False")
     parser.add_argument("--average",
                         help="para la función de evaluación basada en sk.metrics.precision_score, etc. con la que se genera el reporte del entrenamiento, average{‘micro’, ‘macro’, ‘samples’, ‘weighted’, ‘binary’} or None, default=’binary’",
                         type=str, nargs='?', default='micro')

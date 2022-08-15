@@ -60,7 +60,7 @@ def cargar_csv (ruta_entrada, is_indexed=True):
     if is_indexed==None or is_indexed:
         datos= pd.read_csv(ruta_entrada, index_col=0)
     else:
-        datos= pd.read_csv(ruta_entrada)   
+        datos= pd.read_csv(ruta_entrada)
     return datos
 
 def histograma_png (datos_entrada, ruta_entrada, ruta_salida_imagen=None, prefijo=None):
@@ -89,3 +89,28 @@ def graficar_png (datos_entrada, ruta_entrada, ruta_salida_imagen):
     graficar(datos_entrada)
     guardar_png (datos_entrada, ruta_entrada, ruta_salida_imagen)
 
+def boxplot_png (datos_entrada, ruta_entrada, ruta_salida_imagen=None, prefijo=None):
+    ruta=generar_ruta ('png', ruta_entrada, ruta_salida_imagen, prefijo)
+    myFig, ax = plt.subplots()
+    ax.yaxis.grid(True)
+    #ax.boxplot(datos_entrada)
+    ax = datos_entrada.boxplot()
+    #ax.get_figure().suptitle()
+    plt.show()
+    myFig.savefig(ruta)
+
+def density_png (datos_entrada, ruta_entrada, ruta_salida_imagen=None, prefijo=None):
+    ruta=generar_ruta ('png', ruta_entrada, ruta_salida_imagen, prefijo)
+    ax = pd.DataFrame(datos_entrada).plot(kind='density')
+    fig = ax.get_figure()
+
+    #stderr = st.sem(datos_entrada)
+    ax.vlines( x=datos_entrada.mean(), ymin=ax.get_ylim()[0], ymax=ax.get_ylim()[1], label='Media', color="gray", linestyles="dashed")
+    #stderr = 0.1
+    #ax.vlines( x=datos_entrada.mean() - stderr * 1.96, ymin=-1, ymax=15, color='green', label='95% CI' )
+    #ax.vlines( x=datos_entrada.mean() + stderr * 1.96, ymin=-1, ymax=15, color='green' )
+    #ax.set_ylim([-1,12])
+    ax.legend()
+
+
+    fig.savefig(ruta)

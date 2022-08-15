@@ -5,7 +5,7 @@
             "COMPRESS":false
         },
     "TRANSFORM":{
-        "COMMAND": "python3 @{CWD}entrenamiento_ann.py \"@{SOURCE}\" --ruta_salida_prueba \"@{SINK}\" --ruta_salida_imagen \"@{SINK}\" --ruta_salida_reporte \"@{SINK}\" --ruta_salida_clasificador \"@{SINK}\" --hidden_layer_sizes \"@{hidden_layer}\" --columna_clase \"@{class}\" --columnas_interes \"@{columns}\" ",
+        "COMMAND": "python3 @{CWD}bootstrap_ann.py \"@{SOURCE}\" --ruta_salida_imagen_confusion \"@{SINK}\" --ruta_salida_imagen_densidad \"@{SINK}\" --ruta_salida_imagen_cajas \"@{SINK}\" --ruta_salida_reporte \"@{SINK}\" --ruta_salida_clasificador \"@{SINK}\" --hidden_layer_sizes \"@{hidden_layer}\" --columna_clase \"@{class}\" --columnas_interes \"@{columns}\" ",
         "CUSTOM_APP":false
     },
     "LOAD":{
