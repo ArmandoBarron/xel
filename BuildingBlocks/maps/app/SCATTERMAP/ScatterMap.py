@@ -66,37 +66,52 @@ df_markers = pd.read_csv(inputpath_markers)
 
 
 
-def CreateMap(df):
+def CreateMap(df,anim_group=None):
 
-    if groupby_columns != "":
-        gb_c = df[groupby_columns].values[0]
-    else:
-        gb_c = ""
+    gb_c = ""
 
     if not validate_att(size_point):
         size = 7
     else:
-        size = df[size_point]
+        size = size_point
     
     print(gb_c)
 
     try:
-        fig = px.scatter_mapbox(df,
-                                lat=y_column,
-                                lon=x_column,
-                                hover_name=id_marker,
-                                color=label,
-                                size=size,
-                                zoom=7,
-                                color_continuous_scale=px.colors.sequential.Bluered,
-                                mapbox_style = "carto-positron")
+        if anim_group is None:
+            fig = px.scatter_mapbox(df,
+                                    lat=y_column,
+                                    lon=x_column,
+                                    hover_name=id_marker,
+                                    color=label,
+                                    size=size,
+                                    zoom=7,
+                                    range_color=range_colors,
+                                    color_continuous_scale=px.colors.sequential.Bluered,
+                                    mapbox_style = "carto-positron")
+        else:
+            df = df.sort_values(anim_group, ascending=True)
+            fig = px.scatter_mapbox(df,
+                        lat=y_column,
+                        lon=x_column,
+                        hover_name=id_marker,
+                        color=label,
+                        size=size,
+                        zoom=7,
+                        range_color=range_colors,
+                        animation_frame=anim_group,
+                        color_continuous_scale=px.colors.sequential.Bluered,
+                        mapbox_style = "carto-positron")
 
         fig.update_layout(legend=dict(x=0.03))
         export_figures(fig,outputpath,"ScatterMap_%s" %(gb_c) ,title)
     except Exception as e:
         print(e)
 
+range_colors = [df_markers[label].min(),df_markers[label].max()]
+print(range_colors)
 if groupby_columns =='' or groupby_columns == '-':
     CreateMap(df_markers)
 else:
-    df_markers.groupby(groupby_columns).apply(CreateMap)
+    CreateMap(df_markers,anim_group=groupby_columns)
+    #df_markers.groupby(groupby_columns).apply(CreateMap)

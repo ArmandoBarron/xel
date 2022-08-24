@@ -255,7 +255,7 @@ ServicesArr.push(
                 <div class="form-group row m-2">
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Process:</label>
                         <div class="col-sm-8">
-                                <select class="form-control" id="actions" onchange="ChangeVisibileOptionsOfService(this)">
+                                <select class="form-control" id="actions" onchange="OptionsHandler(this)">
                                         <option value="IMPUTATION"> Imputation of Na values </option>
                                         <option value="DROP"> Drop Na values  </option>
 
@@ -272,11 +272,11 @@ ServicesArr.push(
                         </div>
                 </div>
 
-                <div servopt="IMPUTATION">
+                <div opth opt-actions="IMPUTATION">
                         <div class="form-group row m-2">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Imputation type: </label>
                                 <div class="col-sm-8">
-                                        <select class="form-control" id="imputation_type" onchange="ChangeVisibileOptionsOfService(this)">
+                                        <select class="form-control" id="imputation_type" onchange="OptionsHandler(this)">
                                                 <option value="Single_N"> Single column </option>
                                                 <option value="Single_G"> Single column by group </option>
                                                 <option value="Iter_N"> Iterative </option>
@@ -289,7 +289,7 @@ ServicesArr.push(
                         </div>
 
 
-                        <div class="form-group row m-2" servopt="Single_N Single_G">
+                        <div class="form-group row m-2" opth opt-imputation_type="Single_N Single_G">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Strategy: </label>
                                 <div class="col-sm-8">
                                         <select class="form-control" id="strategy">
@@ -300,21 +300,21 @@ ServicesArr.push(
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="Knn_N Knn_G">
+                        <div class="form-group row m-2" opth opt-imputation_type="Knn_N Knn_G">
                                 <label class="col-sm-4 col-form-label col-form-label-sm">neighbors:</label>
                                 <div class="col-sm-4">
                                         <input type="number" class="form-control solo-numero" min="2" id="n_neighbors">
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="Single_G Iter_G Knn_G">
+                        <div class="form-group row m-2" opth opt-imputation_type="Single_G Iter_G Knn_G">
                                 <label class="col-sm-4 col-form-label col-form-label-sm">Group by:</label>
                                 <div class="col-sm-8">
                                         <select class="form-control" id="groupby" data-actions-box="true" onclick=fillselect(this)></select>
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="Constant_N">
+                        <div class="form-group row m-2" opth opt-imputation_type="Constant_N">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Fill value:</label>
                                 <div class="col-sm-8">
                                         <input id="fill_value" type="text" class="form-control" placeholder="-99, missing value, wtc">
@@ -322,7 +322,7 @@ ServicesArr.push(
                         </div>
                 </div>
 
-                <div servopt="DROP">
+                <div opth opt-actions="DROP">
 
                         <div class="form-group row m-2">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Drop if: </label>
