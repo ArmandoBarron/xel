@@ -20,6 +20,8 @@ ServicesArr.push({
             mode:1,
             lat:"",
             lon:"",
+            json_dict:"",
+            column_key:"",
             SAVE_DATA:true
         },
         html: `
@@ -36,7 +38,26 @@ ServicesArr.push({
                                 <option value=""> </option>
                                 <option value="MUNICIPIOS"> By 'clave entidad' </option>
                                 <option value="MUN_POR_LATLON"> By lat-lon </option>
+                                <option value="JSON"> from JSON </option>
+
                         </select>
+                        </div>
+                </div>
+
+
+                <div opth opt-actions="JSON">
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Json</label>
+                                <div class="col-sm-8">
+                                        <textarea id="json_dict" class="form-control" rows="3" placeholder='{key:{\n"col1":"value1",\n "col2":"value2\n}} '> </textarea>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-6 col-form-label col-form-label-sm">Column key: </label>
+                                <div class="col-sm-6">
+                                        <select class="form-control" id="column_key" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                                </div>
                         </div>
                 </div>
 

@@ -364,11 +364,11 @@ ServicesArr.push(
 
     ServicesArr.push(
         {
-            id: "s-split",
+            id: "s-split-and-join",
             section:SECTION,
             valid_datatypes:{input:["CSV"],output:["CSV"]},
-            name: "split",
-            desc: `split values.`,
+            name: "join_split",
+            desc: `split and join column values.`,
             columns:{
                 default: [],
                 parent: [] 
@@ -379,6 +379,9 @@ ServicesArr.push(
                 method: "",
                 date_format: "%Y-%m-%d",
                 split_value:"/",
+                columns:"",
+                separator:"",
+                column_name:"",
                 SAVE_DATA:true
             },
             html: `
@@ -392,41 +395,74 @@ ServicesArr.push(
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Process:</label>
                         <div class="col-sm-8">
                                 <select class="form-control" id="actions" onchange="OptionsHandler(this)">
-                                        <option value="COLUMN"> split column </option>
+                                        <option value="SCOLUMN"> split column </option>
+                                        <option value="JCOLUMN"> join columns </option>
+
                                 </select>
                         </div>
                 </div>
 
-                <div class="form-group row m-2">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Column split type: </label>
-                        <div class="col-sm-8">
-                                <select class="form-control" id="method" onchange="OptionsHandler(this)">
-                                        <option value="DT"> Datetime </option>
-                                        <option value="M"> Custom </option>
-                                </select>
+                <div optg opt-actions="JCOLUMN">
+                        <div class="form-group row m-2" >
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">list of columns to join:</label>
+                                <div class="col-sm-8">
+                                        <input id="columns" type="text" class="form-control autocomplete-column" placeholder="e.g.: date,year,ID">
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Separator: </label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="separator">
+                                                <option value="-"> - </option>
+                                                <option value="_"> _ </option>
+                                                <option value="/"> / </option>
+                                                <option value="*"> * </option>
+                                        </select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" >
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">New column name:</label>
+                                <div class="col-sm-8">
+                                        <input id="column_name" type="text" class="form-control">
+                                </div>
                         </div>
                 </div>
 
-                <div class="form-group row m-2">
-                        <label class="col-sm-4 col-form-label col-form-label-sm">Column to split:</label>
-                        <div class="col-sm-8">
-                                <select class="form-control" id="column" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                <div optg opt-actions="SCOLUMN">
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Column split type: </label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="method" onchange="OptionsHandler(this)">
+                                                <option value="DT"> Datetime </option>
+                                                <option value="M"> Custom </option>
+                                        </select>
+                                </div>
                         </div>
-                </div>
 
-                <div class="form-group row m-2" opth opt-method="DT">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Datetime format:</label>
-                        <div class="col-sm-8">
-                                <input id="date_format" type="text" class="form-control" placeholder="%Y-%m-%d">
+                        <div class="form-group row m-2">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Column to split:</label>
+                                <div class="col-sm-8">
+                                        <select class="form-control" id="column" data-actions-box="true" onclick=fillselect(this,mult=false)></select>
+                                </div>
                         </div>
-                </div>
 
-                <div class="form-group row m-2" opt-method="M">
-                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">split token:</label>
-                        <div class="col-sm-8">
-                                <input id="split_value" type="text" class="form-control" placeholder="/">
+                        <div class="form-group row m-2" opth opt-method="DT">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Datetime format:</label>
+                                <div class="col-sm-8">
+                                        <input id="date_format" type="text" class="form-control" placeholder="%Y-%m-%d">
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" opt-method="M">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">split token:</label>
+                                <div class="col-sm-8">
+                                        <input id="split_value" type="text" class="form-control" placeholder="/">
+                                </div>
                         </div>
                 </div>
+                
 `
         }
     )

@@ -7,6 +7,10 @@ import math
 import sys
 import numpy as np
 from sklearn.decomposition import PCA
+import logging #logger
+
+logging.basicConfig(level=logging.INFO)
+LOGER = logging.getLogger()
 
 def validate_att(att): #esta funcion sirve para validar que un argumento viene vacio o no
     if att =="" or att =="-":
@@ -154,7 +158,7 @@ if chart_template==4: #BUBBLE PLOT
 
 if chart_template==5: #LINE PLOT
     imagefile_name = "Line"
-    params = dict(x=COLUMN_X, y=COLUMN_Y, line_shape="spline", render_mode="svg")
+    params = dict(x=COLUMN_X, y=COLUMN_Y, line_shape="linear", render_mode="svg")
 
     if validate_att(LABEL_COLUMN): # si hay colores
         params['color']=LABEL_COLUMN
@@ -162,6 +166,18 @@ if chart_template==5: #LINE PLOT
     if validate_att(SUBGROUP):# si hay subgrupos
         params['line_group']=SUBGROUP
         params['hover_name']=SUBGROUP
+
+
+
+    # try to convert DT
+    try:
+        df[COLUMN_X]=pd.to_datetime(df[COLUMN_X])
+    except Exception: #Can't cnvrt some
+        LOGER.error("NO SE CONVIRTIO A DATETIME")
+    
+    df= df.sort_values(by=COLUMN_X)
+
+    LOGER.error(df[COLUMN_X])
 
     fig = px.line(df, **params)
 
@@ -196,7 +212,7 @@ if chart_template==6:
 
 if chart_template==7:
     imagefile_name = "simple_scatter"
-    params = dict(x=COLUMN_X, y=COLUMN_Y, marginal_y="violin", marginal_x="box", trendline="ols", log_x=LOG_SCALE,log_y=LOG_SCALE)
+    params = dict(x=COLUMN_X, y=COLUMN_Y, marginal_y="violin", marginal_x="violin", trendline="ols", log_x=LOG_SCALE,log_y=LOG_SCALE)
 
     if validate_att(LABEL_COLUMN): # si hay colores
         params['color']=LABEL_COLUMN
@@ -234,6 +250,22 @@ if chart_template==9: # 3D scatter with PCA
     fig = px.scatter_3d(pca_df, **params)
 
     export_figures(fig,outputpath,imagefile_name,config)
+
+
+if chart_template==10: # Bar chart
+    imagefile_name = "Bars"
+
+    params = dict(x=COLUMN_X, y=COLUMN_Y)
+
+    if validate_att(LABEL_COLUMN): # si hay colores
+        params['color']=LABEL_COLUMN
+
+    fig = px.bar(df, **params)
+
+    export_figures(fig,outputpath,imagefile_name,config)
+
+
+
 
 
 

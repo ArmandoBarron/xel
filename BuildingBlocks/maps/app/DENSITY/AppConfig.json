@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"Scatter Map",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}DensityMap.py @{SOURCE} @{SINK} '@{lon}' '@{lat}' '@{radius}' '@{title}' ",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
+            "ignore_list":[]
+        }
+
+}

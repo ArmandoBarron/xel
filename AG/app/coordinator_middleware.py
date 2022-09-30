@@ -738,6 +738,8 @@ def describeDatasetv2():
         elif ext=="csv":  #describe csv
             enc = detect_encode(data_path)
             LOGER.info(enc)
+            LOGER.info(delimiter)
+
             dataset= pd.read_csv(data_path,encoding=enc['encoding'],sep=delimiter)
             #LOGER.info(dataset)
             response['info']['files_info'][filename] = DatasetDescription(dataset)

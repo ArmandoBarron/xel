@@ -28,6 +28,7 @@ ServicesArr.push(
             normalize:"0",
             label:"",
             size:"",
+            radius:5,
             SAVE_DATA:true
         },
         html: `
@@ -44,6 +45,8 @@ ServicesArr.push(
                                         <option value="POLY"> Mexico's localities </option>
                                         <option value="MARKER"> HeatMap (lat/lon)</option>
                                         <option value="SCATTERMAP"> Labeled Map (lat/lon)</option>
+                                        <option value="DENSITY"> Density Map (lat/lon)</option>
+
                                 </select>
                                 </div>
                         </div>
@@ -68,7 +71,7 @@ ServicesArr.push(
                         </div>
 
 
-                        <div class="form-group row m-2" servopt="POLY SCATTERMAP">
+                        <div class="form-group row m-2" servopt="POLY SCATTERMAP DENSITY">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Title of the chart:</label>
                                 <div class="col-sm-8">
                                         <input id="title" type="text" class="form-control">
@@ -76,17 +79,24 @@ ServicesArr.push(
                         </div>
 
 
-                        <div class="form-group row m-2" servopt="MARKER SCATTERMAP">
+                        <div class="form-group row m-2" servopt="MARKER SCATTERMAP DENSITY">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Latitud: </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="lat" onclick=fillselect(this,mult=false)></select>
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="MARKER SCATTERMAP">
+                        <div class="form-group row m-2" servopt="MARKER SCATTERMAP DENSITY">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Longitud: </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="lon" onclick=fillselect(this,mult=false)></select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" servopt="DENSITY">
+                                <label class="col-sm-4 col-form-label col-form-label-sm">Radius:</label>
+                                <div class="col-sm-4">
+                                        <input type="number" class="form-control solo-numero" min="2" id="radius">
                                 </div>
                         </div>
 
@@ -190,7 +200,7 @@ ServicesArr.push(
                                             <option value="7"> Scatter </option>
                                             <option value="8"> 3D Scatter </option>
                                             <option value="9"> 3D Scatter with PCA </option>
-
+                                            <option value="10"> Bar plot </option>
                                     </select>
                                     </div>
                             </div>
@@ -214,7 +224,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="2 4 5 6 7 8 9" >
+                            <div class="form-group row m-2" servopt="2 4 5 6 7 8 9 10" >
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Label variable: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="label_column" onclick=fillselect(this,multi=false)></select>
@@ -228,14 +238,14 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="4 5 7 8">
+                            <div class="form-group row m-2" servopt="4 5 7 8 10">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable x: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_x" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="4 5 7 8">
+                            <div class="form-group row m-2" servopt="4 5 7 8 10">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable y: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_y" onclick=fillselect(this,multi=false)></select>
@@ -348,6 +358,7 @@ ServicesArr.push(
                 parent: [] 
             },
             params: {
+                actions:"",
                 poly_file:"",
                 geocve_column:"",
                 area:"",
@@ -359,6 +370,7 @@ ServicesArr.push(
                 lon:0,
                 scatter_class:"",
                 scatter_id:"",
+                marker_size:"",
                 SAVE_DATA:true
             },
             html: `
@@ -367,6 +379,16 @@ ServicesArr.push(
                 <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
             </div>
             <br>
+
+                        <div class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Map type: </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="actions" onchange="OptionsHandler(this)">
+                                        <option value="AGEB"> By AGEB code </option>
+                                        <option value="STATES"> By State code </option>
+                                </select>
+                                </div>
+                        </div>
     
                             <div class="form-group row m-2">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Filename for map</label>
@@ -396,7 +418,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2">
+                            <div class="form-group row m-2" opth opt-actions="AGEB">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Zone: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="area">
@@ -413,9 +435,8 @@ ServicesArr.push(
                                             <input id="title" type="text" class="form-control">
                                     </div>
                             </div>
-    
-
-
+                        
+                            <hr>
 
                             <div class="form-group row m-2">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Scatter data filename: </label>
@@ -449,8 +470,13 @@ ServicesArr.push(
                                     </div>
                             </div>
         
-
-
+                            <div class="form-group row m-2" opth opt-actions="STATES">
+                                    <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Marker size (optional) </label>
+                                    <div class="col-sm-8">
+                                    <select class="form-control scatter" id="marker_size" onclick=fillselect(this,mult=false,"#scatter_file")></select>
+                                    </div>
+                            </div>
+                            
 
 
     

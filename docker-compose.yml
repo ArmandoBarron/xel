@@ -200,7 +200,7 @@ services:
       TPS_MANAGER: http://tps_manager:5000 #TPS URL
       API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
       NETWORK: LocalCluster
-      SERVICE_NAME: split
+      SERVICE_NAME: join_split
       SERVICE_IP: bb_data_split
       SERVICE_PORT: 80
 
