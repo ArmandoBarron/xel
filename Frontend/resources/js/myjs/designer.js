@@ -155,7 +155,7 @@ $(document).ready(function () {
         //flowyOutput.DAG = dag
         //namefile
         if (flowyOutput.metadata.name==""){
-            namefile = "flowy_output"
+            namefile = "xel_output"
         }
         else{
             namefile = flowyOutput.metadata.name
@@ -498,14 +498,25 @@ function flowey_ConfigServices(){
     }
 }
 
-function flowey_GetTemplate_service(idservice){
+function flowey_GetTemplate_service(idservice, by_service_name=false){
     //serviceArr is a global variable with all the metadata for the services
-    n = ServicesArr.length
-    for (let i = 0; i < n; i++) {
-        if (ServicesArr[i].id==idservice){
-            return  JSON.parse(JSON.stringify(ServicesArr[i]))
+    if (by_service_name){
+        n = ServicesArr.length
+        for (let i = 0; i < n; i++) {
+            if (ServicesArr[i].name==idservice){
+                return  JSON.parse(JSON.stringify(ServicesArr[i]))
+            }
         }
     }
+    else{
+        n = ServicesArr.length
+        for (let i = 0; i < n; i++) {
+            if (ServicesArr[i].id==idservice){
+                return  JSON.parse(JSON.stringify(ServicesArr[i]))
+            }
+        }
+    }
+
     return null
 }
 function demoflowy_createBoxes(n, boxData) {
@@ -898,12 +909,37 @@ function ShowBoxParametersNav(el){
     openNav()
 }
 
+function Process_list_collector(){
+    var children = arguments[0] ? arguments[0] : dataObject.children;
+    var list_process = arguments[1] ? arguments[1] : {general:[]};
+
+    for (let i = 0; i < children.length; i++) { // iterate childrens
+        temp = flowey_GetTemplate_service(children[i].name,by_service_name=true)   
+        
+        box_section = temp.section // get section
+        box_process = temp.process_tag // get process tag
+        
+        if (!Object.keys(list_process).includes(box_section)){
+            list_process[box_section] = []
+        }
+
+        list_process[box_section].push(box_process)// add to object
+        list_process['general'].push(box_process)// add to the general object
+
+        list_process = Process_list_collector(children[i].children,list_process)
+    }
+
+    // collecting the metadata for all the boxes in the graph
+    return list_process
+}
+
 function Metadata_collector(){
     obj_metadata= {}
     token = $("#modal_save-solutions-form-tokensolution").val()
     name = $("#modal_save-solutions-form-name").val()
     desc= $("#modal_save-solutions-form-desc").val()
     tags= $("#modal_save-solutions-form-tags").val().split(",")
+    obj_metadata.process_tags = Process_list_collector()
     obj_metadata.name= name
     obj_metadata.desc= desc
     obj_metadata.tags= tags
@@ -917,14 +953,25 @@ function Metadata_collector(){
 
 }
 
-function Metadata_assign(meta){
-    $("#modal_save-solutions-form-name").val(meta.name)
-    $("#modal_save-solutions-form-desc").val(meta.desc)
-    $("#modal_save-solutions-form-tags").val(meta.tags)
-    // load token
-    Set_Tokensolution(meta.token)
-    //import dataset info
-    Set_DatasourceMap(meta.datasource,meta.datasource_type)
+function Metadata_assign(meta,ignore_context=false){
+    if (ignore_context){ //empty all values except by datasource
+        $("#modal_save-solutions-form-name").val("")
+        $("#modal_save-solutions-form-desc").val("")
+        $("#modal_save-solutions-form-tags").val("")
+        // load token
+        Set_Tokensolution("")
+        //import dataset info
+        Set_DatasourceMap(meta.datasource,meta.datasource_type)
+    }
+    else{
+        $("#modal_save-solutions-form-name").val(meta.name)
+        $("#modal_save-solutions-form-desc").val(meta.desc)
+        $("#modal_save-solutions-form-tags").val(meta.tags)
+        // load token
+        Set_Tokensolution(meta.token)
+        //import dataset info
+        Set_DatasourceMap(meta.datasource,meta.datasource_type)
+    }
 }
 
 function Set_Tokensolution(token){

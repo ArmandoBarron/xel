@@ -5,6 +5,7 @@ ServicesArr.push(
     {
         id: "s-preproc",
         section:SECTION,
+        process_tag:"cleanning",
         valid_datatypes:{input:["CSV"],output:["CSV"]},
         name: "preprocessing",
         desc: `Service to preprocess data`,
@@ -73,6 +74,7 @@ ServicesArr.push(
         {
             id: "data_clean",
             section:SECTION,
+            process_tag:"cleanning",
             valid_datatypes:{input:["CSV"],output:["CSV"]},
             name: "cleanning",
             desc: `Outliers detection, Normalization, Remove unwanted symbols, Transform categorical data to numeric values. `,
@@ -225,6 +227,7 @@ ServicesArr.push(
         {
             id: "s-imputation",
             section:SECTION,
+            process_tag:"imputation",
             valid_datatypes:{input:["CSV"],output:["CSV"]},
             name: "imputation",
             desc: `Fill missing values`,
@@ -366,6 +369,8 @@ ServicesArr.push(
         {
             id: "s-split-and-join",
             section:SECTION,
+            process_tag:"transform",
+
             valid_datatypes:{input:["CSV"],output:["CSV"]},
             name: "join_split",
             desc: `split and join column values.`,
@@ -471,6 +476,7 @@ ServicesArr.push(
 ServicesArr.push({
         id: "DST",
         name: "transform_ds",
+        process_tag:"query or filter",
         valid_datatypes:{input:["CSV"],output:["CSV"]},
         section:SECTION,
         desc: `Map reduce: Group dataset to reduce data using a operator. \n Eval: create columns or traansfom your dataset.`,
@@ -625,6 +631,7 @@ ServicesArr.push({
         {
             id: "s-merge",
             section:SECTION,
+            process_tag:"fusion",
             valid_datatypes:{input:["ZIP"],output:["CSV"]},
             name: "fusion",
             desc: `Service to fusion datasources in a zip.`,
@@ -680,6 +687,7 @@ ServicesArr.push({
         {
             id: "s-FilterColumn",
             section:SECTION,
+            process_tag:"filter by rule",
             valid_datatypes:{input:["CSV"],output:["CSV"]},
             name: "filter_column",
             desc: `drop and keep columns given a rule.`,

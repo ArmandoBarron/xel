@@ -7,6 +7,7 @@ SECTION = "sec-proc"
 ServicesArr.push({
         id: "s-neural-networks",
         name: "deeplearning",
+        process_tag:"classification",
         valid_datatypes:{input:["CSV"],output:["ZIP"]},
         section:SECTION,
         columns:{
@@ -154,6 +155,7 @@ ServicesArr.push(
         {
                 id: "clustering-algh",
                 name: "clustering_service",
+                process_tag:"clustering",
                 valid_datatypes:{input:["CSV"],output:["CSV","ZIP"]},
                 section:SECTION,
                 desc: `Set of clustering algorithms. Group a dataset records in K groups`,
@@ -272,6 +274,7 @@ ServicesArr.push(
         {
                 id: "s-corr",
                 name: "correlation",
+                process_tag:"statistics",
                 valid_datatypes:{input:["CSV"],output:["ZIP","JPEG"]},
 
                 section:SECTION,
@@ -337,6 +340,8 @@ ServicesArr.push(
         {
                 id: "regression_serv",
                 name: "regression",
+                process_tag:"regression",
+
                 valid_datatypes:{input:["CSV"],output:["ZIP","JPEG"]},
                 section:SECTION,
                 desc: `service with linear and logarithmic regression models.`,
@@ -417,6 +422,7 @@ ServicesArr.push(
         {
                 id: "class-model",
                 name: "classificators",
+                process_tag:"classification",
                 valid_datatypes:{input:["CSV","ZIP"],output:["ZIP","CSV"]},
                 section:SECTION,
                 desc: `Clasifications models.`,

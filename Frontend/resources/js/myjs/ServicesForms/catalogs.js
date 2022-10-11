@@ -6,6 +6,7 @@ SECTION = "sec-catalogs"
 ServicesArr.push({
         id: "data-catalogs",
         name: "catalogs",
+        process_tag:"geo",
         section:SECTION,
         valid_datatypes:{input:["CSV"],output:["CSV"]},
         desc: `data catalogs with geographical data.`,

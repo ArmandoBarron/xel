@@ -6,6 +6,7 @@ SECTION = "sec-datasource"
 ServicesArr.push({
         id: "ds",
         service_type:"DATASOURCE",
+        process_tag:"single",
         valid_datatypes:{input:["NA"],output:["CSV"]},
         name: "Simple datasouce",
         section:SECTION,
@@ -101,6 +102,7 @@ ServicesArr.push({
 SECTION = "sec-datasource"
 ServicesArr.push({
         id: "MultiDS",
+        process_tag:"multiple",
         valid_datatypes:{input:["NA"],output:["ZIP"]},
         service_type:"DATASOURCE",
         name: "Multiple Datasources",

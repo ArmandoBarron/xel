@@ -109,6 +109,7 @@ def execute_service(service,metadata):
     LOGER.info("Coordinator is executing...%s"% service)
     errors_counter=0
     ToSend = {'service':service,'context':NETWORK} #update status of falied node
+    LOGER.error(ToSend)
     res = json.loads(ASK(params=ToSend))
 
     while(True): # AVOID ERRORS
@@ -300,6 +301,7 @@ def execute_DAG():
     new_dag = res['DAG']
     task_list = res['task_list']
     is_already_running = res['is_already_running']
+    
     if not is_already_running:
         for branch in new_dag:
             branch['control_number'] = RN
@@ -523,9 +525,13 @@ def List_solutions_user():
     params = request.get_json(force=True)
 
     auth = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    query=None
+    if 'params' in params:
+        query = params['params']
+
 
     ######## paxos ##########
-    paxos_response = PROPOSER.list_solutions(auth) # consult request in paxos distributed memory
+    paxos_response = PROPOSER.list_solutions(auth,query) # consult request in paxos distributed memory
     #########################
     return {"status":"OK", "info":paxos_response['value']}
 

@@ -50,13 +50,13 @@ class Paxos:
 
         return res
     
-    def list_solutions(self,auth):
+    def list_solutions(self,auth,params=None):
         """
          value = {"control_number":,auth"}
         """
         res= self.Consensus()
         if res['status']=="OK":
-            value = {"auth":auth}
+            value = {"auth":auth,"params":params}
             res= self.request2node(value,action="LIST_SOLUTIONS")    
         return res
     

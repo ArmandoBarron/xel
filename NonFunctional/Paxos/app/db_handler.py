@@ -64,14 +64,14 @@ class Handler:
         return doc
 
     
-    def List_document(self,collection_name):
+    def List_document(self,collection_name,query={}):
         """
         collection name is the token user
         """
         doc = None
         client= self._openConnection()
         db = client[self.db_name] #bd
-        doc = db[collection_name].find({},{"task_list":0,"_id":0 , "DAG":0,"metadata.frontend":0 })
+        doc = db[collection_name].find(query,{"task_list":0,"_id":0 , "DAG":0,"metadata.frontend":0 })
         list_cur = list(doc)
         self._closeConnection(client)
         return list_cur

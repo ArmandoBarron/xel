@@ -64,6 +64,13 @@ def Compare_fingerprints(fp1,fp2):
     else:
         return False
 
+def Compare_parents(parent1,parent2):
+    if(parent1==parent2):
+        return True
+    else:
+        return False
+
+
 def LookForParams(DAG,task):
     params = None
     for bb in DAG:
@@ -124,7 +131,7 @@ def update_task_status_in_cascade(token_solution,childrens,status,message,parent
         id_service =child['id']
         if_exist=create_service_if_not_exist(token_solution,id_service,fp_dag,parent)
         if if_exist:
-            update_task_status(token_solution,id_service,status,message,fingerprint=fp_dag)
+            update_task_status(token_solution,id_service,status,message,fingerprint=fp_dag,parent=parent)
 
         if 'childrens' in child:
             update_task_status_in_cascade(token_solution,child['childrens'],status,message,parent=id_service)
@@ -132,7 +139,7 @@ def update_task_status_in_cascade(token_solution,childrens,status,message,parent
     return 0
 
 
-def update_task_status(RN,task,status,message,details=None,is_recovered = False, fingerprint=None): #called on monitoring 
+def update_task_status(RN,task,status,message,details=None,is_recovered = False, fingerprint=None, parent =None ): #called on monitoring 
     global BRANCHES
     time_action = GetCurrentTimeAction()
     BRANCHES[RN]['task_list'][task]['status']=status
@@ -146,7 +153,8 @@ def update_task_status(RN,task,status,message,details=None,is_recovered = False,
 
     if fingerprint is not None:
         BRANCHES[RN]["task_list"][task]['fingerprint']=fingerprint  # The fingerprint changed, so we save the new one
-
+    if parent is not None:
+        BRANCHES[RN]["task_list"][task]['parent']=parent  # The parent changed, so we save the new one
     if details is not None:
         BRANCHES[RN]['task_list'][task]['details']=details
     BRANCHES[RN]['task_list'][task]['historic'].append({'status':status,'message':message,'timestamp':time_action})
@@ -218,9 +226,13 @@ def validate_solution(dag, solution,token_solution,parent=''):
 
             taskInSolution = solution['task_list'][id_service]
             Fingerprints_comparation = Compare_fingerprints(taskInSolution['fingerprint'],fp_dag)
-            LOG.error("LA COMPARACION DE FP ES %s para la tarea %s con status %s" %(Fingerprints_comparation,id_service,taskInSolution['status']))
+            parent_comparation = Compare_parents(taskInSolution['parent'],parent) 
 
-            if (Fingerprints_comparation and taskInSolution['status']=="FINISHED"):
+            LOG.error("LA COMPARACION DE FP ES %s para la tarea %s con status %s" %(Fingerprints_comparation,id_service,taskInSolution['status']))
+            LOG.error("LA COMPARACION DE PADRES ES %s para la tarea %s con status %s" %(parent_comparation,id_service,taskInSolution['status']))
+
+
+            if (Fingerprints_comparation and taskInSolution['status']=="FINISHED" and parent_comparation):
                 #validate status and fingerprints
                 update_task_status(token_solution,id_service,"OK","Task has no changes",is_recovered = True)
                 #BRANCHES[token_solution]["task_list"][id_service]['status']="OK" #update status. since has finished
@@ -233,8 +245,8 @@ def validate_solution(dag, solution,token_solution,parent=''):
                 pass
             else:    
                 new_dag.append(taskInDag)
-                update_task_status(token_solution,id_service,"STARTING","Task has changes",fingerprint=fp_dag )
-                update_task_status_in_cascade(token_solution,childrens,"STARTING","Father task has changes",parent=id_service)
+                update_task_status(token_solution,id_service,"STARTING","Task has changes",fingerprint=fp_dag,parent=parent)
+                update_task_status_in_cascade(token_solution,childrens,"STARTING","Parent task has changes",parent=id_service)
                 #BRANCHES[token_solution]["task_list"][id_service]['status']="STARTING" #update status. since it will be executed again 
 
         else: #it is new
@@ -338,9 +350,12 @@ def retrieve_solution(value):
 
 def list_solutions(value):
     global BRANCHES
-    auth = value['auth'] 
+    auth = value['auth']
+    query = {} 
+    if 'params' in value:
+        query = value['params']
     SDB = Handler() 
-    list_solutions_of_user = SDB.List_document(auth['user'])
+    list_solutions_of_user = SDB.List_document(auth['user'],query)
     return list_solutions_of_user
 
 

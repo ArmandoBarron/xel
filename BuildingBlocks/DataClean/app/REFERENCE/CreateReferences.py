@@ -40,3 +40,4 @@ if method =="ENCODING":
 
 
 DF_data.to_csv(output_path,index=False)
+

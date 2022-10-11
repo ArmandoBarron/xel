@@ -128,6 +128,8 @@
       <ul id="tabs_show" class="nav nav-tabs">
         <li class="nav-item ml-auto"><a class="nav-link active" href="#designer" data-toggle="tab">Designer <i class="fas fa-pen-alt"></i></a></li>
         <li class="nav-item"><a aria-current="page" class="nav-link" href="#mapContainer" data-toggle="tab"> Map <i class="fas fa-map-marker-alt"></i></a></li>
+        <li class="nav-item"><a class="nav-link" href="#templates" data-toggle="tab">Templates <i class="fab fa-buromobelexperte"></i></a></li>
+
         <!--<li class="nav-item">
           <a class="nav-link" href="#report" onClick="get_topoformas();" data-toggle="tab" id="btnReporte">Report 
             <span class="glyphicon glyphicon-list" aria-hidden="true">
@@ -163,6 +165,14 @@
             <div class="container col-sm-6" id="render_pdf" ></div>
 
             </div>
+        </div>
+
+        <!-- TAB 4-->
+        <div class="col-12 tab-pane options" style="height:100%" id="templates"> 
+          <hr>
+          <div class="col-12">  <button onclick="create_table_templates('table_templates')" class="btn btn-outline-secondary col-12">List templates</button> </div>
+          <hr>
+          <div class="row"  style="max-height: 750px" id="table_templates"></div>
         </div>
       </div>
     </div> <!--end left panel-->

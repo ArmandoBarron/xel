@@ -622,6 +622,7 @@ function Inspect_datasource(filename=null,force=false,token_solution=null,task=n
 //reestructure data
     Toggle_Loader("show","Collecting metadata...")
     context={token_solution:token_solution,task:task,type_dataset:type_dataset,catalog:catalog}
+    console.log(context)
     xel_describe_dataset(filename=filename,force=force,context=context).done(function(result){
         description = JSON.parse(result).info
     
@@ -1683,7 +1684,7 @@ function BTN_delete_solution(token_solution,id_row,id_table){
     }).fail(function(){console.log("error al conectarse")});
 
 }
-function BTN_retrieve_solution(token_solution){
+function BTN_retrieve_solution(token_solution,as_copy=false){
     let data_request = {"SERVICE":"solution/retrieve",'REQUEST':{'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE},"token_solution":token_solution}}
     $.ajax({
         url: 'includes/xel_Request.php',
@@ -1699,14 +1700,128 @@ function BTN_retrieve_solution(token_solution){
             flowy.import(result.metadata.frontend);
             currentLayout = [...flowy.output().blockarr]
             // load metadata into page
-            Metadata_assign(result.metadata)
+            Metadata_assign(result.metadata,as_copy)
             canvasElementsCount = result.metadata.canvasElementsCount
             Toggle_Modal("hide")
+            
+            // show tab
+            toDesign()
+                        
             $(".block-hoverinfo").hoverIntent( confighover )
         }
     }).fail(function(){console.log("error al conectarse")});
 
 }
+
+
+function create_table_templates(div_container){
+    // create_table_templates("table_templates")
+    $(`#${div_container}`).html("")
+
+    let data_request = {"SERVICE":"solution/list",'REQUEST':{'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE},'params':{'metadata.tags':'TEMPLATE'} }}
+    
+    $.ajax({
+        url: 'includes/xel_Request.php',
+        type: 'POST',
+        dataType: 'json',
+        data:data_request,
+        success: function(response) {  
+            console.log(response)
+            id_table_container = div_container + "_modal_list-solutions-table"
+            id_table = div_container + "_table-solutions"
+
+            $('#'+div_container).append(`<div id='${id_table_container}' class='form-group col-12 table-responsive'></div>`);
+            
+            //headers_list = ['Enrichment','Mining','Preproccesing','Proccesing.','Validation','Visualization']
+            //headers_only_print = ['name','last_update','tags','desc',"actions"]
+            headers_never_print = ["name","desc","actions"]
+
+            headers_only_print = ["for search","SPATIAL","TEMPORAL",'Fusion','Transform','Query or filter','Filter by rule','clean','Imputation','Class.','Clustering','stats','Regression','Chart','Map']
+            headers= ['fusion','transform','query or filter','filter by rule','cleanning','imputation','classification','clustering','statistics','regression','chart','geographical map']
+
+            content = ""
+            content += `
+                <table class="hover compact dt-responsive" id="${id_table}" width="100%">
+                    <caption>List of solutions</caption>
+                    <thead>
+                        <tr>`
+                        //headers_list.forEach(function(h){
+                        //    content += `<th class="all" scope="col">${h}</th>`
+                        //});
+                        //content+="</tr><tr>"
+                        headers_never_print.forEach(function(h){
+                            content += `<th class="none" scope="col">${h}</th>`
+                        });
+                        headers_only_print.forEach(function(h){
+                            content += `<th class="all" scope="col">${h}</th>`
+                        });
+            content += `</tr></thead><tbody>`
+
+
+            solution_id = 0
+            response['info'].forEach(function(value){ //se rellena la tabla
+                if(value['metadata'].hasOwnProperty('process_tags')){ //tags exist
+                    content +=`<tr id="solution_${solution_id}">` // se añade un id par apoder borrarlo despues
+
+                    content +=`<td class="none">${value.metadata.name}</td>`
+                    content +=`<td class="none">${value.metadata.desc}</td>`
+                    content +=`<td>
+                                <button type='button' onclick='BTN_retrieve_solution("${value["token_solution"]}",as_copy=true)' class="btn btn-outline-primary btn-block">Retrive</button>
+                            </td>`
+
+                    content +=`<td >${value.metadata.process_tags.general.join(" ")}</td>` //for search
+
+                    spatio_temporal_tags = ["SPATIAL","TEMPORAL"] //methodology
+                    //console.log(value.metadata.tags)
+
+                    spatio_temporal_tags.forEach(function(st){
+                        if(value.metadata.tags.includes(st)){
+                            content += `<td class="all"><i class="far fa-check-circle"></i></td>`
+                        } 
+                        else{
+                            content += `<td class="all"></td>`
+                        }
+                    });
+
+                    headers.forEach(function(h){
+                        if(value.metadata.process_tags.general.includes(h)){
+                            content += `<td class="all"><i class="far fa-check-circle"></i></td>`
+                        } 
+                        else{
+                            content += `<td class="all"></td>`
+                        }
+                    });
+                    content +=`</tr>`
+
+
+                    solution_id+=1
+                }
+            });
+            content +=`</tbody></table>`
+            $(`#${id_table_container}`).html(content)
+
+
+            // SHOW MODAL
+            //$('#modal_list-solutions').modal('show');
+            
+
+            // create datatable
+            $(`#${id_table}`).DataTable({
+                'columnDefs' : [
+                    { 'visible': false, 'targets': [3] }
+                ],
+                "responsive": true,
+                "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
+                "order": [[ 1, "desc" ]]
+
+            } );
+            console.log(id_table)
+
+        }
+    }).fail(function(){console.log("error al conectarse")});
+
+}
+
 
 function BTN_list_solution(){
 
@@ -2264,6 +2379,10 @@ $(document).on('show.bs.modal', '.modal', function (event) {
 
 // funcion para seleccionar el workspace
 function SelectWorkspace(){
-    MESH_WORKSPACE= $("#user_workspace").val()
+    val = $("#user_workspace").val()
+    if (val !=null){
+        MESH_WORKSPACE= $("#user_workspace").val()
+    }
+    console.log("Workspace actual: " + MESH_WORKSPACE)
     //notificarUsuario("")
 }

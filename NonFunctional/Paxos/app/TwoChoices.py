@@ -1,6 +1,8 @@
 from random import randint
 from random import seed
 import json
+import logging
+
 class loadbalancer():
 
     def __init__(self,dictionary):
@@ -10,7 +12,8 @@ class loadbalancer():
         self.resources= dictionary['services']
         self.force_local = dictionary["config"]['force_lan_selection']
         self.gateways = dictionary['internal_gateways']
-
+        logging.basicConfig()
+        self.LOG = logging.getLogger()
 
     def decide(self,service,context,force_context=None,n=1):
         if force_context is None:
@@ -18,6 +21,8 @@ class loadbalancer():
         try:
             # look for up services
             resources_tobe_used = self.LookingForInResources(service,'status',True)
+            self.LOG.error(resources_tobe_used)
+
 
             # look for services in same context
             if force_context:
@@ -58,7 +63,7 @@ class loadbalancer():
     def NodeDown(self,service,id_service):
         self.resources[service][id_service]['status']=False
 
-    def NodeUP(self,service,id):
+    def NodeUP(self,service,id_service):
         self.resources[service][id_service]['status']=True
 
     def GetStatus(self):

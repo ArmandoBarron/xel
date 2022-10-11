@@ -7,6 +7,8 @@ SECTION = "sec-visualitation"
 ServicesArr.push(
     {
         id: "maps",
+        process_tag:"geographical map",
+
         valid_datatypes:{input:["CSV"],output:["HTML"]},
         name: "maps",
         section:SECTION,
@@ -154,6 +156,8 @@ ServicesArr.push(
 ServicesArr.push(
         {
             id: "charts-sv",
+            process_tag:"graphics",
+
             endpoint:"charts",
             valid_datatypes:{input:["CSV"],output:["HTML","ZIP"]},
             name: "charts",
@@ -349,6 +353,7 @@ ServicesArr.push(
 ServicesArr.push(
         {
             id: "AdvMap",
+            process_tag:"geographical map",
             valid_datatypes:{input:["ZIP"],output:["HTML"]},
             name: "advanced_maps",
             section:SECTION,
