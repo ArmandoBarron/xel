@@ -105,7 +105,7 @@ elif (algh=="agglomerative"):
 cluster_labels= pd.DataFrame(["-"] * len_DF_data) ##array de labels vacios
 arr_labels = list(arr_labels['default'])
 cluster_labels.loc[DF_data[columns].notna().all(axis=1),0] = arr_labels # rellenar array de labels vacios con labels de grupos
-name = "class"
+name = "clase"
 
 DF_data[name]=cluster_labels[0].values.tolist()
 print(DF_data)

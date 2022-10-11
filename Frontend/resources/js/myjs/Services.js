@@ -1706,7 +1706,7 @@ function BTN_retrieve_solution(token_solution,as_copy=false){
             
             // show tab
             toDesign()
-                        
+
             $(".block-hoverinfo").hoverIntent( confighover )
         }
     }).fail(function(){console.log("error al conectarse")});
@@ -1737,7 +1737,7 @@ function create_table_templates(div_container){
             headers_never_print = ["name","desc","actions"]
 
             headers_only_print = ["for search","SPATIAL","TEMPORAL",'Fusion','Transform','Query or filter','Filter by rule','clean','Imputation','Class.','Clustering','stats','Regression','Chart','Map']
-            headers= ['fusion','transform','query or filter','filter by rule','cleanning','imputation','classification','clustering','statistics','regression','chart','geographical map']
+            headers= ['fusion','transform','query or filter','filter by rule','cleanning','imputation','classification','clustering','statistics','regression','charts','geographical map']
 
             content = ""
             content += `

@@ -147,7 +147,7 @@ if chart_template==4: #BUBBLE PLOT
 
     if validate_att(LABEL_COLUMN): # si hay colores
         params['color']=LABEL_COLUMN
-        params['facet_col']=LABEL_COLUMN
+        #params['facet_col']=LABEL_COLUMN
 
     if validate_att(SUBGROUP):# si hay subgrupos
         params['animation_group']=SUBGROUP

@@ -156,8 +156,7 @@ ServicesArr.push(
 ServicesArr.push(
         {
             id: "charts-sv",
-            process_tag:"graphics",
-
+            process_tag:"charts",
             endpoint:"charts",
             valid_datatypes:{input:["CSV"],output:["HTML","ZIP"]},
             name: "charts",
