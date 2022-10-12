@@ -186,6 +186,7 @@ def bootstrap_split_datos_clase (datos_entrada, columna_clase):
 def bootstrap (clasificador, datos_entrada, columna_clase, num_iteraciones, average):
     for i in range (num_iteraciones):
         print (i)
+        clasificador=sk.base.clone(clasificador) #Corrección
         entrenamiento_datos, entrenamiento_clase, prueba_datos, prueba_clase = bootstrap_split_datos_clase (datos_entrada, columna_clase)
         
         clasificador.fit (entrenamiento_datos, entrenamiento_clase)
