@@ -1834,7 +1834,7 @@ function BTN_list_solution(){
         data:data_request,
         success: function(response) {  
             console.log(response)
-            $('#modal_list-solutions-body').append("<div id='modal_list-solutions-table' class='form-group container col-12 table-responsive courtain' style='display:none'></div>");
+            $('#modal_list-solutions-body').append("<div id='modal_list-solutions-table' class='form-group nowrap container col-12 table-responsive courtain' style='display:none'></div>");
             
             headeres_always_show = ['name','last_update','tags']
             headeres_never_show = ['desc','token_solution', 'actions']
@@ -1843,7 +1843,7 @@ function BTN_list_solution(){
 
             content = ""
             content += `
-                <table class="table table-hover table-sm dt-responsive nowrap compact-dt" id="table-solutions">
+                <table class="hover compact dt-responsive" id="table-solutions">
                     <caption>List of solutions</caption>
                     <thead>
                         <tr>`
