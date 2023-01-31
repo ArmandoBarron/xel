@@ -1,0 +1,5 @@
+2022-11-18 20:16:42	LAUCHER: to shutdown the containers execute  
+
+docker-compose --log-level ERROR -p /home/domizzi/Documents/GitHub/XELHUA-NEZ/deployer/app//results/xelhua -f /home/domizzi/Documents/GitHub/XELHUA-NEZ/deployer/app//results/xelhua/docker-compose.yml  down
+
+

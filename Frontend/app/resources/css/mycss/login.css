@@ -1,0 +1,219 @@
+/*@import url("http://fonts.googleapis.com/css?family=Lato");
+@import url("http://weloveiconfonts.com/api/?family=fontawesome");*/
+
+.modal-login {		
+	color: #636363;
+	width: 350px;
+}
+.modal-login .modal-content {
+	padding: 20px;
+	border-radius: 5px;
+	border: none;
+}
+.modal-login .modal-header {
+	border-bottom: none;   
+	position: relative;
+	justify-content: center;
+}
+.modal-login h4 {
+	text-align: center;
+	font-size: 26px;
+	margin: 30px 0 -15px;
+}
+.modal-login .form-control:focus {
+	border-color: #c57070;
+}
+.modal-login .form-control, .modal-login .btn {
+	min-height: 40px;
+	border-radius: 3px; 
+}
+.modal-login .close {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+}	
+.modal-login .modal-footer {
+	background: #ecf0f1;
+	border-color: #dee4e7;
+	text-align: center;
+	justify-content: center;
+	margin: 0 -20px -20px;
+	border-radius: 5px;
+	font-size: 13px;
+}
+.modal-login .modal-footer a {
+	color: #999;
+}		
+.modal-login .avatar {
+	position: absolute;
+	margin: 0 auto;
+	left: 0;
+	right: 0;
+	top: -70px;
+	width: 95px;
+	height: 95px;
+	border-radius: 50%;
+	z-index: 9;
+	background: #c76060;
+	padding: 15px;
+	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+}
+.modal-login .avatar img {
+	width: 100%;
+}
+.modal-login.modal-dialog {
+	margin-top: 80px;
+}
+.modal-login .btn, .modal-login .btn:active {
+	color: #fff;
+	border-radius: 4px;
+	background: #c76060 !important;
+	text-decoration: none;
+	transition: all 0.4s;
+	line-height: normal;
+	border: none;
+}
+.modal-login .btn:hover, .modal-login .btn:focus {
+	background: #ab4545 !important;
+	outline: none;
+}
+
+
+
+
+[class*="fontawesome-"] {
+  display: block;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 40px;
+  font-size: 5.5rem;
+  line-height: 95px;
+  text-align: center;
+  border: 2px solid #e5abab;
+  border-radius: 100%;
+  color: #fff;
+  background: #bfd8eb;
+  transition: all .2s;
+}
+[class*="fontawesome-"]:before {
+  font-family: 'FontAwesome', sans-serif;
+}
+
+.loginbody {
+  width: 450px;
+  padding: 30px;
+  margin: 0 auto;
+  background: #5a1616;
+}
+.loginbody:hover [class*="fontawesome-"] {
+  border-color: #cc5e5e;
+  background: #cc5e5e;
+}
+
+#frmsignup fieldset,#frmlogin fieldset,#frmReset fieldset  {
+  width: 100%;
+  padding: 0 10px;
+  margin: 0 0 10px;
+  border: 1px solid #595959;
+  background: #fff;
+}
+
+#frmsignup input,#frmlogin input,#frmReset input  {
+  display: block;
+  width: 100%;
+  padding: 20px 5px;
+  margin: 0;
+  border: none;
+  font: 1.4rem "Lato", sans-serif;
+  color: #333;
+}
+
+#frmsignup input[type="text"], #frmsignup input[type="password"],#frmlogin input[type="text"], #frmlogin  input[type="password"],#frmReset input[type="text"], #frmReset input[type="password"] {
+  letter-spacing: .1rem;
+  transition: padding .2s;
+}
+
+#frmsignup input[type="text"]:focus, #frmsignup input[type="password"]:focus, #frmlogin input[type="text"]:focus, #frmlogin input[type="password"]:focus, #frmReset input[type="text"]:focus, #frmReset input[type="password"]:focus {
+  padding: 20px 5px 20px 20px;
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAANCAMAAABSF4SHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAZQTFRF/5kA////nQtxcAAAAAJ0Uk5T/wDltzBKAAAAJ0lEQVR42mJgYAQDBgYGGM0AoxlgNAOMZoDRDKh8VPWo5kHMBwgwAAi4ACtJ73JtAAAAAElFTkSuQmCC") no-repeat 5px 50%;
+}
+
+#frmsignup input[type="text"],#frmlogin input[type="text"],#frmReset input[type="text"] {
+  border-bottom: 1px solid #e6e6e6;
+}
+
+#frmsignup input[type="submit"],#frmlogin input[type="submit"],#frmReset input[type="submit"] {
+  font-size: 1.6rem;
+  color: #fff;
+  background: #9aca40;
+  transition: all .2s;
+}
+
+#frmsignup input[type="submit"]:hover,#frmlogin input[type="submit"]:hover,#frmReset input[type="submit"]:hover {
+  cursor: pointer;
+  background: #608024;
+}
+
+.invisible{
+  display:none;
+}
+
+#btnCancelRec{
+  text-align: center;
+  display: block;
+  width: 100%;
+  padding: 20px 5px;
+  margin: 0;
+  border: none;
+  font: 1.6rem "Lato", sans-serif;
+  margin-top: 10px;
+  color: #808080;
+  background: #d9d9d9;
+  transition: all .2s;
+}
+
+#btnCancelRec:hover{
+  background-color: #B9B9B9;
+}
+
+#btnLogFacebook,#btnRegFacebook{
+  text-align: center;
+  display: block;
+  width: 100%;
+  padding: 20px 5px;
+  margin: 0;
+  border: none;
+  font: 1.6rem "Lato", sans-serif;
+  text-transform: uppercase;
+  margin-top: 10px;
+  color: #fff;
+  background: #3b5998;
+  transition: all .2s;
+}
+
+#btnLogGhest{
+  text-align: center;
+  display: block;
+  width: 100%;
+  padding: 20px 5px;
+  margin: 0;
+  border: none;
+  font: 1.6rem "Lato", sans-serif;
+  text-transform: uppercase;
+  margin-top: 10px;
+  color: #fff;
+  background: #FF8A65;
+  transition: all .2s;
+}
+
+#btnLogFacebook:hover,#btnRegFacebook:hover{
+  background: #17233d;
+}
+
+.animation{
+  -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadein 2s; /* Firefox < 16 */
+        -ms-animation: fadein 2s; /* Internet Explorer */
+         -o-animation: fadein 2s; /* Opera < 12.1 */
+            animation: fadein 2s;
+}

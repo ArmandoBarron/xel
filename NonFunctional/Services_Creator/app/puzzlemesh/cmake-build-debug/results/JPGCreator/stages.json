@@ -1,0 +1,7 @@
+{
+	"workflow_name":"JPGCreator",
+	"stages":[
+		{"name":"stage_cleaning","sources":["/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results//JPGCreator/catalogs/UnEstudio"], "sinks":["/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/stage_cleaning"]},
+		{"name":"stage_dicomtojpg","sources":["/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator//stage_cleaning/cleaningpattern/cleaning"], "sinks":["/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/stage_dicomtojpg"]}
+		]
+}

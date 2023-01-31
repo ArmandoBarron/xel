@@ -1,0 +1,10 @@
+flask>=1.1.2
+flask-restful>=0.3.8
+Flask-API>=2.0
+requests>=2.25.1
+simplejson>=3.17.2
+networkx
+#matplotlib
+pyyaml
+texttable
+#plotly

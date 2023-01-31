@@ -1,0 +1,111 @@
+version: '3'
+services:
+    catalogs: 
+        image: xel_bb_catalog:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68:/home/robot/xel/NonFunctional/Services_Creator/app//results/f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68
+            SERVICE_NAME: catalogs
+            SERVICE_IP: catalogs
+            SERVICE_PORT: 80
+    transform_ds: 
+        image: xel_bb_transform:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68:/home/robot/xel/NonFunctional/Services_Creator/app//results/f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68
+            SERVICE_NAME: transform_ds
+            SERVICE_IP: transform_ds
+            SERVICE_PORT: 80
+    maps: 
+        image: xel_bb_maps:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68:/home/robot/xel/NonFunctional/Services_Creator/app//results/f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68
+            SERVICE_NAME: maps
+            SERVICE_IP: maps
+            SERVICE_PORT: 80
+    clustering_service: 
+        image: xel_bb_clustering:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68:/home/robot/xel/NonFunctional/Services_Creator/app//results/f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: f7037516f5f79ecbb5fe6685267200fabfd58488c56706d03a876630dd12da68
+            SERVICE_NAME: clustering_service
+            SERVICE_IP: clustering_service
+            SERVICE_PORT: 80
+    lbcatalogspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - catalogs
+    lbtransform_dspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - transform_ds
+    lbmapspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - maps
+    lbclustering_servicepattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - clustering_service
+
+
+networks:
+    xel_service_mesh:
+        external: true

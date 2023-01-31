@@ -1,0 +1,57 @@
+{
+    "NAME_APPLICATION":"Outliers detector",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}Outliers.py @{SOURCE} @{SINK}output.csv \"@{columns}\" \"@{outliers_detection}\" \"@{method}\" \"@{n_standard_desviations}\" \"@{min_range}\" \"@{max_range}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"output.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        },
+    "METADATA":{
+        "variables":{
+            "columns":{
+                "type":"VariableList",
+                "name":"columns",
+                "description":"columns to process",
+                "default":null
+            },
+            "outliers_detection":{
+                "type":"CustomList",
+                "name":"strategy for outliers detection",
+                "description":"",
+                "list_values":["ZS","IQR","M"],
+                "list_labels":["Z-score","IQR","Manual"]
+            },
+            "method":{
+                "type":"CustomList",
+                "name":"method for transforming outliers",
+                "description":"method for transforming outliers",
+                "list_values":["DEL","NAN"],
+                "list_labels":["Delete rows","replace with NaN"]
+            },
+            "n_standard_desviations":{
+                "type":"Integer",
+                "name":"number of standard desviations",
+                "description":"",
+                "range":{"min":1,"max":10}
+            },
+            "min_range":{
+                "type":"Integer",
+                "name":"min range value",
+                "description":""
+            },
+            "max_range":{
+                "type":"Integer",
+                "name":"max range value",
+                "description":""
+            }
+            
+        }
+    }
+}

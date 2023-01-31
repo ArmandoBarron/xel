@@ -1,0 +1,54 @@
+version: '3'
+services:
+    catalogs: 
+        image: xel_bb_catalog
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff:/home/robot/xel/NonFunctional/Services_Creator/app//results/4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - 4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: LocalCluster
+            SERVICE_PORT: 80
+    transform_ds: 
+        image: xel_bb_transform
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff:/home/robot/xel/NonFunctional/Services_Creator/app//results/4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - 4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: LocalCluster
+            SERVICE_PORT: 80
+    lbcatalogspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - 4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff
+        links:
+            - catalogs
+    lbtransform_dspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - 4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff
+        links:
+            - transform_ds
+
+
+networks:
+    4d8d9d9c8528e091df5df0b0fdad6f62cfc2bb04e497685b713634574a8214ff:

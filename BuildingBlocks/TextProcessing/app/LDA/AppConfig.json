@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"LDA",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "",
+        "CUSTOM_APP":true
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
+            "ignore_list":[]
+        }
+
+}

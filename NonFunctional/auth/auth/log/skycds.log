@@ -1,0 +1,16 @@
+[11/Aug/2021:00:10:28] (api) SQLSTATE[08P01]: <<Unknown error>>: 7 ERROR:  bind message supplies 1 parameters, but prepared statement "pdo_stmt_00000001" requires 0
+[15/Nov/2021:09:58:45] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:09:58:45] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:09:59:05] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:07:57] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:07:57] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:10:05] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:10:05] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:10:34] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:10:34] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:11:08] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:11:08] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:11:32] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:11:32] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:12:48] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above
+[15/Nov/2021:10:12:48] (api) SQLSTATE[08006] [7] SCRAM authentication requires libpq version 10 or above

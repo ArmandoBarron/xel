@@ -1,0 +1,46 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+
+RewriteCond %{QUERY_STRING} tokenuser=(\w+)
+RewriteRule ^auth/v1/user/?$ api.php?type=52&tokenuser=$1 [QSA,L]
+RewriteCond %{QUERY_STRING} access_token=(\w+)
+RewriteRule ^auth/v1/user/?$ api.php?type=53&access_token=$1 [QSA,L]
+RewriteRule ^auth/v1/users/a/([a-z0-9]{13})/([a-z0-9]{32,64})/?$ api.php?code=$1&tokenuser=$2&type=5 [NC,L]
+
+RewriteRule ^auth/v1/hierarchy/?$ api.php?type=50&access_token=$1 [QSA,NC,L]
+RewriteRule ^auth/v1/users/?$ api.php?type=51 [QSA,NC,L]
+RewriteRule ^auth/v1/users/create?$ api.php?type=61 [QSA,NC,L]
+
+RewriteRule ^auth/v1/users/createfromglobal?$ api.php?type=62 [QSA,NC,L]
+
+RewriteRule ^auth/v1/users/all/?$ api.php?type=100&access_token=$1 [QSA,NC,L]
+RewriteRule ^auth/v1/hierarchy/all/?$ api.php?type=99 [NC,L]
+
+# DEV
+
+
+
+
+
+#RewriteRule ^auth/v1/users/([a-zA-Z0-9]{32,64})/?$ api.php?id=$1&type=2 [NC,L]
+#RewriteRule ^auth/v1/users/create_admin?$ api.php?type=3 [NC,L]
+#RewriteRule ^auth/v1/users/create?$ api.php?type=33 [NC,L]
+#RewriteRule ^auth/v1/users/([a-z0-9]{32,64})/delete/?$ api.php?type=4&keyuser=$1 [NC,L]
+RewriteRule ^auth/v1/users/login/?$ api.php?type=6 [NC,L]
+RewriteRule ^auth/v1/users/byorg/?$ api.php?type=15&access_token=$1 [QSA,L]
+#RewriteRule ^auth/v1/users/fulldata/?$ api.php?type=16 [NC,L]
+#RewriteCond %{QUERY_STRING} email=(\w+)
+#RewriteRule ^auth/v1/user/?$ api.php?type=12&email=$1 [QSA,L]
+#RewriteCond %{QUERY_STRING} api_key=(\w+)
+#RewriteRule ^auth/v1/user/?$ api.php?type=14&api_key=$1 [QSA,L]#
+
+#RewriteRule ^auth/v1/users/([a-zA-Z0-9]{32,64})/edit/username/?$ api.php?type=7 [NC,L]
+#RewriteRule ^auth/v1/users/([a-zA-Z0-9]{32,64})/edit/email/?$ api.php?type=8 [NC,L]
+#RewriteRule ^auth/v1/users/([a-zA-Z0-9]{32,64})/edit/password/?$ api.php?type=9 [NC,L]
+#RewriteRule ^auth/v1/users/([a-zA-Z0-9]{32,64})/activate/?$ api.php?type=10 [NC,L]
+#RewriteRule ^auth/v1/users/([a-zA-Z0-9]{32,64})/deactivate/?$ api.php?type=11 [NC,L]
+
+</IfModule>

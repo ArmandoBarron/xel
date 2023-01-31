@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"MapaPoligonoYScatter para estados",
+    "INPUT_DATA_FORMAT":["zip"],
+    "EXTRACT":{
+            "COMPRESS":true
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}PolyAndScatterMap_estados.py '@{SOURCE}/@{poly_file}' '@{SINK}' '@{geocve_column}' '@{label}' '@{class}' '@{title}' '@{SOURCE}/@{scatter_file}' '@{lon}' '@{lat}' '@{scatter_class}' '@{scatter_id}' '@{marker_size}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"mapa.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

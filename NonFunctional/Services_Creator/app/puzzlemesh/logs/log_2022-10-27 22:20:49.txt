@@ -1,0 +1,33 @@
+2022-10-27 22:20:49	PARSER: Configured single catalog
+2022-10-27 22:20:49	PARSER: Configured single transform
+2022-10-27 22:20:49	PARSER: Configured pattern catalogpattern
+2022-10-27 22:20:49	PARSER: Configured pattern transformpattern
+2022-10-27 22:20:49	PARSER: Configured stage stage_catalog
+2022-10-27 22:20:49	PARSER: Configured stage stage_transform
+2022-10-27 22:20:49	PARSER: Configured workflow xelhua
+2022-10-27 22:20:49	LAUCHER: Coupling stages and building blocks
+2022-10-27 22:20:49	xelhua: Workdir xelhua
+2022-10-27 22:20:49	xelhua: Workdir exists
+2022-10-27 22:20:49	xelhua: Stage stage_catalog added
+2022-10-27 22:20:49	stage_catalog: Workdir stage_catalog
+2022-10-27 22:20:49	stage_catalog: Workdir exists
+2022-10-27 22:20:49	stage_catalog: Added building block catalogpattern
+2022-10-27 22:20:49	catalogpattern: Workdir catalogpattern
+2022-10-27 22:20:49	catalogpattern: Workdir exists
+2022-10-27 22:20:49	catalog: Workdir catalog
+2022-10-27 22:20:49	catalog: Workdir exists
+2022-10-27 22:20:49	xelhua: Stage stage_transform added
+2022-10-27 22:20:49	stage_transform: Workdir stage_transform
+2022-10-27 22:20:49	stage_transform: Workdir exists
+2022-10-27 22:20:49	stage_transform: Added building block transformpattern
+2022-10-27 22:20:49	transformpattern: Workdir transformpattern
+2022-10-27 22:20:49	transformpattern: Workdir exists
+2022-10-27 22:20:49	transform: Workdir transform
+2022-10-27 22:20:49	transform: Workdir exists
+2022-10-27 22:20:49	LAUNCHER: Creating YML file at xelhua/docker-compose.yml
+2022-10-27 22:20:49	LAUCHER: deploying virtual containers of workflow xelhua
+2022-10-27 22:20:49	LAUCHER: to shutdown the containers execute  
+
+docker stack rm xelhua
+
+

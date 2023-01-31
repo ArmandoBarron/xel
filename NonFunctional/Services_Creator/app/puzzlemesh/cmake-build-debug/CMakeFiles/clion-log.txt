@@ -1,0 +1,4 @@
+/opt/clion/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug

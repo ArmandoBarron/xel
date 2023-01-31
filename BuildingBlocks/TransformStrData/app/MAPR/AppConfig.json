@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"MapReduce",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}App.py @{SOURCE} @{SINK}output.csv \"@{group_columns}\"  \"@{columns}\"  \"@{group_by}\"  \"@{query_str}\" \"@{if_assign}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"output.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

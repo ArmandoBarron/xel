@@ -1,0 +1,7 @@
+2022-10-27 21:26:49	PARSER: Configured single catalog
+2022-10-27 21:26:49	PARSER: Configured single transform
+2022-10-27 21:26:49	PARSER: Configured pattern catalogpattern
+2022-10-27 21:26:49	PARSER: Configured pattern transformpattern
+2022-10-27 21:26:49	PARSER: Configured stage stage_catalog
+2022-10-27 21:26:49	PARSER: Configured stage stage_transform
+2022-10-27 21:26:49	PARSER: Configured workflow xelhua

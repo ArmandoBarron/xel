@@ -1,0 +1,431 @@
+# Microservice de auth
+# Authentication
+
+######   VARIABLES ############################################################
+@atfer = 9aa491c85508cfeead30c569c88c8f26e3881792a3f158a323ee9ac6150ab1cd
+@ttest = 7342698dff531ea30c0a4c21b1f35216f9407af5686827081289c429d28d6996
+@attest = c3aa284e2d566431857283a5bb43066f3cf14c6eed6fd8388358dd8b98f8a49a
+@tbeto = 6604acedfec2e78f09f6e39655f1927261b51e4c95a357a4ede3f5b7eaea3f51
+@atbeto = f5ee9b93118b2af57f708302e9fbe07626e77089a5f5853c6e179ef8351fbf7f
+@ebeto = albertoromero0321@gmail.com
+@password = Admin1234
+
+######   USERS ############################################################
+###DEV obtener todos los usuarios
+GET http://127.0.0.1:47011/auth/v1/users/all HTTP/1.1
+
+#########L obtener el usuario mediante el tokenuser
+GET http://127.0.0.1:47011/auth/v1/user?tokenuser={{ttest}} HTTP/1.1
+### res
+{
+  "message": "Ok.",
+  "data": {
+    "username": "fer",
+    "email": "fer@gmail.com"
+  }
+}
+
+#########L obtener el usuario mediante el access token
+GET http://127.0.0.1:47011/auth/v1/user?access_token={{atbeto}} HTTP/1.1
+###
+{
+  "message": "Ok.",
+  "data": {
+    "username": "fer",
+    "email": "fer@gmail.com",
+    "tokenuser": "5cef4577b0bf0a76847903226a514bc4ff0adb609b2aaa35f17e9e30f59d106d"
+  }
+}
+
+#########L create a user
+POST http://127.0.0.1:47011/auth/v1/users/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "NEW",
+    "username": "test10",
+    "email": "test10@gmail.com",
+    "password": "{{password}}",
+    "tokenorg": "cff446b533a38c145e021a8a9d69bc3f8854619827735d4c99e94b62e407de2a"
+}
+
+###
+{
+  "message": "User created.",
+  "tokenuser": "7e617b0ff984fb31eb2cce753c311168530adb3148c93422fb83773df10a7a7f"
+}
+
+#########L delete user
+POST http://127.0.0.1:47011/auth/v1/users?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "DELETE",
+    "tokenuser": "89e355617553b78c56cad2b53d3ae3c28446929809f43d48b087a365600d8b92"
+}
+
+###
+{
+  "message": "Deleted.",
+  "tokenuser": "7e617b0ff984fb31eb2cce753c311168530adb3148c93422fb83773df10a7a7f"
+}
+
+
+#########L edit username 
+POST http://127.0.0.1:47011/auth/v1/users?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "MODIFY",
+    "tokenuser": "{{ttest}}",
+    "username": "test2"
+}
+
+###
+{
+  "message": "Username Modified",
+  "tokenuser": "7342698dff531ea30c0a4c21b1f35216f9407af5686827081289c429d28d6996"
+}
+
+#########L edit email 
+POST http://127.0.0.1:47011/auth/v1/users?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "MODIFY",
+    "tokenuser": "{{ttest}}",
+    "email": "test33@gmail.com"
+}
+
+###
+{
+  "message": "Email Modified",
+  "tokenuser": "7342698dff531ea30c0a4c21b1f35216f9407af5686827081289c429d28d6996"
+}
+
+#########L edit password pendiente
+POST http://127.0.0.1:47011/auth/v1/users?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "MODIFY",
+    "tokenuser": "89e355617553b78c56cad2b53d3ae3c28446929809f43d48b087a365600d8b92",
+    "old_password": "Hola1234",
+    "new_password": "{{password}}"
+}
+
+#########p set user active
+POST http://127.0.0.1:47011/auth/v1/users?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "ACTIVATE",
+    "tokenuser": "{{ttest}}"
+}
+
+#########p set user unactive
+POST http://127.0.0.1:47011/auth/v1/users?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "DEACTIVATE",
+    "tokenuser": "{{ttest}}"
+}
+
+#########L login by user and password
+POST http://127.0.0.1:47011/auth/v1/users HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "LOGIN",
+    "user": "fer",
+    "password": "{{password}}"
+}
+
+###
+### obtener el acceso mediante usuario y contraseña
+POST http://127.0.0.1:47011/auth/v1/users/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "user": "fer",
+    "password": "{{password}}"
+}
+
+
+#########L change user tokens
+POST http://127.0.0.1:47011/auth/v1/users?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "CHANGETOKEN",
+    "tokenuser": "106c2ac8a859bd82b05e13f9f9b336828432d02a8302ed3d80d5ad7c0c946d9d"    
+}
+
+###
+{
+  "message": "Token changed.",
+  "tokenuser": "7e617b0ff984fb31eb2cce753c311168530adb3148c93422fb83773df10a7a7f"
+}
+
+
+#########L view users by tokenorg
+POST http://127.0.0.1:47011/auth/v1/users?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "VIEW",
+    "by": "ORG",
+    "tokenorg": "cff446b533a38c145e021a8a9d69bc3f8854619827735d4c99e94b62e407de2a"
+}
+
+###
+{
+  "message": "Ok.",
+  "data": [
+    {
+      "username": "fer",
+      "email": "fer@gmail.com",
+      "tokenuser": "5cef4577b0bf0a76847903226a514bc4ff0adb609b2aaa35f17e9e30f59d106d"
+    },
+    {
+      "username": "test",
+      "email": "test@gmail.com",
+      "tokenuser": "55efe35c4e45b938e3ba6903fb2fb8c29db5c03aa739e94267b76c2da0e07493"
+    }
+  ]
+}
+
+
+
+
+######   HIERARCHY ############################################################
+
+### get all hyerarchy
+GET http://127.0.0.1:47011/auth/v1/hierarchy/all HTTP/1.1
+
+#########L create a hierarchy (org)
+POST http://127.0.0.1:47011/auth/v1/hierarchy HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "NEW",
+    "acronym": "TEST821",
+    "fullname": "TEST821",
+    "fathers_token": "7dc7ac25d32b354589631d1343d64b7466d897bce8f66bf3ea408244a170b97a"
+}
+
+###
+{
+  "message": "Org Created",
+  "tokenhierarchy": "602a997b8f363d9398dc134b93999cf22fc22743c42e2de35e6e405422967ba9"
+}
+
+#########L edit hierarchy
+POST http://127.0.0.1:47011/auth/v1/hierarchy?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "MODIFY",
+    "token": "eefc59bdb6945f9388461f8b51de453c18a77380614d973cf7ec9e6431806713",
+    "acronym": "TEST",
+    "fullname": "Lab de Tecnologias de Info"
+}
+
+###
+{
+  "message": "Modified"
+}
+
+
+#########L delete hierarchy (borra recursivamente)
+POST http://127.0.0.1:47011/auth/v1/hierarchy?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "DELETE",
+    "tokenhierarchy": "fc16b0b20b244b6f4468c5bf9fc8bb31c4d0d7e37db604890326407dd393993c"
+}
+
+###
+{
+  "message": "Deleted"
+}
+
+#########L change hierarchy tokens
+POST http://127.0.0.1:47011/auth/v1/hierarchy?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "CHANGETOKEN",
+    "tokenhierarchy": "e52d479b37664b6c74f9779dd00286336314d150b9652ca8d855ab0eba2005f6"    
+}
+
+### 
+{
+  "message": "Tokens changed.",
+}
+
+#########L view hierarchy down   CASC
+POST http://127.0.0.1:47011/auth/v1/hierarchy?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "VIEW",
+    "direction": "DOWN",
+    "tokenhierarchy": "88b0f1aebd2656c43e0dee19fdbbba6ddb278a97d9b6758d97b9a3b4c2fe73c6"
+}
+
+###
+{
+  "message": "Ok",
+  "data": [
+    {
+      "acronym": "CINVESTAV MX",
+      "fullname": "Centro de Investigacion y estudios Avanzados Unidad Zacatenco",
+      "tokenhierarchy": "1fef93d254951dd03f8628a0b8b66f957c0f4da78bc3ae75178462e931175975"
+    },
+    {
+      "acronym": "CINVESTAV Tamps",
+      "fullname": "Centro de Investigacion y estudios Avanzados Unidad Tamaulipas",
+      "tokenhierarchy": "c02dbeb486af79e6bdcb221dcc20dfdd23751f0fd6f7cdcf61f8d5fbaa8ad4e7"
+    }
+  ]
+}
+
+###L view hierarchy UP   CASC
+POST http://127.0.0.1:47011/auth/v1/hierarchy?access_token={{atfer}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "option": "VIEW",
+    "direction": "UP",
+    "tokenhierarchy": "b8c318a3937fc938c5cd2b3694b9082e18f15fcd70117bc4751cb4428dfa5fb7"
+}
+
+###
+{
+  "message": "Ok",
+  "data": [
+    {
+      "acronym": "CINVESTAV",
+      "fullname": "Centro de Investigacion y estudios Avanzados",
+      "tokenhierarchy": "fc16b0b20b244b6f4468c5bf9fc8bb31c4d0d7e37db604890326407dd393993c",
+      "father": "\/"
+    },
+    {
+      "acronym": "CINVESTAV Tamps",
+      "fullname": "Centro de Investigacion y estudios Avanzados Unidad Tamaulipas",
+      "tokenhierarchy": "c02dbeb486af79e6bdcb221dcc20dfdd23751f0fd6f7cdcf61f8d5fbaa8ad4e7",
+      "father": "c6878a9ac7bbd2b75cdae365352915750f6662e4"
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+GET http://127.0.0.1:47011/auth/v1/users/fulldata/ HTTP/1.1
+
+### obtener un usuario por key
+GET http://127.0.0.1:47011/auth/v1/users/9eebbd828e68707673fad86aa4c3e33c19a74cf4/ HTTP/1.1
+
+### obtener los datos del usuario del correo
+GET http://127.0.0.1:47011/auth/v1/user/?email={{}} HTTP/1.1
+
+
+
+### obtener el usuario mediante el api key
+
+@apikey = 90b1b224a812d589084b1909d3abe1be986969ce
+
+GET http://127.0.0.1:47011/auth/v1/user/?api_key={{apikey}} HTTP/1.1
+
+
+
+### crear un usuario nuevo
+
+@id = 1
+@fer = fbalderas
+@aem = AEM
+@inegi = INEGI
+@efer = fernando.bguzman@gmail.com
+@eaem = aem@aem.org
+@einegi = inegi@inegi.org
+@password = Admin1234
+@beto = beto
+@ebeto = albertoromero0321@gmail.com
+
+POST http://127.0.0.1:47011/auth/v1/users/create_admin HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "{{inegi}}",
+    "email": "{{einegi}}",
+    "password": "{{password}}"
+}
+
+
+### activar usuario (url recibida por correo)
+
+GET http://148.247.204.198:47011/auth/v1/users/a/5aaab42d183f1/f3cba9964834a68ca652c01cf9d4e04deac643fe HTTP/1.1
+
+### editar nommbre de usuario
+PUT http://127.0.0.1:47011/auth/v1/users/{{keyuser}}/edit/username HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "{{}}",
+    "keyuser": "{{keyuser}}"
+}
+
+
+
+### eliminar un usuario
+
+@keyuser = 01316dda6456b9e9ecc129b7df867d793144e978
+DELETE http://127.0.0.1:47011/auth/v1/users/{{keyuser}}/delete HTTP/1.1
+
+
+--------------- FER ------------------ 
+
+4
+java -jar -Xms1g -Xmx1g Up_FS.jar 40dd3d0ff15ee1415c3fef3644287a6e9fbb41b5b2df2e07c28ed5070df7f6bd  edfec42434580aa1c11aeb3060d21196d83c7c86 2d2c8ca5ad4eaeee77c63b4fd7118bac0d902a11e66a0d244429c32b437b4ad1 single bob 2 uploads/c4/ LTI false
+
+java -jar -Xms2g -Xmx2g Dw_FS.jar 40dd3d0ff15ee1415c3fef3644287a6e9fbb41b5b2df2e07c28ed5070df7f6bd  edfec42434580aa1c11aeb3060d21196d83c7c86 2d2c8ca5ad4eaeee77c63b4fd7118bac0d902a11e66a0d244429c32b437b4ad1 148.247.204.198:47013 2 1 ESA
+
+
+
+
+10
+java -jar -Xms1g -Xmx1g Up_FS.jar ba8ed83c5b063b9d5fd59f124342b5b24950564f66343191550b681b5c27629c  6361ff9c8499382de478d9f85efbf377d84a8297 55f6851291f74a35bcc90d71a77969f0606432e4 single bob 2 uploads/c10/ LTI false
+

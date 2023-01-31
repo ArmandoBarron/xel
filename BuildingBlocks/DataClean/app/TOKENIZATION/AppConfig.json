@@ -1,0 +1,16 @@
+{
+    "NAME_APPLICATION":"Encoding catagorical data",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}CatToInt.py @{SOURCE} @{SINK}encoded.csv \"@{columns}\" \"@{encoding_method}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"encoded.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+}

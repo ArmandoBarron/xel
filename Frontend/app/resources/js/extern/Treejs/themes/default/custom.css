@@ -1,0 +1,38 @@
+.jstree-icon.jstree-checkbox, .jstree-no-dots .jstree-closed>.jstree-ocl, .jstree-no-dots .jstree-open>.jstree-ocl {
+    background-image: none;
+    background-position: initial;
+    color: #767676;
+  
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .jstree-icon.jstree-checkbox:before {
+    content: "\f096";
+    font-size: 17px;
+  }
+  
+  .jstree-default-large.jstree-checkbox-selection .jstree-clicked>.jstree-checkbox:before, .jstree-default-large .jstree-checked>.jstree-checkbox:before {
+    content: "\f046";
+    font-size: 17px;
+    margin-left: 2px; /* checkedSquare icon is wider -> margin simulates same square position as unchecked */
+  }
+  
+  .jstree-default-large .jstree-anchor>.jstree-undetermined:before{
+    content: "\f147";
+    font-size: 17px;
+  }
+  
+  .jstree-default-large>.jstree-no-dots .jstree-closed>.jstree-ocl:before{
+    content: "\f0da";
+    line-height: 32px;
+  }
+  
+  .jstree-default-large>.jstree-no-dots .jstree-open>.jstree-ocl:before{
+    content: "\f0d7";
+    line-height: 32px;
+  }

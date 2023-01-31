@@ -1,0 +1,18 @@
+{
+    "NAME_APPLICATION":"Drop Na",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}DropNA.py @{SOURCE} @{SINK}WithoutNa.csv \"@{columns}\" \"@{method}\" \"@{na_n}\" \"@{to_drop}\" ",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"WithoutNa.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        },
+    "METADATA":{
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"Logaritmical Regression Multivar",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}reg_log_multiple.py @{SOURCE} @{SINK} \"@{list_var_x}\" \"@{var_y}\" \"@{alpha}\" \"@{filter_column}\" \"@{filter_value}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
+            "ignore_list":[]
+        }
+
+}

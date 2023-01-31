@@ -1,0 +1,32 @@
+{
+  "exe": {
+    "resultfile_location": "./",
+    "resultfile_extension": ".yml",
+    "resources_name": "resources",
+    "resources_location": "./",
+    "resources_extension": ".json",
+    "resources_key": "resources",
+    "names_key": "names",
+    "create_services_finalerror": "Los servicios definidos no coinciden con los servicios desplegados",
+    "docker_envfile_name": ".env",
+    "docker_envfile_location": "./",
+    "alias_key": "alias",
+    "dag_key": "DAG",
+    "id_stack_key": "id_stack",
+    "replicas_key": "replicas",
+    "environment_variable_name": "COMPOSE_PROJECT_NAME"
+  },
+  "server": {
+    "server_ip": "0.0.0.0",
+    "server_port": 2000,
+    "create_services_response_field": "response",
+    "create_services_id_field": "id",
+    "create_services_success_response": "Ok",
+    "create_services_error_response": "Error! No todos los servicios se desplegaron correctamente",
+    "create_services_error_cause_field": "Causa",
+    "remove_services_id_name": "id",
+    "remove_services_response_field": "response",
+    "remove_services_success_response": "Ok",
+    "remove_services_error_response": "Error! El archivo no existe"
+  }
+}

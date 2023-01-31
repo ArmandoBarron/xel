@@ -1,0 +1,59 @@
+version: '3'
+services:
+    transform_ds: 
+        image: xel_bb_transform:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-d1ad05e89e53023db1ec9395e8c955a90a5eab3e623ef3f01fe6883400d74e7e:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-d1ad05e89e53023db1ec9395e8c955a90a5eab3e623ef3f01fe6883400d74e7e"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-d1ad05e89e53023db1ec9395e8c955a90a5eab3e623ef3f01fe6883400d74e7e
+            SERVICE_NAME: transform_ds
+            SERVICE_IP: transform_ds
+            SERVICE_PORT: 80
+    charts: 
+        image: xel_bb_charts:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-d1ad05e89e53023db1ec9395e8c955a90a5eab3e623ef3f01fe6883400d74e7e:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-d1ad05e89e53023db1ec9395e8c955a90a5eab3e623ef3f01fe6883400d74e7e"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-d1ad05e89e53023db1ec9395e8c955a90a5eab3e623ef3f01fe6883400d74e7e
+            SERVICE_NAME: charts
+            SERVICE_IP: charts
+            SERVICE_PORT: 80
+    lbtransform_dspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - transform_ds
+    lbchartspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - charts
+
+
+networks:
+    xel_service_mesh:
+        external: true

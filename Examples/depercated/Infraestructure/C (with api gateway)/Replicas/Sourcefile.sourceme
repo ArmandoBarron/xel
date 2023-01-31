@@ -1,0 +1,11 @@
+
+
+export TPS_MANAGER_HOST=http://18.191.55.169:54350
+
+export NETWORK_NAME=Amazon
+export IP_HOST=3.129.6.119
+export PORT_HOST=25002
+
+
+export API_GATEWAY=18.191.55.169:25000
+

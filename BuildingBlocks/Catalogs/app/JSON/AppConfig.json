@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"catalogo",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}MergeDataFromJSON.py @{SOURCE} @{SINK}enriched_dataset.csv '@{json_dict}' '@{column_key}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"enriched_dataset.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

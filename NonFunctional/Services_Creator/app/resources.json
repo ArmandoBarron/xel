@@ -1,0 +1,335 @@
+{
+  "resources": {
+    "cleanning": {
+      "image": "xel_bb_data_clean:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "imputation": {
+      "image": "xel_bb_imputation:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "clustering_service": {
+      "image": "xel_bb_clustering:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "fusion": {
+      "image": "xel_bb_fusion:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "correlation": {
+      "image": "xel_bb_correlations:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "join_split": {
+      "image": "xel_bb_data_split:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "charts": {
+      "image": "xel_bb_charts:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "maps": {
+      "image": "xel_bb_maps:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "catalogs": {
+      "image": "xel_bb_catalog:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "regression": {
+      "image": "xel_bb_regressions:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "statistics": {
+      "image": "xel_bb_statistics:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "transform_ds": {
+      "image": "xel_bb_transform:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "deeplearning": {
+      "image": "xel_bb_deeplearning:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "text_preprocessing": {
+      "image": "xel_bb_text_preprocessing:v2.0",
+      "restart": "always",
+      "networks": "service_mesh",
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "text_processing": {
+      "image": "xel_bb_text_processing:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "text_classification": {
+      "image": "xel_bb_text_classification:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "preprocessing": {
+      "image": "xel_bb_text_processing:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "Converters": {
+      "image": "xel_bb_converters:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "Acquisition": {
+      "image": "xel_bb_acquisition:v2.0",
+      "restart": "always",
+      "volumes": ["./localdata/:/home/app/REQUEST/input_data"],
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      },
+      "deploy": {
+        "placement": {
+          "constraints": ["node.role == manager"]
+        }
+      }
+    },
+    "Grobid": {
+      "image": "xel_bb_grobid:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "GROBID_URL": "grobid",
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "Glove": {
+      "image": "xel_bb_glove:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "classificators": {
+      "image": "xel_bb_classification_models:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    },
+    "advanced_maps": {
+      "image": "xel_bb_advanced_map:v2.0",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
+    }
+  },
+  "names": {
+    "classificators":"bb_class",
+    "advanced_maps":"bb_advanced_map",
+    "cleanning": "bb_data_clean",
+    "imputation": "bb_imputation",
+    "clustering_service": "bb_clustering",
+    "fusion": "bb_fusion",
+    "correlation": "bb_correlations",
+    "join_split": "bb_data_split",
+    "charts": "bb_charts",
+    "maps": "bb_maps",
+    "catalogs": "bb_catalogs",
+    "regression": "bb_regressions",
+    "statistics": "bb_statistics",
+    "transform_ds": "bb_transform",
+    "deeplearning": "deep_learning",
+    "text_preprocessing": "text_preprocessing_1",
+    "text_processing": "text_processing_1",
+    "text_classification": "text_classification_1",
+    "preprocessing": "preprocessing",
+    "Converters": "bb_converters",
+    "Acquisition": "bb_acquisition_1",
+    "Grobid": "bb_grobid",
+    "Glove": "bb_glove"
+  }
+}

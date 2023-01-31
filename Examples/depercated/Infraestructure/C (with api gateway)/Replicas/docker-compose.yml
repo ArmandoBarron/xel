@@ -1,0 +1,218 @@
+version: '3'
+services:
+
+########### Internal API gateway  ############################
+  
+  iag_amazon: # amazon
+    image: sm_iag
+    build:
+      context: ../IAG
+      dockerfile: ./Dockerfile
+    ports:
+      - "25002:80"
+    restart: always
+    networks:
+      - service_mersh
+    environment:      
+      NETWORK: $NETWORK_NAME
+      API_GATEWAY: $API_GATEWAY #IP:PORT of API_GATEWAY4
+      SERVICE_IP: $IP_HOST
+      SERVICE_PORT: $PORT_HOST
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+########### BB services ############################
+
+  text_preprocessing_2:
+    image: sm_bb_text_preprocessing
+    build:
+      context: ../BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_preprocessing/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_preprocessing
+      SERVICE_IP: text_preprocessing_2
+      SERVICE_PORT: 80
+  text_preprocessing_3:
+    image: sm_bb_text_preprocessing
+    build:
+      context: ../BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_preprocessing/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_preprocessing
+      SERVICE_IP: text_preprocessing_3
+      SERVICE_PORT: 80
+  text_preprocessing_4:
+    image: sm_bb_text_preprocessing
+    build:
+      context: ../BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_preprocessing/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_preprocessing
+      SERVICE_IP: text_preprocessing_4
+      SERVICE_PORT: 80
+
+  text_processing_2: 
+    image: sm_bb_text_processing
+    build:
+      context: ../BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_processing/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_processing
+      SERVICE_IP: text_processing_2
+      SERVICE_PORT: 80
+  text_processing_3: 
+    image: sm_bb_text_processing
+    build:
+      context: ../BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_processing/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_processing
+      SERVICE_IP: text_processing_3
+      SERVICE_PORT: 80
+  text_processing_4: 
+    image: sm_bb_text_processing
+    build:
+      context: ../BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_processing/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_processing
+      SERVICE_IP: text_processing_4
+      SERVICE_PORT: 80
+
+  text_classification_2:
+    image: sm_bb_calsification
+    build:
+      context: ../BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_classification/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_classification
+      SERVICE_IP: text_classification_2
+      SERVICE_PORT: 80
+  text_classification_3:
+    image: sm_bb_calsification
+    build:
+      context: ../BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_classification/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_classification
+      SERVICE_IP: text_classification_3
+      SERVICE_PORT: 80
+  text_classification_4:
+    image: sm_bb_calsification
+    build:
+      context: ../BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./LOGS/text_classification/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY  #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: text_classification
+      SERVICE_IP: text_classification_4
+      SERVICE_PORT: 80
+
+  bb_grobid:
+    image: sm_bb_grobid
+    build:
+      context: ../BuildingBlocks/Grobid
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./LOGS/grobid/:/home/app/logs #for debugging
+    networks:
+      - service_mersh
+    restart: always
+    environment:      
+      TPS_MANAGER: $TPS_MANAGER_HOST #TPS URL
+      API_GATEWAY: $API_GATEWAY #IP:PORT of API_GATEWAY
+      NETWORK: $NETWORK_NAME
+      SERVICE: Grobid
+      SERVICE_IP: bb_grobid
+      SERVICE_PORT: 80
+
+###########################################
+############## external services ###############
+###########################################
+
+  grobid: # tools to clean data
+    container_name: grobid_2
+    image: lfoppiano/grobid:0.6.1
+    environment:      
+      GROBID__NB_THREADS: 4 #configuration location
+    networks:
+      - service_mersh
+    restart: always
+networks: 
+  service_mersh:
+
+volumes:
+  data-volume:

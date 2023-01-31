@@ -1,0 +1,10 @@
+{
+	"workflow_name":"xelhua",
+	"stages":[
+			{"name":"stage_catalog","sources":["/home/domizzi/Documents/XELHUA/deployer/app//results//xelhua/inputs"], "sinks":["/home/domizzi/Documents/XELHUA/deployer/app//results/xelhua/stage_catalog"]},
+			{"name":"stage_transform","sources":["/home/domizzi/Documents/XELHUA/deployer/app//results//xelhua/inputs"], "sinks":["/home/domizzi/Documents/XELHUA/deployer/app//results/xelhua/stage_transform"]}
+		],
+	"containers":[
+
+		]
+}

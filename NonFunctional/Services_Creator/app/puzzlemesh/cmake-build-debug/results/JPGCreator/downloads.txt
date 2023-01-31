@@ -1,0 +1,251 @@
+0	92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6
+1	6505bc62b214446ecd037d823723acb9459da9e9
+2	cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584
+3	2
+4	1
+5	cinves
+6	/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio
+7	c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+8	true
+9	false
+bob.keyring
+{local=FileDB{fkeyring=bob.keyring, attributes="grp:101", fabekey=katya.abe.priv.ciph  permises= "grp:101"metadata=192.168.1.79:20505gateway=192.168.1.79:20500}}
+bob.keyring
+{local=FileDB{fkeyring=bob.keyring, attributes="grp:101", fabekey=katya.abe.priv.ciph  permises= "grp:101"metadata=192.168.1.79:20505gateway=192.168.1.79:20500}}
+Request: http://192.168.1.79:20500/pub_sub/v1/view/catalog/cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/catalog/cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"Data obtained.","data":{"keycatalog":"6ec1f61680719e69caa38bdf2da8ece482844930","tokencatalog":"cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584","namecatalog":"UnEstudio","created_at":"2021-08-26 14:00:35.142889","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"single","encryption":true,"isprivate":false,"father":"\/","group":"ea7829cc6b382d683c1c200d56964766c12dcfeda6ba7166f4c1d07e6e3c25a4","processed":false}}
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"Ok","data":[{"keycatalog":"606126a700b5b32e99ccfabef080fe03ccce432f","tokencatalog":"d051d1d3d57e7677e761b920f62c17e7a4b5cfc8af15429d4d9ff5cb81e292d1","namecatalog":"UnEstudio\/CT2","created_at":"2021-08-29 17:44:31.903271","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"SINGLE","encryption":true,"isprivate":false,"father":"cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584","group":"","processed":false},{"keycatalog":"9234ce669a5716bf1fc6e8d53371043ba45b819e","tokencatalog":"265448bf2c611791562b1b3a4c4af80b997c8272654c99c739acef6336a9946b","namecatalog":"UnEstudio\/JPGCreator-1630277726507","created_at":"2021-08-29 22:55:26.541998","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584","group":"","processed":true},{"keycatalog":"a225826cf8fc1ed99a7bf77c1d568e0e0e40d18c","tokencatalog":"34833e1272a45e53d57d18d8344ae1618438ab6a1760540ab13468ddd4ab8188","namecatalog":"UnEstudio\/JPGCreator-1630277849753","created_at":"2021-08-29 22:57:29.808008","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584","group":"","processed":true},{"keycatalog":"512898972175a3a201d0589c3a96321b85ea900a","tokencatalog":"0584071920ee1b7b23871100f9e3fb302fff3c076fa4f4aacaf90f9b6461dbee","namecatalog":"UnEstudio\/JPGCreator-1630278030159","created_at":"2021-08-29 23:00:30.200656","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584","group":"","processed":true},{"keycatalog":"d72c145d22746a2098d22279d74e7ba6763646d3","tokencatalog":"3b33a7fe7948858390098ce4cc1e72e4254dca53fc65332b9000898c34f4bff6","namecatalog":"UnEstudio\/JPGCreator-1630278047418","created_at":"2021-08-29 23:00:47.449184","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584","group":"","processed":true},{"keycatalog":"fee16549eb061709178eda1be8cf82a9653ff72d","tokencatalog":"d1402751b0ede7c8e920d6bcf42d33a5f2eec24ed67254074458d54de572d43d","namecatalog":"UnEstudio\/JPGCreator-1630278215679","created_at":"2021-08-29 23:03:35.746506","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584","group":"","processed":true}]}
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/d051d1d3d57e7677e761b920f62c17e7a4b5cfc8af15429d4d9ff5cb81e292d1?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/d051d1d3d57e7677e761b920f62c17e7a4b5cfc8af15429d4d9ff5cb81e292d1?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//CT2
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/d051d1d3d57e7677e761b920f62c17e7a4b5cfc8af15429d4d9ff5cb81e292d1?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/d051d1d3d57e7677e761b920f62c17e7a4b5cfc8af15429d4d9ff5cb81e292d1?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"Ok","data":[{"keyfile":"26ebe37f1092f96e28de1a5c60cf36803dd1885c","namefile":"14anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"8b909213fc1f9617967ff7331dae7875","created_at":"2021-08-29 17:44:34.36567","disperse":"SINGLE"},{"keyfile":"dae3bcc7d9083da6fee9403017da7c9dd69d960f","namefile":"2anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"01f3ffd459ef3df2929518939d3d6f99","created_at":"2021-08-29 17:44:35.685809","disperse":"SINGLE"},{"keyfile":"8fab4f5e3e28114b8a9cb09f62eae5681cf96865","namefile":"12anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"0bd22c8bf9771bb016fcdbde3b51bb5d","created_at":"2021-08-29 17:44:36.241349","disperse":"SINGLE"},{"keyfile":"b3b7382ffb97f49df5bc32ee2e7d958690f7ec92","namefile":"33anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"79eab0c61b66bf5c68b0c9602760d1ab","created_at":"2021-08-29 17:44:36.736511","disperse":"SINGLE"},{"keyfile":"f22ff052c9c78ab0d23367a0e21e35c298fcf454","namefile":"15anonima","sizefile":526490,"chunks":1,"isciphered":true,"hashfile":"1052322e788916930da80b2dbc3afb14","created_at":"2021-08-29 17:44:37.21334","disperse":"SINGLE"},{"keyfile":"520bac8ce7f53411e1fbd4cd78e5c5c3a41e8ab0","namefile":"19anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"163ce8b0308fdc7a24e8767de8653592","created_at":"2021-08-29 17:44:38.022788","disperse":"SINGLE"},{"keyfile":"528454cc3819fa107a48fc87e2d5efc9cc3d016f","namefile":"30anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"33f49f5359296d38e20a46ceee336c41","created_at":"2021-08-29 17:44:38.478277","disperse":"SINGLE"},{"keyfile":"08bd81baa6ea195488eb08e1d0765d8d85ebaef3","namefile":"23anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"11788ce73946ca768ebc56bc10bee5c4","created_at":"2021-08-29 17:44:38.936355","disperse":"SINGLE"},{"keyfile":"4a335b8a21a71103fb3c5732a95d654df624c798","namefile":"5anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"b78d4b72d5d64c1cf696af7879793218","created_at":"2021-08-29 17:44:39.367035","disperse":"SINGLE"},{"keyfile":"54b9a94d5b7ead352a097ea5c9740e90f4488aa8","namefile":"29anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"f98a6f8558a475f84a96b2d7884e4bde","created_at":"2021-08-29 17:44:40.204934","disperse":"SINGLE"},{"keyfile":"fae0b620c645f81c462e58f1bff86c5af6f0d5c3","namefile":"35anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"95f4afc39d300f98f3206731084a9859","created_at":"2021-08-29 17:44:40.599743","disperse":"SINGLE"},{"keyfile":"189c349159a06d30c50e2230c0603aeab1752307","namefile":"6anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"2622a68172b5acedd6fc898272224ba7","created_at":"2021-08-29 17:44:41.211445","disperse":"SINGLE"},{"keyfile":"40211ed286f1d91a8869b77e186d5cf25f57e04e","namefile":"34anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"a5d4c8a5ee21c8d520d082c3f59d3d9c","created_at":"2021-08-29 17:44:42.003578","disperse":"SINGLE"},{"keyfile":"aac404a9f007ccb8087a5c3ad6ed656a23537ce2","namefile":"20anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"b657452c7af3eea412829be9034418ab","created_at":"2021-08-29 17:44:42.461137","disperse":"SINGLE"},{"keyfile":"fa6079d6ada773e9f67343480fe6a89c6c4f1788","namefile":"3anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"fafa9bd90733349f0624b0391bfcffdd","created_at":"2021-08-29 17:44:42.982152","disperse":"SINGLE"},{"keyfile":"c38a98959444feea9f47c9ce61a28884f57472b3","namefile":"22anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"b8430d09a5b2cbbe8d1f5dd3ca5ca882","created_at":"2021-08-29 17:44:43.492846","disperse":"SINGLE"},{"keyfile":"967ddd871e1f91cceb967ad421507d35ffece320","namefile":"1anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"360010123bf7fd926d0adf639f2c0ee0","created_at":"2021-08-29 17:44:44.392556","disperse":"SINGLE"},{"keyfile":"d12a4b049a38f2a389e0c96c3730170fb9ecb3c6","namefile":"18anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"378223b5b714dbc0d521b0248deb5b6e","created_at":"2021-08-29 17:44:44.819819","disperse":"SINGLE"},{"keyfile":"cfd599ce922b715f3abedc22de888cc13efbed2a","namefile":"13anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"6bfcba6211cf7f51fc0fdc7198aecd5f","created_at":"2021-08-29 17:44:45.446635","disperse":"SINGLE"},{"keyfile":"c09400db9b51bff0d3177ba52e8aa50669e53caa","namefile":"25anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"7c3e4efd01c158dcf989672d0018fb9c","created_at":"2021-08-29 17:44:46.223673","disperse":"SINGLE"},{"keyfile":"9d7062f649bdc349ce26b7c21510c62bc7d3af4d","namefile":"28anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"ae6e67071ee05726f52c1883fe018f7e","created_at":"2021-08-29 17:44:46.885867","disperse":"SINGLE"},{"keyfile":"aadda5126712e834fc2091c8ba9fca503db2b3ab","namefile":"36anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"a044ceed4251cbf212170f3093fbfdd4","created_at":"2021-08-29 17:44:47.330099","disperse":"SINGLE"},{"keyfile":"f0d6260af62bfc3a0516c4b517b612b07f2c8dfd","namefile":"4anonima","sizefile":526492,"chunks":1,"isciphered":true,"hashfile":"dce8aa7ac9d7e832afdce0e5bc6d7b1e","created_at":"2021-08-29 17:44:48.219632","disperse":"SINGLE"},{"keyfile":"3ec93b932619c56203a768f0aa3dca3628ad30a8","namefile":"31anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"ad0d9dc93c993f44a3b87333380afc89","created_at":"2021-08-29 17:44:48.695323","disperse":"SINGLE"},{"keyfile":"7f946d20b18f78961e8fada65e688f445415b119","namefile":"21anonima","sizefile":526494,"chunks":1,"isciphered":true,"hashfile":"4d6e733270ddfe584eb564b719e56bea","created_at":"2021-08-29 17:44:49.131589","disperse":"SINGLE"}]}
+{4anonima=dce8aa7ac9d7e832afdce0e5bc6d7b1e, 3anonima=fafa9bd90733349f0624b0391bfcffdd, 5anonima=b78d4b72d5d64c1cf696af7879793218, 2anonima=01f3ffd459ef3df2929518939d3d6f99, 20anonima=b657452c7af3eea412829be9034418ab, 12anonima=0bd22c8bf9771bb016fcdbde3b51bb5d, 22anonima=b8430d09a5b2cbbe8d1f5dd3ca5ca882, 21anonima=4d6e733270ddfe584eb564b719e56bea, 23anonima=11788ce73946ca768ebc56bc10bee5c4, 28anonima=ae6e67071ee05726f52c1883fe018f7e, 29anonima=f98a6f8558a475f84a96b2d7884e4bde, 36anonima=a044ceed4251cbf212170f3093fbfdd4, 31anonima=ad0d9dc93c993f44a3b87333380afc89, 35anonima=95f4afc39d300f98f3206731084a9859, 33anonima=79eab0c61b66bf5c68b0c9602760d1ab, 30anonima=33f49f5359296d38e20a46ceee336c41, 34anonima=a5d4c8a5ee21c8d520d082c3f59d3d9c, 25anonima=7c3e4efd01c158dcf989672d0018fb9c, 19anonima=163ce8b0308fdc7a24e8767de8653592, 15anonima=1052322e788916930da80b2dbc3afb14, 18anonima=378223b5b714dbc0d521b0248deb5b6e, 13anonima=6bfcba6211cf7f51fc0fdc7198aecd5f, 14anonima=8b909213fc1f9617967ff7331dae7875, 1anonima=360010123bf7fd926d0adf639f2c0ee0, 6anonima=2622a68172b5acedd6fc898272224ba7}
+25
+{4anonima=f0d6260af62bfc3a0516c4b517b612b07f2c8dfd, 3anonima=fa6079d6ada773e9f67343480fe6a89c6c4f1788, 5anonima=4a335b8a21a71103fb3c5732a95d654df624c798, 2anonima=dae3bcc7d9083da6fee9403017da7c9dd69d960f, 20anonima=aac404a9f007ccb8087a5c3ad6ed656a23537ce2, 12anonima=8fab4f5e3e28114b8a9cb09f62eae5681cf96865, 22anonima=c38a98959444feea9f47c9ce61a28884f57472b3, 21anonima=7f946d20b18f78961e8fada65e688f445415b119, 23anonima=08bd81baa6ea195488eb08e1d0765d8d85ebaef3, 28anonima=9d7062f649bdc349ce26b7c21510c62bc7d3af4d, 29anonima=54b9a94d5b7ead352a097ea5c9740e90f4488aa8, 36anonima=aadda5126712e834fc2091c8ba9fca503db2b3ab, 31anonima=3ec93b932619c56203a768f0aa3dca3628ad30a8, 35anonima=fae0b620c645f81c462e58f1bff86c5af6f0d5c3, 33anonima=b3b7382ffb97f49df5bc32ee2e7d958690f7ec92, 30anonima=528454cc3819fa107a48fc87e2d5efc9cc3d016f, 34anonima=40211ed286f1d91a8869b77e186d5cf25f57e04e, 25anonima=c09400db9b51bff0d3177ba52e8aa50669e53caa, 19anonima=520bac8ce7f53411e1fbd4cd78e5c5c3a41e8ab0, 15anonima=f22ff052c9c78ab0d23367a0e21e35c298fcf454, 18anonima=d12a4b049a38f2a389e0c96c3730170fb9ecb3c6, 13anonima=cfd599ce922b715f3abedc22de888cc13efbed2a, 14anonima=26ebe37f1092f96e28de1a5c60cf36803dd1885c, 1anonima=967ddd871e1f91cceb967ad421507d35ffece320, 6anonima=189c349159a06d30c50e2230c0603aeab1752307}
+{4anonima=dce8aa7ac9d7e832afdce0e5bc6d7b1e, 3anonima=fafa9bd90733349f0624b0391bfcffdd, 5anonima=b78d4b72d5d64c1cf696af7879793218, 2anonima=01f3ffd459ef3df2929518939d3d6f99, 20anonima=b657452c7af3eea412829be9034418ab, 12anonima=0bd22c8bf9771bb016fcdbde3b51bb5d, 22anonima=b8430d09a5b2cbbe8d1f5dd3ca5ca882, 21anonima=4d6e733270ddfe584eb564b719e56bea, 23anonima=11788ce73946ca768ebc56bc10bee5c4, 28anonima=ae6e67071ee05726f52c1883fe018f7e, 29anonima=f98a6f8558a475f84a96b2d7884e4bde, 36anonima=a044ceed4251cbf212170f3093fbfdd4, 31anonima=ad0d9dc93c993f44a3b87333380afc89, 35anonima=95f4afc39d300f98f3206731084a9859, 33anonima=79eab0c61b66bf5c68b0c9602760d1ab, 30anonima=33f49f5359296d38e20a46ceee336c41, 34anonima=a5d4c8a5ee21c8d520d082c3f59d3d9c, 25anonima=7c3e4efd01c158dcf989672d0018fb9c, 19anonima=163ce8b0308fdc7a24e8767de8653592, 15anonima=1052322e788916930da80b2dbc3afb14, 18anonima=378223b5b714dbc0d521b0248deb5b6e, 13anonima=6bfcba6211cf7f51fc0fdc7198aecd5f, 14anonima=8b909213fc1f9617967ff7331dae7875, 1anonima=360010123bf7fd926d0adf639f2c0ee0, 6anonima=2622a68172b5acedd6fc898272224ba7}
+[Files{id=null, name=14anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/14anonima}, Files{id=null, name=2anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/2anonima}, Files{id=null, name=12anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/12anonima}, Files{id=null, name=33anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/33anonima}, Files{id=null, name=15anonima, size=526490, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/15anonima}, Files{id=null, name=19anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/19anonima}, Files{id=null, name=30anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/30anonima}, Files{id=null, name=23anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/23anonima}, Files{id=null, name=5anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/5anonima}, Files{id=null, name=29anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/29anonima}, Files{id=null, name=35anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/35anonima}, Files{id=null, name=6anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/6anonima}, Files{id=null, name=34anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/34anonima}, Files{id=null, name=20anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/20anonima}, Files{id=null, name=3anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/3anonima}, Files{id=null, name=22anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/22anonima}, Files{id=null, name=1anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/1anonima}, Files{id=null, name=18anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/18anonima}, Files{id=null, name=13anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/13anonima}, Files{id=null, name=25anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/25anonima}, Files{id=null, name=28anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/28anonima}, Files{id=null, name=36anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/36anonima}, Files{id=null, name=4anonima, size=526492, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/4anonima}, Files{id=null, name=31anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/31anonima}, Files{id=null, name=21anonima, size=526494, path=/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio/CT2/21anonima}]
+36	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:43 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/265448bf2c611791562b1b3a4c4af80b997c8272654c99c739acef6336a9946b?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/265448bf2c611791562b1b3a4c4af80b997c8272654c99c739acef6336a9946b?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630277726507
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/265448bf2c611791562b1b3a4c4af80b997c8272654c99c739acef6336a9946b?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/265448bf2c611791562b1b3a4c4af80b997c8272654c99c739acef6336a9946b?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:43 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/34833e1272a45e53d57d18d8344ae1618438ab6a1760540ab13468ddd4ab8188?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/34833e1272a45e53d57d18d8344ae1618438ab6a1760540ab13468ddd4ab8188?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"Ok","data":[{"keycatalog":"a67caa348a0a3756882a76b08d4d6bbbe1ea5bbd","tokencatalog":"bde7b53f88f3fadc18f0e874f218c578fdf7edb305702e0c92fced39a819b457","namecatalog":"UnEstudio\/JPGCreator-1630277849753\/stage_cleaning-1630277851759","created_at":"2021-08-29 22:57:31.827397","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"34833e1272a45e53d57d18d8344ae1618438ab6a1760540ab13468ddd4ab8188","group":"","processed":true},{"keycatalog":"acc9d421233bfdb2f830e1d6056a8078efd7e620","tokencatalog":"57da271242023c3c9ea3cf037274e3e6c3cf610820c8b9b7d49061657daed8a9","namecatalog":"UnEstudio\/JPGCreator-1630277849753\/stage_dicomtojpg-1630277854701","created_at":"2021-08-29 22:57:34.764128","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"34833e1272a45e53d57d18d8344ae1618438ab6a1760540ab13468ddd4ab8188","group":"","processed":true}]}
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/bde7b53f88f3fadc18f0e874f218c578fdf7edb305702e0c92fced39a819b457?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/bde7b53f88f3fadc18f0e874f218c578fdf7edb305702e0c92fced39a819b457?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630277849753//stage_cleaning-1630277851759
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/bde7b53f88f3fadc18f0e874f218c578fdf7edb305702e0c92fced39a819b457?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/bde7b53f88f3fadc18f0e874f218c578fdf7edb305702e0c92fced39a819b457?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:43 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/57da271242023c3c9ea3cf037274e3e6c3cf610820c8b9b7d49061657daed8a9?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/57da271242023c3c9ea3cf037274e3e6c3cf610820c8b9b7d49061657daed8a9?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630277849753//stage_dicomtojpg-1630277854701
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/57da271242023c3c9ea3cf037274e3e6c3cf610820c8b9b7d49061657daed8a9?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/57da271242023c3c9ea3cf037274e3e6c3cf610820c8b9b7d49061657daed8a9?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:43 CDT 2021
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630277849753
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/34833e1272a45e53d57d18d8344ae1618438ab6a1760540ab13468ddd4ab8188?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/34833e1272a45e53d57d18d8344ae1618438ab6a1760540ab13468ddd4ab8188?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+2	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:43 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/0584071920ee1b7b23871100f9e3fb302fff3c076fa4f4aacaf90f9b6461dbee?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/0584071920ee1b7b23871100f9e3fb302fff3c076fa4f4aacaf90f9b6461dbee?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"Ok","data":[{"keycatalog":"8652c84a0c002d605db768c002257b7fe0d7ece9","tokencatalog":"52e66db47da1067bab94f0896c929bddacd4c18d706641cd8cedccb691d8538e","namecatalog":"UnEstudio\/JPGCreator-1630278030159\/stage_cleaning-1630278030994","created_at":"2021-08-29 23:00:31.040841","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"0584071920ee1b7b23871100f9e3fb302fff3c076fa4f4aacaf90f9b6461dbee","group":"","processed":true},{"keycatalog":"ea1f78556248d8da3fe8913c56baff9730a4b61c","tokencatalog":"62e553dd3ce14b2bbe547d4741285bfeebdd373060c2f3d9118ac1b336e2efe8","namecatalog":"UnEstudio\/JPGCreator-1630278030159\/stage_dicomtojpg-1630278032712","created_at":"2021-08-29 23:00:32.797089","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"0584071920ee1b7b23871100f9e3fb302fff3c076fa4f4aacaf90f9b6461dbee","group":"","processed":true}]}
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/52e66db47da1067bab94f0896c929bddacd4c18d706641cd8cedccb691d8538e?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/52e66db47da1067bab94f0896c929bddacd4c18d706641cd8cedccb691d8538e?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278030159//stage_cleaning-1630278030994
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/52e66db47da1067bab94f0896c929bddacd4c18d706641cd8cedccb691d8538e?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/52e66db47da1067bab94f0896c929bddacd4c18d706641cd8cedccb691d8538e?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/62e553dd3ce14b2bbe547d4741285bfeebdd373060c2f3d9118ac1b336e2efe8?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/62e553dd3ce14b2bbe547d4741285bfeebdd373060c2f3d9118ac1b336e2efe8?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278030159//stage_dicomtojpg-1630278032712
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/62e553dd3ce14b2bbe547d4741285bfeebdd373060c2f3d9118ac1b336e2efe8?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/62e553dd3ce14b2bbe547d4741285bfeebdd373060c2f3d9118ac1b336e2efe8?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278030159
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/0584071920ee1b7b23871100f9e3fb302fff3c076fa4f4aacaf90f9b6461dbee?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/0584071920ee1b7b23871100f9e3fb302fff3c076fa4f4aacaf90f9b6461dbee?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+2	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/3b33a7fe7948858390098ce4cc1e72e4254dca53fc65332b9000898c34f4bff6?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/3b33a7fe7948858390098ce4cc1e72e4254dca53fc65332b9000898c34f4bff6?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"Ok","data":[{"keycatalog":"0cadd63e86f246fc14cba88c9a3c0fc435aed7c1","tokencatalog":"683d8b5ab2929b77741fb915f7fa6e8bb3efbf4047ef2336649db67e790d55a6","namecatalog":"UnEstudio\/JPGCreator-1630278047418\/stage_cleaning-1630278048328","created_at":"2021-08-29 23:00:48.377891","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"3b33a7fe7948858390098ce4cc1e72e4254dca53fc65332b9000898c34f4bff6","group":"","processed":true},{"keycatalog":"cb176697acac51689eec8ec5814a99fa08d64353","tokencatalog":"1b39ce5cca71ec919006679125d77c3b3b12e80266cc414ccd2df55c5850ac5e","namecatalog":"UnEstudio\/JPGCreator-1630278047418\/stage_dicomtojpg-1630278049511","created_at":"2021-08-29 23:00:49.551156","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"3b33a7fe7948858390098ce4cc1e72e4254dca53fc65332b9000898c34f4bff6","group":"","processed":true}]}
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/683d8b5ab2929b77741fb915f7fa6e8bb3efbf4047ef2336649db67e790d55a6?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/683d8b5ab2929b77741fb915f7fa6e8bb3efbf4047ef2336649db67e790d55a6?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278047418//stage_cleaning-1630278048328
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/683d8b5ab2929b77741fb915f7fa6e8bb3efbf4047ef2336649db67e790d55a6?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/683d8b5ab2929b77741fb915f7fa6e8bb3efbf4047ef2336649db67e790d55a6?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/1b39ce5cca71ec919006679125d77c3b3b12e80266cc414ccd2df55c5850ac5e?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/1b39ce5cca71ec919006679125d77c3b3b12e80266cc414ccd2df55c5850ac5e?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278047418//stage_dicomtojpg-1630278049511
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/1b39ce5cca71ec919006679125d77c3b3b12e80266cc414ccd2df55c5850ac5e?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/1b39ce5cca71ec919006679125d77c3b3b12e80266cc414ccd2df55c5850ac5e?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278047418
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/3b33a7fe7948858390098ce4cc1e72e4254dca53fc65332b9000898c34f4bff6?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/3b33a7fe7948858390098ce4cc1e72e4254dca53fc65332b9000898c34f4bff6?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+2	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/d1402751b0ede7c8e920d6bcf42d33a5f2eec24ed67254074458d54de572d43d?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/d1402751b0ede7c8e920d6bcf42d33a5f2eec24ed67254074458d54de572d43d?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"Ok","data":[{"keycatalog":"6bb510efb3f1ce3ae0335567005faf224ba63983","tokencatalog":"5c44bd3e7fc563ca12d41fc2fd921f6e537ef57f938427606918ffb6fd3d02f1","namecatalog":"UnEstudio\/JPGCreator-1630278215679\/stage_cleaning-1630278216888","created_at":"2021-08-29 23:03:36.960871","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"d1402751b0ede7c8e920d6bcf42d33a5f2eec24ed67254074458d54de572d43d","group":"","processed":true},{"keycatalog":"63deeca507efb8edbb86c738aa2ad0a291f9c3b4","tokencatalog":"f00e4c0a3c9e803c85790d18d17dcd97992ea82f049cf7518935b1bf7fa10ce3","namecatalog":"UnEstudio\/JPGCreator-1630278215679\/stage_dicomtojpg-1630278218785","created_at":"2021-08-29 23:03:38.824727","token_user":"92cc0a74e7bf0cd97653f1a198958535a8df39f0455227b2dd37b9a6cd5670c6","dispersemode":"IDA","encryption":true,"isprivate":false,"father":"d1402751b0ede7c8e920d6bcf42d33a5f2eec24ed67254074458d54de572d43d","group":"","processed":true}]}
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/5c44bd3e7fc563ca12d41fc2fd921f6e537ef57f938427606918ffb6fd3d02f1?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/5c44bd3e7fc563ca12d41fc2fd921f6e537ef57f938427606918ffb6fd3d02f1?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278215679//stage_cleaning-1630278216888
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/5c44bd3e7fc563ca12d41fc2fd921f6e537ef57f938427606918ffb6fd3d02f1?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/5c44bd3e7fc563ca12d41fc2fd921f6e537ef57f938427606918ffb6fd3d02f1?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+Request: http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/f00e4c0a3c9e803c85790d18d17dcd97992ea82f049cf7518935b1bf7fa10ce3?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/childs/catalog/f00e4c0a3c9e803c85790d18d17dcd97992ea82f049cf7518935b1bf7fa10ce3?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278215679//stage_dicomtojpg-1630278218785
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/f00e4c0a3c9e803c85790d18d17dcd97992ea82f049cf7518935b1bf7fa10ce3?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/f00e4c0a3c9e803c85790d18d17dcd97992ea82f049cf7518935b1bf7fa10ce3?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+0	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio//JPGCreator-1630278215679
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/d1402751b0ede7c8e920d6bcf42d33a5f2eec24ed67254074458d54de572d43d?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/d1402751b0ede7c8e920d6bcf42d33a5f2eec24ed67254074458d54de572d43d?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+2	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/catalogs/UnEstudio
+Request: http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+
+Sending 'GET' request to URL : http://192.168.1.79:20500/pub_sub/v1/view/files/catalog/cfeb5fb1f2e01058fab08e0f5ceac138a881d76dda3bdea540278c4404bec584?access_token=c4e1e01d72e3fc52c3321dace446b1da828ae6323ca6da219f68095d9de0cc80
+Response Code : 200
+{"message":"No data.","data":[]}
+6	0
+ok
+Robot Downloader FileSystem
+EndTime: Sun Aug 29 18:15:44 CDT 2021
+
+

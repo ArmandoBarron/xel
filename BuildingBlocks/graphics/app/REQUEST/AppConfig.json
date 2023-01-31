@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"GRAPHICS",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}graph.py @{SOURCE} @{SINK} '@{chart}' '@{histo_type}' '@{columns}' '@{label_column}' '@{colorscale_column}' '@{column_x}' '@{column_y}' '@{temporal_column}' '@{subgroup}' '@{size}' '@{if_log_scale}' '@{groups_path}' '@{title}' '@{column_z}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"",
+            "COMPRESS":true,
+            "ignore_list":[]
+        }
+
+}

@@ -1,0 +1,33 @@
+2022-11-02 16:45:22	PARSER: Configured single catalog
+2022-11-02 16:45:22	PARSER: Configured single transform
+2022-11-02 16:45:22	PARSER: Configured pattern catalogpattern
+2022-11-02 16:45:22	PARSER: Configured pattern transformpattern
+2022-11-02 16:45:22	PARSER: Configured stage stage_catalog
+2022-11-02 16:45:22	PARSER: Configured stage stage_transform
+2022-11-02 16:45:22	PARSER: Configured workflow xelhua
+2022-11-02 16:45:22	LAUCHER: Coupling stages and building blocks
+2022-11-02 16:45:22	xelhua: Workdir xelhua
+2022-11-02 16:45:22	xelhua: Workdir exists
+2022-11-02 16:45:22	xelhua: Stage stage_catalog added
+2022-11-02 16:45:22	stage_catalog: Workdir stage_catalog
+2022-11-02 16:45:22	stage_catalog: Workdir exists
+2022-11-02 16:45:22	stage_catalog: Added building block catalogpattern
+2022-11-02 16:45:22	catalogpattern: Workdir catalogpattern
+2022-11-02 16:45:22	catalogpattern: Workdir exists
+2022-11-02 16:45:22	catalog: Workdir catalog
+2022-11-02 16:45:22	catalog: Workdir exists
+2022-11-02 16:45:22	xelhua: Stage stage_transform added
+2022-11-02 16:45:22	stage_transform: Workdir stage_transform
+2022-11-02 16:45:22	stage_transform: Workdir exists
+2022-11-02 16:45:22	stage_transform: Added building block transformpattern
+2022-11-02 16:45:22	transformpattern: Workdir transformpattern
+2022-11-02 16:45:22	transformpattern: Workdir exists
+2022-11-02 16:45:22	transform: Workdir transform
+2022-11-02 16:45:22	transform: Workdir exists
+2022-11-02 16:45:22	LAUNCHER: Creating YML file at xelhua/docker-compose.yml
+2022-11-02 16:45:22	LAUCHER: deploying virtual containers of workflow xelhua
+2022-11-02 16:45:22	LAUCHER: to shutdown the containers execute  
+
+docker-compose --log-level ERROR -p /home/domizzi/Documents/GitHub/XELHUA-NEZ/deployer/app//results/xelhua -f /home/domizzi/Documents/GitHub/XELHUA-NEZ/deployer/app//results/xelhua/docker-compose.yml  down
+
+

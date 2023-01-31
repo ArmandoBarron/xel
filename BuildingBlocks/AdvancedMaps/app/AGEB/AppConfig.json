@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"MapaPoligonoYScatter",
+    "INPUT_DATA_FORMAT":["zip"],
+    "EXTRACT":{
+            "COMPRESS":true
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}PolyAndScatterMap.py '@{SOURCE}/@{poly_file}' '@{SINK}' '@{geocve_column}' '@{label}' '@{class}' '@{area}' '@{title}' '@{SOURCE}/@{scatter_file}' '@{lon}' '@{lat}' '@{scatter_class}' '@{scatter_id}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"ScatterAndPolygonMap.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

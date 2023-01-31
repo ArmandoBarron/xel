@@ -1,0 +1,97 @@
+version: '2.3'
+services:
+    charts: 
+        image: xel_bb_charts:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+
+        mem_limit: '3072M'
+        mem_reservation: '1024M'
+        cpus: '2'
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94
+            SERVICE_NAME: charts
+            SERVICE_IP: charts
+            SERVICE_PORT: 80
+    regression: 
+        image: xel_bb_regressions:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+
+        mem_limit: '3072M'
+        mem_reservation: '1024M'
+        cpus: '2'
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94
+            SERVICE_NAME: regression
+            SERVICE_IP: regression
+            SERVICE_PORT: 80
+    maps: 
+        image: xel_bb_maps:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+
+        mem_limit: '3072M'
+        mem_reservation: '1024M'
+        cpus: '2'
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-9a7ce52dfcd92ec427385b4d9ac4af6fbc57eb7dc6984fe2f6bc592b6b96cd94
+            SERVICE_NAME: maps
+            SERVICE_IP: maps
+            SERVICE_PORT: 80
+    lbchartspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - charts
+    lbregressionpattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - regression
+    lbmapspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - maps
+
+
+networks:
+    xel_service_mesh:
+        external: true

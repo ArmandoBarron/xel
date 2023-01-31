@@ -1,0 +1,25 @@
+{
+  "config": {
+    "Distribution_Type": "Two Choice",
+    "force_lan_selection": true
+  },
+  "paxos": {
+    "accepters": [
+      {
+        "host": "accepter_1"
+      },
+      {
+        "host": "accepter_2"
+      },
+      {
+        "host": "accepter_3"
+      }
+    ]
+  },
+  "internal_gateways": [],
+  "services": {},
+  "external_resources":{
+    "GAMMA":{"id":"GAMMA","ip":"gamma.tamps.cinvestav.mx", "port":"8080","active":false}
+
+  }
+}

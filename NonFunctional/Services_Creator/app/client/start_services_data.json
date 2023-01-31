@@ -1,0 +1,18 @@
+{
+  "DAG": [
+    {
+      "id": "c1-data_clean",
+      "service": "catalogs",
+      "childrens": [
+        {
+          "id": "c1-data_clean",
+          "service": "cleanning",
+          "childrens": []
+        }
+      ],
+      "replicas": 3
+    }
+  ],
+  "id_stack": "wasd",
+  "replicas": 2
+}

@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"GloVe Evaluation",
+    "INPUT_DATA_FORMAT":["zip"],
+    "EXTRACT":{
+            "COMPRESS":true
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}evaluate-ila.py --vocab_file @{SOURCE}vocab.txt --vectors_file @{SOURCE}vectors.txt > @{SINK}eval.txt",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"eval.txt",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

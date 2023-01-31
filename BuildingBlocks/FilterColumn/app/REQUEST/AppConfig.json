@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"Filtrar columnas",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}Filtercolumn.py @{SOURCE} @{SINK}DatasetFiltred.csv \"@{columns}\" \"@{rules}\" \"@{logical_operator}\" \"@{operation}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"DatasetFiltred.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

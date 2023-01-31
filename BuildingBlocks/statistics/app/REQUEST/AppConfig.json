@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"Statistics",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}app.py '@{SOURCE}' '@{SINK}' '@{proccess}' '@{columns}' '@{method}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"result.json",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

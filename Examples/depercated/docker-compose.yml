@@ -1,0 +1,644 @@
+version: '3'
+services:
+  xel_gui:  # Graphic user interface
+    image: ddomizzi/apache:php
+    environment:      
+      XEL_IP: "coordinator" #for labs network
+      XEL_PORT: 5555 #for labs network
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Frontend:/var/www/html/
+    networks:
+      - service_mesh
+    restart: always
+
+  coordinator: # COORDINATOR
+    image: sm_coordinator
+    build:
+      context: ./AG
+      dockerfile: ./Dockerfile
+    ports:
+      - "25000:5555"
+    volumes:
+      - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
+      - ./localdata/LAKE:/home/app/SUPPLIES/ #for debugging
+      - ./localdata/LAKE:/home/app/BACKUPS/ #for debugging
+      - ./AG/app/:/home/app/ #for debugging and making changes
+    restart: always
+    networks:
+      - service_mesh
+    #depends_on:
+    #  - tps_manager
+    environment:      
+      NETWORK: LocalCluster
+      MODE: MESH
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+  sdb: # tps manager mongoDB
+    container_name: xel_sdb
+    image: mongo:4.4
+    command: mongod --quiet --logpath /dev/null 
+    restart: always
+    environment:
+      data-volume: /data/db
+      MONGO_INITDB_DATABASE: xelhua
+    volumes:
+      - sdb_volume:/data/db
+    networks:
+      - service_mesh
+
+  database: 
+    image: postgres:9.6
+    restart: always
+    env_file:
+      - ./geo_database/src/db_geoportal.env
+    volumes:
+      - "./geo_database/src:/docker-entrypoint-initdb.d"
+      - "./geo_database/src:/var/lib/posgresql/data"
+    ports:
+      - "20003:5432"
+    expose:
+      - "5432/tcp"
+    networks:
+      - service_mesh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 30s
+      retries: 2
+      
+###########################################
+############## Deploy service #############
+###########################################
+  services_creator:
+    image: xel_yaml_creator:v1.0
+    build:
+      context: ./NonFunctional/Services_Creator
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    working_dir: /home/app/
+    ports:
+      - '2000:2000'
+    networks:
+      - service_mesh
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - "./NonFunctional/Services_Creator/app:/home/app"
+      - "/home/robot/xel/NonFunctional/Services_Creator/app/:/home/robot/xel/NonFunctional/Services_Creator/app/"
+    entrypoint: python3 server.py
+    environment:
+      FLASK_ENV: development
+      HOST_PATH: /home/robot/xel/NonFunctional/Services_Creator/app/
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+########### Internal API gateway  ############################
+
+#  iag_local: # local
+#    image: sm_iag
+#    build:
+#      context: ./IAG
+#      dockerfile: ./Dockerfile
+#    ports:
+#      - "25001:80"
+#    restart: always
+#    networks:
+#      - service_mesh
+#    depends_on:
+#      - coordinator
+#    environment:      
+#      NETWORK: LocalCluster
+#      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+#      SERVICE_IP: 18.191.55.169
+#      SERVICE_PORT: 25001
+#    deploy: 
+#      placement: 
+#        constraints: 
+#          - node.role == manager
+  
+########### BB services ############################
+  bb_class:
+    image: xel_bb_classification_models:v1.0
+    build:
+      context: ./BuildingBlocks/Clasificate
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: classificators
+      SERVICE_IP: bb_class
+      SERVICE_PORT: 80
+
+  bb_advanced_map:
+    image: xel_bb_advanced_map:v1.0
+    build:
+      context: ./BuildingBlocks/AdvancedMaps
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: advanced_maps
+      SERVICE_IP: bb_advanced_map
+      SERVICE_PORT: 80
+
+
+  bb_filtercolumn:
+    image: xel_bb_filtercolumn:v1.0
+    build:
+      context: ./BuildingBlocks/FilterColumn
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: filter_column
+      SERVICE_IP: bb_filtercolumn
+      SERVICE_PORT: 80
+
+  bb_fusion:
+    image: xel_bb_fusion:v1.0
+    build:
+      context: ./BuildingBlocks/Fusion
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: fusion
+      SERVICE_IP: bb_fusion
+      SERVICE_PORT: 80
+
+  bb_correlations:
+    image: xel_bb_correlations:v1.0
+    build:
+      context: ./BuildingBlocks/Correlations
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: correlation
+      SERVICE_IP: bb_correlations
+      SERVICE_PORT: 80
+
+  bb_data_split:
+    image: xel_bb_data_split:v1.0
+    build:
+      context: ./BuildingBlocks/DataSplit
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: join_split
+      SERVICE_IP: bb_data_split
+      SERVICE_PORT: 80
+
+  bb_data_clean:
+    image: xel_bb_data_clean:v1.0
+    build:
+      context: ./BuildingBlocks/DataClean
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: cleanning
+      SERVICE_IP: bb_data_clean
+      SERVICE_PORT: 80
+
+  bb_imputation:
+    image: xel_bb_imputation:v1.0
+    build:
+      context: ./BuildingBlocks/Imputation
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: imputation
+      SERVICE_IP: bb_imputation
+      SERVICE_PORT: 80
+
+  bb_charts:
+    image: xel_bb_charts:v1.0
+    build:
+      context: ./BuildingBlocks/graphics
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: charts
+      SERVICE_IP: bb_charts
+      SERVICE_PORT: 80
+
+  bb_maps:
+    image: xel_bb_maps:v1.0
+    build:
+      context: ./BuildingBlocks/maps
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: maps
+      SERVICE_IP: bb_maps
+      SERVICE_PORT: 80
+      
+  bb_catalogs:
+    image: xel_bb_catalog:v1.0
+    build:
+      context: ./BuildingBlocks/Catalogs
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: catalogs
+      SERVICE_IP: bb_catalogs
+      SERVICE_PORT: 80
+
+  bb_regressions:
+    image: xel_bb_regressions:v1.0
+    build:
+      context: ./BuildingBlocks/Regressions
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: regression
+      SERVICE_IP: bb_regressions
+      SERVICE_PORT: 80
+  
+  bb_statistics:
+    image: xel_bb_statistics:v1.0
+    build:
+      context: ./BuildingBlocks/statistics
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: statistics
+      SERVICE_IP: bb_statistics
+      SERVICE_PORT: 80
+
+  bb_transform:
+    image: xel_bb_transform:v1.0
+    build:
+      context: ./BuildingBlocks/TransformStrData
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: transform_ds
+      SERVICE_IP: bb_transform
+      SERVICE_PORT: 80
+
+  bb_clustering:
+    image: xel_bb_clustering:v1.0
+    build:
+      context: ./BuildingBlocks/ClusteringAlgh
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: clustering_service
+      SERVICE_IP: bb_clustering
+      SERVICE_PORT: 80
+
+  #deep_learning:
+  #  image: xel_bb_deeplearning:v1.0
+  #  build:
+  #    context: ./BuildingBlocks/DeepLearning
+  #    dockerfile: ./Dockerfile
+  #  restart: always
+  #  networks:
+  #    - service_mesh
+  #  depends_on:
+  #    - coordinator
+  #  environment:      
+  #    TPS_MANAGER: http://tps_manager:5000 #TPS URL
+  #    API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+  #    NETWORK: LocalCluster
+  #    SERVICE_NAME: deeplearning
+  #    SERVICE_IP: deep_learning
+  #    SERVICE_PORT: 80
+
+  text_preprocessing_1:
+    image: xel_bb_text_preprocessing:v1.0
+    build:
+      context: ./BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: text_preprocessing
+      SERVICE_IP: text_preprocessing_1
+      SERVICE_PORT: 80
+
+
+  text_processing_1: 
+    image: xel_bb_text_processing:v1.0
+    build:
+      context: ./BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: text_processing
+      SERVICE_IP: text_processing_1
+      SERVICE_PORT: 80
+
+  text_classification_1:
+    image: xel_bb_text_classification:v1.0
+    build:
+      context: ./BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: text_classification
+      SERVICE_IP: text_classification_1
+      SERVICE_PORT: 80
+
+  preprocessing:
+    image: xel_bb_preprocessing:v1.0
+    build:
+      context: ./BuildingBlocks/Preprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: preprocessing
+      SERVICE_IP: preprocessing
+      SERVICE_PORT: 80
+
+#
+#  bb_converters: # tools to convert file formats
+#    image: xel_bb_converters:v1.0
+#    build:
+#      context: ./BuildingBlocks/Converters
+#      dockerfile: ./Dockerfile
+#    networks:
+#      - service_mesh
+#    restart: always
+#    depends_on:
+#      - coordinator
+#    environment:      
+#      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+#      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+#      NETWORK: LocalCluster
+#      SERVICE_NAME: Converters
+#      SERVICE_IP: bb_converters
+#      SERVICE_PORT: 80
+
+  bb_acquisition_1: # tools to download data
+    image: xel_bb_acquisition:v1.0
+    build:
+      context: ./BuildingBlocks/Acq
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./localdata/:/home/app/REQUEST/input_data
+    networks:
+      - service_mesh
+    restart: always
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: Acquisition
+      SERVICE_IP: bb_acquisition_1
+      SERVICE_PORT: 80
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+  bb_grobid:
+    image: xel_bb_grobid:v1.0
+    build:
+      context: ./BuildingBlocks/Grobid
+      dockerfile: ./Dockerfile
+    networks:
+      - service_mesh
+    restart: always
+    depends_on:
+      - coordinator
+    environment: 
+      GROBID_URL: grobid
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE_NAME: Grobid
+      SERVICE_IP: bb_grobid
+      SERVICE_PORT: 80
+
+#  bb_glove:
+#    image: xel_bb_glove:v1.0
+#    build:
+#      context: ./BuildingBlocks/Glove
+#      dockerfile: ./Dockerfile
+#    networks:
+#      - service_mesh
+#    restart: always
+#    depends_on:
+#      - coordinator
+#    environment:      
+#      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+#      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+#      NETWORK: LocalCluster
+#      SERVICE_NAME: Glove
+#      SERVICE_IP: bb_glove
+#      SERVICE_PORT: 80
+
+###########################################
+############ external services ############
+###########################################
+
+  grobid: # tools to clean data
+    container_name: grobid
+    image: lfoppiano/grobid:0.6.1
+    environment:      
+      GROBID__NB_THREADS: 4 #configuration location
+    networks:
+      - service_mesh
+    restart: always
+
+###########################################
+############## PAXOS NETWORK ##############
+###########################################
+
+  accepter_1: # accepter
+    image: xel_paxos:v1.0
+    container_name: accepter1
+    build:
+      context: ./NonFunctional/Paxos
+      dockerfile: ./Dockerfile
+    environment:
+      DATABASE_HOST: sdb
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    volumes:
+      #- ./NonFunctional/Paxos/app:/home/app #for debugging
+      - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
+
+  accepter_2: # accepter
+    image: xel_paxos:v1.0
+    container_name: accepter2
+    build:
+      context: ./NonFunctional/Paxos
+      dockerfile: ./Dockerfile
+    environment:
+      DATABASE_HOST: sdb
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    volumes:
+      #- ./NonFunctional/Paxos/app:/home/app #for debugging
+      - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
+      
+  accepter_3: # accepter
+    image: xel_paxos:v1.0
+    container_name: accepter3
+    build:
+      context: ./NonFunctional/Paxos
+      dockerfile: ./Dockerfile
+    environment:
+      DATABASE_HOST: sdb
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    volumes:
+      #- ./NonFunctional/Paxos/app:/home/app #for debugging
+      - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
+###########################################
+###########################################
+###########################################
+
+networks: 
+  service_mesh:
+
+volumes:
+  data-volume:
+  sdb_volume:

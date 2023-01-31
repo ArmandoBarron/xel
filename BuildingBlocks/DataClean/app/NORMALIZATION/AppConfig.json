@@ -1,0 +1,18 @@
+{
+    "NAME_APPLICATION":"Normalization",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}Normalization.py @{SOURCE} @{SINK}normalized_data.csv \"@{columns}\" \"@{norm_method}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"normalized_data.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        },
+    "METADATA":{
+    }
+}

@@ -1,0 +1,20 @@
+FROM python:3.8.6-slim-buster
+#FROM python:3.8.6
+
+WORKDIR home
+
+#requierments for the mesh:
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt --user 
+#requierments for the app:
+
+RUN pip install scikit-learn==1.0.2
+RUN pip install plotly==5.7.0
+RUN pip install kaleido
+
+
+COPY ./app app
+WORKDIR /home/app
+
+ENTRYPOINT ["python"]
+CMD ["S.py"]

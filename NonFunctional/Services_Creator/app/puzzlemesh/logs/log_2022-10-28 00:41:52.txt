@@ -1,0 +1,5 @@
+2022-10-28 00:41:52	LAUCHER: to shutdown the containers execute  
+
+docker stack rm xelhua
+
+

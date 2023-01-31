@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="puzzlemesh"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\jsoncpp\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="puzzlemesh">
+				<Option output="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/puzzlemesh" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/CURL_INCLUDE_DIRS"/>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 puzzlemesh"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="puzzlemesh/fast">
+				<Option output="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/puzzlemesh" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/CURL_INCLUDE_DIRS"/>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 puzzlemesh/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/buildingblock.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/buildingblock.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/pattern.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/pattern.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/pipeline.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/pipeline.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/single.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/single.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/stage.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/stage.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/workflow.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/buildingcomponents/workflow.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/functions/stringfunctions.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/functions/stringfunctions.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/io/filesystem/files.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/io/filesystem/files.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/launcher.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/launcher.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/logs/logs.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/logs/logs.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/main.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/parser.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/parser.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/skycds/APISkyCDS.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/skycds/APISkyCDS.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/skycds/CDNFile.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/skycds/CDNFile.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/skycds/Catalog.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/skycds/Catalog.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/skycds/Curl.cpp">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/skycds/Curl.h">
+			<Option target="puzzlemesh"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/../../../../../../../../usr/lib/x86_64-linux-gnu/cmake/jsoncpp/jsoncppConfig-none.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\jsoncpp\"/>
+		</Unit>
+		<Unit filename="/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/../../../../../../../../usr/lib/x86_64-linux-gnu/cmake/jsoncpp/jsoncppConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\jsoncpp\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

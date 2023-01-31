@@ -1,0 +1,46 @@
+version: '3'
+services:
+    dicomtojpg: 
+        image: dicomtojpg:inr
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator:/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator"
+    cleaning: 
+        image: cleaner:header
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator:/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator"
+            - "/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results//JPGCreator/catalogs/UnEstudio:/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results//JPGCreator/catalogs/UnEstudio"
+    lbdicomtojpgpattern: 
+        image: tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator:/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator"
+            - "/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/stage_dicomtojpg:/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/stage_dicomtojpg"
+        links:
+            - dicomtojpg
+    lbcleaningpattern: 
+        image: tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator:/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator"
+            - "/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/stage_cleaning:/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results/JPGCreator/stage_cleaning"
+            - "/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results//JPGCreator/catalogs/UnEstudio:/home/domizzi/Documents/GitHub/PuzzleMesh/deployer/app/puzzlemesh/cmake-build-debug/results//JPGCreator/catalogs/UnEstudio"
+        links:
+            - cleaning
+    proxy:
+        image: microservice:base
+        links:
+             - dicomtojpg
+             - cleaning
+             - lbdicomtojpgpattern
+             - lbcleaningpattern
+

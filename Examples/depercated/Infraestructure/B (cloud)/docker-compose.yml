@@ -1,0 +1,536 @@
+version: '3'
+services:
+  coordinator: # COORDINATOR
+    image: 127.0.0.1:5000/sm_coordinator
+    build:
+      context: ./AG
+      dockerfile: ./Dockerfile
+    ports:
+      - "25000:5555"
+    volumes:
+      - ./LOGS/coordinator/:/home/app/logs #for debugging
+      - ./coordinator_structure.json/:/home/app/coordinator_structure.json #for debugging
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - tps_manager
+    environment:      
+      NETWORK: LocalCluster
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+########### Internal API gateway  ############################
+
+  iag_local: # local
+    image: 127.0.0.1:5000/sm_iag
+    build:
+      context: ./IAG
+      dockerfile: ./Dockerfile
+    ports:
+      - "25001:80"
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      NETWORK: LocalCluster
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      SERVICE_IP: 192.168.1.71
+      SERVICE_PORT: 25001
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+  
+########### BB services ############################
+
+ # deep_learning:
+ #   image: 127.0.0.1:5000/sm_bb_deeplearning
+ #   build:
+ #     context: ./BuildingBlocks/DeepLearning
+ #     dockerfile: ./Dockerfile
+ #   restart: always
+ #   volumes:
+ #     - ./LOGS/deep_learning/:/home/app/logs #for debugging
+ #   networks:
+ #     - service_mersh
+ #   depends_on:
+ #     - coordinator
+ #   environment:      
+ #     TPS_MANAGER: http://tps_manager:5000 #TPS URL
+ #     API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+ #     NETWORK: LocalCluster
+ #      SERVICE: deeplearning
+ #      SERVICE_IP: deep_learning
+ #      SERVICE_PORT: 80
+
+  text_preprocessing_1:
+    image: 127.0.0.1:5000/sm_bb_text_preprocessing
+    build:
+      context: ./BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_preprocessing
+      SERVICE_IP: text_preprocessing_1
+      SERVICE_PORT: 80
+  text_preprocessing_2:
+    image: 127.0.0.1:5000/sm_bb_text_preprocessing
+    build:
+      context: ./BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_preprocessing
+      SERVICE_IP: text_preprocessing_2
+      SERVICE_PORT: 80
+  text_preprocessing_3:
+    image: 127.0.0.1:5000/sm_bb_text_preprocessing
+    build:
+      context: ./BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_preprocessing
+      SERVICE_IP: text_preprocessing_3
+      SERVICE_PORT: 80
+  text_preprocessing_4:
+    image: 127.0.0.1:5000/sm_bb_text_preprocessing
+    build:
+      context: ./BuildingBlocks/TextPreprocessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_preprocessing
+      SERVICE_IP: text_preprocessing_4
+      SERVICE_PORT: 80
+
+  text_processing_1: 
+    image: 127.0.0.1:5000/sm_bb_text_processing
+    build:
+      context: ./BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_processing
+      SERVICE_IP: text_processing_1
+      SERVICE_PORT: 80
+  text_processing_2: 
+    image: 127.0.0.1:5000/sm_bb_text_processing
+    build:
+      context: ./BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_processing
+      SERVICE_IP: text_processing_2
+      SERVICE_PORT: 80
+  text_processing_3: 
+    image: 127.0.0.1:5000/sm_bb_text_processing
+    build:
+      context: ./BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_processing
+      SERVICE_IP: text_processing_3
+      SERVICE_PORT: 80
+  text_processing_4: 
+    image: 127.0.0.1:5000/sm_bb_text_processing
+    build:
+      context: ./BuildingBlocks/TextProcessing
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_processing
+      SERVICE_IP: text_processing_4
+      SERVICE_PORT: 80
+
+
+  text_classification_1:
+    image: 127.0.0.1:5000/sm_bb_calsification
+    build:
+      context: ./BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_classification
+      SERVICE_IP: text_classification_1
+      SERVICE_PORT: 80
+  text_classification_2:
+    image: 127.0.0.1:5000/sm_bb_calsification
+    build:
+      context: ./BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_classification
+      SERVICE_IP: text_classification_2
+      SERVICE_PORT: 80
+  text_classification_3:
+    image: 127.0.0.1:5000/sm_bb_calsification
+    build:
+      context: ./BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_classification
+      SERVICE_IP: text_classification_3
+      SERVICE_PORT: 80
+  text_classification_4:
+    image: 127.0.0.1:5000/sm_bb_calsification
+    build:
+      context: ./BuildingBlocks/TextClassification
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: text_classification
+      SERVICE_IP: text_classification_4
+      SERVICE_PORT: 80
+
+ # preprocessing:
+ #   image: 127.0.0.1:5000/sm_bb_preprocessing
+ #   build:
+ #     context: ./BuildingBlocks/Preprocessing
+ #     dockerfile: ./Dockerfile
+ #   restart: always
+ #   volumes:
+ #     - ./LOGS/preprocessing/:/home/app/logs #for debugging
+ #   networks:
+ #     - service_mersh
+ #   depends_on:
+ #     - coordinator
+ #   environment:      
+ #     TPS_MANAGER: http://tps_manager:5000 #TPS URL
+ #     API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+ #     NETWORK: LocalCluster
+ #      NETWORK: LocalCluster
+ #      SERVICE: preprocessing
+ #      SERVICE_IP: preprocessing
+ #      SERVICE_PORT: 80
+ #
+ # bb_tps: # tools to clean data
+ #   image: 127.0.0.1:5000/sm_bb_tps
+ #   build:
+ #     context: ./BuildingBlocks/TS
+ #     dockerfile: ./Dockerfile
+ #   volumes:
+ #     - ./LOGS/tps/:/home/app/logs #for debugging
+ #   networks:
+ #     - service_mersh
+ #   restart: always
+ #   depends_on:
+ #     - coordinator
+ #   environment:      
+ #     TPS_MANAGER: http://tps_manager:5000 #TPS URL
+ #     API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+ #     NETWORK: LocalCluster
+ #      SERVICE: TS
+ #      SERVICE_IP: bb_tps
+ #      SERVICE_PORT: 80
+#
+ # bb_converters: # tools to convert file formats
+ #   image: 127.0.0.1:5000/sm_bb_converters
+ #   build:
+ #     context: ./BuildingBlocks/Converters
+ #     dockerfile: ./Dockerfile
+ #   volumes:
+ #     - ./LOGS/converters/:/home/app/logs #for debugging
+ #   networks:
+ #     - service_mersh
+ #   restart: always
+ #   depends_on:
+ #     - coordinator
+ #   environment:      
+ #     TPS_MANAGER: http://tps_manager:5000 #TPS URL
+ #     API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+ #     NETWORK: LocalCluster
+ #      SERVICE: Converters
+ #      SERVICE_IP: bb_converters
+ #      SERVICE_PORT: 80
+
+  bb_acquisition_1: # tools to download data
+    image: 127.0.0.1:5000/sm_bb_acquisition
+    build:
+      context: ./BuildingBlocks/Acq
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./LOGS/acquisition/:/home/app/logs #for debugging
+      - ./localdata/:/home/app/REQUEST/input_data
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: Acquisition
+      SERVICE_IP: bb_acquisition_1
+      SERVICE_PORT: 80
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+  bb_acquisition_2: # tools to download data
+    image: 127.0.0.1:5000/sm_bb_acquisition
+    build:
+      context: ./BuildingBlocks/Acq
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./LOGS/acquisition/:/home/app/logs #for debugging
+      - ./localdata/:/home/app/REQUEST/input_data
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: Acquisition
+      SERVICE_IP: bb_acquisition_2
+      SERVICE_PORT: 80
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+  bb_grobid:
+    image: 127.0.0.1:5000/sm_bb_grobid
+    build:
+      context: ./BuildingBlocks/Grobid
+      dockerfile: ./Dockerfile
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
+    environment: 
+      GROBID_URL: grobid
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: Grobid
+      SERVICE_IP: bb_grobid
+      SERVICE_PORT: 80
+
+
+  bb_glove:
+    image: 127.0.0.1:5000/sm_bb_glove
+    build:
+      context: ./BuildingBlocks/Glove
+      dockerfile: ./Dockerfile
+    networks:
+      - service_mersh
+    restart: always
+    depends_on:
+      - coordinator
+    environment:      
+      TPS_MANAGER: http://tps_manager:5000 #TPS URL
+      API_GATEWAY: coordinator:5555  #IP:PORT of API_GATEWAY
+      NETWORK: LocalCluster
+      SERVICE: Glove
+      SERVICE_IP: bb_glove
+      SERVICE_PORT: 80
+###########################################
+############## TPS SERVICES ###############
+###########################################
+
+  tps_manager: #API Gatewaey THE MANAGER
+    image: 127.0.0.1:5000/tps_manager
+    container_name: TPS_Manager
+    build:
+      context: ./TPS/Manager/
+      dockerfile: ./Dockerfile
+    environment:      
+      CONFIGPATH: ./CONFIG/ #configuration location
+      SCHEMAPATH: ./SCHEMA/ #data location
+      DATABASE: mongodb #database
+      CENTINEL: none #master watcher (must be active)
+    volumes:
+      - ./TPS/Manager/:/home/ #for debugging
+      - ./TPS/:/home/CONFIG/
+      #- ./TEST/:/home/SCHEMA/
+      #- /tmp/pruebas/TPSSCHEMA/:/home/SCHEMA/ #workflow dagon schema
+    ports:
+      - "54350:5000"
+    expose:
+      - "5000"
+    restart: always
+    networks:
+      - TPS_net
+      - service_mersh
+
+  mongodb: # tps manager mongoDB
+    container_name: DB_TPS_data
+    image: mongo:latest
+    restart: always
+    environment:
+      data-volume: /data/db
+      MONGO_INITDB_DATABASE: TPS_Data
+    volumes:
+      - data-volume:/data/db
+      #- ./Configuration/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    ports:
+      - 27018:27017
+    networks:
+      - TPS_net
+    depends_on:
+      - tps_manager
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+###########################################
+############## external services ###############
+###########################################
+
+  grobid: # tools to clean data
+    container_name: grobid
+    image: lfoppiano/grobid:0.6.1
+    environment:      
+      GROBID__NB_THREADS: 4 #configuration location
+    networks:
+      - service_mersh
+    restart: always
+    deploy: 
+      replicas: 
+
+###########################################
+############## PAXOS NETWORK ###############
+###########################################
+
+  accepter_1: # accepter
+    image: 127.0.0.1:5000/paxos
+    container_name: accepter1
+    build:
+      context: ./NonFunctional/Paxos
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+
+  accepter_2: # accepter
+    image: 127.0.0.1:5000/paxos
+    container_name: accepter2
+    build:
+      context: ./NonFunctional/Paxos
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+      
+  accepter_3: # accepter
+    image: 127.0.0.1:5000/paxos
+    container_name: accepter3
+    build:
+      context: ./NonFunctional/Paxos
+      dockerfile: ./Dockerfile
+    restart: always
+    networks:
+      - service_mersh
+    depends_on:
+      - coordinator
+
+networks: 
+  service_mersh:
+  TPS_net:
+
+volumes:
+  data-volume:

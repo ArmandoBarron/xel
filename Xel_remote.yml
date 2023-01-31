@@ -1,0 +1,209 @@
+version: '3'
+services:
+  xel_gui:  # Graphic user interface
+    image: qwerty3435ab/xel_gui:v2.0
+    environment:      
+      XEL_IP: "coordinator" #for labs network
+      XEL_PORT: 5555 #for labs network
+      GOOGLE_MAPS_KEY: "AIzaSyD_qWZ5Z3tHY5JqXksf19meBOmfAR1Wmw4"
+    ports:
+      - "8080:80"
+    #volumes:
+    #  - ./Frontend/app:/var/www/html/ #for debug
+    networks:
+      - service_mesh
+    restart: always
+    mem_limit: 500M
+    mem_reservation: 128M
+    cpus: 1
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+  coordinator: # COORDINATOR
+    image: qwerty3435ab/xel_coordinator:v2.0
+    ports:
+      - "25000:5555" #for develop and to consume xel APIs. Please comment this line on production.
+    volumes:
+      - ./localdata/LAKE/USERS:/home/app/SUPPLIES/ #Path for user's data
+      - ./localdata/LAKE/SOLUTIONS:/home/app/BACKUPS/ #Path for solutions's Data
+      #- ./AG/app/:/home/app/ #for debugging and making changes without build image
+    restart: always
+    networks:
+      - service_mesh
+    environment:      
+      NETWORK: LocalCluster
+      MODE: SERVERLESS
+      TOKEN_REQUIERD: "True"
+      ALLOW_REGISTER_NEW_USERS: "True"
+      INIT_EXAMPLE: "True"
+      API_KEY: 9aa491c85508cfeead30c569c88c8f26e3881792a3f158a323ee9ac6150ab1cd
+      AUTH_HOST: auth
+    mem_limit: 1024M
+    mem_reservation: 128M
+    cpus: 4
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+  sdb: # tps manager mongoDB
+    container_name: xel_sdb
+    image: mongo:4.4
+    command: mongod --quiet --logpath /dev/null 
+    restart: always
+    environment:
+      data-volume: /data/db
+      MONGO_INITDB_DATABASE: xelhua
+    volumes:
+      - sdb_volume:/data/db
+    networks:
+      - service_mesh
+    mem_limit: 640M
+    mem_reservation: 128M
+    cpus: 1.5
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+  auth: #Authentication service
+    image: qwerty3435ab/auth:v2.0
+    depends_on:
+      - db_auth
+    #ports:
+    #  - '2023:80'
+    expose:
+      - "80"
+    networks:
+      - service_mesh
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: auth
+      DB_HOST: db_auth
+      DB_PORT: 5432
+      AUTH_PORT: 47011
+      FRONTEND_PORT: 30004
+      SERVER_PORT: 30500
+    #volumes:
+    #  - ./NonFunctional/auth/auth/:/var/www/html/ #for debug
+    restart: always
+
+  db_auth: #Authentication database
+    image: qwerty3435ab/auth_db:v2.0
+    expose:
+      - "5432"
+    networks:
+      - service_mesh
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - psql-auth:/var/lib/postgresql/data
+      - ./NonFunctional/auth/schema-sql/auth.sql:/docker-entrypoint-initdb.d/auth.sql #for init
+    restart: always
+
+###########################################
+############## Deploy service #############
+###########################################
+  services_creator:
+    image: qwerty3435ab/xel_yaml_creator:v2.0
+    restart: unless-stopped
+    working_dir: /home/app/
+    #ports:
+    #  - '2000:2000'
+    networks:
+      - service_mesh
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - "./resources.json:/home/app/resources.json"
+    entrypoint: python3 server.py
+    environment:
+      FLASK_ENV: development
+      HOST_PATH: /home/app/
+      IMAGES_REPO_URL: qwerty3435ab/
+      IMAGES_REPO: "remote"
+      API_KEY: 9aa491c85508cfeead30c569c88c8f26e3881792a3f158a323ee9ac6150ab1cd
+    deploy: 
+      placement: 
+        constraints: 
+          - node.role == manager
+
+
+###########################################
+############ external services ############
+###########################################
+
+#  grobid: # tools to clean data
+#    container_name: grobid
+#    image: lfoppiano/grobid:0.6.1
+#    environment:      
+#      GROBID__NB_THREADS: 4 #configuration location
+#    networks:
+#      - service_mesh
+#    restart: always
+
+###########################################
+############## PAXOS NETWORK ##############
+###########################################
+
+  accepter_1: # accepter
+    image: qwerty3435ab/xel_paxos:v2.0
+    container_name: accepter1
+    environment:
+      DATABASE_HOST: sdb
+    mem_limit: 640M
+    mem_reservation: 128M
+    cpus: 2
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+
+  accepter_2: # accepter
+    image: qwerty3435ab/xel_paxos:v2.0
+    container_name: accepter2
+    environment:
+      DATABASE_HOST: sdb
+    mem_limit: 640M
+    mem_reservation: 128M
+    cpus: 2
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+
+  accepter_3: # accepter
+    image: qwerty3435ab/xel_paxos:v2.0
+    container_name: accepter3
+    environment:
+      DATABASE_HOST: sdb
+    mem_limit: 640M
+    mem_reservation: 128M
+    cpus: 2
+    restart: always
+    networks:
+      - service_mesh
+    depends_on:
+      - coordinator
+    #volumes:
+      #- ./NonFunctional/Paxos/app:/home/app #for debugging
+
+###########################################
+###########################################
+###########################################
+
+networks: 
+  service_mesh:
+    name: xel_service_mesh
+
+volumes:
+  data-volume:
+  sdb_volume:
+  psql-auth:
+    driver: local

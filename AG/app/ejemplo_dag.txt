@@ -1,0 +1,17 @@
+{
+    "DAG": "[{\"id\":\"c1-data_clean\",\"service\":\"cleanning\",\"childrens\":[{\"id\":\"c2-s-imputation\",\"service\":\"imputation\",\"childrens\":[{\"id\":\"c3-s-split-and-join\",\"service\":\"join_split\",\"childrens\":[{\"id\":\"c4-regression_serv\",\"service\":\"regression\",\"childrens\":[],\"actions\":[\"LINEARS\"],\"params\":{\"LINEARS\":{\"actions\":[\"LINEARS\"],\"var_x\":\"year\",\"list_var_x\":\"0\",\"var_y\":[\"PM10\"],\"filter_column\":\"\",\"filter_value\":\"\",\"alpha\":0.05,\"SAVE_DATA\":true}}},{\"id\":\"c5-regression_serv\",\"service\":\"regression\",\"childrens\":[],\"actions\":[\"LINEARS\"],\"params\":{\"LINEARS\":{\"actions\":[\"LINEARS\"],\"var_x\":\"year\",\"list_var_x\":\"0\",\"var_y\":[\"PM10\"],\"filter_column\":\"\",\"filter_value\":\"\",\"alpha\":0.05,\"SAVE_DATA\":true}}}],\"actions\":[\"SCOLUMN\"],\"params\":{\"SCOLUMN\":{\"actions\":[\"SCOLUMN\"],\"column\":\"FECHA\",\"method\":\"DT\",\"date_format\":\"%m/%d/%Y\",\"split_value\":\"/\",\"columns\":\"\",\"separator\":\"\",\"column_name\":\"\",\"SAVE_DATA\":true}}}],\"actions\":[\"DROP\"],\"params\":{\"DROP\":{\"columns\":[\"CO\",\"NO\",\"NO2\",\"NOX\",\"O3\",\"PM10\",\"PM25\",\"PMCO\",\"SO2\"],\"actions\":[\"DROP\"],\"imputation_type\":\"\",\"strategy\":\"\",\"groupby\":0,\"n_neighbors\":2,\"fill_value\":\"\",\"method\":\"any\",\"n_na\":0,\"to_drop\":0,\"SAVE_DATA\":true}}}],\"actions\":[\"CLEAN\"],\"params\":{\"CLEAN\":{\"actions\":[\"CLEAN\"],\"columns\":[\"CO\",\"NO\",\"NO2\",\"NOX\",\"O3\",\"PM10\",\"PM25\",\"PMCO\",\"SO2\"],\"outliers_detection\":\"ZS\",\"method\":\"\",\"encoding_method\":\"\",\"n_standard_desviations\":2,\"min_range\":1,\"max_range\":1,\"norm_method\":\"\",\"list_values\":-99,\"replace_with\":\"\",\"label_column\":\"\",\"list_labels\":\"\",\"SAVE_DATA\":true}}}]",
+    "data_map": {
+        "data": {
+            "catalog": "Examples",
+            "filename": "contaminantes_1986-2022.csv",
+            "token_user": "300d03efcac4bab98d04af639dba337d5350ebd955fa39b4912376f7715a9fc6"
+        },
+        "type": "LAKE"
+    },
+    "auth": {
+        "user": "300d03efcac4bab98d04af639dba337d5350ebd955fa39b4912376f7715a9fc6",
+        "workspace": "Default"
+    },
+    "alias": "Regresion de contaminantes - RAMA",
+    "token_solution": "3bf71a4c0e78bd6545da6dadac067a16c6113ec2610a600147c5201f49094f57"
+}

@@ -1,0 +1,27 @@
+En nodo
+
+sudo su
+
+nano /etc/hosts
+# agregar esta linea:
+
+148.247.201.222        docker-registry 
+
+# Ctl+O -> Ctl+X
+ 
+mkdir -p /etc/docker/certs.d/docker-registry:31978
+
+cp tls.crt /etc/docker/certs.d/docker-registry:31978/ca.crt
+
+nano /etc/docker/daemon.json
+
+# agregar esto y guardar
+{
+"insecure-registries" : [ "docker-registry:31978" ]
+}
+
+
+systemctl daemon-reload
+systemctl restart docker
+
+docker login docker-registry:31978 -u myuserCINVES321 -p mypasswdCINVES321# 

@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"UpdateTable",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}App.py @{SOURCE} @{SINK}output.csv \"@{if_delete}\"  \"@{if_rename}\"  \"@{columns}\"  '@{rename_dict}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"output.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

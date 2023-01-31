@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"MapaLocalidades",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}PolygonMap.py @{SOURCE} @{SINK} '@{geocve_column}' '@{label}' '@{class}' '@{area}' '@{title}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"mapa.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

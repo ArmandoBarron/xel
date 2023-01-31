@@ -1,0 +1,137 @@
+version: '3'
+services:
+    clustering_service: 
+        image: xel_bb_clustering:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a
+            SERVICE_NAME: clustering_service
+            SERVICE_IP: clustering_service
+            SERVICE_PORT: 80
+    regression: 
+        image: xel_bb_regressions:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a
+            SERVICE_NAME: regression
+            SERVICE_IP: regression
+            SERVICE_PORT: 80
+    transform_ds: 
+        image: xel_bb_transform:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a
+            SERVICE_NAME: transform_ds
+            SERVICE_IP: transform_ds
+            SERVICE_PORT: 80
+    maps: 
+        image: xel_bb_maps:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a
+            SERVICE_NAME: maps
+            SERVICE_IP: maps
+            SERVICE_PORT: 80
+    charts: 
+        image: xel_bb_charts:v1.0
+        restart: always
+        expose:
+            - "5000/tcp"
+        volumes:
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a:/home/robot/xel/NonFunctional/Services_Creator/app//results/c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a"
+            - "/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs:/home/robot/xel/NonFunctional/Services_Creator/app//results//xelhua/inputs"
+        networks:
+             - xel_service_mesh
+        environment:
+            TPS_MANAGER: http://tps_manager:5000
+            API_GATEWAY: coordinator:5555
+            NETWORK: c1-data-catalogs-subgraph-c2ff4e3b97a85a9d6ddbf42e28a8df6c8f89c2f12b8a94478c116c29008e8b3a
+            SERVICE_NAME: charts
+            SERVICE_IP: charts
+            SERVICE_PORT: 80
+    lbclustering_servicepattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - clustering_service
+    lbtransform_dspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - transform_ds
+    lbregressionpattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - regression
+    lbmapspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - maps
+    lbchartspattern: 
+        image: ddomizzi/tc:balancer
+        restart: always
+        expose:
+            - "5000/tcp"
+        networks:
+             - xel_service_mesh
+        links:
+            - charts
+
+
+networks:
+    xel_service_mesh:
+        external: true

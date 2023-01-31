@@ -1,0 +1,19 @@
+{
+    "NAME_APPLICATION":"split columns",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python3 @{CWD}DataSplit.py @{SOURCE} @{SINK}data_split_results.csv \"@{column}\" \"@{method}\" \"@{date_format}\" \"@{split_value}\"",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"data_split_results.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        },
+    "METADATA":{
+
+    }
+}

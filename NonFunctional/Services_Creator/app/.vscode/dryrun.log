@@ -1,0 +1,6 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/home/domizzi/Documents/PRONACES/puzzle/deployer/app'
+make: Leaving directory '/home/domizzi/Documents/PRONACES/puzzle/deployer/app'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+

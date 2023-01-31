@@ -1,0 +1,16 @@
+{
+  "start_services": {
+    "endpoint_protocol": "http",
+    "endpoint_url": "services_creator",
+    "endpoint_port": "2000",
+    "endpoint_name": "start_services"
+  },
+
+  "remove_services": {
+    "endpoint_protocol": "http",
+    "endpoint_url": "services_creator",
+    "endpoint_port": "2000",
+    "endpoint_name": "remove_services",
+    "endpoint_parameters": ["id"]
+  }
+}
