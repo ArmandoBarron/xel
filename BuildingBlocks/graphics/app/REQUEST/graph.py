@@ -5,6 +5,8 @@ import plotly.graph_objects as go
 import math
 import sys
 from sklearn.decomposition import PCA
+import numpy as np
+
 
 def validate_att(att): #esta funcion sirve para validar que un argumento viene vacio o no
     if att =="" or att =="-":
@@ -22,9 +24,23 @@ def export_figures(fig,outputpath,imagefile_name,config):
 
     fig.update_layout(title=TITLE,
                     dragmode='select',
-                    width=1000,
-                    height=1000,
-                    hovermode='closest')
+                    width=2000,
+                    height=1200,
+                    hovermode='closest',
+                    #transition  = dict(duration=2000,easing="elastic"),
+                    font=dict(
+                        family="Courier New, monospace",
+                        size=18,
+                    ),
+                    margin=dict(
+                        l=40,
+                        r=30,
+                        b=80,
+                        t=100,
+                    ),
+                    paper_bgcolor='rgb(243, 243, 243)',
+                    plot_bgcolor='rgb(243, 243, 243)',
+                    )
 
     #fig.write_image("%s/%s.png" % (outputpath,imagefile_name))
     #fig.write_image("%s/%s.svg" % (outputpath,imagefile_name))
@@ -32,6 +48,13 @@ def export_figures(fig,outputpath,imagefile_name,config):
 
 ## parameters by argument
 print(sys.argv)
+
+"""
+python3 graph.py cancer_mama.csv ./output/ '11' '' '' 'label' 'colorscale' 'color_col' 'RANGO_EDAD' 'TASA_AJUSTADA' 'ANIO_REGIS' 'subgroup' 'size' 'log_scale' '' 'title' 'z' 
+
+
+"""
+
 
 inputpath = sys.argv[1] # "Suic_Medio_Derhab_tasasporsexo.csv"
 outputpath = sys.argv[2] #  "./output/"
@@ -259,19 +282,28 @@ if chart_template==10: # Bar chart
     export_figures(fig,outputpath,imagefile_name,config)
 
 if chart_template==11: # Boxplot
+    """
+    python3 graph.py cancer_mama.csv ./output/ '11' '' '' 'SEXO' '' 'RANGO_EDAD' 'TASA_AJUSTADA' 'ANIO_REGIS' '' '' '' '' 'title' '' 
+    """
     imagefile_name = "Box"
+ 
+    params = dict(x=COLUMN_X,  y=COLUMN_Y,points=False,notched=True)
 
-    params = dict(x=COLUMN_X, y=COLUMN_Y,points=False)
 
     if validate_att(LABEL_COLUMN): # si hay colores
         params['color']=LABEL_COLUMN
 
     if validate_att(TEMPORAL_COLUMN): # si hay colores
         params['animation_frame']=TEMPORAL_COLUMN
+        params['animation_group']=COLUMN_X
 
-        df= df.sort_values(by=[COLUMN_X,TEMPORAL_COLUMN])
-    else:
-        df= df.sort_values(by=COLUMN_X)
+        df= df.sort_values(by=[TEMPORAL_COLUMN])
+
+    category_orders = np.sort(df[COLUMN_X].unique())
+
+    print(category_orders)
+    params['category_orders']={COLUMN_X:category_orders}
+
 
     fig = px.box(df, **params)
     #fig.show()

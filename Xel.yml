@@ -11,8 +11,8 @@ services:
       GOOGLE_MAPS_KEY: "AIzaSyD_qWZ5Z3tHY5JqXksf19meBOmfAR1Wmw4"
     ports:
       - "8080:80"
-    #volumes:
-    #  - ./Frontend/app:/var/www/html/ #for debug
+    volumes:
+      - ./Frontend/app:/var/www/html/ #for debug
     networks:
       - service_mesh
     restart: always
@@ -34,7 +34,7 @@ services:
     volumes:
       - ./localdata/LAKE/USERS:/home/app/SUPPLIES/ #Path for user's data
       - ./localdata/LAKE/SOLUTIONS:/home/app/BACKUPS/ #Path for solutions's Data
-      #- ./AG/app/:/home/app/ #for debugging and making changes without build image
+      - ./AG/app/:/home/app/ #for debugging and making changes without build image
     restart: always
     networks:
       - service_mesh
@@ -46,6 +46,7 @@ services:
       INIT_EXAMPLE: "True"
       API_KEY: 9aa491c85508cfeead30c569c88c8f26e3881792a3f158a323ee9ac6150ab1cd
       AUTH_HOST: auth
+      DEBUG_MODE: "False"
     mem_limit: 1024M
     mem_reservation: 128M
     cpus: 4

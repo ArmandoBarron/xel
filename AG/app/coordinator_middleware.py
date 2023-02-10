@@ -38,6 +38,7 @@ NETWORK=os.getenv("NETWORK")
 MODE=os.getenv("MODE") 
 ALLOW_REGISTER_NEW_USERS= TranslateBoolStr(os.getenv("ALLOW_REGISTER_NEW_USERS"))
 INIT_EXAMPLE = TranslateBoolStr(os.getenv("INIT_EXAMPLE")) 
+DEBUG_MODE = TranslateBoolStr(os.getenv("DEBUG_MODE"))
 
 
 DATASET_EXAMPLES_FOLDER="./examples/datasets/"
@@ -527,8 +528,9 @@ def monitoring_v2(token_project,token_solution):
             f.close()
             del TIMES_list[token_solution]
             if MODE == "SERVERLESS": #stop containers
-                LOGER.error("STOPING CONTAIENRS")
-                GC.remove_services(token_solution)
+                if not DEBUG_MODE:
+                    LOGER.error("STOPING CONTAIENRS")
+                    GC.remove_services(token_solution)
         except Exception as e:
             LOGER.error(e)
     return make_response(ToSend,200)
@@ -553,6 +555,7 @@ def getfileintask():
     params = request.get_json(force=True)
     data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
     file_exist=FileExist(data_path) #verify if data exist
+    LOGER.error(data_path)
 
     if file_exist:
         return send_file(

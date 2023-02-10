@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"MapaPoligonosEstados",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}plotMapState.py @{SOURCE} @{SINK} '@{geocve_column}' '@{label}' '@{kind_poly_map}' '@{class}' '@{temporal_column}' '@{additional_columns}' '@{title}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"States.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

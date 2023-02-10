@@ -31,6 +31,9 @@ ServicesArr.push(
             label:"",
             size:"",
             radius:5,
+            kind_poly_map:"",
+            temporal_column:"",
+            additional_columns:"",
             SAVE_DATA:true
         },
         html: `
@@ -41,10 +44,11 @@ ServicesArr.push(
         <br>
 
                         <div class="form-group row m-2">
-                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Map yype: </label>
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Map type: </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="actions" onchange="ChangeVisibileOptionsOfService(this)">
-                                        <option value="POLY"> Mexico's localities </option>
+                                        <option value="POLY"> Mexico's AGEBs </option>
+                                        <option value="STATES"> Mexico's States </option>
                                         <option value="MARKER"> HeatMap (lat/lon)</option>
                                         <option value="SCATTERMAP"> Labeled Map (lat/lon)</option>
                                         <option value="DENSITY"> Density Map (lat/lon)</option>
@@ -53,7 +57,7 @@ ServicesArr.push(
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="POLY">
+                        <div class="form-group row m-2" servopt="POLY STATES">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">column with geocve: </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="geocve_column" onclick=fillselect(this,mult=false)></select>
@@ -73,7 +77,7 @@ ServicesArr.push(
                         </div>
 
 
-                        <div class="form-group row m-2" servopt="POLY SCATTERMAP DENSITY">
+                        <div class="form-group row m-2" servopt="POLY SCATTERMAP DENSITY STATES">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Title of the chart:</label>
                                 <div class="col-sm-8">
                                         <input id="title" type="text" class="form-control">
@@ -117,8 +121,19 @@ ServicesArr.push(
                                 </div>
                         </div>
 
-                        <div servopt="POLY SCATTERMAP" class="form-group row m-2">
-                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">class label: </label>
+
+                        <div class="form-group row m-2" servopt="STATES">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Kind of polygon map: </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="kind_poly_map">
+                                        <option value="HEATMAP"> Heatmap (for float column class) </option>
+                                        <option value="CLASS"> Label (for string or categorical column class) </option>
+                                </select>
+                                </div>
+                        </div>
+
+                        <div servopt="POLY SCATTERMAP STATES" class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">class column (used for color map):  </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="class" onclick=fillselect(this,mult=false,source=null,add="clase")>
                                         <option value="clase"> clase </option>
@@ -126,8 +141,8 @@ ServicesArr.push(
                                 </div>
                         </div>
 
-                        <div servopt="MARKER POLY SCATTERMAP" class="form-group row m-2">
-                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">ID (to identify the points in map): </label>
+                        <div servopt="MARKER POLY SCATTERMAP STATES" class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">ID (to identify the points in the map): </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="label" onclick=fillselect(this,mult=false)></select>
                                 </div>
@@ -150,6 +165,20 @@ ServicesArr.push(
                                 </div>
                         </div>
 
+                        <div servopt="STATES" class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Temporal column (optional) </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="temporal_column" onclick=fillselect(this,mult=false,source=null,add="clase")></select>
+                                </div>
+                        </div>
+
+                        <div servopt="STATES" class="form-group row m-2">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Additional columns to show </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="additional_columns" onclick=fillselect(this,mult=true,source=null,add="clase")></select>
+                                </div>
+                        </div>
+
 `
     }
 )
@@ -169,6 +198,7 @@ ServicesArr.push(
                 parent: [] 
             },
             params: {
+                actions:[""],
                 chart:1,
                 histo_type:"density",
                 columns:"",
@@ -183,6 +213,11 @@ ServicesArr.push(
                 if_log_scale:0,
                 groups_path:"",
                 title:"",
+                topk_temporal:"",
+                topk_value:"",
+                topk_name:"",
+                topk_n:"",
+                topk_func:"",
                 SAVE_DATA:true
             },
             html: `
@@ -191,11 +226,65 @@ ServicesArr.push(
                 <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
             </div>
             <br>
-    
+                        <div class="form-group row m-2">
+                                    <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Product: </label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="actions" onchange="OptionsHandler(this)">
+                                                <option value="REQUEST"> Charts </option>
+                                                <option value="TOP_K"> TOP K Race </option>
+                                        </select>
+                                    </div>
+                        </div>
+                            
+                
+                        <div opth opt-actions="TOP_K">
+
+                                <div class="form-group row m-2">
+                                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Temporal: </label>
+                                        <div class="col-sm-8">
+                                        <select class="form-control" id="topk_temporal" onclick=fillselect(this,multi=false)></select>
+                                        </div>
+                                </div>
+                                <div class="form-group row m-2">
+                                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">value column: </label>
+                                        <div class="col-sm-8">
+                                        <select class="form-control" id="topk_value" onclick=fillselect(this,multi=false)></select>
+                                        </div>
+                                </div>
+                                <div class="form-group row m-2">
+                                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Name columns: </label>
+                                        <div class="col-sm-8">
+                                        <select class="form-control" id="topk_name" onclick=fillselect(this)></select>
+                                        </div>
+                                </div>
+
+
+                                <div class="form-group row m-2">
+                                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Race function: </label>
+                                        <div class="col-sm-8">
+                                        <select class="form-control" id="topk_func">
+                                                <option value="sum" selected> sum </option>
+                                                <option value="mean"> mean </option>
+                                        </select>
+                                        </div>
+                                </div>
+
+                                <div class="form-group row m-2">
+                                        <label class="col-sm-4 col-form-label col-form-label-sm">TOP:</label>
+                                        <div class="col-sm-4">
+                                                <input type="number" class="form-control solo-numero" min="3" id="topk_n">
+                                        </div>
+                                </div>
+
+                        </div>
+
+                        <div opth opt-actions="REQUEST">
+                        
+
                             <div class="form-group row m-2">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Chart: </label>
                                     <div class="col-sm-8">
-                                    <select class="form-control" id="chart" onchange="ChangeVisibileOptionsOfService(this)">
+                                    <select class="form-control" id="chart" onchange="OptionsHandler(this)">
                                             <option value="1"> Density </option>
                                             <option value="2"> Scatter matrix map </option>
                                             <option value="3"> Parallel categories </option>
@@ -213,7 +302,7 @@ ServicesArr.push(
                                     </div>
                             </div>
     
-                            <div class="form-group row m-2" servopt="1">
+                            <div class="form-group row m-2" opth opt-chart="1">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">histogram type: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="histo_type">
@@ -225,63 +314,63 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="1 2 3 9">
+                            <div class="form-group row m-2" opth opt-chart="1 2 3 9">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">columns: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="columns" onclick=fillselect(this)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="2 4 5 6 7 8 9 10 11 12" >
+                            <div class="form-group row m-2" opth opt-chart="2 4 5 6 7 8 9 10 11 12" >
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Label variable: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="label_column" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="3">
+                            <div class="form-group row m-2" opth opt-chart="3">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Color scale column: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="colorscale_column" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="4 5 7 8 10 11 12">
+                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable x: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_x" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="4 5 7 8 10 11 12">
+                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable y: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_y" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="8">
+                            <div class="form-group row m-2" opth opt-chart="8">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable z: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_z" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="4 6 11">
+                            <div class="form-group row m-2" opth opt-chart="4 6 11">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable temporal: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="temporal_column" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="4 5">
+                            <div class="form-group row m-2" opth opt-chart="4 5">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Subgroup by: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="subgroup" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
                             
-                            <div class="form-group row m-2" servopt="4 6">
+                            <div class="form-group row m-2" opth opt-chart="4 6">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Column with sizes: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="size" onclick=fillselect(this,multi=false)></select>
@@ -289,7 +378,7 @@ ServicesArr.push(
                             </div>
 
 
-                            <div class="form-group row m-2" servopt="4 7">
+                            <div class="form-group row m-2" opth opt-chart="4 7">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Apply log scale: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="if_log_scale">
@@ -299,7 +388,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" servopt="6">
+                            <div class="form-group row m-2" opth opt-chart="6">
                                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Groups order:</label>
                                         <div class="col-sm-8">
                                                 <input id="groups_path" type="text" class="form-control autocomplete-column">
@@ -309,6 +398,8 @@ ServicesArr.push(
                                                 <span class="help-block">use @ to autocomplete columns</span>
                                         </div>
                             </div>
+
+                        </div>
 
                             <div class="form-group row m-2">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Title of the chart:</label>

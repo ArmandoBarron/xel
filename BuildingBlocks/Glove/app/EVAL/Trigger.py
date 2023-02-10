@@ -88,7 +88,7 @@ def execute(params,AppConfig):
 
                 #sp.wait()
                 try:
-                    stdouterr, _ = sp.communicate(timeout=300)
+                    stdouterr, _ = sp.communicate(timeout=10000)
                     #stdouterr = stdouterr.decode("utf-8")
                     LOGER.error("==== EXECUTING COMPLETE ====== %s" % comando )
                     #logging.error(stdouterr)
@@ -148,10 +148,11 @@ def execute(params,AppConfig):
 
         #clean everything
         #shutil.rmtree(params['BBOX_INPUT_PATH'],ignore_errors=True)
+        
         os.remove(params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'])
         shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True) #esto remueve los datos de entrada
         shutil.rmtree(params['BBOX_OUTPUT_PATH'],ignore_errors=True)
-
+        
         name,ext = result.split(".")
         LOGER.error(result)
         response = {"data":result,"type":ext,"status":"OK","message":app_message,"EXECUTION_TIME":EXECUTION_TIME}

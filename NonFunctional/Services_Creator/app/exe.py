@@ -26,7 +26,7 @@ def create_service(parent,data,string,tab):
     return string
 
 
-def create_nez_cfgfile(data2,names,services,resultfile_id, replicate_dictionary):
+def create_nez_cfgfile(data2,version,services,resultfile_id, replicate_dictionary):
 
     total_services = len(services)
     string = "#./deployer/app/cfg-files/xelhua.cfg\n"
@@ -46,9 +46,9 @@ def create_nez_cfgfile(data2,names,services,resultfile_id, replicate_dictionary)
         string+="name = %s \n" % service_name
         string+="command = ls\n"
         if KIND_REPO == "remote":
-            string+="image = %s%s\n" % (URL_REPO,service_params["image"])
+            string+="image = %s%s:%s\n" % (URL_REPO,service_params["image"],version)
         else:
-            string+="image = %s\n" % service_params["image"]
+            string+="image = %s:%s\n" % (service_params["image"],version)
 
         
         enviroment_values = ""
@@ -197,7 +197,8 @@ def execute(request):
 
     resources = data[conf['resources_key']]
     names = data[conf['names_key']]
-    
+    version = data["version"]
+
     childs_list = []
     replicate_dictionary = {}
     get_childs(childs_list,request[conf['dag_key']], conf['replicas_key'], request[conf['replicas_key']], replicate_dictionary)
@@ -217,7 +218,7 @@ def execute(request):
     
 
     if engine=="nez":
-        cfg_content = create_nez_cfgfile(resources, names, childs_list, resultfile_id, replicate_dictionary)
+        cfg_content = create_nez_cfgfile(resources, version, childs_list, resultfile_id, replicate_dictionary)
         resultfile_filename = os.sep.join([os.getcwd(), 'cfg-files', resultfile_id+ '.cfg'])
 
         f = open(resultfile_filename, "w");f.write(cfg_content);f.close()

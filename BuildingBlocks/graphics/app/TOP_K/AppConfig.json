@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"TOP k",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{ 
+        "COMMAND": "python @{CWD}top10.py @{SOURCE} @{SINK} \"@{topk_temporal}\" \"@{topk_value}\" \"@{topk_name}\" \"@{topk_n}\" \"@{topk_func}\" \"@{title}\" ",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"bar_race_TOP.mp4",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

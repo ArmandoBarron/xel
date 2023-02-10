@@ -42,17 +42,19 @@ def data_autorization_requiered(f):
                 # verify token access
                 #get token user assosiated to session token ()
                 tokenuser = request.get_json(force=True)['data']['token_user']
-                if verify_API_KEY(tokenuser):
-                    return True
 
-                token_assosiated = getUserBy_access_token(token)
-                
-
-                if token_assosiated==tokenuser:
-                    LOG.debug("Athorized")
+                if verify_API_KEY(token):
                     pass
-                else: #invalid token 
-                    return make_response(jsonify({"message": "Unable to access!."}), 403)
+                else:
+                    token_assosiated = getUserBy_access_token(token)
+                    
+
+                    if token_assosiated==tokenuser:
+                        LOG.info("Athorized")
+                        pass
+                    else: #invalid token 
+                        LOG.error("UNauthorized")
+                        return make_response(jsonify({"message": "Unable to access!."}), 403)
             except:
                 return make_response(jsonify({"message": "Invalid token!"}), 403)
 
@@ -60,7 +62,7 @@ def data_autorization_requiered(f):
             if "x-access-token" in request.headers:
                 token = request.headers['x-access-token']
                 token_verification = verify_session_token(token)
-                LOG.debug("TOKEN FOUND. is valid?: %s" %token_verification)
+                LOG.info("TOKEN FOUND. is valid?: %s" %token_verification)
 
         return f(*args, **kwargs)
     return decorator

@@ -71,11 +71,14 @@ def ClientProcess(metadata,data_acq_time):
     if 'SAVE_DATA' in params:        
         index_opt = params['SAVE_DATA']
     else:
-        index_opt = False # by default
+        index_opt = True # by default
         for key in params:
             if 'SAVE_DATA' in params[key]:
                 index_opt = params[key]['SAVE_DATA']
                 break
+
+    LOGER.error("====== INDEXING RESULTS : %s" %index_opt)
+
 
     if 'actions' in DAG:
         #check if is list
@@ -122,6 +125,7 @@ def ClientProcess(metadata,data_acq_time):
         index_time= time.time() - index_time #<--- time flag
     else:
         label=False
+        LOGER.error(result['message'])
         LOGER.info("Skiping index process")
     
     ## ======================================================================= ##
@@ -194,6 +198,10 @@ SERVICE_NAME=os.getenv("SERVICE_NAME")
 SERVICE_IP=os.getenv("HOSTNAME") 
 SERVICE_PORT=os.getenv("SERVICE_PORT") 
 TPSHOST = os.getenv("TPS_MANAGER") 
+
+
+
+
 
 Tolerant_errors=10 #total of errors that can be tolarated
 ##### TEMP_AG communication handler
