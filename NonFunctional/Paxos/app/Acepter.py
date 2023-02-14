@@ -484,7 +484,7 @@ def get_task_runtime_info(value): #new version of consult data
         idx_opt = val['index']
         is_recovered = val['is_recovered']
 
-        if (val['status']=="RUNNING" or val['status']=="INFO") and time.time()-val['timestamp'] > 60: #if has passed more than 20 seg of the last health check of one service
+        if (val['status']=="RUNNING" or val['status']=="INFO") and time.time()-val['timestamp'] > 60: #if has passed more than 60 seg of the last health check of one service
             update_task_status(RN,task,"CRITICAL","Resource %s is not responding. last message: %s." % (task, val['message']),details="RESOURCE DOWN")
             #temp_dag = LookForParams(solution_dag,task) #si esto es none entonces no esta en el dag original
             ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }

@@ -97,6 +97,9 @@ elif KIND_MAP == "CLASS":
 else:
     df_general = df
 
+if TEMPORAL_COL is not None:
+    df_general= df_general.sort_values(by=[TEMPORAL_COL])
+
 fig = px.choropleth_mapbox(df_general, geojson=geo, locations=GEOCVE_COLUMN, 
                             featureidkey="properties.CODIGO",
                             color_continuous_scale="Viridis",

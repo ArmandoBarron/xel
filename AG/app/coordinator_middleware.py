@@ -14,15 +14,14 @@ import io
 import tempfile
 import shutil
 import time
-
+from os import listdir
+import chardet
 
 # local imports
 from functions import *
 from Proposer import Paxos
 from Auth import login_request, register_user, token_required,data_autorization_requiered, resource_autorization_requiered,API_required,logout_request
 
-from os import listdir
-import chardet
 import genesis_client as GC
 
 ########## GLOBAL VARIABLES ##########
@@ -326,6 +325,14 @@ def append_log():
 def WARN():
     warn_message = request.get_json(force=True)
     return warn_function(warn_message)
+
+#service to execute a set of application in a DAG
+@app.route('/stopDAG/<token_project>/<token_solution>', methods=['GET'])
+@token_required
+def stop_DAG(token_project,token_solution):
+    GC.remove_services(token_solution) #force stop
+    paxos_response = PROPOSER.Consult_v2(token_project,token_solution,None,kind_task="task_list",force_stop_healthcheck=True) # consult request in paxos distributed memory
+    make_response({"status":"OK","message":"solution stopped"},200)    
 
 #service to execute a set of application in a DAG
 @app.route('/executeDAG', methods=['POST'])

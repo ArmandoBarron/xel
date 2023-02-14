@@ -11,9 +11,10 @@ import os
 
 IP_AUTH_SERVICE = "auth"
 TOKEN_ORG = "ed4ade2b846402b9ae56c75e1df923c71a1a081a339dccb7fa9d2c22194ddaff" #token de xelhua
+
 TOKEN_REQUIERD=os.getenv("TOKEN_REQUIERD") 
-API_KEY=os.getenv("API_KEY") #a sha256 hash (eg. "9aa491c85508cfeead30c569c88c8f26e3881792a3f158a323ee9ac6150ab1cd") 
-interval_expiration = 720 #minutes
+API_KEY=os.getenv("API_KEY") # sha256 hash (eg. "9aa491c85508cfeead30c569c88c8f26e3881792a3f158a323ee9ac6150ab1cd") 
+interval_expiration = 60*24 #60 minutes * 48 hours = 2 days
 
 
 SESSIONS = {API_KEY:{"expiration_date":None,"API_key":True,"tokenuser":API_KEY}} #{"access_token":"{expiration_date","tokenuser","API_key":true}}

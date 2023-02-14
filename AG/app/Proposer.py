@@ -78,11 +78,11 @@ class Paxos:
         res= self.accept(value,action="CONSULT")
         return res
 
-    def Consult_v2(self,token_project,control_number,tasks,params=None,kind_task="task_list",show_history=None):
+    def Consult_v2(self,token_project,control_number,tasks,params=None,kind_task="task_list",show_history=None,force_stop_healthcheck=False):
         """
          value = {"control_number":,"params":}
         """
-        value = {"control_number":control_number,"token_project":token_project,"params":params,"kind_task":kind_task}
+        value = {"control_number":control_number,"token_project":token_project,"params":params,"kind_task":kind_task,"force_stop_healthcheck":force_stop_healthcheck}
         if tasks is not None:
             value['monitoring_tasks']=tasks
         if show_history is not None:
