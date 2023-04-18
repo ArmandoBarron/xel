@@ -66,9 +66,9 @@ if $Construir; then
     docker build -t ${tag_transform} ./BuildingBlocks/TransformStrData
     docker build -t ${tag_clustering} ./BuildingBlocks/ClusteringAlgh
     docker build -t ${tag_deeplearning} ./BuildingBlocks/DeepLearning
-    docker build -t ${tag_text_preprocessing} ./BuildingBlocks/TextPreprocessing
-    docker build -t ${tag_text_processing} ./BuildingBlocks/TextProcessing
-    docker build -t ${tag_text_classification} ./BuildingBlocks/TextClassification
+    #docker build -t ${tag_text_preprocessing} ./BuildingBlocks/TextPreprocessing
+    #docker build -t ${tag_text_processing} ./BuildingBlocks/TextProcessing
+    #docker build -t ${tag_text_classification} ./BuildingBlocks/TextClassification
     docker build -t ${tag_preprocessing} ./BuildingBlocks/Preprocessing
     docker build -t ${tag_converters} ./BuildingBlocks/Converters
     docker build -t ${tag_acquisition} ./BuildingBlocks/Acq

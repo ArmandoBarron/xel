@@ -43,6 +43,9 @@ class client_pattern():
         file_group.close()
         return data_map
 
+    def CloneDict(self,dict_obj):
+        return json.loads(json.dumps(dict_obj))
+
     def ValidateChain(self,dag,new_dag=[]):
         for ch in dag:
             if 'pattern' in ch:
@@ -51,15 +54,18 @@ class client_pattern():
                     new_dag.append(ch)
         return new_dag
 
-    def Prepare_subdag_instance(self,dag,task):
+    def Prepare_subdag_instance(self,dag,task,as_original = False):
         new_dag=[]
         for ch in dag:
+            #self.LOGER.error(ch['pattern'])
             if 'pattern' in ch:
                 if (ch['pattern']['kind']=="Chain" or ch['pattern']['kind']=="Reduce") and ch['pattern']['active']:
                     temp = json.loads(json.dumps(ch))
                     del temp['pattern']
-                    id_group = task.split("-MAP-")[0] #se obtiene el id_group
-                    temp['id'] = "%s-subtask-%s" % (id_group,temp['id']) #c-subtask-a-subtask-imputation
+                    if not as_original: #keep the original ID
+                        id_group = task.split("-MAP-")[0] #se obtiene el id_group
+                        temp['id'] = "%s-subtask-%s" % (id_group,temp['id']) #c-subtask-a-subtask-imputation
+
                     temp['childrens'] = self.Prepare_subdag_instance(json.loads(json.dumps(temp['childrens'])),task)
                     new_dag.append(temp)
         return new_dag
@@ -83,6 +89,21 @@ class client_pattern():
             list_tasks.append(dag['id'])
             list_tasks = self.list_tasks_in_DAGs(dag['childrens'],list_tasks)
         return list_tasks
+
+    def list_tasks_in_DAGs_by_pattern(self,list_dags,task_obj={}):
+        for dag in list_dags:
+            if 'pattern' in dag:
+                if (dag['pattern']['kind']=="Chain" or dag['pattern']['kind']=="Reduce") and dag['pattern']['active']:
+                    levels_to_process = dag['pattern']['spec']['level_to_process'] # 1,2,3,n ... all:::str()
+                    for l in levels_to_process:
+                        if not l in task_obj:
+                            task_obj[l]={} 
+                        task_obj[l][dag['id']] ={"id":dag["id"],"alias":"","service":dag["service"],"params":dag["params"]}
+            
+            task_obj = self.list_tasks_in_DAGs_by_pattern(dag['childrens'],task_obj)
+        return task_obj
+
+
 
     def MonitoringByDAG(self,list_of_dags,auth):
         interval = .3
@@ -161,22 +182,26 @@ class client_pattern():
                 variables::list[]
                 on_cascade::boolean
                 reduce::chunk;fusion::str() //always
-
-
-
             }
         }
 
         """
         def SendData(listOfTask,listDataMap):
+            # NOTA PARA ARMANDO DEL FUTURO: esta funcion se puede paralelizar, porque el hash se crea en ArchiveData, es decir que se sobreescribirian los hash al hacerlos en paralelo
+            # la solucion es instancias nuevos POSTMAN para cada lista de tareas en paralelo
             i=0
             for id_task in listOfTask:
-                #self.LOGER.debug("----------------------------preparing to send to subchilds: %s"%id_task)
                 data_map=listDataMap[i]
-                self.POSTMAN.ArchiveData(open(data_map['data'],"rb"),"subset.csv",id_service=id_task)
-                i+=1
-                ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,"Data indexed","FINISHED",id_service=id_task,label=id_task,type_data="csv",index_opt=True)
+
+                ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,"Data preparation","INIT",id_service=id_task,label=id_task,type_data="csv",index_opt=True)
                 self.POSTMAN.WarnGateway(ToSend)
+
+                self.POSTMAN.ArchiveData(data_map['data'],"subset.csv",id_service=id_task)
+                
+                ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,"Data indexed","FINISHED",id_service=id_task,label=id_task,type_data="csv",index_opt=True,include_hash=True)
+                self.POSTMAN.WarnGateway(ToSend)
+
+                i+=1
                 os.remove(data_map['data'])
             self.LOGER.info(i)
             return True
@@ -204,44 +229,14 @@ class client_pattern():
         #se hace una copia del dag original y se eliminan los child 
         if kind_pattern=="Map":
             endpoints = sub_child['childrens']
-            #endpoints = self.ValidateChain(sub_child['childrens']) 
-
-            #sub_child['pattern']['context'] = substack_id
-            #se añade a cada uno de los hijos la instruccion "reduce"
             for key in range(len(sub_child['childrens'])):
-                #dag['childrens'][key]['pattern'] ={
-                #            "kind": "Reduce",
-                #            "workers": workers,
-                #            "active":True,
-                #            "context":substack_id,
-                #            "spec":{
-                #                "map":"groupby", #groupby, split
-                #                "variables":pattern_info['spec']['variables'],
-                #                "level_to_process":["1"],
-                #                "reduce":reduce_mode
-                #            },            
-                #        }
-
                 if 'pattern' in dag['childrens'][key]:
                     if dag['childrens'][key]['pattern']['kind']=="Reduce":
                         dag['childrens'][key]['pattern']['workers'] =pattern_info['workers']
                         dag['childrens'][key]['pattern']['context'] =substack_id
 
         elif kind_pattern=="Reduce" or kind_pattern=="Chain" :
-
-            #se añade a cada uno de los hijos la instruccion "chain" pero es solo para testing
             for key in range(len(sub_child['childrens'])):
-                #dag['childrens'][key]['pattern'] ={
-                #            "kind": "Chain",
-                #            "workers": workers,
-                #            "active":True,
-                #            "context":pattern_info['context'],
-                #            "spec":{
-                #                "reduce":reduce_mode
-                #            },            
-                #        }
-            
-
                 if 'pattern' in dag['childrens'][key]:
                     if dag['childrens'][key]['pattern']['kind']=="Chain":
                         dag['childrens'][key]['pattern']['parent_instructions'] =pattern_info['parent_instructions'].copy()
@@ -249,14 +244,13 @@ class client_pattern():
                         dag['childrens'][key]['pattern']['workers'] =pattern_info['workers']
                         dag['childrens'][key]['pattern']['context'] =pattern_info['context']
 
-
-
-            
-            #endpoints = self.ValidateChain(sub_child['childrens']) 
         else:
             sub_child['childrens']=[]
             endpoints = [sub_child]
-        #deploy
+
+
+
+        # =================== deploy =======================#
         if 'context' in pattern_info:
             substack_id = pattern_info['context']
             self.LOGER.error("---------------------------- USING DEPLOYED SUBGRAPH...")
@@ -272,7 +266,7 @@ class client_pattern():
             self.LOGER.error("----------------------------DEPLOYED...")
         
         
-        dispatcher = bb_dispatcher(self.TOKEN_SOLUTION,self.SERVICE_ID,substack_id,LOGER=self.LOGER,POSTMAN=self.POSTMAN)
+        dispatcher_client = bb_dispatcher(self.TOKEN_SOLUTION,self.SERVICE_ID,substack_id,LOGER=self.LOGER,POSTMAN=self.POSTMAN)
         output_name = "error_name.csv"
         output_datatype="error"
         
@@ -296,8 +290,8 @@ class client_pattern():
             levels = vars.copy()
             n_levels = len(levels)
             original_dataset[levels] = original_dataset[levels].astype(str)
-            list_porducts = self.list_tasks_in_DAGs([sub_child],[])
-            xelhua ={"path":"L1=val1/L2=val2","levels":{},"products":list_porducts};
+            list_porducts = self.list_tasks_in_DAGs_by_pattern([sub_child],{}) #obj
+            xelhua ={"path":"L1=val1","levels":{},"products":list_porducts};
             for lvl_idx in range(n_levels):
                 selected_levels=levels[0:lvl_idx+1]
                 dataset = original_dataset.groupby(selected_levels)
@@ -316,7 +310,7 @@ class client_pattern():
 
                     #se añaden los valores a la tabla y se eliminan valores decimales incecesarios
                     formated_names = []
-                    form_name =name[-1].split(".")[0]
+                    form_name =name[-1].split(".")[0] #se toma el ultimo valor de la lista name
                     if not form_name in xelhua["levels"][str(lvl)]["values"]:
                         xelhua["levels"][str(lvl)]["values"][form_name]={"id":id_values,"name":form_name,"childrens":{}}
                         id_for_parents = id_values
@@ -324,14 +318,16 @@ class client_pattern():
                     else:
                         id_for_parents= xelhua["levels"][str(lvl)]["values"][form_name]['id']
 
-                    for i in range(len(name)):
+                    for i in range(len(name)): #se recorren los parents
                         form_name =name[i].split(".")[0]
                         if i == lvl_idx:
                             pass
                         else: #its a parent
                             if not str(lvl) in xelhua["levels"][str(i+1)]["values"][form_name]['childrens']:
                                 xelhua["levels"][str(i+1)]["values"][form_name]['childrens'][str(lvl)]=[]
-                            xelhua["levels"][str(i+1)]["values"][form_name]['childrens'][str(lvl)].append(id_for_parents)
+                            # se veirifica si ya existe el valor en la lista de childrens. si no existe se agrega
+                            if not id_for_parents in xelhua["levels"][str(i+1)]["values"][form_name]['childrens'][str(lvl)]:
+                                xelhua["levels"][str(i+1)]["values"][form_name]['childrens'][str(lvl)].append(id_for_parents)
 
                         group[selected_levels[i]]=name[i]
                         formated_names.append("%s=%s" %(selected_levels[i],form_name))
@@ -352,6 +348,11 @@ class client_pattern():
 
             del dataset,original_dataset
             
+            #============================ verificacion ===============================#
+            # si se ejecuta nuevamente es porque el dataset cambio, por tanto se verificara si el dataset crecio y, por tanto, si existe un json indexado
+            self.POSTMAN.VisualProducts_Map_Manager("create",self.TOKEN_SOLUTION,token_dispatcher=self.SERVICE_ID,data_obj=xelhua)
+        
+
             self.LOGER.info("----------------------------Se crearon las listas de tareas. ahora comienza el dispatch")
             self.LOGER.info("-------------- dataset generados: %s " % len(list_of_task))
             #se suben todos lod atasets, pero se hace en segundo plano
@@ -360,7 +361,7 @@ class client_pattern():
             self.TH_MONITOR.AppendThread(thread1)
             #se añaden las instrucciones para el los hjos que haran reduce
             for key in range(len(sub_child['childrens'])):
-                dag['childrens'][key]['pattern']['parent_instructions'] ={"list_task":list_of_task,"context":substack_id,"levels":vars}
+                dag['childrens'][key]['pattern']['parent_instructions'] ={"list_task":list_of_task,"context":substack_id,"levels":vars,"dispatcher":self.SERVICE_ID}
 
             with open(self.BBOX_OUTPUT_PATH+output_name, "w") as write_file:
                 json.dump(xelhua, write_file, indent=4)
@@ -375,16 +376,32 @@ class client_pattern():
                 output_name = "reduce.csv";output_datatype="csv"
             else:
                 output_name = "reduce.zip";output_datatype="zip"
-
-            #with open(data_path['data']) as json_file:
-            #    metadata = json.load(json_file)
             
             metadata = sub_child['pattern']['parent_instructions'].copy()
             level_to_process = sub_child['pattern']['spec']['level_to_process'] # 1,2,3,n ... all:::str()
+            dispatcher = metadata['dispatcher']
 
-            #in case of failure, we dont need to dispatch all the task. here we verify this 
+            #============================ verificacion ===============================# clientpattern
+            # aqui se verificara si el dataset crecio y, por tanto, si existe un json indexado
+            # 1.- si este proceso se ejecuta entonces es porque el abox es nuevo o cambiaron los parametros. en cualquier caso se debe añadir al grafo de visualizacion (pasa cuando el abox es nuevo) 
+            temp = self.CloneDict(sub_child) #sub_child.copy()
+            temp = self.Prepare_subdag_instance([temp],'',as_original=True)[0]
+            task_map = {"id":self.SERVICE_ID,"alias":"","service":temp["service"],"params":temp["params"]}
+            self.POSTMAN.VisualProducts_Map_Manager("update",self.TOKEN_SOLUTION,token_dispatcher=dispatcher ,token_producer=self.SERVICE_ID,data_obj=task_map,levels=level_to_process)
+
+            # 2.- hay una tercera opcion, es cuando cambia el dataset, en este caso se debe ejecutar la siguiente funcion
+            
+            #funcion verify_list_abox_process() en el acepter. returna true o false
+            # la funcion recibe el token_solution, task_id, 
+            # 3.- se verifica si previamente fueron ejecutados cada una de las actividades con el hash de metadata. si el hash cambio o no existe entonces es porque es nuevo o cambiaron los parametros
+            #   esto primero se puede saber verificando el hash del json de metadata
+            #   - si esto no es asi, entonces la ejecucion es debido a que el dataset cambió o creció
+            #   
+            # ahora los abox reportaran el hash del producto en BB_dispatcher a sus hijos. y tambien reportaran el hash del producto producido en ArchiveData (lo hara el coordinador)
+            #  4.- se verificara, para cada proceso, que el hash output del padre coincida con el hash input del hijo que esta almacenado
+            #       - si no existe el hash input, output, o no coincide, entonces se ejecutara el proceso (TRUE) , si no se omitira porque el proceso es el mismo y ya se ha realizado anteriormente (False)
+            
             list_of_task = []
-
             # task to dispatch
             for task in metadata['list_task']:
                 lvl = task.split("-LVL-")[0]
@@ -393,8 +410,24 @@ class client_pattern():
                     id_group = task.split("-MAP-")[0] #se obtiene el id_group
                     list_of_task.append("%s-subtask-%s" % (id_group,id_father_task)) #c-subtask-a-subtask-imputation
 
+            #verificar la razon de la reejecucion
+            exec_all = False
+            if 'is_fp_different' in temp: #se ejecuto porque cambiaron los parametros o es nuevo, entonces se ejecuta todo
+                if temp['is_fp_different']:
+                    exec_all =True
+            
+            self.LOGER.error("razon de reejecucion: %s" % exec_all)
 
-            res_monitor = self.POSTMAN.MonitorSpecificService(auth['user'],self.TOKEN_SOLUTION,list_of_task,kind="subtask_list")         
+            if not exec_all:
+                self.LOGER.error("Subtareas detectadas: %s" % len(list_of_task))
+                res_monitor = self.POSTMAN.ValidateSubtask(self.TOKEN_SOLUTION,list_of_task)
+                res_monitor = res_monitor['value']["task_list"]     
+                self.LOGER.error("Subtareas que se ejecutaran: %s" % len(res_monitor))
+                self.LOGER.error("Subtareas: %s" % res_monitor)
+
+
+            else:
+                res_monitor = list_of_task
 
             treshold=0; cummulative_treshold = 0
             list_dags = []
@@ -405,24 +438,22 @@ class client_pattern():
                 if lvl in level_to_process or "all" in level_to_process: # procesar solo las tareas del nivel correspondiente
                     temp = sub_child.copy()
                     data_map = {"data":task,"type":"SOLUTION"}
-                    data_pointer =  open(data_path['data'],"rb")
-                    dag_to_send = self.Prepare_subdag_instance([temp],task)
-                    dag_to_send = json.loads(json.dumps(dag_to_send[0]))
+                    data_pointer = open(data_path['data'],"rb")
+                    dag_to_send = self.Prepare_subdag_instance([temp],task)[0]
+                    dag_to_send = self.CloneDict(dag_to_send)
                     
-                    self.LOGER.error("----------------------------preparing subchild: %s"%dag_to_send['id'])
+                    self.LOGER.error("----------------------------preparing subchild: %s"% dag_to_send['id'])
 
-                    if dag_to_send['id'] not in res_monitor['list_task']: #si aun no se dispacha entones se a enviar
+                    if dag_to_send['id'] not in res_monitor: #si aun no se dispacha entones se a enviar
                         #self.LOGER.error("----------------------------sending to subchild: %s"%dag_to_send['id'])
-                        dispatcher.Send_to_BB(data_map,data_pointer,auth,dag_to_send,parent = task)
+                        dispatcher_client.Send_to_BB(data_map,data_pointer,auth,dag_to_send,parent = task)
                         #self.LOGER.error("----------------------------sent to subchild: %s"%dag_to_send['id'])
-                        #list_of_task.append(dag_to_send['id'])
                         treshold+=1
                         cummulative_treshold +=1
                         list_dags.append(dag_to_send)
                     
                         if treshold==workers:
                             self.LOGER.error("================ %s pipes sent... waiting %s (total task: %s) ===============" % (cummulative_treshold,len(list_dags),n_task))
-                            #self.LOGER.error("================ %s" % (list_dags))
 
                             list_dags = self.MonitoringByDAG(list_dags,auth)
                             treshold = len(list_dags)

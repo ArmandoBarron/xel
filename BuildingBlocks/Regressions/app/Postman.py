@@ -10,6 +10,7 @@ import cgi
 import multiprocessing as mp
 from threading import Thread
 import os
+import hashlib
 
 class postman(Thread):
 
@@ -37,6 +38,7 @@ class postman(Thread):
         self.id_service = None
         self.last_message ={}
         self._running=True
+        self.hash_product=""
         self.times ={
             "id":"",
             "acq":0,
@@ -105,6 +107,64 @@ class postman(Thread):
             return None
         except Exception:
             return None
+        
+    def ValidateSubtask(self,token_solution,task_list):
+        try:
+            t = time.time()
+            ToSend=json.dumps({"token_solution":token_solution,"task_list":task_list})
+            url = "http://%s/Validate_subtask_executions" % (self.API_GATEWAY)
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'x-access-token': self.API_KEY}
+            res =api.post(url,data=ToSend,headers=headers).json()
+            self.times['comm']+= time.time()-t
+            if res['status']=="OK":
+                return res
+            return None
+        except Exception:
+            return None
+
+
+    def VisualProducts_Map_Manager(self,action, token_solution, token_dispatcher='',token_producer='',data_obj='',levels=[] ):
+        """
+        function to send a request to the visual product object to, update, create, get, delete and clean
+
+        value {
+            action::create, delete, clean, update,get
+            token_solution: "",
+            token_dispatcher:"",
+            token_producer:"",
+            data_obj: {}
+        }
+
+            data obj could be
+                {"path":"L1=val1","levels":{},"products":list_porducts};
+                                            or
+                {"id":dag["id"],"alias":"","service":dag["service"],"params":dag["params"]}
+
+
+            products:{
+                level:{
+                    id:{alias,name,id}
+                    }
+                }
+            }
+        """
+        ToSend=json.dumps({"action":action,"token_solution":token_solution,
+                           "token_dispatcher":token_dispatcher,
+                           "token_producer":token_producer,
+                           "data_obj":data_obj,
+                           "levels":levels})
+        t=time.time()
+        while(True):
+            try:
+                url = 'http://%s/ProductsObjectMap' % self.API_GATEWAY
+                headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'x-access-token': self.API_KEY}
+                res =api.post(url, data=ToSend,headers=headers).json()
+                self.times['comm']+= time.time()-t
+                return res
+            except Exception as ex:
+                self.Select_gateway()
+                if self.API_GATEWAY is None:
+                    return {"status":"ERROR","info":"ERROR"}
 
     def GetResults(self,token_solution,task,auth):
         """Download file from url to directory
@@ -238,13 +298,17 @@ class postman(Thread):
             time.sleep(time_interval)
         return True
 
-    def ArchiveData(self,file_pointer,namefile, id_service=None):
+    def ArchiveData(self,data_path,namefile, id_service=None):
         if id_service is None:
             id_service=self.id_service
         
         t = time.time()
+        
         self.LOGER.info("Guardando %s" %id_service)
+        self.calculate_sha256sum(data_path)
+        self.LOGER.info("Hash resultant product: %s" % self.hash_product)
         try:
+            file_pointer = open(data_path,"rb")
             headers = {'x-access-token': self.API_KEY}
             url = 'http://%s/ArchiveData/%s/%s' % (self.API_GATEWAY,self.RN,id_service)
             res = api.post(url, files={"file":(namefile,file_pointer)},headers=headers ).json()
@@ -254,6 +318,7 @@ class postman(Thread):
             return res
         except Exception as ex:
             self.LOGER.error(ex)
+            file_pointer.close()
             return {"status":"ERROR","info":"ERROR"}
 
 
@@ -266,10 +331,20 @@ class postman(Thread):
     def terminate(self,final_status,last_message):
         self.status=final_status
         self._running=False
+
+
         ## send a last message
         self.WarnGateway(last_message)
         self.LOGER.warning("SENDING A LAST MESSAGE: %s" %(last_message))
 
+    def calculate_sha256sum(self,filename):
+        h  = hashlib.sha256()
+        b  = bytearray(128*1024)
+        mv = memoryview(b)
+        with open(filename, 'rb', buffering=0) as f:
+            while n := f.readinto(mv):
+                h.update(mv[:n])
+        self.hash_product = h.hexdigest()
 
     def Set_IdService(self,id_service):
         self.id_service=id_service
@@ -296,7 +371,7 @@ class postman(Thread):
 
         return data_map
     
-    def CreateMessage(self,RN,message,status,id_service=None,type_data='',parent='',label='',index_opt='',times=None,dag=None):
+    def CreateMessage(self,RN,message,status,id_service=None,type_data='',parent='',label='',index_opt='',times=None,dag=None,include_hash=False):
         if id_service is None:
             id_service = self.id_service
 
@@ -307,5 +382,9 @@ class postman(Thread):
 
         if dag is not None:
             ToSend['dag']=dag
+
+        if include_hash:
+            ToSend['hash_product'] = self.hash_product
+
 
         return ToSend

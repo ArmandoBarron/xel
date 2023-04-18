@@ -90,6 +90,12 @@ class Paxos:
 
         res= self.accept(value,action="CONSULT_V2")
         return res
+    
+
+    def DirectRequest(self,value,request="PRODUCTS_MAP"):
+        res= self.accept(value,action=request)
+        return res
+
 ## ========================================================= ##
 ## ====================== RESOURCES ======================== ##
 ## ========================================================= ##

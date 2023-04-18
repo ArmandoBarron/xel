@@ -49,9 +49,9 @@ def ClientProcess(metadata,data_acq_time):
     params = DAG['params']
 
     if 'childrens' in DAG:
-        childrens = DAG['childrens']
+        children = DAG['childrens']
     else:
-        childrens = []
+        children = []
     
     id_service =DAG['id']
     control_number = DAG['control_number']
@@ -121,7 +121,7 @@ def ClientProcess(metadata,data_acq_time):
     LOGER.info("Starting indexing process...%s" % result['data'])
     if index_opt and result['status']!="ERROR": #save results 
         index_time = time.time() #<--- time flag
-        label = AG.ArchiveData(open(result['data'],"rb"),result['data'].split("/")[-1])
+        label = AG.ArchiveData(result['data'],result['data'].split("/")[-1])
         index_time= time.time() - index_time #<--- time flag
     else:
         label=False
@@ -129,17 +129,27 @@ def ClientProcess(metadata,data_acq_time):
         LOGER.info("Skiping index process")
     
     ## ======================================================================= ##
-    ## ============================ LOG OF Abox ============================== ##
+    ## ============================  Abox LOG  =============================== ##
     ## ======================================================================= ##
     with open(SOLUTIONS_FILE,'a+') as f_records:
-        # id_service, control_number,results path, DAG of childrens
-        f_records.write("%s\t%s\t%s\t%s\n" %(id_service,control_number,result['data'],json.dumps(childrens)))
+        # id_service, token_solution ,results path, DAG of childrens
+        f_records.write("%s\t%s\t%s\t%s\n" %(id_service,control_number,result['data'],json.dumps(children)))
     ## ======================================================================= ##
 
-    LOGER.info("Sending to childrens...")
+    ## ======================================================================= ##
+    ## ============================  TERMINATE  ============================== ##
+    ## ======================================================================= ##
+    ToSend = AG.CreateMessage(control_number,result['message'],result['status'],label=label,type_data=result['type'],index_opt=index_opt,include_hash=True)
+    AG.terminate(result['status'],ToSend)
+    ## ======================================================================= ##
+
+    ## ======================================================================= ##
+    ## ======================= DISPATCH TO CHILDREN  ======================== ##
+    ## ======================================================================= ##
+    LOGER.info("Sending to children...")
     dispatcher = bb_dispatcher(control_number,id_service,NETWORK,LOGER=LOGER,POSTMAN=AG,Tolerant_errors=Tolerant_errors)
     try:
-        for child in childrens: #list[]
+        for child in children: #list[]
             ##################### HERE 
             if result['status']=="ERROR":
                 result['type'] = "error"
@@ -154,16 +164,15 @@ def ClientProcess(metadata,data_acq_time):
 
             # send request to the next BB
             dispatcher.Send_to_BB(result,f,auth,child)
-
-
     except KeyError as ke:
-        LOGER.error("ERROR: we can't find chilfrens childrens")
+        LOGER.error("ERROR: we can't find chilfrens children")
 
-    if len(childrens)<=0:
-        LOGER.info("Data sent to all childrens")
+    if len(children)<=0:
+        LOGER.info("Data sent to all children")
+    ## ======================================================================= ##
 
-    ToSend = AG.CreateMessage(control_number,result['message'],result['status'],label=label,type_data=result['type'],index_opt=index_opt)
-    AG.terminate(result['status'],ToSend)
+    #Aqui iba el terminate, pero lo movi arriba para enviar el hash antes de ejecutar los hijos
+
 
     #Removing results
     os.remove(result['data'])

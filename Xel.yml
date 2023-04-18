@@ -46,7 +46,7 @@ services:
       INIT_EXAMPLE: "True"
       API_KEY: 9aa491c85508cfeead30c569c88c8f26e3881792a3f158a323ee9ac6150ab1cd
       AUTH_HOST: auth
-      DEBUG_MODE: "False"
+      DEBUG_MODE: "True"
     mem_limit: 1024M
     mem_reservation: 128M
     cpus: 4
@@ -184,6 +184,8 @@ services:
       - service_mesh
     depends_on:
       - coordinator
+    volumes:
+      - ./localdata/LAKE/METADATA:/home/app/METADATA #for debugging
 
   accepter_2: # accepter
     image: xel_paxos:v2.0
@@ -201,6 +203,8 @@ services:
       - service_mesh
     depends_on:
       - coordinator
+    volumes:
+      - ./localdata/LAKE/METADATA:/home/app/METADATA #for debugging
 
   accepter_3: # accepter
     image: xel_paxos:v2.0
@@ -218,7 +222,8 @@ services:
       - service_mesh
     depends_on:
       - coordinator
-    #volumes:
+    volumes:
+      - ./localdata/LAKE/METADATA:/home/app/METADATA #for debugging
       #- ./NonFunctional/Paxos/app:/home/app #for debugging
 
 ###########################################

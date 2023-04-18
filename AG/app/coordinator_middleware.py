@@ -214,7 +214,6 @@ def execute_service(service,metadata):
             port = res['port']
         except KeyError as ke_ip:
             LOGER.error("Key error: %s" %ke_ip )
-            LOGER.error(metadata['DAG'])
             data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
             warn_function({'status':data['status'],"message":data["message"],"control_number":control_number,"label":"FALSE","task":metadata['DAG']['id'],"type":data['type'], "index":False}) #update status
             break
@@ -225,6 +224,7 @@ def execute_service(service,metadata):
         if data is not None:
             LOGER.info(">>>>>>> SENT WITH NO ERRORS")
             errors_counter=0
+            
             break
         else:
             errors_counter+=1
@@ -234,7 +234,6 @@ def execute_service(service,metadata):
                     ToSend = {'service':service,'context':control_number,'update':{'id':res['id'],'status':'DOWN'}} #update status of falied node ANTES NETWORK
                     res = json.loads(ask_function(ToSend))
                     errors_counter=0 #reset counter 
-                    #------------------#
                     if 'info' in res: #no more nodes
                         res = None
                     else:
@@ -326,7 +325,6 @@ def WARN():
     warn_message = request.get_json(force=True)
     return warn_function(warn_message)
 
-#service to execute a set of application in a DAG
 @app.route('/stopDAG/<token_project>/<token_solution>', methods=['GET'])
 @token_required
 def stop_DAG(token_project,token_solution):
@@ -542,7 +540,32 @@ def monitoring_v2(token_project,token_solution):
             LOGER.error(e)
     return make_response(ToSend,200)
 
+## =============================================================== ##
+## =========================== Metadata ========================== ##
+## =============================================================== ##
+@app.route('/ProductsObjectMap', methods=['POST'])
+@token_required
+def ProductsObjectMap():
+    obj_request = request.get_json(force=True)
+    paxos_response = PROPOSER.DirectRequest(obj_request,request="PRODUCTS_MAP")
 
+    if paxos_response['status']=="OK":
+        return make_response(paxos_response,200)   
+    else:
+        return make_response(paxos_response,404)   
+
+@app.route('/Validate_subtask_executions', methods=['POST'])
+@token_required
+def Validate_subtask_execution():
+    obj_request = request.get_json(force=True)
+    paxos_response = PROPOSER.DirectRequest(obj_request,request="VALIDATE_SUBTASK_EXE")
+
+    if paxos_response['status']=="OK":
+        return make_response(paxos_response,200)   
+    else:
+        return make_response(paxos_response,404)   
+
+## =============================================================== ##
 
 @app.route('/getfile', methods=['POST'])
 @token_required

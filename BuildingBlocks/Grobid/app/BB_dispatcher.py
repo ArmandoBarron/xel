@@ -4,7 +4,6 @@ import socket,os,sys,pickle,json,pandas
 import time
 import C
 import tempfile
-import tqdm
 import base64
 
 class bb_dispatcher():
@@ -51,7 +50,7 @@ class bb_dispatcher():
                 if data is not None:
                     self.LOGER.info(">>> DATA SENT SUCCESFULLY <<<")
                     #warn successful process
-                    ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'Starting ejecution.','INFO',id_service=child['id'],parent=parent,dag=child)
+                    ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'Starting ejecution.','INIT',id_service=child['id'],parent=parent,dag=child,include_hash=True)
                     
                     self.POSTMAN.WarnGateway(ToSend)
                     errors_counter=0

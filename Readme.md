@@ -103,22 +103,22 @@ The solutions are designed based on instructions defined as a tree, following th
     "DAG": "[
       {id:c1-data_clean,
       service:cleanning,
-      childrens:
+      children:
       [
         {
           id:c2-s-imputation,
           service:imputation,
-          childrens:
+          children:
             [
               {
                 id:c3-s-split-and-join,
                 service:join_split,
-                childrens:
+                children:
                   [
                     {
                       id:c4-regression_serv,
                       service:regression,
-                      childrens:[],
+                      children:[],
                       actions:[LINEARS],
                       params:{LINEARS:{actions:[LINEARS],
                         var_x:year,
@@ -132,7 +132,7 @@ The solutions are designed based on instructions defined as a tree, following th
                     {
                       id:c5-regression_serv,
                       service:regression,
-                      childrens:[],
+                      children:[],
                       actions:[LINEARS],
                       params:{LINEARS:{actions:[LINEARS],
                         var_x:year,
@@ -204,7 +204,7 @@ The solutions are designed based on instructions defined as a tree, following th
   + **service** is the name of the service called.
   + **actions** is a set with the names of the application inside the bulding block called with **service**. 
   + **params** is a set of params defined in a key-valye format that will be used for the app to preform the data transformation.
-  + **childrens** is a set of childres with the instructions to be executed for services after finish _this_ parent. 
+  + **children** is a set of childres with the instructions to be executed for services after finish _this_ parent. 
 
 - _data_map_ contains an object with the information of the dataset to process. Following this example, the dataset _pollutants_1986-2022.csv_ belongs to the user 300d03efcac4bab98d04af639dba337d5350ebd955fa39b4912376f7715a9fc6 in the Examples folder
 
