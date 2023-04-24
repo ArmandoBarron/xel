@@ -230,6 +230,8 @@ def update_data(value): #called on bb report
     BRANCHES[RN][key_list][params['task']]['last_update'] = time_action
     BRANCHES[RN][key_list][params['task']]['timestamp'] = time.time()
 
+    #LOG.info("STATUS ACTUAL DE %s: %s " % (params['task'],params['status']))
+
 
 def update_solution_status(token_solution,status):
     global BRANCHES
