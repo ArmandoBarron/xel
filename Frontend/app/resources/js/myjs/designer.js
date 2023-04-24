@@ -221,7 +221,7 @@ $(document).ready(function () {
                                 <i style="margin-right:5px" class="fas fa-info-circle fa-lg block-hoverinfo" idcanvas="${canvasId}"></i> <em id="${canvasId}_alias" >${canvasId}</em>
                             </div>
                         </div>
-                        <div class="row" style="padding:4px; overflow:auto">
+                        <div id="${canvasId}_icons" class="row" style="padding:4px; overflow:auto">
                             <div class="service-options col-12 justify-content-center">
                                 <div class= "serviceLoadingIcon-${class_type_box}" id="serviceLoadingIcon"></div>
                             </div>
@@ -229,6 +229,8 @@ $(document).ready(function () {
                                 <div class="col-2 InspectDataIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_inspect"></div>
                                 <div class="col-2 downloadDataIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_downloadDataIcon"></div>
                                 <div class="col-2 showOnMapIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_showOnMapIcon"></div>
+                                <div class="col-2 preview-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_previewIcon"></div>
+
                         </div>
                     </div>
                 `;

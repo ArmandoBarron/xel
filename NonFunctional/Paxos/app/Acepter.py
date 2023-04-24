@@ -106,7 +106,10 @@ def Compare_parents(parent1,parent2):
 def LookForParams(DAG,task):
     params = None
     for bb in DAG:
-        #LOG.error("encuenta esto %s " %bb['id'])
+        LOG.error(type(bb))
+        LOG.error("encuenta esto %s " %bb['id'])
+        LOG.error("keys: %s " %bb.keys())
+
         if bb['id'] == task:
             params = bb
             break
@@ -114,6 +117,24 @@ def LookForParams(DAG,task):
             if 'childrens' not in bb:
                 bb['childrens']=[]
             params = LookForParams(bb['childrens'],task) # look  by children
+            if params is not None:
+                break
+    return params
+
+def LookForParamsV2(DAG,task):
+    params = None
+    for bb in DAG:
+        if bb['id'] == task:
+            params = bb
+            break
+        else:
+            if 'children' in bb:
+                params = LookForParamsV2(bb['children'],task) # look  by children
+            elif 'childrens' in bb:
+                params = LookForParamsV2(bb['childrens'],task) # look  by children
+            else:
+                bb['childrens']=[]
+
             if params is not None:
                 break
     return params
@@ -269,6 +290,7 @@ def Get_solution_if_exist(token_solution,auth):
         solution = BRANCHES[token_solution]
     elif SDB.Document_exist(auth['user'],token_solution):
         solution = SDB.Get_document(auth['user'],token_solution)
+        solution['DAG'] = [json.loads(solution['DAG'])]
         BRANCHES[token_solution]=solution
 
         #read subtask metadata
@@ -293,6 +315,7 @@ def GetSolutionData(token_project,token_solution): #this function will replace G
         solution = BRANCHES[token_solution]
     elif SDB.Document_exist(token_project,token_solution):
         solution = SDB.Get_document(token_project,token_solution)
+        solution['DAG'] = [json.loads(solution['DAG'])]
         BRANCHES[token_solution]=solution
 
         #read subtask metadata
@@ -352,8 +375,10 @@ def validate_end_process(token_solution,key_list,id_service):
 def validate_solution(dag, solution,token_solution,parent=''):
     global BRANCHES
     #compare the new dag with task list in the solution already stored in memory (or db)
+    LOG.info("solution datatype: %s" % type(solution))
     new_dag=[]
     for taskInDag in dag:
+        LOG.info("%s - solution datatype: %s" % (taskInDag['id'],type(solution)))
         if 'childrens' not in taskInDag:
             taskInDag['childrens']=[]
         childrens = taskInDag['childrens']
@@ -374,7 +399,8 @@ def validate_solution(dag, solution,token_solution,parent=''):
             is_pattern_diff=False
             if 'pattern' in taskInDag:
                 fp_pattern = warp_fingerprint(taskInDag,mode="pattern")
-                temp_dag = LookForParams(solution['DAG'],id_service)
+                
+                temp_dag = LookForParamsV2(solution['DAG'],id_service) # en la primera ejecucion es children al venir directo de la bd. despues en childrens al estar en memoria
                 original_fp_pattern = warp_fingerprint(temp_dag,mode="pattern")
                 pattern_comparation = Compare_fingerprints(original_fp_pattern,fp_pattern)
                 is_pattern_diff = not pattern_comparation
@@ -469,6 +495,7 @@ def save_data(value):
 
         LOG.info("====== STATUS DE LA SOLUCION ======")
         if BRANCHES[RN]["status"]!="RUNNING": # if solution is already running
+            
             new_dag = validate_solution(dag,solution,RN)
             BRANCHES[RN]["DAG"]=dag        
             #BRANCHES[RN]["subtask_list"]=dict()     # subtask no existe, por lo que hay que añadirlo

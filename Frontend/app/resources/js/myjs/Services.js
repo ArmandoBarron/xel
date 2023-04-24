@@ -447,6 +447,35 @@ function Handler_condition_GetData(task_id,description,isRaw,filename=null,token
             if (dataRet['index']){
                 $(`#${task_id}_downloadDataIcon`).html(`<i class="fas fa-cloud-download-alt fa-xl elementhover" onclick="download_data_pipe('${token_solution}','${task_id}','${dataRet['type']}')"></i>`)
             }
+            // preview option
+
+            let data_request = {'SERVICE':`locate/${TOKEN_SOLUTION}/${task_id}`}
+
+            $.ajax({ // ajax para rellenar valores de workspaces
+                url: 'includes/xel_get_Request.php',
+                type: 'POST',
+                dataType: 'json',
+                data:data_request,
+                success: function(result_location) {  
+                    console.log("intentando localizar para visualziar")
+                    if (result_location['location']!=""){
+                        //if div not exist
+                        $(`#${task_id}`).find(`.row:last`).attr('id', `${task_id}_icons`); //se añade el id
+                        $(`#${task_id} > #${task_id}_icons > #${task_id}_previewIcon`).length  ? null : $(`#${task_id} > #${task_id}_icons`).append(`<div class="col-2 preview-task" style="padding:5px; text-align:center;" id="${task_id}_previewIcon"></div>`)
+
+                        $(`#${task_id}_previewIcon`).html(`<i class="far fa-eye fa-xl elementhover" onclick="window.open('${result_location['location']}', '_blank')" ></i>`)
+
+                    } 
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown){
+                    error_result = XMLHttpRequest['responseJSON']
+                    if (XMLHttpRequest.status==401){ //session expired
+                        sesionExpirada()
+                    }
+                }
+            }).fail(function(){console.log("error al conectarse")});
+
+
         }
 
     }

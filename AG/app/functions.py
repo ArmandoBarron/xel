@@ -11,6 +11,9 @@ import json
 from chardet.universaldetector import UniversalDetector
 import numpy as np
 
+
+
+
 LOG = logging.getLogger()
 
 ### tools for compressed files ###
@@ -78,6 +81,12 @@ def CreateSolutionID(params_recived):
         encoded=id_string.encode()
         RN = hashlib.sha256(encoded).hexdigest()
     return RN
+
+def CreateDataToken(Token_solution,Task):
+    id_string=  "%s/%s" %(Token_solution, Task) #random number with 10 digits
+    encoded=id_string.encode()
+    Token_data = hashlib.sha256(encoded).hexdigest()
+    return Token_data
 
 def validatePathIfSubtask(folder_name):
     if "-LVL-" in folder_name:
@@ -208,3 +217,5 @@ def detect_encode(file):
 
     detector.close()
     return detector.result
+
+

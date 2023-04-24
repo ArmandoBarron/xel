@@ -9,8 +9,8 @@
         "CUSTOM_APP":false
     },
     "LOAD":{
-            "OUTPUT_NAMEFILE":"",
-            "COMPRESS":true,
+            "OUTPUT_NAMEFILE":"chart.html",
+            "COMPRESS":false,
             "ignore_list":[]
         }
 

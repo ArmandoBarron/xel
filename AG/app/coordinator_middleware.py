@@ -16,6 +16,8 @@ import shutil
 import time
 from os import listdir
 import chardet
+import magic as M
+
 
 # local imports
 from functions import *
@@ -23,6 +25,9 @@ from Proposer import Paxos
 from Auth import login_request, register_user, token_required,data_autorization_requiered, resource_autorization_requiered,API_required,logout_request
 
 import genesis_client as GC
+from storage.mictlanx_client import mictlanx_client
+
+
 
 ########## GLOBAL VARIABLES ##########
 dictionary = dict()
@@ -35,6 +40,12 @@ WORKSPACENAME = "SERVICEMESH" #equivalente a catalogo en skycds, es decir, una s
 #TPSHOST ="http://tps_manager:5000"
 NETWORK=os.getenv("NETWORK") 
 MODE=os.getenv("MODE") 
+REMOTE_STORAGE=TranslateBoolStr(os.getenv("REMOTE_STORAGE"))
+if REMOTE_STORAGE:
+    STORAGE_CLIENT = mictlanx_client()
+else:
+    STORAGE_CLIENT = None
+
 ALLOW_REGISTER_NEW_USERS= TranslateBoolStr(os.getenv("ALLOW_REGISTER_NEW_USERS"))
 INIT_EXAMPLE = TranslateBoolStr(os.getenv("INIT_EXAMPLE")) 
 DEBUG_MODE = TranslateBoolStr(os.getenv("DEBUG_MODE"))
@@ -810,17 +821,44 @@ def delete_userfile(tokenuser,workspace,filename):
 @app.route('/ArchiveData/<RN>/<task>', methods = ['POST'])
 @API_required
 def upload_file(RN,task):
-    LOGER.debug("INDEXINT DATA to %s" %RN)
+    LOGER.debug("INDEX DATA to %s" %RN)
     tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
     path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
     f = request.files['file']
     filename = f.filename
     f.save(os.path.join(path_to_archive, filename))
+
+    if REMOTE_STORAGE:
+        f.seek(0) 
+        file_metadata ={}
+        file_metadata['content_type'] = M.from_file(os.path.join(path_to_archive, filename), mime=True)
+        LOGER.info(file_metadata)
+
+        #name,ext = f.filename.split(".")
+        #file_metadata['extension'] = ext
+        #file_metadata['name'] = name
+
+        token_data = CreateDataToken(RN,task)
+        res = STORAGE_CLIENT.put(token_data,f.read(),metadata=file_metadata)
+        LOGER.info("SE SUBIO AL STORAGE REMOTO")
+        LOGER.info(res)
+
+
     f.close()
 
     del f
     return json.dumps({"status":"OK", "message":"OK"})
 
+
+@app.route('/locate/<RN>/<task>', methods = ['GET'])
+def locate_file_in_remote_storage(RN,task):
+    #LOGER.info("LOCALIZANDO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    token_data = CreateDataToken(RN,task)
+    url_data_resouce= ""
+    if REMOTE_STORAGE:
+        url_data_resouce = STORAGE_CLIENT.locate(token_data)
+
+    return json.dumps({"status":"OK", "message":"OK","location":url_data_resouce})
 
 @app.route('/DatasetQuery', methods=['POST'])
 @token_required

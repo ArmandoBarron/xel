@@ -21,11 +21,11 @@ def validate_bool(att): #esta funcion sirve para validar que un argumento viene 
         return True
 
 def export_figures(fig,outputpath,imagefile_name,config):
-
+    imagefile_name = "chart"
     fig.update_layout(title=TITLE,
                     dragmode='select',
-                    width=2000,
-                    height=1200,
+                    width=1000,
+                    height=600,
                     hovermode='closest',
                     #transition  = dict(duration=2000,easing="elastic"),
                     font=dict(
@@ -79,7 +79,7 @@ SIZE= sys.argv[12] # "suicSinDerhab"
 LOG_SCALE = validate_bool(sys.argv[13]) # validate_bool("0")
 
 # for chart 6
-GROUPS_PATH = sys.argv[14] #  "cve_ent_mun,sexo".split(",")
+GROUPS_PATH = sys.argv[14].split(",") #  "cve_ent_mun,sexo".split(",")
 
 #for any chart
 TITLE = sys.argv[15] # "PLOT"
@@ -123,24 +123,22 @@ if chart_template==1: #histogram
 
     export_figures(fig,outputpath,imagefile_name,config)
 
-    fig = make_subplots(rows=rows, cols=col)
-    imagefile_name = "accumulative_plot"
-    data_matrix = []
-    col_i = 1
-    row_i = 1
-    for c in COLUMNS:
-        fig.add_trace(go.Histogram(x=df[c].to_list(),
-            histnorm=TYPE_HISTOGRAM,
-            cumulative_enabled=True,
-            name=c # name used in legend and hover labels
-            ),row=row_i, col=col_i)
-        col_i+=1
-        if col_i > col:
-            col_i=1
-            row_i+=1 
-
-    export_figures(fig,outputpath,imagefile_name,config)
-
+    #fig = make_subplots(rows=rows, cols=col)
+    #imagefile_name = "accumulative_plot"
+    #data_matrix = []
+    #col_i = 1
+    #row_i = 1
+    #for c in COLUMNS:
+    #    fig.add_trace(go.Histogram(x=df[c].to_list(),
+    #        histnorm=TYPE_HISTOGRAM,
+    #        cumulative_enabled=True,
+    #        name=c # name used in legend and hover labels
+    #        ),row=row_i, col=col_i)
+    #    col_i+=1
+    #    if col_i > col:
+    #        col_i=1
+    #        row_i+=1 
+    #export_figures(fig,outputpath,imagefile_name,config)
 
 if chart_template==2: # scatter matrix
     imagefile_name = "scatter_matrix"
@@ -151,11 +149,14 @@ if chart_template==2: # scatter matrix
     
     export_figures(fig,outputpath,imagefile_name,config)
 
-if chart_template==3: 
+if chart_template==3: #parallel_categories
+    """
+    python3 graph.py FtesContSLP_2.csv output/ '3' 'density' 'categoria 1,categoria 2,categoria 3,conglomerado' '' 'porcentaje' '' '' '' '' '' '0' '' 'Porcentaje por categoria' ''
+    """
+
     imagefile_name = "parallel_categories"
-    temp_col = COLUMNS+[COLORSCALE_COLUMN]
-    print(temp_col) 
-    fig = px.parallel_categories(df[temp_col], color=COLORSCALE_COLUMN, color_continuous_scale=px.colors.sequential.Inferno)
+    temp_col = COLUMNS
+    fig = px.parallel_categories(df, dimensions=temp_col, color=COLORSCALE_COLUMN, color_continuous_scale=px.colors.sequential.Inferno)
     export_figures(fig,outputpath,imagefile_name,config)
 
 if chart_template==4: #BUBBLE PLOT
@@ -200,8 +201,10 @@ if chart_template==5: #LINE PLOT
 
     export_figures(fig,outputpath,imagefile_name,config)
 
-
-if chart_template==6:
+if chart_template==6: #SUNBRUST
+    """
+    e.g. python3 graph.py FtesContSLP_2.csv output/ '6' 'density' '0' 'porcentaje' '' '' '' '' '' 'casos totales' '0' 'conglomerado,categoria 1,categoria 2,categoria 3,categoria 4,categoria 5' 'Casos SLP' ''
+    """
     imagefile_name = "SUNBRUST"
     params = dict(path=GROUPS_PATH, values=SIZE)
     ## aqui se aplica un équeño preprocesdamiento para quitar datos en blanco
@@ -226,8 +229,7 @@ if chart_template==6:
         fig = px.sunburst(df, **params)
         export_figures(fig,outputpath,imagefile_name,config)
 
-
-if chart_template==7:
+if chart_template==7: #simple_scatter
     imagefile_name = "simple_scatter"
     params = dict(x=COLUMN_X, y=COLUMN_Y, marginal_y="violin", marginal_x="violin", trendline="ols", log_x=LOG_SCALE,log_y=LOG_SCALE)
 
@@ -238,7 +240,7 @@ if chart_template==7:
 
     export_figures(fig,outputpath,imagefile_name,config)
 
-if chart_template==8: # 3D scatter matrix
+if chart_template==8: # 3D scatter
     imagefile_name = "3d_scatter"
     params = dict(x=COLUMN_X, y=COLUMN_Y,z=COLUMN_Z)
 
@@ -268,11 +270,12 @@ if chart_template==9: # 3D scatter with PCA
 
     export_figures(fig,outputpath,imagefile_name,config)
 
-
 if chart_template==10: # Bar chart
-    imagefile_name = "Bars"
+    imagefile_name = "Bar_chart"
 
     params = dict(x=COLUMN_X, y=COLUMN_Y)
+
+    df= df.sort_values(by=COLUMN_Y)
 
     if validate_att(LABEL_COLUMN): # si hay colores
         params['color']=LABEL_COLUMN
@@ -300,8 +303,6 @@ if chart_template==11: # Boxplot
         df= df.sort_values(by=[TEMPORAL_COLUMN])
 
     category_orders = np.sort(df[COLUMN_X].unique())
-
-    print(category_orders)
     params['category_orders']={COLUMN_X:category_orders}
 
 
@@ -310,17 +311,7 @@ if chart_template==11: # Boxplot
     export_figures(fig,outputpath,imagefile_name,config)
 
 if chart_template==12: # coumulative barplot
-    #print(df["RANGO_EDAD"].unique())
-    #df["RANGO_EDAD"].replace("05-14", "05_14",inplace=True)
-    #df["RANGO_EDAD"].replace("00-04", "00_04",inplace=True)
-    #df["RANGO_EDAD"].replace("15-24", "15_24",inplace=True)
-    #df["RANGO_EDAD"].replace("25-44", "25_44",inplace=True)
-    #df["RANGO_EDAD"].replace("45-64", "45_64",inplace=True)
-    #print(df)
-    #df.to_csv("conteo_graficas_correcto.csv",index=False)
-    #exit()
-
-    imagefile_name = "Histogram_c"
+    imagefile_name = "coumulative"
     bins = len(df[COLUMN_X].unique())
 
     params = dict(x=COLUMN_X, y=COLUMN_Y,barmode='relative', histfunc='sum',marginal="box",nbins=bins)
@@ -334,5 +325,29 @@ if chart_template==12: # coumulative barplot
 
     #fig.show()
     export_figures(fig,outputpath,imagefile_name,config)
+
+if chart_template==13: # TreeMap
+    """
+    python3 graph.py FtesContSLP_2.csv ./output/ '13' 'density' '0' '' 'porcentaje' '' '' '' '' 'casos totales' '0' 'conglomerado,categoria 1,categoria 2,categoria 3,categoria 4,categoria 5' 'Grafica de categorias - Fuentes contaminantes SLP' ''
+
+    """
+    imagefile_name = "Treemap"
+
+    params = dict(path=[px.Constant(SIZE)]+GROUPS_PATH, values=SIZE)
+
+    if validate_att(COLORSCALE_COLUMN): # si hay colores
+        params['color']=COLORSCALE_COLUMN
+        
+        # this scale is for positive and negative values
+        #params['color_continuous_scale']="RdBu"
+        #params['color_continuous_midpoint']=np.average(df[COLORSCALE_COLUMN], weights=df[SIZE])
+
+    #[px.Constant("world"), 'continent', 'country']
+    fig = px.treemap(df, **params)
+    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
+
+    export_figures(fig,outputpath,imagefile_name,config)
+
+
 
 exit(0)

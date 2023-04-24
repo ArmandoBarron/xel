@@ -446,6 +446,11 @@ class client_pattern():
 
                     if dag_to_send['id'] not in res_monitor: #si aun no se dispacha entones se a enviar
                         #self.LOGER.error("----------------------------sending to subchild: %s"%dag_to_send['id'])
+                        # AQUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # AQUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # el postman no tiene la info del hash de los datos de entrada. DEbo hacer una trampa para poder calcularlo y guardarlo!!!
+                        # PERO COMO NO TENGO LOS DATOS, LO DEB E HACER EL PROPIO BB
+
                         dispatcher_client.Send_to_BB(data_map,data_pointer,auth,dag_to_send,parent = task)
                         #self.LOGER.error("----------------------------sent to subchild: %s"%dag_to_send['id'])
                         treshold+=1

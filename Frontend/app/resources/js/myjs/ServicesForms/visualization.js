@@ -297,6 +297,7 @@ ServicesArr.push(
                                             <option value="10"> Bar plot </option>
                                             <option value="11"> Box plot </option>
                                             <option value="12"> Cumulative bar plot </option>
+                                            <option value="13"> TreeMap </option>
 
                                     </select>
                                     </div>
@@ -328,7 +329,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="3">
+                            <div class="form-group row m-2" opth opt-chart="3 13">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Color scale column: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="colorscale_column" onclick=fillselect(this,multi=false)></select>
@@ -370,7 +371,7 @@ ServicesArr.push(
                                     </div>
                             </div>
                             
-                            <div class="form-group row m-2" opth opt-chart="4 6">
+                            <div class="form-group row m-2" opth opt-chart="4 6 13">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Column with sizes: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="size" onclick=fillselect(this,multi=false)></select>
@@ -388,7 +389,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="6">
+                            <div class="form-group row m-2" opth opt-chart="6 13">
                                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Groups order:</label>
                                         <div class="col-sm-8">
                                                 <input id="groups_path" type="text" class="form-control autocomplete-column">

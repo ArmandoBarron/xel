@@ -368,7 +368,11 @@ class postman(Thread):
         if data_map['type']=="SOLUTION": #se adquieren los datos
             data_map['data'] = data_map['data'].replace(".SOLUTION","") #se le añadio esta extencion, por lo que hay que quitarla
             data_map = self.GetResults(self.RN,data_map['data'],auth)
-
+            self.calculate_sha256sum(data_map['data'])
+            #index hash
+            ToSend = self.CreateMessage(self.RN,"indexing input data hash","UPDATE",type_data=data_map['type'],include_hash=True)
+            self.WarnGateway(ToSend)
+            
         return data_map
     
     def CreateMessage(self,RN,message,status,id_service=None,type_data='',parent='',label='',index_opt='',times=None,dag=None,include_hash=False):
