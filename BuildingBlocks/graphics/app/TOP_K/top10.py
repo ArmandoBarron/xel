@@ -12,6 +12,9 @@ python3 top10.py Suic_Medio_Derhab_tasasporsexo.csv ./out/ "anio" "total_suic" "
 python /home/app/TOP_K/top10.py /tmp/tmp6014lxkl.csv /tmp/tmpba8kl8um/ "anio" "total_suic" "sexo,cve_ent_mun" "10" "sum" "test"
 
 python3 top10.py defunciones_all_5anios.csv ./out/ "ANIO_REGIS" "CONTEO" "Descripcion" "10" "sum" ""
+
+python3 top10.py subset.csv ./out/ "ANIO_REGIS" "CONTEO" "NAME_CAUSA" "5" "sum" "Top5 - Mortalidad por cancer infantil"
+
 """
 
 def create_transpose(df,values,indez,columns,func="sum"):
@@ -21,11 +24,11 @@ def create_transpose(df,values,indez,columns,func="sum"):
                             columns=columns,
                             aggfunc=np.sum)
     df_by = df_by.fillna(0)
-
+    window = len(df.index.unique())
     if func =="sum":
-        df_by = df_by.rolling(min_periods=1, window=11).sum()
+        df_by = df_by.rolling(min_periods=1, window=window).sum()
     elif func =="mean":
-        df_by = df_by.rolling(min_periods=1, window=11).mean()
+        df_by = df_by.rolling(min_periods=1, window=window).mean()
         
     print(df_by)
     return df_by
@@ -37,9 +40,9 @@ def bar_race(df,filename,title,n_bars):
         title=title,
         bar_kwargs={'alpha': .7},
         n_bars=n_bars,
-        period_length=800,
+        period_length=1200,
         #perpendicular_bar_func=func,
-        steps_per_period=20,
+        steps_per_period=40,
         interpolate_period=False,
         label_bars=True,
         period_label={'x': .99, 'y': .25, 'ha': 'right', 'va': 'center'},
