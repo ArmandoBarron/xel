@@ -218,6 +218,7 @@ ServicesArr.push(
                 topk_name:"",
                 topk_n:"",
                 topk_func:"",
+                orient:"h",
                 SAVE_DATA:true
             },
             html: `
@@ -357,7 +358,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="4 6 11">
+                            <div class="form-group row m-2" opth opt-chart="4 11 10">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable temporal: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="temporal_column" onclick=fillselect(this,multi=false)></select>
@@ -385,6 +386,16 @@ ServicesArr.push(
                                     <select class="form-control" id="if_log_scale">
                                             <option value="1"> True </option>
                                             <option value="0"> False </option>
+                                    </select>
+                                    </div>
+                            </div>
+
+                            <div class="form-group row m-2" opth opt-chart="10 11">
+                                    <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Chart orient: </label>
+                                    <div class="col-sm-8">
+                                    <select class="form-control" id="orient">
+                                            <option value="v"> Vertical </option>
+                                            <option value="h"> Horizontal </option>
                                     </select>
                                     </div>
                             </div>

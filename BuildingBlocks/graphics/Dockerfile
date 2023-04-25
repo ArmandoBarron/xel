@@ -12,6 +12,7 @@ RUN pip install kaleido --user
 RUN pip install scipy --user
 RUN pip install scikit-learn==1.0.1
 RUN pip install bar-chart-race
+RUN pip install pyjanitor==0.23.1
 
 RUN apt-get update
 RUN apt-get install -y ffmpeg

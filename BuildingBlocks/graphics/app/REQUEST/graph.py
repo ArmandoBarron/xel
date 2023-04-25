@@ -6,7 +6,7 @@ import math
 import sys
 from sklearn.decomposition import PCA
 import numpy as np
-
+import janitor #!pip install pyjanitor==0.23.1
 
 def validate_att(att): #esta funcion sirve para validar que un argumento viene vacio o no
     if att =="" or att =="-":
@@ -24,8 +24,8 @@ def export_figures(fig,outputpath,imagefile_name,config):
     imagefile_name = "chart"
     fig.update_layout(title=TITLE,
                     dragmode='select',
-                    width=1000,
-                    height=600,
+                    width=1200,
+                    height=800,
                     hovermode='closest',
                     #transition  = dict(duration=2000,easing="elastic"),
                     font=dict(
@@ -33,14 +33,18 @@ def export_figures(fig,outputpath,imagefile_name,config):
                         size=18,
                     ),
                     margin=dict(
-                        l=40,
-                        r=30,
-                        b=80,
-                        t=100,
+                        l=20,
+                        r=20,
+                        b=50,
+                        t=50,
                     ),
                     paper_bgcolor='rgb(243, 243, 243)',
                     plot_bgcolor='rgb(243, 243, 243)',
                     )
+    fig.update_xaxes(tickangle=45)
+
+    fig['layout']['updatemenus'][0]['pad']=dict(r= 10, t= 100)
+    fig['layout']['sliders'][0]['pad']=dict(r= 10, t= 100)
 
     #fig.write_image("%s/%s.png" % (outputpath,imagefile_name))
     #fig.write_image("%s/%s.svg" % (outputpath,imagefile_name))
@@ -85,7 +89,11 @@ GROUPS_PATH = sys.argv[14].split(",") #  "cve_ent_mun,sexo".split(",")
 TITLE = sys.argv[15] # "PLOT"
 
 COLUMN_Z = sys.argv[16] # "suicSinDerhab"
-
+ORIENT = validate_att(sys.argv[17]) # h o v
+if not ORIENT:
+    ORIENT="v"
+else:
+    ORIENT = sys.argv[17]
 #validations
 
 config = {'displaylogo': False,
@@ -212,22 +220,19 @@ if chart_template==6: #SUNBRUST
     #df[GROUPS_PATH] = df[GROUPS_PATH].fillna('NE/NA')
     df[SIZE] = df[SIZE].fillna(0)
 
-
     if validate_att(LABEL_COLUMN): # si hay colores
         params['color']=LABEL_COLUMN
 
-
-    if validate_att(TEMPORAL_COLUMN): # si hay una columna de temporal, se crean multiples graficas para cada valor de temporal
-        df_grouped = df.groupby(TEMPORAL_COLUMN)
-        for namedf,group_df in df_grouped:
-            imagefile_name = "SUNBRUST_%s" %namedf
-            print(imagefile_name)
-            fig = px.sunburst(group_df, **params)
-            export_figures(fig,outputpath,imagefile_name,config)
-
-    else:
-        fig = px.sunburst(df, **params)
-        export_figures(fig,outputpath,imagefile_name,config)
+    #if validate_att(TEMPORAL_COLUMN): # si hay una columna de temporal, se crean multiples graficas para cada valor de temporal
+    #    df_grouped = df.groupby(TEMPORAL_COLUMN)
+    #    for namedf,group_df in df_grouped:
+    #        imagefile_name = "SUNBRUST_%s" %namedf
+    #        print(imagefile_name)
+    #        fig = px.sunburst(group_df, **params)
+    #        export_figures(fig,outputpath,imagefile_name,config)
+    #else:
+    fig = px.sunburst(df, **params)
+    export_figures(fig,outputpath,imagefile_name,config)
 
 if chart_template==7: #simple_scatter
     imagefile_name = "simple_scatter"
@@ -271,27 +276,18 @@ if chart_template==9: # 3D scatter with PCA
     export_figures(fig,outputpath,imagefile_name,config)
 
 if chart_template==10: # Bar chart
+    """
+    python3 graph.py Cancer_mexico_mun_with_rates_00_14.csv ./output '10' 'density' '0' 'SEXO' '' 'NAME_CAUSA' 'TASA_AJUSTADA' 'ANIO_REGIS' '' '' '0' '' '' ''
+    """
+
     imagefile_name = "Bar_chart"
 
-    params = dict(x=COLUMN_X, y=COLUMN_Y)
-
-    df= df.sort_values(by=COLUMN_Y)
-
-    if validate_att(LABEL_COLUMN): # si hay colores
-        params['color']=LABEL_COLUMN
-
-    fig = px.bar(df, **params)
-
-    export_figures(fig,outputpath,imagefile_name,config)
-
-if chart_template==11: # Boxplot
-    """
-    python3 graph.py cancer_mama.csv ./output/ '11' '' '' 'SEXO' '' 'RANGO_EDAD' 'TASA_AJUSTADA' 'ANIO_REGIS' '' '' '' '' 'title' '' 
-    """
-    imagefile_name = "Box"
- 
-    params = dict(x=COLUMN_X,  y=COLUMN_Y,points=False,notched=True)
-
+    if ORIENT =="h":
+        params = dict(x=COLUMN_Y, y=COLUMN_X,barmode='group')
+        range_axis="x"
+    else:
+        params = dict(x=COLUMN_X, y=COLUMN_Y,barmode='group')
+        range_axis="y"
 
     if validate_att(LABEL_COLUMN): # si hay colores
         params['color']=LABEL_COLUMN
@@ -299,12 +295,66 @@ if chart_template==11: # Boxplot
     if validate_att(TEMPORAL_COLUMN): # si hay colores
         params['animation_frame']=TEMPORAL_COLUMN
         params['animation_group']=COLUMN_X
+        #df= df.sort_values(by=[TEMPORAL_COLUMN,COLUMN_X])
 
-        df= df.sort_values(by=[TEMPORAL_COLUMN])
+        if validate_att(LABEL_COLUMN): # si hay colores
+            df = df.complete(COLUMN_X, TEMPORAL_COLUMN,LABEL_COLUMN).fillna(0, downcast='infer')
+        else:
+            df = df.complete(COLUMN_X, TEMPORAL_COLUMN).fillna(0, downcast='infer')
 
-    category_orders = np.sort(df[COLUMN_X].unique())
-    params['category_orders']={COLUMN_X:category_orders}
+        df= df.sort_values(by=[TEMPORAL_COLUMN,COLUMN_X])
+        maxy= df[COLUMN_Y].max()
+        maxy= maxy+(maxy/4)
 
+        miny= df[COLUMN_Y].min()
+        miny= miny+(miny/4)
+        params['range_'+range_axis] =[miny,maxy]
+
+    fig = px.bar(df, **params)
+
+    export_figures(fig,outputpath,imagefile_name,config)
+
+if chart_template==11: # Boxplot
+    """
+    python3 graph.py cancer_mama.csv ./output/ '11' '' '' 'SEXO' '' 'RANGO_EDAD' 'TASA_AJUSTADA' 'ANIO_REGIS' '' '' '' '' 'title' '' ''
+    """
+    imagefile_name = "Box"
+ 
+    if ORIENT =="h":
+        params = dict(x=COLUMN_Y, y=COLUMN_X,points=False,notched=True)
+        range_axis="x"
+    else:
+        params = dict(x=COLUMN_X,  y=COLUMN_Y,points=False,notched=True)
+        range_axis="y"
+
+    if validate_att(LABEL_COLUMN): # si hay colores
+        params['color']=LABEL_COLUMN
+
+    #if validate_att(TEMPORAL_COLUMN): # si hay colores
+    #    params['animation_frame']=TEMPORAL_COLUMN
+    #    params['animation_group']=COLUMN_X
+    #    df= df.sort_values(by=[TEMPORAL_COLUMN])
+
+    if validate_att(TEMPORAL_COLUMN): # si hay colores
+        params['animation_frame']=TEMPORAL_COLUMN
+        params['animation_group']=COLUMN_X
+        #df= df.sort_values(by=[TEMPORAL_COLUMN,COLUMN_X])
+
+        if validate_att(LABEL_COLUMN): # si hay colores
+            df = df.complete(COLUMN_X, TEMPORAL_COLUMN,LABEL_COLUMN).fillna(0, downcast='infer')
+        else:
+            df = df.complete(COLUMN_X, TEMPORAL_COLUMN).fillna(0, downcast='infer')
+
+        df= df.sort_values(by=[TEMPORAL_COLUMN,COLUMN_X])
+        maxy= df[COLUMN_Y].max()
+        maxy= maxy+(maxy/4)
+
+        miny= df[COLUMN_Y].min()
+        miny= miny+(miny/4)
+        params['range_'+range_axis] =[miny,maxy]
+
+    #category_orders = np.sort(df[COLUMN_X].unique())
+    #params['category_orders']={COLUMN_X:category_orders}
 
     fig = px.box(df, **params)
     #fig.show()
