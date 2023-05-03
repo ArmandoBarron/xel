@@ -114,6 +114,8 @@ ServicesArr.push(
                                         <option value="CLEAN">Remove unwanted values from dataset </option>
                                         <option value="TOKENIZATION">Categorical columns to numeric</option>
                                         <option value="RENAME">Rename numeric labels</option>
+                                        <option value="CLEAN_INT">Clean numeric columns</option>
+                                        <option value="COMPLETE">Complete dataset</option>
 
                                 </select>
                         </div>
@@ -152,7 +154,7 @@ ServicesArr.push(
                 </div>
 
 
-                <div class="form-group row m-2" opth opt-actions="OUTLIERS NORMALIZATION CLEAN TOKENIZATION">
+                <div class="form-group row m-2" opth opt-actions="OUTLIERS NORMALIZATION CLEAN TOKENIZATION CLEAN_INT COMPLETE">
                         <label class="col-sm-4 col-form-label col-form-label-sm">Variables:</label>
                         <div class="col-sm-8">
                                 <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this)></select>

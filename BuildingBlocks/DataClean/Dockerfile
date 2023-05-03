@@ -10,6 +10,7 @@ RUN pip install -r requirements.txt --user
 RUN pip install scipy==1.8.0
 RUN pip install scikit-learn==1.0.1
 RUN pip install argparse==1.4.0
+RUN pip install pyjanitor==0.23.1
 
 
 COPY ./app app

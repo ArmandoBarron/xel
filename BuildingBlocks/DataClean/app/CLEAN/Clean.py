@@ -32,7 +32,7 @@ def validate_numeric(val):
 data_path= sys.argv[1] #data path
 output_path= sys.argv[2] #output_path
 columns= sys.argv[3].split(",") #columns
-list_values= sys.argv[4].split(",") #(ZS) z-score, (IQR) Inter quartile, (M) manual
+list_values= sys.argv[4].split(",") #
 replace_with = validate_string(sys.argv[5],defult_value=np.nan) # NaN or other value
 
 print(replace_with is not np.nan)
