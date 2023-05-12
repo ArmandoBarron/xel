@@ -310,11 +310,13 @@ class postman(Thread):
         try:
             file_pointer = open(data_path,"rb")
             headers = {'x-access-token': self.API_KEY}
+            cookies={}
             if mining_statistics:
-                headers['mining_statistics'] = True
+                cookies = {'x-mining-statistics':"True"}
+                self.LOGER.info(cookies)
 
             url = 'http://%s/ArchiveData/%s/%s' % (self.API_GATEWAY,self.RN,id_service)
-            res = api.post(url, files={"file":(namefile,file_pointer)},headers=headers ).json()
+            res = api.post(url, files={"file":(namefile,file_pointer)},headers=headers,cookies=cookies ).json()
             self.times['idx']+= time.time()-t
             file_pointer.close()
             del file_pointer

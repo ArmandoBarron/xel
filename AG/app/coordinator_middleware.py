@@ -877,15 +877,16 @@ def upload_file(RN,task):
     filename = f.filename
     data_path= os.path.join(path_to_archive, filename)
     f.save(data_path)
-
-    if 'mining_statistics' in request.headers:
+    LOGER.info(request.cookies)
+    if 'x-mining-statistics' in request.cookies:
         name,ext = filename.split(".")
-        description_filename = "%s%s" %(name, "_desc.json")
+        description_filename = ".%s_desc" %(name)
         description_filepath = os.path.join(path_to_archive, description_filename)
 
         response={"status":"OK","message":"","file_exist":True,"info":{"parent_filename":filename,"list_of_files":[],"files_info":{}}}
 
         response,file_validation=verify_extentions(data_path,ext,response,filename,delimiter=",")
+        LOGER.info("SAVING DESC IN %s" % description_filepath)
         if file_validation: #save in file
             with open(description_filepath,'w') as f:
                 f.write(json.dumps(response))
