@@ -147,7 +147,56 @@ def GetDataPath(params):
         LOGER.error(e)
         raise(ValueError)
 
+def verify_extentions(data_path,ext,response,filename,delimiter=","):
+        valid = False #flag to mark a valid file
+        if ext=="zip":
+            valid=True
+            dirpath,list_of_files=zip_extraction(data_path)
+            for fname in list_of_files:
+                fext = GetExtension(fname)
+                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname,delimiter) #recursive
+            response['info']['tree'] = CreateFilesTree(list_of_files)
+            
+            # must delete the temp folder
+            shutil.rmtree(dirpath)
 
+        elif ext =="folder": #if its a folder #creo que nisiquiera se requiere
+            valid=True
+            list_of_files = listdir("%s/%s"%(data_path,filename))
+            for f in list_of_files:
+                LOGER.debug(f)
+                fname = "%s/%s" %(filename,f)
+                fext = GetExtension(fname)
+                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname,delimiter) #recursive
+
+        elif ext=="csv":  #describe csv
+            enc = detect_encode(data_path)
+            LOGER.info(enc)
+            LOGER.info(delimiter)
+
+            dataset= pd.read_csv(data_path,encoding=enc['encoding'],sep=delimiter)
+            #LOGER.info(dataset)
+            response['info']['files_info'][filename] = DatasetDescription(dataset)
+            response['info']['list_of_files'].append(filename)
+            # normalize to utf and separated by ,
+            dataset.to_csv(data_path,encoding='utf-8-sig',index=False)
+            del dataset
+            valid=True
+
+        elif ext=="json":
+            try:
+                dataset = pd.read_json(data_path)
+                response['info']['files_info'][filename] = DatasetDescription(dataset)
+                valid=True
+                del dataset
+            except Exception as e:
+                LOGER.error("imposible to get info")
+            
+            response['info']['list_of_files'].append(filename)
+        else:
+            response['info']['list_of_files'].append(filename)
+        
+        return response,valid 
 
 def GetWorkspacePath(tokenuser,workspace=None):
     #se creara el cataloog de fuentes de datos si es que no existe
@@ -826,12 +875,29 @@ def upload_file(RN,task):
     path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
     f = request.files['file']
     filename = f.filename
-    f.save(os.path.join(path_to_archive, filename))
+    data_path= os.path.join(path_to_archive, filename)
+    f.save(data_path)
+
+    if 'mining_statistics' in request.headers:
+        name,ext = filename.split(".")
+        description_filename = "%s%s" %(name, "_desc.json")
+        description_filepath = os.path.join(path_to_archive, description_filename)
+
+        response={"status":"OK","message":"","file_exist":True,"info":{"parent_filename":filename,"list_of_files":[],"files_info":{}}}
+
+        response,file_validation=verify_extentions(data_path,ext,response,filename,delimiter=",")
+        if file_validation: #save in file
+            with open(description_filepath,'w') as f:
+                f.write(json.dumps(response))
+        else:
+            response['status']="ERROR"
+            response['message']="Datafile can't be described. Try with the following file extentions:csv,json, or zip."
+            LOGER.error(response['message'])
 
     if REMOTE_STORAGE:
         f.seek(0) 
         file_metadata ={}
-        file_metadata['content_type'] = M.from_file(os.path.join(path_to_archive, filename), mime=True)
+        file_metadata['content_type'] = M.from_file(data_path, mime=True)
         LOGER.info(file_metadata)
 
         #name,ext = f.filename.split(".")
@@ -916,56 +982,6 @@ def describeDatasetv2():
     returns:
     {"status":"OK"/"ERROR", "message":"", "info":{"parent_filename":<name_of_original_file>,"list_of_files":[<list of names>],","files_info":{<file_name>:{} }}}
     """
-    def verify_extentions(data_path,ext,response,filename,delimiter=","):
-        valid = False #flag to mark a valid file
-        if ext=="zip":
-            valid=True
-            dirpath,list_of_files=zip_extraction(data_path)
-            for fname in list_of_files:
-                fext = GetExtension(fname)
-                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname,delimiter) #recursive
-            response['info']['tree'] = CreateFilesTree(list_of_files)
-            
-            # must delete the temp folder
-            shutil.rmtree(dirpath)
-
-        elif ext =="folder": #if its a folder #creo que nisiquiera se requiere
-            valid=True
-            list_of_files = listdir("%s/%s"%(data_path,filename))
-            for f in list_of_files:
-                LOGER.debug(f)
-                fname = "%s/%s" %(filename,f)
-                fext = GetExtension(fname)
-                response,file_validation = verify_extentions(dirpath+"/"+fname,fext,response,fname,delimiter) #recursive
-
-        elif ext=="csv":  #describe csv
-            enc = detect_encode(data_path)
-            LOGER.info(enc)
-            LOGER.info(delimiter)
-
-            dataset= pd.read_csv(data_path,encoding=enc['encoding'],sep=delimiter)
-            #LOGER.info(dataset)
-            response['info']['files_info'][filename] = DatasetDescription(dataset)
-            response['info']['list_of_files'].append(filename)
-            # normalize to utf and separated by ,
-            dataset.to_csv(data_path,encoding='utf-8-sig',index=False)
-            del dataset
-            valid=True
-
-        elif ext=="json":
-            try:
-                dataset = pd.read_json(data_path)
-                response['info']['files_info'][filename] = DatasetDescription(dataset)
-                valid=True
-                del dataset
-            except Exception as e:
-                LOGER.error("imposible to get info")
-            
-            response['info']['list_of_files'].append(filename)
-        else:
-            response['info']['list_of_files'].append(filename)
-        
-        return response,valid 
 
     init = time.time()
     params = request.get_json(force=True)

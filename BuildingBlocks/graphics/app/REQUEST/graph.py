@@ -20,7 +20,7 @@ def validate_bool(att): #esta funcion sirve para validar que un argumento viene 
     else:
         return True
 
-def export_figures(fig,outputpath,imagefile_name,config):
+def export_figures(fig,outputpath,imagefile_name,config,format_ticks =True):
     imagefile_name = "chart"
     fig.update_layout(title=TITLE,
                     dragmode='select',
@@ -41,11 +41,15 @@ def export_figures(fig,outputpath,imagefile_name,config):
                     paper_bgcolor='rgb(243, 243, 243)',
                     plot_bgcolor='rgb(243, 243, 243)',
                     )
-    fig.update_xaxes(tickangle=45)
+    if format_ticks:
+        fig.update_xaxes(tickangle=45)
 
-    fig['layout']['updatemenus'][0]['pad']=dict(r= 10, t= 100)
-    fig['layout']['sliders'][0]['pad']=dict(r= 10, t= 100)
+    try:
 
+        fig['layout']['updatemenus'][0]['pad']=dict(r= 10, t= 100)
+        fig['layout']['sliders'][0]['pad']=dict(r= 10, t= 100)
+    except Exception as e:
+        print("no temporal")
     #fig.write_image("%s/%s.png" % (outputpath,imagefile_name))
     #fig.write_image("%s/%s.svg" % (outputpath,imagefile_name))
     fig.write_html("%s/%s.html" % (outputpath,imagefile_name),config=config,auto_open=False)
@@ -398,6 +402,102 @@ if chart_template==13: # TreeMap
 
     export_figures(fig,outputpath,imagefile_name,config)
 
+if chart_template==14: # Sorted histogram
+    """
+    python3 graph.py cancer_infantil_00_14.csv ./output '14' 'density' 'SEXO,ENT_OCURR,MUN_OCURR,NAME_CAUSA' '0' '' '0' 'TASA_AJUSTADA' 'ANIO_REGIS' '' '' '0' '' '' '' 'h'
+    """
+    LIMIT = 10
+    def sort_and_filter(df):
+        df= df.sort_values(by=[COLUMN_Y],ascending=False)
+        df = df.head(LIMIT)
+        return df
+    
+    
 
+
+    imagefile_name = "Bar_chart"
+    print(ORIENT)
+    if ORIENT =="h":
+        params = dict(x=COLUMN_Y, y="GROUP")
+        range_axis="x"
+    else:
+        params = dict(x="GROUP", y=COLUMN_Y)
+        range_axis="y"
+
+    if validate_att(TEMPORAL_COLUMN): # si hay colores
+        params['animation_frame']=TEMPORAL_COLUMN
+
+        #df = df.complete(*COLUMNS, TEMPORAL_COLUMN).fillna(0, downcast='infer')
+
+        df = df.groupby(TEMPORAL_COLUMN).apply(sort_and_filter)
+    else:
+        #df = df.complete(*COLUMNS).fillna(0, downcast='infer')
+        df = sort_and_filter(df)
+
+    colors_n = len(df)
+    c = ['hsl('+str(h)+',50%'+',50%)' for h in np.linspace(0, 360, colors_n)]
+
+
+
+    maxy= df[COLUMN_Y].max()
+    maxy= maxy+(maxy/4)
+    miny= df[COLUMN_Y].min()
+    miny= 0
+    params['range_'+range_axis] =[miny ,maxy]
+    df['GROUP'] = df[COLUMNS].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
+    df['NAME_GROUP'] = df['GROUP'].str[:7]+"..."+ df['GROUP'].str[-5:]
+    params['color']=COLUMN_Y
+    params['hover_data']=COLUMNS
+    params['hover_name']="GROUP"
+    #if validate_att(TEMPORAL_COLUMN): # si hay colores
+    #    params['animation_group']="GROUP"
+     
+    params['color_continuous_scale']="tealrose"
+
+    fig = px.bar(df, **params)
+
+    if range_axis=="y":
+        fig.update_layout(showlegend=False)
+        fig.update(layout_coloraxis_showscale=False)
+        if validate_att(TEMPORAL_COLUMN):
+            fig.update_xaxes(
+                tickmode="array",
+                title=None,
+                tickvals = df['GROUP'],
+                ticktext=df['NAME_GROUP'],
+            )
+        else:
+            fig.update_xaxes(
+                tickmode="array",
+                title=None,
+                tickvals = df['GROUP'],
+                ticktext=df['GROUP'],
+                tickwidth=8,
+                tickfont_family="Arial Black",
+                tickfont=dict(size=15)
+            )
+    else:
+        fig.update_layout(showlegend=False)
+        fig.update(layout_coloraxis_showscale=False)
+        if validate_att(TEMPORAL_COLUMN):
+            fig.update_yaxes(
+                tickmode="array",
+                title=None,
+                tickvals = df['GROUP'],
+                ticktext=df['NAME_GROUP']
+            )
+        else:
+            fig.update_yaxes(
+                tickmode="array",
+                title=None,
+                tickvals = df['GROUP'],
+                ticktext=df['GROUP'],
+                ticklabelposition= "inside",
+                tickwidth=8,
+                tickfont_family="Arial Black",
+                tickfont=dict(size=15)
+            )
+
+    export_figures(fig,outputpath,imagefile_name,config,format_ticks=False)
 
 exit(0)

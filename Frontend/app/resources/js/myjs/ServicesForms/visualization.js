@@ -299,6 +299,7 @@ ServicesArr.push(
                                             <option value="11"> Box plot </option>
                                             <option value="12"> Cumulative bar plot </option>
                                             <option value="13"> TreeMap </option>
+                                            <option value="14"> Sorted Barplot </option>
 
                                     </select>
                                     </div>
@@ -316,7 +317,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="1 2 3 9">
+                            <div class="form-group row m-2" opth opt-chart="1 2 3 9 14">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">columns: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="columns" onclick=fillselect(this)></select>
@@ -344,7 +345,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12">
+                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12 14">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable y: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_y" onclick=fillselect(this,multi=false)></select>
@@ -358,7 +359,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="4 11 10">
+                            <div class="form-group row m-2" opth opt-chart="4 11 10 14">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable temporal: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="temporal_column" onclick=fillselect(this,multi=false)></select>
@@ -390,7 +391,7 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="10 11">
+                            <div class="form-group row m-2" opth opt-chart="10 11 14">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Chart orient: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="orient">

@@ -196,7 +196,7 @@ class client_pattern():
                 ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,"Data preparation","INIT",id_service=id_task,label=id_task,type_data="csv",index_opt=True)
                 self.POSTMAN.WarnGateway(ToSend)
 
-                self.POSTMAN.ArchiveData(data_map['data'],"subset.csv",id_service=id_task)
+                self.POSTMAN.ArchiveData(data_map['data'],"subset.csv",id_service=id_task,mining_statistics=True)
                 
                 ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,"Data indexed","FINISHED",id_service=id_task,label=id_task,type_data="csv",index_opt=True,include_hash=True)
                 self.POSTMAN.WarnGateway(ToSend)

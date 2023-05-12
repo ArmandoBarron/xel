@@ -298,7 +298,7 @@ class postman(Thread):
             time.sleep(time_interval)
         return True
 
-    def ArchiveData(self,data_path,namefile, id_service=None):
+    def ArchiveData(self,data_path,namefile, id_service=None,mining_statistics=False):
         if id_service is None:
             id_service=self.id_service
         
@@ -310,6 +310,9 @@ class postman(Thread):
         try:
             file_pointer = open(data_path,"rb")
             headers = {'x-access-token': self.API_KEY}
+            if mining_statistics:
+                headers['mining_statistics'] = True
+
             url = 'http://%s/ArchiveData/%s/%s' % (self.API_GATEWAY,self.RN,id_service)
             res = api.post(url, files={"file":(namefile,file_pointer)},headers=headers ).json()
             self.times['idx']+= time.time()-t
