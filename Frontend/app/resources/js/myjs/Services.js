@@ -815,9 +815,9 @@ function transform_dag(parent,dag){ //transform ignora la primera caja (la root)
         if (value.name.includes("-")){ service_name= value.name.split("-")[0];ac_name = value.name.split("-")[1];}
         else {service_name= value.name; ac_name = value.name}
 
-
         new_service = {
             id: value.id,
+            alias: value.alias,
             service: service_name,
             childrens: []
         }
@@ -852,12 +852,32 @@ function transform_dag(parent,dag){ //transform ignora la primera caja (la root)
         } //end if actions
         else{ new_params = value.params}
 
+        // remove tabs and line jumps
+        eliminarCaracteres(new_params)
         //add params to service
         new_service['params'] = new_params
+        
         //do teh same for all childrens
         transform_dag(value,new_service.childrens)
     });
 }
+
+function eliminarCaracteres(objeto) {
+    // Comprobamos si el objeto es un objeto y no es null
+    if (typeof objeto === 'object' && objeto !== null) {
+      // Iteramos sobre todas las propiedades del objeto
+      for (let clave in objeto) {
+        // Verificamos si el valor de la propiedad es un string
+        if (typeof objeto[clave] === 'string') {
+          // Eliminamos los caracteres de tabulación y salto de línea
+          objeto[clave] = objeto[clave].replace(/[\t\n]/g, '');
+        } else if (typeof objeto[clave] === 'object') {
+          // Si el valor de la propiedad es un objeto, llamamos recursivamente a la función
+          eliminarCaracteres(objeto[clave]);
+        }
+      }
+    }
+  }
 
 function Parse_params(params,service_name){
     console.log("parsing params")
@@ -871,6 +891,8 @@ function Parse_params(params,service_name){
         if ("group_columns" in params) {params.group_columns = params.group_columns.toString()}
 
         console.log("params parsed")
+
+        // eliminar 
         console.log(params)
     }
     //variable x, y, z
@@ -1312,7 +1334,7 @@ function get_metadata_box(box_id,source=null,get_all=false,source_mode="select")
         return ROOT_METADATA.files_info[parentfilename]
     }
 
-    console.log("se obtuvo la metadata del padre")
+    //console.log("se obtuvo la metadata del padre")
     if (get_all){ return BOX.service_metadata.father } 
     return BOX.service_metadata.father.files_info[parentfilename]
 }
@@ -2233,7 +2255,61 @@ function AutocompleteByFileInfo(id_inputbox,id_file,Modal_selector=".modal.fade.
 });
 }
 
+var CODEAREA_POINTERS = {}
+function Activate_CodeArea(id_textarea, Modal_selector= ".modal.fade.show" ){
 
+    if ($("#"+id_textarea).hasClass( "codearea" )){
+
+        const elem = document.getElementById(id_textarea); 
+        console.log(Modal_selector)
+
+        sourceid = $(Modal_selector).data("sourceId")
+        console.log(sourceid)
+        BOX_info = get_metadata_box(sourceid,source=null)
+        const isEmpty = Object.keys(BOX_info).length === 0 //si es null no se hace nada
+        if(isEmpty){
+            console.log("No hay datos para autocompletar")
+            codeAreas = []
+        }
+        else{
+            codeAreas = BOX_info.columns
+            console.log("Si hay datos para autocompletar")
+        }
+
+
+
+        CODEAREA_POINTERS[id_textarea] =CodeMirror.fromTextArea(elem,{
+                                            value:"\t",
+                                            lineNumbers: true,
+                                            lineWrapping: true,
+                                            extraKeys: {"Ctrl-Space": "autocomplete"},
+                                            theme: "mdn-like",
+                                            hintOptions: {
+                                                hint: function(cm) {
+                                                    var cursor = cm.getCursor();
+                                                    var currentLine = cm.getLine(cursor.line);
+                                                    var lineUntilCursor = currentLine.slice(0, cursor.ch);
+                                                    var words = lineUntilCursor.split(/\s+/);
+                                                    var currentWord = words[words.length - 1];
+                                                    
+                                                    var matches = codeAreas.filter(function(word) {
+                                                      return word.includes(currentWord);
+                                                    });
+                                              
+                                                    return {
+                                                      from: CodeMirror.Pos(cursor.line, cursor.ch - currentWord.length),
+                                                      to: cursor,
+                                                      list: matches
+                                                    };
+                                                }
+                                            }
+        })
+                                            
+        
+                                 
+    }
+
+}
 
 function Activate_Autcomplete(tag_4_auto, Modal_selector= ".modal.fade.show" ) { 
     // .modal.fade.show sirve para los modal activos (debe estar activo primero)
@@ -2244,9 +2320,7 @@ function Activate_Autcomplete(tag_4_auto, Modal_selector= ".modal.fade.show" ) {
     BOX_info = get_metadata_box(sourceid,source=null)
     const isEmpty = Object.keys(BOX_info).length === 0 //si es null no se hace nada
     if(isEmpty){return false}
-
-
-    console.log("se activo el autocomplete")
+    //console.log("se activo el autocomplete")
 
     let availableTags = BOX_info.columns
 

@@ -76,6 +76,18 @@ class Handler:
         self._closeConnection(client)
         return list_cur
     
+    def List_all_documents(self):
+        """
+        collection name is the token user
+        """
+        colnames = list(self.Get_all_collections())
+        list_documents = []
+        for col in colnames:
+            documents = self.List_document(col)
+            list_documents+=documents
+        return list_documents
+    
+    
     def Delete_document(self,collection_name,token_solution):
         """
         collection name is the token user

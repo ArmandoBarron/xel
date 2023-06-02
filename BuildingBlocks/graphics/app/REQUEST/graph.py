@@ -7,6 +7,7 @@ import sys
 from sklearn.decomposition import PCA
 import numpy as np
 import janitor #!pip install pyjanitor==0.23.1
+from pandas.api.types import is_numeric_dtype
 
 def validate_att(att): #esta funcion sirve para validar que un argumento viene vacio o no
     if att =="" or att =="-":
@@ -58,7 +59,8 @@ def export_figures(fig,outputpath,imagefile_name,config,format_ticks =True):
 print(sys.argv)
 
 """
-python3 graph.py cancer_mama.csv ./output/ '11' '' '' 'label' 'colorscale' 'color_col' 'RANGO_EDAD' 'TASA_AJUSTADA' 'ANIO_REGIS' 'subgroup' 'size' 'log_scale' '' 'title' 'z' 
+
+python3 graph.py inputpath outputpath '11' 'TYPE_HISTOGRAM' 'COLUMNS' 'LABEL_COLUMN' 'COLORSCALE_COLUMN' 'COLUMN_X' 'COLUMN_Y' 'TEMPORAL_COLUMN' 'SUBGROUP' 'SIZE' 'LOG_SCALE' 'GROUPS_PATH' 'title' 'COLUMN_Z' 'ORIENT' 
 
 
 """
@@ -224,9 +226,10 @@ if chart_template==6: #SUNBRUST
     #df[GROUPS_PATH] = df[GROUPS_PATH].fillna('NE/NA')
     df[SIZE] = df[SIZE].fillna(0)
 
+    df = df[GROUPS_PATH+[SIZE]].reset_index()
     if validate_att(LABEL_COLUMN): # si hay colores
         params['color']=LABEL_COLUMN
-
+    
     #if validate_att(TEMPORAL_COLUMN): # si hay una columna de temporal, se crean multiples graficas para cada valor de temporal
     #    df_grouped = df.groupby(TEMPORAL_COLUMN)
     #    for namedf,group_df in df_grouped:
@@ -235,6 +238,7 @@ if chart_template==6: #SUNBRUST
     #        fig = px.sunburst(group_df, **params)
     #        export_figures(fig,outputpath,imagefile_name,config)
     #else:
+    
     fig = px.sunburst(df, **params)
     export_figures(fig,outputpath,imagefile_name,config)
 
@@ -282,8 +286,12 @@ if chart_template==9: # 3D scatter with PCA
 if chart_template==10: # Bar chart
     """
     python3 graph.py Cancer_mexico_mun_with_rates_00_14.csv ./output '10' 'density' '0' 'SEXO' '' 'NAME_CAUSA' 'TASA_AJUSTADA' 'ANIO_REGIS' '' '' '0' '' '' ''
+    
+    python3 graph.py Contaminantes_Final.csv ./output '6' 'density' '0' 'contamiantes_value' '' '' '' '' '' 'contamiantes_value' '0' 'Entidad,Alcaldia,Clave,year' 'índice de contaminación' '' 'h'
+    
+    python3 graph.py Contaminantes_Final.csv ./output '10' 'density' '0' 'contamiantes' '' 'contamiantes_value' 'Clave' 'year' '' '' '0' '' 'indice de contaminacion' '' 'h'
     """
-
+    print(COLUMN_Y)
     imagefile_name = "Bar_chart"
 
     if ORIENT =="h":
@@ -302,7 +310,10 @@ if chart_template==10: # Bar chart
         #df= df.sort_values(by=[TEMPORAL_COLUMN,COLUMN_X])
 
         if validate_att(LABEL_COLUMN): # si hay colores
-            df = df.complete(COLUMN_X, TEMPORAL_COLUMN,LABEL_COLUMN).fillna(0, downcast='infer')
+            if is_numeric_dtype(df[LABEL_COLUMN]):
+                df = df.complete(COLUMN_X, TEMPORAL_COLUMN).fillna(0, downcast='infer')
+            else:
+                df = df.complete(COLUMN_X, TEMPORAL_COLUMN,LABEL_COLUMN).fillna(0, downcast='infer')
         else:
             df = df.complete(COLUMN_X, TEMPORAL_COLUMN).fillna(0, downcast='infer')
 
@@ -405,6 +416,9 @@ if chart_template==13: # TreeMap
 if chart_template==14: # Sorted histogram
     """
     python3 graph.py cancer_infantil_00_14.csv ./output '14' 'density' 'SEXO,ENT_OCURR,MUN_OCURR,NAME_CAUSA' '0' '' '0' 'TASA_AJUSTADA' 'ANIO_REGIS' '' '' '0' '' '' '' 'h'
+    
+    python3 graph.py cancer_infantil_00_14.csv ./output '14' 'density' 'CAUSA_DEF' '' '' '' 'TASA_AJUSTADA' 'ANIO_REGIS' '' '' '0' '' 'Mortalidad por cancer infantil' ''
+    
     """
     LIMIT = 10
     def sort_and_filter(df):
@@ -499,5 +513,29 @@ if chart_template==14: # Sorted histogram
             )
 
     export_figures(fig,outputpath,imagefile_name,config,format_ticks=False)
+
+
+if chart_template==15: # Custom Heatmap
+    """
+    python3 graph.py inputpath outputpath '15' '' '' '' '' 'COLUMN_X' 'COLUMN_Y' 'TEMPORAL_COLUMN' '' '' '' '' 'title' 'COLUMN_Z' '' 
+    python3 graph.py conteos_cancer_98_20.csv ./output '15' '' '' '' '' 'nombre entidad' 'CAUSA_DEF' 'ANIO_REGIS' '' '' '' '' 'title' 'cve' '' 
+
+    """
+    
+    imagefile_name = "heatmap"
+
+    df = df.complete(TEMPORAL_COLUMN,COLUMN_X,COLUMN_Y).fillna(0, downcast='infer')
+    df = df.sort_values(by=([TEMPORAL_COLUMN,COLUMN_X,COLUMN_Y]))
+    # Graph
+    minValue = df[COLUMN_Z].min()
+    maxValue = df[COLUMN_Z].max()
+    fig = px.density_heatmap(df, 
+                            x=COLUMN_X, 
+                            y=COLUMN_Y, 
+                            z=COLUMN_Z, 
+                            animation_frame=TEMPORAL_COLUMN, 
+                            histfunc="max",
+                            range_color=(minValue, maxValue))
+    export_figures(fig, outputpath,imagefile_name,config)
 
 exit(0)

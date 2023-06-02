@@ -233,6 +233,7 @@ ServicesArr.push(
                                         <select class="form-control" id="actions" onchange="OptionsHandler(this)">
                                                 <option value="REQUEST"> Charts </option>
                                                 <option value="TOP_K"> TOP K Race </option>
+                                                <option value="DYNAMIC"> Dynamic (auto) </option>
                                         </select>
                                     </div>
                         </div>
@@ -300,6 +301,7 @@ ServicesArr.push(
                                             <option value="12"> Cumulative bar plot </option>
                                             <option value="13"> TreeMap </option>
                                             <option value="14"> Sorted Barplot </option>
+                                            <option value="15"> Custom Heatmap </option>
 
                                     </select>
                                     </div>
@@ -338,28 +340,28 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12">
+                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12 15">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable x: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_x" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12 14">
+                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12 14 15">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable y: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_y" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="8">
+                            <div class="form-group row m-2" opth opt-chart="8 15">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable z: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_z" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="4 11 10 14">
+                            <div class="form-group row m-2" opth opt-chart="4 11 10 14 15">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable temporal: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="temporal_column" onclick=fillselect(this,multi=false)></select>

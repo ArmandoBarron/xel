@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"PivotTableJs",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}PivotTable.py @{SOURCE} @{SINK}",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"DynamicTable.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

@@ -98,7 +98,7 @@ class client_pattern():
                     for l in levels_to_process:
                         if not l in task_obj:
                             task_obj[l]={} 
-                        task_obj[l][dag['id']] ={"id":dag["id"],"alias":"","service":dag["service"],"params":dag["params"]}
+                        task_obj[l][dag['id']] ={"id":dag["id"],"alias":dag["alias"],"service":dag["service"],"params":dag["params"]}
             
             task_obj = self.list_tasks_in_DAGs_by_pattern(dag['childrens'],task_obj)
         return task_obj

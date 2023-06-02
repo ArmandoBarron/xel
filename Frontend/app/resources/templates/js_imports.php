@@ -120,3 +120,13 @@ $google_maps_key = $_ENV["GOOGLE_MAPS_KEY"]
 <!-- Toggle on/off -->
 <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+
+<!-- CodeMirror -->
+<script src="resources/src/codemirror/lib/codemirror.js"></script>
+<script src="resources/src/codemirror/addon/show-hint.js"></script>
+
+<link rel="stylesheet" href="resources/src/codemirror/lib/codemirror.css">
+<script src="resources/src/codemirror/mode/python/python.js"></script>
+<link rel="stylesheet" href="resources/src/codemirror/theme/mdn-like.css">
+<link rel="stylesheet" href="resources/src/codemirror/codemirror_styles.css">
+<link rel="stylesheet" href="resources/src/codemirror/addon/show-hint.css">

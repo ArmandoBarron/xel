@@ -78,3 +78,5 @@ if $Construir; then
     docker build -t ${tag_classification_models} ./BuildingBlocks/Clasificate #modelos de clasificacion
     docker build -t ${tag_advanced_map} ./BuildingBlocks/AdvancedMaps
 fi
+
+#docker build -t xel_bb_charts:v2.0 ./BuildingBlocks/graphics

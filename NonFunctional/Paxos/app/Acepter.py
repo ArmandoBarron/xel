@@ -721,9 +721,14 @@ def ResourcesManagment(action,value):
     action_params = value['action_params']
     data_bin = value['data_bin']
 
-    service = action_params['service']
-    service_id = action_params['service_id']
-
+    if 'service' in action_params:
+        service = action_params['service']
+    if 'service_id' in action_params:
+        service_id = action_params['service_id']
+    if 'context' in action_params:
+        context = action_params['context']
+    if 'context' in data_bin:
+        context = data_bin['context']
 
     ## READ ACTIONS
     if action=="STATUS":#add workload
@@ -731,9 +736,9 @@ def ResourcesManagment(action,value):
     elif action=="SELECT":#select a resource
         return LOAD_B.decide(service, action_params['context']) #search services in the same context
 
-
-    context = data_bin['context']
+    #else
     resource_in_context_id = service_id+"-"+context
+    res = {'status':'OK'}
 
     if action=="ADD":
         status = LOAD_B.Addresource(service,resource_in_context_id,data_bin)
@@ -741,14 +746,13 @@ def ResourcesManagment(action,value):
             LOG.debug("REGISTRED %s, ip:%s" % (service,resource_in_context_id))
         else:
             LOG.debug("ALREADY REGISTRED %s, ip:%s" % (service,resource_in_context_id))
-        res = {'status':'OK'}
     elif action=="DISABLE":#when a node is down
         LOAD_B.NodeDown(service,resource_in_context_id)
-        res = {'status':'OK'}
     elif action=="ADD_WORKLOAD":#add workload
         LOAD_B.AddWorkload(service,resource_in_context_id,n=1)
-        res = {'status':'OK'}
-
+    elif action=="CONTEXT_DOWN":
+        LOAD_B.ContextDown(context)
+        
     return res
 
 def create_obj_if_not_exist(father_obj,id_element,content={}):
@@ -869,7 +873,11 @@ def prepare_request():
         value = params['value']
         res = list_solutions(value)
         return json.dumps({"status":"OK","action":"ACCEPT","value":res})
-    
+    elif action == "LIST_ALL_SOLUTIONS": #save a new solution
+        SDB = Handler()
+        res = SDB.List_all_documents()
+        return json.dumps({"status":"OK","action":"ACCEPT","value":res})
+       
     elif action == "UPDATE_TASK":
         value = params['value']
         update_data(value)

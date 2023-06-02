@@ -70,7 +70,7 @@ SPL_FOLDER= "./SUPPLIES/"
 createFolderIfNotExist(SPL_FOLDER)
 
 #select load blaancer
-Tolerant_errors=2 #total of errors that can be tolarated
+Tolerant_errors=0 #total of errors that can be tolarated
 ACCEPTORS_LIST= dictionary['paxos']["accepters"]
 LOGER.info(ACCEPTORS_LIST)
 PROPOSER = Paxos(ACCEPTORS_LIST)
@@ -206,6 +206,11 @@ def GetWorkspacePath(tokenuser,workspace=None):
     else:
         createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
         return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
+
+def GarbageCollector():
+
+    paxos_response = PROPOSER.list_solutions(auth,query)
+    pass
 
 
 def ask_function(params):
@@ -463,16 +468,17 @@ def execute_DAG():
         ###################### DEPLOY SERVICES #########################
         if MODE == "SERVERLESS" and len(res['DAG'])>0:
             temp = time.time()
+            LOGER.info("---------------------------- DEPLOYING")
             GC.start_services({
                     "DAG":res['DAG'],
                     "id_stack": RN,
                     "mode":"compose",
                     "engine":"nez",
                     "replicas": 2})
-            LOGER.info("---------------------------- DEPLOYING...")
-            LOGER.info(res['DAG'])
+            LOGER.info("---------------------------- DEPLOYED")
+            #LOGER.info(res['DAG'])
             TIMES_list[RN]['deploy'] = time.time() - temp
-            time.sleep(2)
+            time.sleep(1)
         ################################################################
 
         for branch in new_dag:
@@ -539,8 +545,6 @@ def monitoring_v2(token_project,token_solution):
         if "show_history" in params:
             show_history = params['show_history']
 
-
-
     ######## paxos ##########
     paxos_response = PROPOSER.Consult_v2(token_project,token_solution,tasks,kind_task=kind_task,show_history=show_history) # consult request in paxos distributed memory
     #########################
@@ -596,6 +600,9 @@ def monitoring_v2(token_project,token_solution):
                 if not DEBUG_MODE:
                     LOGER.error("STOPING CONTAIENRS")
                     GC.remove_services(token_solution)
+                    PROPOSER.Update_resource('','',{"context":token_solution},read_action="CONTEXT_DOWN")
+
+                    
         except Exception as e:
             LOGER.error(e)
     return make_response(ToSend,200)
@@ -877,7 +884,11 @@ def upload_file(RN,task):
     filename = f.filename
     data_path= os.path.join(path_to_archive, filename)
     f.save(data_path)
-    LOGER.info(request.cookies)
+    #LOGER.info(request.cookies)
+    if filename == "map_metadata.json":
+        metadata_folder = createFolderIfNotExist("metadata/" ,wd=tmp_f)
+        shutil.copy(data_path, metadata_folder)
+
     if 'x-mining-statistics' in request.cookies:
         name,ext = filename.split(".")
         description_filename = ".%s_desc" %(name)
@@ -909,7 +920,6 @@ def upload_file(RN,task):
         res = STORAGE_CLIENT.put(token_data,f.read(),metadata=file_metadata)
         LOGER.info("SE SUBIO AL STORAGE REMOTO")
         LOGER.info(res)
-
 
     f.close()
 

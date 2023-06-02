@@ -719,6 +719,14 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
     
             }
             else if (['string', 'number', 'boolean'].includes(type)) {
+                //for text area add codemirror
+                if(input[0].tagName == "TEXTAREA"){
+                    Activate_CodeArea(p,Modal_selector="#"+modal2open)
+                    CODEAREA_POINTERS[p].setValue(parent.params[p]);
+                    CODEAREA_POINTERS[p].refresh()
+
+                }
+
                 if (type == 'boolean') $(`#${modal2open} .modal-body #${p}`)[0].checked = parent.params[p];
                 else if (type == 'string'){ //string 
                     $(`#${modal2open} .modal-body #${p}`).val(parent.params[p]);
@@ -860,7 +868,12 @@ function demoflowy_saveChanges() {
             }
 
         }
+        else if(tagname == "TEXTAREA"){
+            console.log(CODEAREA_POINTERS[p].getValue())
+            parent.params[p] = CODEAREA_POINTERS[p].getValue();
+        } 
         else {
+            
             let value = $(`#${p}`).val()
             let type = input.type;
             if (type == 'checkbox'){

@@ -497,6 +497,7 @@ ServicesArr.push({
             if_assign:"0",
             if_delete:"0",
             if_rename:"0",
+            column_name:"",
             rename_dict:"{}",
             SAVE_DATA:true
         },
@@ -514,15 +515,24 @@ ServicesArr.push({
                                         <option value="MAPR" selected> Map reduce </option>
                                         <option value="EVAL"> Query </option>
                                         <option value="UPDATE"> delete or reneame columns </option>
+                                        <option value="MELT"> Melt columns (columns to rows) </option>
+
                                 </select>
                                 </div>
                         </div>
 
                         
-                        <div class="form-group row m-2" servopt="MAPR" >
+                        <div class="form-group row m-2" servopt="MAPR MELT" >
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Column of groups</label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="group_columns" data-actions-box="true" onclick=fillselect(this) ></select>
+                                </div>
+                        </div>
+
+                        <div class="form-group row m-2" servopt="MELT" >
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">New column name:</label>
+                                <div class="col-sm-8">
+                                        <input id="column_name" type="text" class="form-control" placeholder="e.g. column_value">
                                 </div>
                         </div>
 
@@ -569,16 +579,17 @@ ServicesArr.push({
 
                         <hr>
                         <div class="form-group row m-2" servopt="MAPR" >
-                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Optional query:</label>
-                                <div class="col-sm-8">
-                                        <input id="query_str" type="text" class="form-control autocomplete-column" placeholder="e.g. Fecha < 1990 && Fecha > 1980">
+                                <label for="txttype" class="col-sm-12 col-form-label col-form-label-sm">Optional query:</label>
+                                <div class="col-sm-12">
+                                        <textarea id="query_str" type="text" class="form-control codearea autocomplete-column" placeholder="e.g. Fecha < 1990 && Fecha > 1980">
+                                        </textarea>
                                 </div>
                         </div>
 
                         <div class="form-group row m-2" servopt="EVAL" >
-                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Create or alter columns:</label>
-                                <div class="col-sm-8">
-                                        <input id="query_list" type="text" class="form-control autocomplete-column" placeholder="e.g. create a column C as: C  = A + B ">
+                                <label for="txttype" class="col-sm-12 col-form-label col-form-label-sm">Create or alter columns:</label>
+                                <div class="col-sm-12">
+                                        <textarea id="query_list" type="text" class="form-control codearea autocomplete-column" placeholder="e.g. create a column C as: C  = A + B "></textarea>
                                 </div>
                                 <div class="container">
                                         <span class="help-block">Multiple querys can be provided separated by ;</span>
@@ -592,9 +603,9 @@ ServicesArr.push({
                         </div>
 
                         <div class="form-group row m-2" servopt="EVAL" >
-                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Query for filter:</label>
-                                <div class="col-sm-8">
-                                        <input id="query_flt" type="text" class="form-control autocomplete-column" placeholder="e.g. fecha < 2000 ">
+                                <label for="txttype" class="col-sm-12 col-form-label col-form-label-sm">Query for filter:</label>
+                                <div class="col-sm-12">
+                                        <textarea id="query_flt" type="text" class="form-control codearea autocomplete-column" placeholder="e.g. fecha < 2000 "></textarea>
                                 </div>
                                 <div class="container">
                                         <span class="help-block">Multiple querys can be provided separated by ;</span>

@@ -100,6 +100,14 @@ class loadbalancer():
         with open('coordinator_structure.json', 'w') as f:
             json.dump(self.dictionary, f ,indent=2)
 
+    def ContextDown(self,context):
+        for resource_id,value in self.resources.items():
+            dict_resources=self.resources[resource_id].copy() #service
+
+            for key,service in dict_resources.items():
+                if service["context"] == context:
+                    self.NodeDown(resource_id,key)
+
     def LookingForInResources(self,service,looking_for,with_value,dict_resources=None):
         result_dict={}
         if dict_resources is None:
