@@ -142,10 +142,13 @@ def execute(params,AppConfig):
 
         #clean everything
         #os.remove(params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE']) #SINK
-        shutil.rmtree(params['BBOX_INPUT_PATH'],ignore_errors=True) #esto remueve los datos de entrada (SOURCE)
-        shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True) #esto remueve los datos de entrada temporales usados por la applicacion
-        shutil.rmtree(params['BBOX_OUTPUT_PATH'],ignore_errors=True) #esto remueve los datos de salida de la app (SINK)
+        #shutil.rmtree(params['BBOX_INPUT_PATH'],ignore_errors=True) #esto remueve los datos de entrada (SOURCE)
+        #shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True) #esto remueve los datos de entrada temporales usados por la applicacion
+        #shutil.rmtree(params['BBOX_OUTPUT_PATH'],ignore_errors=True) #esto remueve los datos de salida de la app (SINK)
         # los datos quedan persistentes en la carpeta rollback hasta que se envian a los siguientes ABOX (BBOX_ROLLBACK_PATH)
+        os.remove(params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'])
+        shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True) #esto remueve los datos de entrada
+        shutil.rmtree(params['BBOX_OUTPUT_PATH'],ignore_errors=True)
         
         name,ext = result.split(".")
         LOGER.info("results are in %s" % result)

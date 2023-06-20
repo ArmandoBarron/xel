@@ -45,7 +45,7 @@ option=1
 # Se construyen las imagenes de contenedor de modulos y servicios #
 #=================================================================#
 
-if $option==1; then
+
     echo "construyendo imagenes"
     # construir imagenes de modulos de xelhua
     docker build -t ${tag_gui} ./Frontend
@@ -80,9 +80,5 @@ if $option==1; then
     #docker build -t ${tag_text_classification} ./BuildingBlocks/TextClassification
     #docker build -t ${tag_preprocessing} ./BuildingBlocks/Preprocessing
     #docker build -t ${tag_converters} ./BuildingBlocks/Converters
-fi
-if $option==2; then
-    docker build -t ${tag_coordinator} AG
-    docker build -t ${tag_paxos} ./NonFunctional/Paxos
 
 #docker build -t xel_bb_charts:v2.0 ./BuildingBlocks/graphics

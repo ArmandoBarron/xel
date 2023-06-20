@@ -16,6 +16,8 @@ RUN pip install pyjanitor==0.23.1
 
 RUN apt-get update
 RUN apt-get install -y ffmpeg
+RUN pip install pivottablejs
+RUN pip install ipython
 
 COPY ./app app
 WORKDIR /home/app

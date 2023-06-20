@@ -259,8 +259,8 @@ $(document).ready(function () {
                                 </div>
                             </div>
 
-                            <div class="col-10 text-right text-uppercase " style="padding-left: 3px;padding-right: 3px;padding-bottom: 3px;">
-                               <em class="col-10 d-inline-block text-truncate" id="${canvasId}_alias" style="padding:0px">${canvasId}</em>  <i style="margin-left:3px;" class="fas fa-gradient fa-info-circle fa-lg block-hoverinfo " idcanvas="${canvasId}"></i> 
+                            <div class="col-10 text-left" style="padding-left: 3px;padding-right: 3px;padding-bottom: 3px;">
+                               <em class="col-10 d-inline-block text-truncate" id="${canvasId}_alias" style="padding:1px">${canvasId}</em>  <i style="margin-left:3px;" class="fas fa-gradient fa-info-circle fa-lg block-hoverinfo " idcanvas="${canvasId}"></i> 
                             </div>
                          
                         </div>

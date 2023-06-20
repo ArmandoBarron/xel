@@ -19,8 +19,8 @@ def export_figures(fig,outputpath,imagefile_name,title):
         'modeBarButtonsToAdd':['drawline','drawopenpath','drawclosedpath','drawcircle','drawrect','eraseshape']
     }
     fig.update_layout(title=title,
-                    width=2000,
-                    height=1200,
+                    width=900,
+                    height=700,
                     hovermode='closest')
 
     fig.write_html("{}/{}.html".format(outputpath,imagefile_name.replace('>','_')),config=config)
