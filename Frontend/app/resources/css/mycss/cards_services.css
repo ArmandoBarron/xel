@@ -5,75 +5,93 @@
 .blockelem {
     padding-top: 10px;
     border: 1px solid transparent;
-    background-color: #EFF8E2;
+    background-color: #ffffff;
     transition-property: box-shadow, height;
     transition-duration: .5s;
     transition-timing-function: cubic-bezier(.05,.03,.35,1);
     border-radius: 5px;
     box-shadow: 0px 0px 30px rgba(22, 33, 74, 0);
     box-sizing: border-box;
-    margin-bottom: .3vh;
-    max-width: 40vh;
+    margin-bottom: .5vh;
+    max-width: 65vh;
+    position: relative;
+    z-index: 10;
+
+}
+
+.divblocktitle {
+    display: flex;
+    align-items: center;
+}
+
+.blockdivider {
+    width: 35px;
+    height: 2px;
+    background: linear-gradient(to right,#8dafbf,#eb9bdf);
+    margin: 0.4em auto 0.4em;
+    border: 0;
+}
+
+.section-divider {
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(to right,#8dafbf,#eb9bdf);
+    margin: 0.4em auto 0.4em;
+    border: 0;
 }
 
 .blocktitle {
     margin: 0px!important;
     padding: 0px!important;
-    font-family: Roboto;
-    font-weight: 500;
-    font-size: 14px;
-    color: #2A2B2A;
+    font: 300 1em 'Fira Sans', sans-serif;
 }
+.blockelem:hover .blocktitle {
+    font: 300 1em 'Fira Sans', sans-serif;
+    z-index: 50;
+    display: flex;
+}
+
 .blockdesc {
-    margin-top: 5px;
-    font-family: Roboto;
+    margin-top: 1em;
+    font: 350 .6em 'Fira Sans', sans-serif;
+    color: #5a5b66/*#98DFEA*/;
+    line-height: 1.2em;
+    margin-bottom: 1em;
+}
+.blockelem:hover .blockdesc {
     color: #808292;
-    font-size: 13px;
-    line-height: 18px;
 }
 
 .blocktag {
-    margin-bottom: 5px;
-    font-family: Roboto;
-    color: #393C44;
-    font-size: 13px;
-    line-height: 18px;
+    margin-bottom: 1em;
+    color: #b3b7c6/*#98DFEA*/;
+    font: 350 .5em 'Fira Sans', sans-serif;
+    line-height: 1.2em;
 }
 
+.blockelem:hover .blocktag {
+    color: #393C44;
+}
 
 .elementhover {
-    transition: transform .2s; /* Animation */
+    transition: transform 1.2s; /* Animation */
 }
 .elementhover:hover {
-    transform: scale(1.15);
+    transform: scale(1.20);
 }
-
 
 .blockelem:hover {
-    box-shadow: 0px 4px 30px rgba(22, 33, 74, 0.08);
+    box-shadow: 20px 15px 30px rgba(22, 33, 74, 0.08);
     border-radius: 10px;
-    background-color: #bb415c/*#98DFEA*/;
-    opacity: .9;
     cursor: pointer;
 }
-.blockelem:hover .blocktitle {
-    color: #F0F2F9/*#98DFEA*/;
-    font-weight: 900;
-    font-size: 16px;
-}
-.blockelem:hover .blocktag {
-    color: #F0F2F9/*#98DFEA*/;
-    font-weight: 500;
-    font-size: 14px;
-}
+
 .blockelem:hover .fb-grab {
-    color: #F0F2F9/*#98DFEA*/;
+    color: linear-gradient(to right,#8dafbf,#eb9bdf);
+
 }
-.blockelem:hover .blockdesc {
-    color: #2A2B2A/*#98DFEA*/;
-    font-weight: 700;
-    font-size: 14px;
-}
+
+
 
 .grabme, .blockico {
     display: inline-block;
@@ -85,8 +103,6 @@
     width: 15px;
 }
 #blocklist {
-    padding-left: 3vh;
-    padding-right: 3vh;
    /* height: calc(100% - 220px);*/
     /* overflow: auto;*/
 }

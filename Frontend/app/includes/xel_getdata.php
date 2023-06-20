@@ -1,6 +1,7 @@
 <?php
 ini_set('memory_limit', '-1');
 
+
 function my_utf8_encode(array $in): array
 {
     foreach ($in as $key => $record) {
@@ -32,13 +33,6 @@ function file_post_contents(string $url, array $data, string $username = null, s
         )
     );
 
-    #if (!is_null($username) && !is_null($password)) {
-    #    $opts['http']['header'] .= "Authorization: Basic " . base64_encode("$username:$password");
-    #}
-
-                                          
-
-
     $context = stream_context_create($opts);
 
     try {
@@ -51,17 +45,13 @@ function file_post_contents(string $url, array $data, string $username = null, s
 
         throw new \Exception();
     }
-
-    return $response;
+    #var_dump($http_response_header);
+    return [$response,$http_response_header];
 }
 
 if(isset($_POST['REQUEST']) && isset($_POST['SERVICE'])){
 
-	# especificar ip del servidor
-	$IP = "192.168.1.71";#local
-	#$IP = "148.247.201.140"; #compute 1 disys0
-	#$IP = "3.129.5.12"; #amazon 6 
-	#$IP = "gamma.tamps.cinvestav.mx";#local
+	#$IP = "192.168.1.71";#local
 	$IP = $_ENV["XEL_IP"];
 
 	# especificar puerto del servidor
@@ -89,11 +79,51 @@ if(isset($_POST['REQUEST']) && isset($_POST['SERVICE'])){
 
 	$url = "http://".$HOST."/".$_POST['SERVICE'];
 	$data_string = json_encode($_POST['REQUEST']);
-
-	file_put_contents($dir.$file_name, file_post_contents($url,$_POST['REQUEST']));
+    
+	file_put_contents($dir.$file_name, file_post_contents($url,$_POST['REQUEST'])[0]);
 	chmod($dir.$file_name, 0664);
 
 	$newurl = "./includes/xel_downloadfile.php?filename=".$file_name."";
 
 	echo $newurl;
+}else{
+    $jsonData = json_decode(file_get_contents('php://input'),true);
+
+	$IP = $_ENV["XEL_IP"];
+
+	# especificar puerto del servidor
+	$PORT=":25000";
+    $PORT=":".$_ENV["XEL_PORT"];
+	$dir = $_SERVER['DOCUMENT_ROOT']."/limbo/";
+
+	$HOST = $IP.$PORT;
+	$file_name ="Unnamed";
+	if(isset($jsonData['METADATA']['file_ext'])){		#si existe una ext, entonces se genera el nombre del archivo
+		$name = $jsonData['REQUEST']['data']['task'];
+		$ext = $jsonData['METADATA']['file_ext'];
+		$date_produced = date("d-m-Y-h-i-s");
+		$file_name = $name."_".$date_produced.".".$ext;
+	}
+	if(isset($jsonData['METADATA']['file_name'])){
+		$file_name = $_POSjsonDataT['METADATA']['file_name'];
+	}
+
+	$url = "http://".$HOST."/".$jsonData['SERVICE'];
+	$data_string = json_encode($jsonData['REQUEST']);
+    
+	#file_put_contents($dir.$file_name, file_post_contents($url,$_POST['REQUEST']));
+	#chmod($dir.$file_name, 0664);
+
+    $respuesta=file_post_contents($url,$jsonData['REQUEST']);
+    $contenido = $respuesta[0];
+    $cabeceras = $respuesta[1];
+    
+    foreach ($cabeceras as $nombre => $valor) {
+        header($valor);
+    }
+
+
+    header('Access-Control-Expose-Headers: Location');
+    echo $contenido;
+
 }

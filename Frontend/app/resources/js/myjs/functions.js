@@ -1181,12 +1181,17 @@ function notificarUsuario(msj, tipo) {
         message: msj
     }, {
         type: tipo,
-        delay: 6000,
+        delay: 1000,
         z_index: 5000
     });
     LOG_NOTIF[`m_${ID_NOTIF}`]={"tipo":tipo,"mensaje":msj}
     ID_NOTIF +=1
+
+    STACK_LOGS.push(msj,tipo)
 }
+
+
+
 
 /**
  * MUESTRA EL POLIGONO DE UN PATH ROW

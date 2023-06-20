@@ -21,7 +21,7 @@
       <div class="tab-content" style="height:calc(100% - 42px);overflow:auto">
 
         <!-- TAB 2.5 designer tools -->
-        <div class="tab-pane active container-fluid" id="xel-tab" style="height:100%">
+        <div class="tab-pane active" id="xel-tab" style="height:100%">
           <div class="invisible" id="invisible_link" ></div> <!-- div invisible. unicamente para el link de descarga de datos -->
           <hr>
             
@@ -32,7 +32,9 @@
                 <span class="sr-only">Toggle Dropdown</span>
               </button>
               <div class="dropdown-menu">
-                <a class="dropdown-item" onClick="Xel_run(true)">Run as a Copy</a>
+                <a class="dropdown-item" onClick="Xel_run(false,true)">Run everything (force)</a>
+                <a class="dropdown-item" onClick="Xel_run(true,false)">Run as a Copy</a>
+
               </div>
             </div>
           
@@ -41,14 +43,13 @@
           <hr>
           <div class ="col-sm-12" id="leftcard" style="height:100%" >
 
-          <p class="text-left text-uppercase font-italic" data-toggle="popover"
-                data-title="SERICE BOXES" data-content="DRAG AND DROP BOXES ON THE RIGHT PANEL TO CHAIN THE NEW BOX">SERVICES
-                <a><span id="gralInfo" class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></a>
-          </p>
+          <h5 class="font__family-montserrat font__weight-light text-uppercase font__size-18 text-blue brk-library-rendered" data-brk-library="component__title">Services</h5>
+
+
 
 
           <div id="sectionDIV" style=" overflow-y:auto; overflow-x:hidden" > <!--height:100%;-->
-              <div class="container-fluid" id="blocklist">
+              <div id="blocklist">
                 <div class="accordion" id="faq">
                   </div> <!-- end section of cards-->
                 </div>
@@ -106,6 +107,14 @@
 
               </div>  
               <hr>
+
+              <div class="container row">
+             <p class="text-left text-uppercase font-italic">Download project</p>
+
+                <div class="btn-group btn-block">
+                    <button class="btn btn-outline-primary" onclick="DownloadProject()">Download</button>
+                </div>
+              </div>  
           </div>
         </div>
 
@@ -133,7 +142,8 @@
       <ul id="tabs_show" class="nav nav-tabs">
         <li class="nav-item ml-auto"><a class="nav-link active" href="#designer" data-toggle="tab">Designer <i class="fas fa-pen-alt"></i></a></li>
         <li class="nav-item"><a aria-current="page" class="nav-link" href="#mapContainer" data-toggle="tab"> Map <i class="fas fa-map-marker-alt"></i></a></li>
-        <li class="nav-item"><a class="nav-link" href="#templates" data-toggle="tab">Templates <i class="fab fa-buromobelexperte"></i></a></li>
+        <li class="nav-item"><a aria-current="page" class="nav-link" href="#templates" data-toggle="tab">Templates <i class="fab fa-buromobelexperte"></i></a></li>
+        <li class="nav-item"><a aria-current="page" class="nav-link" href="#logs" data-toggle="tab">Logs <i class="fas fa-scroll"></i></a></li>
 
         <!--<li class="nav-item">
           <a class="nav-link" href="#report" onClick="get_topoformas();" data-toggle="tab" id="btnReporte">Report 
@@ -146,15 +156,16 @@
       <div class="tab-content" style="height:calc(100% - 42px)">
 
         <!-- TAB 1-->
-        <div class="col-12 tab-pane options" style="height:100%" id="mapContainer"> 
+        <div class="col-12 animate-smooth tab-pane options" style="height:100%" id="mapContainer"> 
           <div id="map" style="width:100%; height:100%"></div>
         </div>
+
         <!-- TAB 2-->
-        <div class="col-12 tab-pane active" style="height:100%; padding-left: 1px;padding-right: 1px" id="designer">
+        <div class="col-12 animate-smooth tab-pane active" style="height:100%; padding-left: 1px;padding-right: 1px" id="designer">
             <div id="canvas"></div>
         </div>
         <!-- TAB 3 -->
-        <div class="html-content col-8 tab-pane options" id="report" style="overflow:auto; height:100%">
+        <div class="html-content col-8 animate-smooth tab-pane options" id="report" style="overflow:auto; height:100%">
         <br>
             <div style="float: right;" class="btn-group" role="group">
               <button onclick="get_topoformas()" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-refresh" aria-hidden="true"> Refrescar</span></button> &nbsp;
@@ -173,12 +184,30 @@
         </div>
 
         <!-- TAB 4-->
-        <div class="col-12 tab-pane options" style="height:100%" id="templates"> 
+        <div class="col-12 animate-smooth tab-pane options" style="height:100%" id="templates"> 
           <hr>
           <div class="col-12">  <button onclick="create_table_templates('table_templates')" class="btn btn-outline-secondary col-12">List templates</button> </div>
           <hr>
           <div class="row"  style="max-height: 750px" id="table_templates"></div>
         </div>
+
+        <!-- TAB logs-->
+        <div class="col-12 animate-smooth tab-pane options " style="height:100%" id="logs"> 
+          <div class="container" style="width:100%; height:100%;overflow:auto;padding-top: 10px " >
+
+            <div class="panel__wrapper-icon mb-100 brk-library-rendered" data-brk-library="component__panel">
+                <div class="panel__head all-light">
+                  <h4 class="font__family-montserrat font__weight-medium font__size-21">LOGs</h4>
+                  <p class="font__family-open-sans font__size-14"></p>
+                </div>
+              <ul class="panel__list" id="logs-panel">
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+
       </div>
     </div> <!--end left panel-->
 

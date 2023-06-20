@@ -43,6 +43,7 @@
   <link rel="stylesheet" type="text/css" href="resources/js/extern/introjs.css">
   <link href="resources/css/mycss/sections.css" rel="stylesheet" type="text/css" media="all" />
   <link href="resources/css/mycss/cards_services.css" rel="stylesheet" type="text/css" media="all" />
+  <link href="resources/css/mycss/list_panel.css" rel="stylesheet" type="text/css" media="all" />
 
   <!-- DESIGNER libraries
   <link href="resources/css/extern/blockstyle.css" rel="stylesheet" type="text/css" media="all" />-->

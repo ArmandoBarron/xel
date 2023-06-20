@@ -54,7 +54,7 @@
 	height: 95px;
 	border-radius: 50%;
 	z-index: 9;
-	background: #c76060;
+	background: #9a113d;
 	padding: 15px;
 	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
 }
@@ -67,14 +67,14 @@
 .modal-login .btn, .modal-login .btn:active {
 	color: #fff;
 	border-radius: 4px;
-	background: #c76060 !important;
+	background: #6d1c3c !important;
 	text-decoration: none;
 	transition: all 0.4s;
 	line-height: normal;
 	border: none;
 }
 .modal-login .btn:hover, .modal-login .btn:focus {
-	background: #ab4545 !important;
+	background: #bb0054 !important;
 	outline: none;
 }
 

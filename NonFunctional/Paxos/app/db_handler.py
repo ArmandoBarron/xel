@@ -64,14 +64,14 @@ class Handler:
         return doc
 
     
-    def List_document(self,collection_name,query={}):
+    def List_document(self,collection_name,query={},filter_obj={"task_list":0,"_id":0 , "DAG":0,"metadata.frontend":0 }):
         """
         collection name is the token user
         """
         doc = None
         client= self._openConnection()
         db = client[self.db_name] #bd
-        doc = db[collection_name].find(query,{"task_list":0,"_id":0 , "DAG":0,"metadata.frontend":0 })
+        doc = db[collection_name].find(query,filter_obj)
         list_cur = list(doc)
         self._closeConnection(client)
         return list_cur
@@ -83,7 +83,7 @@ class Handler:
         colnames = list(self.Get_all_collections())
         list_documents = []
         for col in colnames:
-            documents = self.List_document(col)
+            documents = self.List_document(col,filter_obj={"token_solution":1, "_id":0})
             list_documents+=documents
         return list_documents
     

@@ -1,4 +1,38 @@
 
+.animate-eseout.tab-pane.active {
+  animation: slide-down 1.5s ease-out;
+}
+
+@keyframes slide-down {
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-smooth.tab-pane.active {
+  animation-name: show-tab;
+  animation-duration: 1s;
+}
+
+@keyframes show-tab {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+html,body {
+
+  font-family: 'Montserrat',sans-serif;
+  font-display: auto;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 16px;
+  color: #222;
+  background: #fff;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* antiguo
 html, body {
 	min-height: 100% !important;
   height: 100%;
@@ -9,7 +43,7 @@ html, body {
 	background:#fff;
 	font-family: 'Roboto', sans-serif;
 }
-
+*/
 a{
 	cursor: pointer;
 	text-decoration: none;

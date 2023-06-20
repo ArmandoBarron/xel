@@ -44,15 +44,13 @@ class bb_dispatcher():
             ###### SEND #######
             ip = res['ip'];port = res['port']
             self.LOGER.debug("Children >>>>>> IP:%s PORT: %s " %(ip,port) )
+            #note: warn moved
+            ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'Starting ejecution.','INIT',id_service=child['id'],parent=parent,dag=child,include_hash=True)
+            self.POSTMAN.WarnGateway(ToSend)
             while(True):
-                #
                 data = C.RestRequest(ip,port,{'data':data_map,'DAG':child,"auth":auth},data_file=data_pointer)
                 if data is not None:
                     self.LOGER.info(">>> DATA SENT SUCCESFULLY <<<")
-                    #warn successful process
-                    ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'Starting ejecution.','INIT',id_service=child['id'],parent=parent,dag=child,include_hash=True)
-                    
-                    self.POSTMAN.WarnGateway(ToSend)
                     errors_counter=0
                     break;
                 else:

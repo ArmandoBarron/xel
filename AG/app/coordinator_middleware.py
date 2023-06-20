@@ -23,7 +23,9 @@ import magic as M
 from functions import *
 from Proposer import Paxos
 from Auth import login_request, register_user, token_required,data_autorization_requiered, resource_autorization_requiered,API_required,logout_request
-
+from BB_dispatcher import bb_dispatcher 
+from PostmanPaxos import postman
+from DataGarbageCollector import GarbageCollector
 import genesis_client as GC
 from storage.mictlanx_client import mictlanx_client
 
@@ -45,6 +47,8 @@ if REMOTE_STORAGE:
     STORAGE_CLIENT = mictlanx_client()
 else:
     STORAGE_CLIENT = None
+
+
 
 ALLOW_REGISTER_NEW_USERS= TranslateBoolStr(os.getenv("ALLOW_REGISTER_NEW_USERS"))
 INIT_EXAMPLE = TranslateBoolStr(os.getenv("INIT_EXAMPLE")) 
@@ -74,8 +78,15 @@ Tolerant_errors=0 #total of errors that can be tolarated
 ACCEPTORS_LIST= dictionary['paxos']["accepters"]
 LOGER.info(ACCEPTORS_LIST)
 PROPOSER = Paxos(ACCEPTORS_LIST)
+
+# Garbage collector para backups
+GarbageColl = GarbageCollector(PROPOSER,BKP_FOLDER,LOGER,stopwatch=30)
+GarbageColl.start()
 ########## END GLOBAL VARIABLES ##########
 
+
+def GetPostman(service=None,hash_product=""):
+    return postman(PROPOSER,logs_folder,service=service,LOGER=LOGER,hash_product=hash_product)
 
 def init_user(user,password):
     if INIT_EXAMPLE:
@@ -113,7 +124,7 @@ def GetDataPath(params):
     credentials = params['data']
     try:
         if typeOfData=="RECORDS":
-            input_data = pd.DataFrame.from_records(data['data']) #data is now a dataframe
+            input_data = pd.DataFrame.from_records(params['data']) #data is now a dataframe
             INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix=".csv") #create temporary file
             path= INPUT_TEMPFILE.name; INPUT_TEMPFILE.close()
             input_data.to_csv(path, index = False, header=True) #write DF to disk
@@ -129,6 +140,19 @@ def GetDataPath(params):
                 #tmp = os.listdir(path)
                 tmp = [f for f in os.listdir(path) if not f.startswith('.')] #ignore hidden ones
                 path +=tmp[0]
+        elif typeOfData=="PROJECT":
+            if credentials['token_solution'] == "":
+                raise ValueError
+            data_path = BKP_FOLDER+credentials['token_solution']+"/"
+            name = "project_"+credentials['token_solution']
+            ext="zip"
+            path = BKP_FOLDER + name +"."+ext
+            LOGER.info(data_path)
+            if FileExist(path):
+                pass #verify if data exist
+            else:
+                path = CompressFile(BKP_FOLDER,data_path,namefile ="%s.%s"% (name,ext) )
+
         elif typeOfData=="LAKE":
             path = GetWorkspacePath(credentials['token_user'],credentials['catalog']) + credentials['filename']
         elif typeOfData=="DUMMY": #no data, just a dummy file (is the easiest way to avoid an error, sorry in advance)
@@ -207,105 +231,20 @@ def GetWorkspacePath(tokenuser,workspace=None):
         createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
         return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
 
-def GarbageCollector():
-
-    paxos_response = PROPOSER.list_solutions(auth,query)
-    pass
-
-
-def ask_function(params):
-    service = params['service'] #service name
-    context = params['context']
-    n=1 #quantity of workload added to resource
-    force = True
-    if 'force' in params: #option for gateways, gateways are forced to select a resource in the same context
-        force = True
-        n = 0
-
-    if 'update' in params: #update node status
-        info = params['update'] #{id,status,type}
-        if info['status'] == "DOWN":
-            PROPOSER.Update_resource(service,info['id'],{"context":context},read_action="DISABLE")
-
-    res = PROPOSER.Read_resource(service,'',context,read_action="SELECT")['value'] #select
-
-    if res is None: #no more avaiable resources
-        return json.dumps({'info':'ERROR'})
-    else:
-        PROPOSER.Update_resource(service,res['id'],{"context":res['context']},read_action="ADD_WORKLOAD")
-        return json.dumps(res)
-
-def warn_function(warn_message):
-    #ToSend={'status':status,"message":message,"label":label,"task":id_serv,"type":data_type, "index":index_opt} #update status
-    control_number = warn_message['control_number']
-    ######## paxos ##########
-    paxos_response = PROPOSER.Update_task(control_number,warn_message) # save request in paxos distributed memory
-    if paxos_response['status'] == "ERROR":
-        LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
-        return json.dumps({'status':'ERROR',"message":"PAXOS DENIED THE REQUEST"})
-    #########################
-
-    if 'times' in warn_message:
-        tmp= warn_message['times']
-        f = open(logs_folder+'log_'+control_number+'.txt', 'a+'); 
-        f.write("%s, %s, %s, %s \n" %(tmp['NAME'],tmp['ACQ'],tmp['EXE'],tmp['IDX'], )) 
-        f.close()
-        del f
-
-    return json.dumps({'status':'OK'})
 
 #service to execute applications
-def execute_service(service,metadata):
+def execute_service(parent,metadata,include_hash=False):
+    postman = GetPostman()
+
+    if include_hash:
+        postman.calculate_sha256sum(metadata['data']['data'])
+
     f = open(metadata['data']['data'],"rb")
     control_number = metadata['DAG']['control_number']
-    LOGER.info("Coordinator is executing...%s"% service)
-    errors_counter=0
-    ToSend = {'service':service,'context':control_number} #update status of falied node ANTES NETWORK
-    #LOGER.error(ToSend)
 
-
-    #before ask we need to validate the resource is the same as the AG network
-
-    res = json.loads(ask_function(ToSend))
-
-    while(True): # AVOID ERRORS
-        if res is None: #no more resources avaiable
-            data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
-            warn_function({'status':data['status'],"message":data["message"],"control_number":control_number,"label":"FALSE","task":metadata['DAG']['id'],"type":data['type'], "index":False}) #update status
-            break
-
-        try:
-            ip = res['ip']
-            port = res['port']
-        except KeyError as ke_ip:
-            LOGER.error("Key error: %s" %ke_ip )
-            data= {'data':'','type':'','status':'ERROR','message': 'no available resources found: %s attempts.' % str(errors_counter)}
-            warn_function({'status':data['status'],"message":data["message"],"control_number":control_number,"label":"FALSE","task":metadata['DAG']['id'],"type":data['type'], "index":False}) #update status
-            break
-
-        #send message to BB
-        data = C.RestRequest(ip,port,metadata,data_file=f)
-
-        if data is not None:
-            LOGER.info(">>>>>>> SENT WITH NO ERRORS")
-            errors_counter=0
-            
-            break
-        else:
-            errors_counter+=1
-            LOGER.error(">>>>>>> NODE FAILED... TRYING AGAIN..%s" % errors_counter)
-            if errors_counter>Tolerant_errors: #we reach the limit
-                    ######## ASK AGAIN #######
-                    ToSend = {'service':service,'context':control_number,'update':{'id':res['id'],'status':'DOWN'}} #update status of falied node ANTES NETWORK
-                    res = json.loads(ask_function(ToSend))
-                    errors_counter=0 #reset counter 
-                    if 'info' in res: #no more nodes
-                        res = None
-                    else:
-                        ip = res['ip'];port = res['port']
-                        LOGER.error("TRYING A NEW NODE... IP:%s PORT: %s " %(ip,port) )
-    LOGER.info("finishing execution...%s"% service)
-
+    dispatcher = bb_dispatcher(control_number,parent,control_number,LOGER=LOGER,POSTMAN=postman,Tolerant_errors=Tolerant_errors)
+    dispatcher.Send_to_BB(metadata['data'],f,metadata['auth'], metadata['DAG'])
+   
 
 app = Flask(__name__)
 
@@ -361,7 +300,8 @@ def AddServiceResource():
 @token_required
 def ASK():
     params = request.get_json()
-    return ask_function(params)
+    postman = GetPostman()
+    return postman.AskGateway(params)
 
 
 @app.route('/STATUS', methods=['GET'])
@@ -388,7 +328,8 @@ def append_log():
 @token_required
 def WARN():
     warn_message = request.get_json(force=True)
-    return warn_function(warn_message)
+    postman = GetPostman()
+    return postman.WarnGateway(warn_message)
 
 @app.route('/stopDAG/<token_project>/<token_solution>', methods=['GET'])
 @token_required
@@ -422,24 +363,26 @@ def execute_DAG():
     envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
     data = params['data_map'] #data to be transform {data:,type:}
     DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
+    
+    exec_options = {}
+    if 'options' in params:
+        exec_options = params['options'] 
+        if 'force' in exec_options:
+            exec_options['force'] = TranslateBoolStr(exec_options['force'])
 
-    #f = open('ejemplo_dag.txt', 'w');
-    #f.write(json.dumps(params,indent=4)) 
-    #f.close()
+
+    LOGER.info(exec_options)
 
     Alias="default"
     if 'alias' in params:
         Alias = params['alias']
 
-
-    LOGER.info(DAG)
     data_path,name,ext= GetDataPath(data) #get data path
 
     data['data'] = data_path
     data['type'] = ext
 
     LOGER.info(data_path)
-
 
     # verify if data exist
     if (os.path.exists(data['data'])):
@@ -452,7 +395,7 @@ def execute_DAG():
     TIMES_list[RN]={"deploy":0,"total":time.time(),"recovery":0,"alias":Alias}
 
     ######## paxos ##########
-    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params) # save request in paxos distributed memory
+    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params,options=exec_options) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
         LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
         return make_response({"status":"ERROR","message":"Mesh is not accepting requests"},503)
@@ -481,6 +424,7 @@ def execute_DAG():
             time.sleep(1)
         ################################################################
 
+        dispatcher_parent = '' # is void if coordinator is the parent
         for branch in new_dag:
             branch['control_number'] = RN
             if branch['id'] in task_list:
@@ -496,32 +440,20 @@ def execute_DAG():
                     path_bk_data +="/"+tmp[0]
                     ext_bk_data = path_bk_data.split(".")[-1]
                     LOGER.info("recovering data from %s ..." % path_bk_data)
+                    dispatcher_parent = parent
 
                 data_format ={"data":path_bk_data,"type":ext_bk_data}
                 metadata = {"data":data_format,"DAG":branch,"auth":envirioment_params}
                 service = branch['service'] #name of the service to send the instructions
-                thread1 = Thread(target = execute_service, args = (service,metadata))
+                thread1 = Thread(target = execute_service, args = (dispatcher_parent,metadata,True))
                 thread1.start()
             else:
                 LOGER.info(" ========= sending Raw data ========== ")
 
                 metadata = {"data":data,"DAG":branch,"auth":envirioment_params}
                 
-                # esto es harcodeado solo para probar
-                #metadata['DAG']['pattern'] ={
-                #        "kind": "Map",
-                #        "workers": 4,
-                #        "limit_threads":True,
-                #        "active":True,
-                #        "spec":{
-                #            "map":"groupby", #groupby, split
-                #            "variables":["cve_ent","sexo"],
-                #            "on_cascade":True,  
-                #            "reduce":"chunk"
-                #        },            
-                #    }
                 service = branch['service']
-                thread1 = Thread(target = execute_service, args = (service,metadata) )
+                thread1 = Thread(target = execute_service, args = (dispatcher_parent,metadata,True) )
                 thread1.start()
                 sleep(.5)
     else:
@@ -578,7 +510,7 @@ def monitoring_v2(token_project,token_solution):
                 metadata = {"data":data,"DAG":dag,"auth":{"user":token_project,"workspace":"not important"}}
                 service = dag['service'] #name of the service to send the instructions
 
-                thread1 = Thread(target = execute_service, args = (service,metadata))
+                thread1 = Thread(target = execute_service, args = (parent,metadata))
                 thread1.start()
                 ToSend['additional_messages'].append({"task":task, "status":"RECOVERING", "message":"RECOVERING DATA FROM %s" % task})
                 TIMES_list[token_solution]['recovery'] += time.time() - temp

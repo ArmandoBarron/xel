@@ -4,10 +4,18 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import math
 import sys
-from sklearn.decomposition import PCA
 import numpy as np
 import janitor #!pip install pyjanitor==0.23.1
 from pandas.api.types import is_numeric_dtype
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsRegressor
+
+
+
 
 def validate_att(att): #esta funcion sirve para validar que un argumento viene vacio o no
     if att =="" or att =="-":
@@ -25,8 +33,8 @@ def export_figures(fig,outputpath,imagefile_name,config,format_ticks =True):
     imagefile_name = "chart"
     fig.update_layout(title=TITLE,
                     dragmode='select',
-                    width=1200,
-                    height=800,
+                    width=900,
+                    height=700,
                     hovermode='closest',
                     #transition  = dict(duration=2000,easing="elastic"),
                     font=dict(
@@ -96,10 +104,17 @@ TITLE = sys.argv[15] # "PLOT"
 
 COLUMN_Z = sys.argv[16] # "suicSinDerhab"
 ORIENT = validate_att(sys.argv[17]) # h o v
+REFERENCE_VALUE = validate_att(sys.argv[18]) # 
+
 if not ORIENT:
     ORIENT="v"
 else:
     ORIENT = sys.argv[17]
+
+if not REFERENCE_VALUE:
+    REFERENCE_VALUE=[]
+else:
+    REFERENCE_VALUE = sys.argv[18].split(",")
 #validations
 
 config = {'displaylogo': False,
@@ -536,6 +551,90 @@ if chart_template==15: # Custom Heatmap
                             animation_frame=TEMPORAL_COLUMN, 
                             histfunc="max",
                             range_color=(minValue, maxValue))
+    export_figures(fig, outputpath,imagefile_name,config)
+
+if chart_template==16: # regresion
+    """
+    python3 graph.py test_solo_CO.csv ./output '16' '' '' '' '' 'year' 'contamiantes_value' '' '' '' '' '' 'title' '' '' mexico=5
+
+    """
+
+    imagefile_name = "Regression"
+    df = df.sort_values(COLUMN_X)
+    X = df[[COLUMN_X]]
+    X_train = X
+    y_train = df[COLUMN_Y]
+
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+
+    x_range = X[COLUMN_X].tolist()
+    y_range = model.predict(X)
+
+    #valores x a predecir
+    x_value = df[COLUMN_X].unique()
+    #se añaden valores de tendencia
+    #porcentaje = 0.2  # Porcentaje de elementos a añadir
+    #cantidad_a_anadir = int(len(x_value) * porcentaje)  # Cantidad de elementos a añadir
+    #ultimo_valor = x_value[-1]  # Último valor de la lista original
+    #patron = x_value[1] - x_value[0]  # Patrón entre los primeros dos valores
+    #valores_a_anadir = [ultimo_valor + (i + 1) * patron for i in range(cantidad_a_anadir)]  # Generar los nuevos valores
+    #x_value = np.concatenate((x_value,valores_a_anadir))  # Concatenar la lista original con los nuevos valores
+
+    #polinomial
+    poly_features = PolynomialFeatures(degree=2)
+    x_poly = poly_features.fit_transform(df[COLUMN_X].values.reshape(-1, 1))
+    model_poly = LinearRegression()
+    model_poly.fit(x_poly, y_train)
+    x_poly_test = poly_features.fit_transform(x_value.reshape(-1, 1))
+    y_poly= model_poly.predict(x_poly_test)
+
+    #dessicion tree
+    model_dt = DecisionTreeRegressor()
+    model_dt.fit(df[COLUMN_X].values.reshape(-1, 1), y_train)
+    y_dt = model_dt.predict(x_value.reshape(-1, 1))
+
+    # KNN 
+    k = 3  # Número de vecinos a considerar
+    model_knn = KNeighborsRegressor(n_neighbors=k)
+    model_knn.fit(df[COLUMN_X].values.reshape(-1, 1), y_train)
+    y_knn = model_knn.predict(x_value.reshape(-1, 1))
+
+    
+
+    fig = go.Figure([
+        go.Scatter(x=X_train.squeeze(), y=y_train, name='records', mode='markers', marker=dict(opacity=0.4)),
+        go.Scatter(x=x_range, y=y_range, name='Linear Reg.'),
+        go.Scatter(x=x_value, y=y_poly, mode='lines', name='Polinomial Reg.',visible="legendonly"),
+        go.Scatter(x=x_value, y=y_dt, mode='lines', name='Decision tree Reg.',visible="legendonly"),
+        go.Scatter(x=x_value, y=y_knn, mode='lines', name='KNN Reg. (K=3)',visible="legendonly")
+
+    ])
+
+    for ref in REFERENCE_VALUE:
+        name,value = ref.split("=")
+
+        fig.add_traces(go.Scatter(x=x_value, y=[value]*len(x_value), mode='lines', line=dict(dash='dash'), name=name))
+
+    fig.update_layout(
+        yaxis=dict(
+            title=COLUMN_Y,  # Nombre del eje y
+            titlefont=dict(size=16)  # Tamaño de la fuente del nombre del eje y
+        ),
+        xaxis=dict(
+            title=COLUMN_X,  # Nombre del eje y
+            titlefont=dict(size=16)  # Tamaño de la fuente del nombre del eje y
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01,
+            bgcolor='rgba(0, 0, 0, 0)'
+        )
+    )
+
     export_figures(fig, outputpath,imagefile_name,config)
 
 exit(0)

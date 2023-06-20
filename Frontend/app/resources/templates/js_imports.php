@@ -78,6 +78,8 @@ $google_maps_key = $_ENV["GOOGLE_MAPS_KEY"]
 <script defer type="text/javascript" src="resources/js/myjs/copy_text.js"></script>
 <script defer type="text/javascript" src="resources/js/extern/intro.js"></script>
 <script defer type="text/javascript" src="resources/js/myjs/kmeans.js"></script> <!--kmeans -->
+<script defer type="text/javascript" src="resources/js/myjs/Mensajes.js"></script>
+
 <script defer type="text/javascript" src="resources/js/myjs/Services.js"></script> <!--Primer va este y despues las secciones -->
 <!--INICIO DE LAS SECCIONES-->
 <script defer type="text/javascript" src="resources/js/myjs/ServicesForms/0_config_sections.js"></script> 
@@ -93,7 +95,7 @@ $google_maps_key = $_ENV["GOOGLE_MAPS_KEY"]
 
 <!--FIN DE LAS SECCIONES-->
 <script defer type="text/javascript" src="resources/js/myjs/designer.js"></script>
-<script defer type="text/javascript" src="resources/js/myjs/ReportePDF.js"></script>
+<!-- <script defer type="text/javascript" src="resources/js/myjs/ReportePDF.js"></script>-->
 
 <script src="resources/js/extern/xepOnline.jqPlugin.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> <!-- PLOTS-->
@@ -130,3 +132,4 @@ $google_maps_key = $_ENV["GOOGLE_MAPS_KEY"]
 <link rel="stylesheet" href="resources/src/codemirror/theme/mdn-like.css">
 <link rel="stylesheet" href="resources/src/codemirror/codemirror_styles.css">
 <link rel="stylesheet" href="resources/src/codemirror/addon/show-hint.css">
+

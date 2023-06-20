@@ -219,6 +219,7 @@ ServicesArr.push(
                 topk_n:"",
                 topk_func:"",
                 orient:"h",
+                reference:"",
                 SAVE_DATA:true
             },
             html: `
@@ -302,6 +303,7 @@ ServicesArr.push(
                                             <option value="13"> TreeMap </option>
                                             <option value="14"> Sorted Barplot </option>
                                             <option value="15"> Custom Heatmap </option>
+                                            <option value="16"> Regression </option>
 
                                     </select>
                                     </div>
@@ -340,14 +342,14 @@ ServicesArr.push(
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12 15">
+                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12 15 16">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable x: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_x" onclick=fillselect(this,multi=false)></select>
                                     </div>
                             </div>
 
-                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12 14 15">
+                            <div class="form-group row m-2" opth opt-chart="4 5 7 8 10 11 12 14 15 16">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Variable y: </label>
                                     <div class="col-sm-8">
                                     <select class="form-control" id="column_y" onclick=fillselect(this,multi=false)></select>
@@ -414,6 +416,16 @@ ServicesArr.push(
                                         </div>
                             </div>
 
+                            <div class="form-group row m-2" opth opt-chart="16">
+                                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Reference values:</label>
+                                        <div class="col-sm-8">
+                                                <input id="reference" type="text" class="form-control">
+                                        </div>
+                                        <div class="container">
+                                                <span class="help-block">Use the next format: Reference_name=reference_value</span>
+                                                <span class="help-block">Add multiple references separated by comma</span>
+                                        </div>
+                            </div>
                         </div>
 
                             <div class="form-group row m-2">

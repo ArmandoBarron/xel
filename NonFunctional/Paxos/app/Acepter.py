@@ -25,8 +25,6 @@ LOG = logging.getLogger()
 BRANCHES = dict() #dict of all the REQUEST
 VISUAL = dict() #dict of all visual metadata
 
-
-
 app = Flask(__name__)
 ACTUAL_VALUE = 0
 
@@ -73,17 +71,18 @@ def create_string_for_fingerprint(params,id_process,parent=''):
 
 def warp_fingerprint(taskInDag,parent='',mode='params'): #params, pattern
     id_service =taskInDag['id']
-
     #pattern = ''
     #if 'pattern' in taskInDag:
     #    pattern = json.dumps(taskInDag['pattern'])
 
     chained_string = create_string_for_fingerprint(taskInDag[mode],id_service,parent=parent)
     fp_dag=Create_fingerprint(chained_string)
+
+
     return fp_dag
 
 def Create_fingerprint(input_data,mode="str"):
-    if mode is "str":
+    if mode == "str":
         encoded=input_data.encode()
     else:
         encoded = input_data
@@ -273,10 +272,14 @@ def update_task_status(RN,task,status,message,details=None,is_recovered = False,
         BRANCHES[RN][key_list][task]['is_recovered'] = is_recovered
 
     if fingerprint is not None:
+        LOG.info("task %s "%task)
+        LOG.info("old fingerprint %s "%BRANCHES[RN][key_list][task]['fingerprint'])
+        LOG.info("new fingerprint %s "%fingerprint)
+
         BRANCHES[RN][key_list][task]['fingerprint']=fingerprint  # The fingerprint changed, so we save the new one
         BRANCHES[RN][key_list][task]['is_fp_different']=is_fp_different 
         BRANCHES[RN][key_list][task]['is_pattern_diff']=is_pattern_diff 
-
+        LOG.info("new fingerprint applied %s "%BRANCHES[RN][key_list][task]['fingerprint'])
 
     if parent is not None:
         BRANCHES[RN][key_list][task]['parent']=parent  # The parent changed, so we save the new one
@@ -377,7 +380,7 @@ def validate_end_process(token_solution,key_list,id_service):
 def validate_solution(dag, solution,token_solution,parent=''):
     global BRANCHES
     #compare the new dag with task list in the solution already stored in memory (or db)
-    LOG.info("solution datatype: %s" % type(solution))
+
     new_dag=[]
     for taskInDag in dag:
         LOG.info("%s - solution datatype: %s" % (taskInDag['id'],type(solution)))
@@ -395,6 +398,7 @@ def validate_solution(dag, solution,token_solution,parent=''):
 
             taskInSolution = solution['task_list'][id_service]
             Fingerprints_comparation = Compare_fingerprints(taskInSolution['fingerprint'],fp_dag)
+
             parent_comparation = Compare_parents(taskInSolution['parent'],parent) 
 
             is_fp_different = not Fingerprints_comparation
@@ -407,8 +411,8 @@ def validate_solution(dag, solution,token_solution,parent=''):
                 pattern_comparation = Compare_fingerprints(original_fp_pattern,fp_pattern)
                 is_pattern_diff = not pattern_comparation
 
-            LOG.debug("LA COMPARACION DE FP ES %s para la tarea %s con status %s" %(Fingerprints_comparation,id_service,taskInSolution['status']))
-            LOG.debug("LA COMPARACION DE PADRES ES %s para la tarea %s con status %s" %(parent_comparation,id_service,taskInSolution['status']))
+            LOG.info("LA COMPARACION DE FP ES %s para la tarea %s con status %s" %(Fingerprints_comparation,id_service,taskInSolution['status']))
+            LOG.info("LA COMPARACION DE PADRES ES %s para la tarea %s con status %s" %(parent_comparation,id_service,taskInSolution['status']))
 
 
             if (Fingerprints_comparation and taskInSolution['status']=="FINISHED" and parent_comparation and (not is_pattern_diff)):
@@ -426,6 +430,8 @@ def validate_solution(dag, solution,token_solution,parent=''):
                 new_dag.append(taskInDag)
                 update_task_status(token_solution,id_service,"STARTING","Task has changes",fingerprint=fp_dag,parent=parent,is_fp_different=is_fp_different,is_pattern_diff=is_pattern_diff)
                 update_task_status_in_cascade(token_solution,childrens,"STARTING","Parent task has changes",parent=id_service)
+
+
 
         else: #the task is not in memory, so it is new
             new_dag.append(taskInDag)
@@ -486,11 +492,24 @@ def save_data(value):
     RN = str(value['control_number'])
     dag = value['DAG']
     auth = value['auth']
-
-    #options = value['exe_opt']
+    options = {}
+    if 'options' in value:
+        options = value['options'] # options: Force
+    
+    # default options
     force = False
+
+    #custom options
+    if 'force' in options:
+        force=options['force']
+        LOG.info("si hay force")
+
+
+    LOG.info("EJECUTANDO DE NUEVO: %s" % force)
+
     is_already_running=False
     solution =  Get_solution_if_exist(RN,auth)
+    #print(solution)
     if (force is False) and solution!=None:
         if "status" not in BRANCHES[RN]: #esto es temporal, para que las soliciones que yae sten guardadas no tengan problemas
             BRANCHES[RN]['status']="FINISHED"
@@ -507,6 +526,8 @@ def save_data(value):
         else:
             is_already_running=True
     else:
+        LOG.info("EJECUTANDO UN NUEVO GRAFO: %s" % force)
+
         BRANCHES[RN]=dict()
         BRANCHES[RN]["DAG"]=dag
         BRANCHES[RN]["token_solution"]=RN

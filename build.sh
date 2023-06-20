@@ -38,12 +38,14 @@ tag_glove="xel_bb_glove:v2.0"
 tag_classification_models="xel_bb_classification_models:v2.0"
 tag_advanced_map="xel_bb_advanced_map:v2.0"
 
+option=1
 
 
 #=================================================================#
 # Se construyen las imagenes de contenedor de modulos y servicios #
 #=================================================================#
-if $Construir; then
+
+if $option==1; then
     echo "construyendo imagenes"
     # construir imagenes de modulos de xelhua
     docker build -t ${tag_gui} ./Frontend
@@ -65,18 +67,22 @@ if $Construir; then
     docker build -t ${tag_statistics} ./BuildingBlocks/statistics
     docker build -t ${tag_transform} ./BuildingBlocks/TransformStrData
     docker build -t ${tag_clustering} ./BuildingBlocks/ClusteringAlgh
+    docker build -t ${tag_acquisition} ./BuildingBlocks/Acq
+    docker build -t ${tag_grobid} ./BuildingBlocks/Grobid
+    docker build -t ${tag_glove} ./BuildingBlocks/Glove
+    docker build -t ${tag_classification_models} ./BuildingBlocks/Clasificate #modelos de clasificacion
+    docker build -t ${tag_advanced_map} ./BuildingBlocks/AdvancedMaps
+
+    #depercated
     #docker build -t ${tag_deeplearning} ./BuildingBlocks/DeepLearning
     #docker build -t ${tag_text_preprocessing} ./BuildingBlocks/TextPreprocessing
     #docker build -t ${tag_text_processing} ./BuildingBlocks/TextProcessing
     #docker build -t ${tag_text_classification} ./BuildingBlocks/TextClassification
     #docker build -t ${tag_preprocessing} ./BuildingBlocks/Preprocessing
     #docker build -t ${tag_converters} ./BuildingBlocks/Converters
-    docker build -t ${tag_acquisition} ./BuildingBlocks/Acq
-    docker build -t ${tag_grobid} ./BuildingBlocks/Grobid
-    docker build -t ${tag_glove} ./BuildingBlocks/Glove
-    # nuevas
-    docker build -t ${tag_classification_models} ./BuildingBlocks/Clasificate #modelos de clasificacion
-    docker build -t ${tag_advanced_map} ./BuildingBlocks/AdvancedMaps
 fi
+if $option==2; then
+    docker build -t ${tag_coordinator} AG
+    docker build -t ${tag_paxos} ./NonFunctional/Paxos
 
 #docker build -t xel_bb_charts:v2.0 ./BuildingBlocks/graphics

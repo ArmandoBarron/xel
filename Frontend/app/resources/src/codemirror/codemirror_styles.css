@@ -1,5 +1,7 @@
 .CodeMirror {
   border: 2px solid #000000;
   height: auto;
-  min-height: 30%;
+  min-height: 40%;
+  font-family: Arial, monospace;
+  font-size: 12px;
 }

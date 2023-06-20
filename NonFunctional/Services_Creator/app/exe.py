@@ -87,7 +87,7 @@ def create_nez_cfgfile(data2,version,services,resultfile_id, replicate_dictionar
 
     string+='[END]\n\n'
 
-    print(string)
+    #print(string)
     return string
 
             

@@ -1,4 +1,4 @@
-<div class="navbar navbar-dark" style="background-color:#bb415c;">
+<div class="navbar navbar-dark" style="background: linear-gradient(90deg, rgba(37,27,35,1) 0%, rgba(48,42,49,1) 43%, rgba(61,53,62,1) 64%, rgba(64,55,64,1) 65%, rgb(50 0 18) 100%);">
   <div class="logo">
     <a href="index.php?lang?=<?php echo $_SESSION['lang'] ?>"><img width="100px" height="30px" src="./resources/imgs/xelhua_logo-default.png" alt="Geoportal/Xel" /></a>
   </div>

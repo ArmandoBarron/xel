@@ -1,5 +1,4 @@
 var rootMoved = false;
-
 var METADATA_SOLUTION = {}
 
 // global variable. keeps all the instructions of the solution as: 
@@ -30,13 +29,13 @@ var confighover = {
 
 $(document).ready(function () {
 
-
-
     flowey_createSections()
     // add dinamic parameters to services in ServiceArr
     flowey_ConfigServices()
     // data contains the static values for the 'services'
     demoflowy_createBoxes(ServicesArr.length, ServicesArr);
+
+
 
     $( ".blockdesc" ).hover(
         function() {
@@ -46,6 +45,20 @@ $(document).ready(function () {
         }
     );
 
+    $(".openOptions").hover(
+        function() {
+            console.log("FOCUSEADO")
+            el = $(this).closest('.block')
+            el.addClass("blocked-drag")
+            el.removeClass("block")
+        }, function() {
+            console.log("DESSSSFOCUSEADO")
+            el = $(this).closest('.blocked-drag')
+            el.removeClass("blocked-drag")
+            el.addClass("block")
+        }
+      )
+    
     
     // init flowy
     flowy(document.getElementById("canvas"), demoflowy_drag, demoflowy_release,
@@ -137,6 +150,7 @@ $(document).ready(function () {
             
             currentLayout = [...flowy.output().blockarr]
             $(".block-hoverinfo").hoverIntent( confighover )
+            OpenOptionsBox()
         }
         fr.readAsText(files.item(0));
     });
@@ -167,7 +181,13 @@ $(document).ready(function () {
     function demoflowy_snapping(drag, first, parent) {
 
         drag.classList.remove("elementhover");
-
+        drag.classList.add("addbox");
+        setTimeout(function() {
+            id_el = drag.id
+            console.log(id_el)
+            $("#"+id_el).removeClass('addbox')
+          }, 1000);
+        
         var id = drag.getAttribute("id");
         var name = drag.getAttribute("name");
         var service_type = drag.getAttribute("type");
@@ -202,6 +222,12 @@ $(document).ready(function () {
         blockin.parentNode.removeChild(blockin);
         blockin = drag.querySelector(".row-cols-2");
         blockin.parentNode.removeChild(blockin);
+        blockin = drag.querySelector(".divblocktitle");
+        blockin.parentNode.removeChild(blockin);
+
+        blockin = drag.querySelector(".blockdivider");
+        blockin.parentNode.removeChild(blockin);
+
 
         drag.classList.add('position-absolute');
         drag.classList.remove('row');
@@ -216,22 +242,34 @@ $(document).ready(function () {
 
 
         bcontent = `<div type="${id}" id="${canvasId}" class="card c-block container">
-                        <div class="row card-header" style="background-color:#fff" >
-                            <div class="col-12 text-left text-uppercase d-inline-block text-truncate" style="padding-left: 3px;padding-right: 3px;padding-bottom: 3px;">
-                                <i style="margin-right:5px" class="fas fa-info-circle fa-lg block-hoverinfo" idcanvas="${canvasId}"></i> <em id="${canvasId}_alias" >${canvasId}</em>
-                            </div>
-                        </div>
-                        <div id="${canvasId}_icons" class="row" style="padding:4px; overflow:auto">
-                            <div class="service-options col-12 justify-content-center">
-                                <div class= "serviceLoadingIcon-${class_type_box}" id="serviceLoadingIcon"></div>
-                            </div>
-                                <div class="col-2" style="padding:5px; text-align:center;" > <i class="fas fa-pen-square fa-xl elementhover" onclick="demoflowy_btnEditarClick(event)"></i></div>
-                                <div class="col-2 InspectDataIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_inspect"></div>
-                                <div class="col-2 downloadDataIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_downloadDataIcon"></div>
-                                <div class="col-2 showOnMapIcon-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_showOnMapIcon"></div>
-                                <div class="col-2 preview-${class_type_box}" style="padding:5px; text-align:center;" id="${canvasId}_previewIcon"></div>
 
+                        <span class="spanline"></span> 
+                        <div class="row card-header" style="background-color:#fff" >
+
+                            <div class="col-2 react-me openOptions" style="padding:0px; text-align:center;"  tabindex="1" aria-haspopup="true">
+                                <i class="fas fa-lg fa-bars"></i>
+
+                                <div id="${canvasId}_icons" class="row react-box">
+                                    <div class="react-item" style="text-align:center;" > <i class="fas fa-pen-square fa-xl elementhover" onclick="demoflowy_btnEditarClick(event)"></i></div>
+                                    <div class="react-item InspectDataIcon-${class_type_box}" style=" text-align:center;" id="${canvasId}_inspect"></div>
+                                    <div class="react-item downloadDataIcon-${class_type_box}" style=" text-align:center;" id="${canvasId}_downloadDataIcon"></div>
+                                    <div class="react-item DataviewIcon-${class_type_box}" style="text-align:center;" id="${canvasId}_DataviewIcon"></div>
+                                    <div class="react-item showOnMapIcon-${class_type_box}" style="text-align:center;" id="${canvasId}_showOnMapIcon"></div>
+                                    <div class="react-item preview-${class_type_box}" style="text-align:center;" id="${canvasId}_previewIcon"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-10 text-right text-uppercase " style="padding-left: 3px;padding-right: 3px;padding-bottom: 3px;">
+                               <em class="col-10 d-inline-block text-truncate" id="${canvasId}_alias" style="padding:0px">${canvasId}</em>  <i style="margin-left:3px;" class="fas fa-gradient fa-info-circle fa-lg block-hoverinfo " idcanvas="${canvasId}"></i> 
+                            </div>
+                         
                         </div>
+
+                        <div class="service-options row justify-content-center">
+                            <div class= "serviceLoadingIcon-${class_type_box}" id="${canvasId}_serviceLoadingIcon"></div>
+                        </div>
+
+
                     </div>
                 `;
         //SE AÑADE EL CONTENIDO A LA CAJA
@@ -267,6 +305,7 @@ $(document).ready(function () {
 
         // hover for the info
         $(".block-hoverinfo").hoverIntent( confighover )
+        OpenOptionsBox()
         return true;
     }
 
@@ -278,6 +317,8 @@ $(document).ready(function () {
         tempblock2 = block;
         all_arrows = $('.arrowblock');
         all_blocks = $('#c1-s-1');
+        console.log("draging......")
+        OpenOptionsBox()
     }
 
     function demoflowy_release() {
@@ -285,12 +326,17 @@ $(document).ready(function () {
         all_arrows = $('.arrowblock');
         all_blocks = $('#c1-s-1');
         //tempblock2.classList.add("elementhover");
-        if (tempblock2) tempblock2.classList.remove("blockdisabled");
+        if (tempblock2) {
+            tempblock2.classList.remove("blockdisabled")
+        };
+        
+        OpenOptionsBox()
     }
 
     function demoflowy_rearranging(block, parent) {
         demoflowy_removeChild(block.id);
         //canvasElementsCount = contar_servicios(dataObject.children)
+        OpenOptionsBox()
         return false;
     }
 
@@ -326,6 +372,7 @@ $(document).ready(function () {
             } else {
                 realchanges.forEach(c => {
                     let newparent = demoflowy_lookForParentWithBoxId(c.parent);
+                    console.log("se va a eliminar")
                     // make a copy of the child, cuz it is removed after this
                     let chlidFound = demoflowy_lookForParentWithBoxId(c.id);
                     console.log(chlidFound)
@@ -341,6 +388,7 @@ $(document).ready(function () {
         }
         // hover for the info
         $(".block-hoverinfo").hoverIntent( confighover )
+        OpenOptionsBox()
 
     }
 });
@@ -563,21 +611,25 @@ function demoflowy_createBoxes(n, boxData) {
         var box =
             `
             <div class="blockelem container-fluid create-flowy noselect elementhover" type="${type}" id="${id}" name="${name}">
-                <div class="row" style="margin:0px">
+                <div class="row">
                     <div class="col-1 fb-grab" >
                         <i class="fas fa-grip-vertical align-middle"></i>
                     </div>
-                    <div class="col-10 fb-desc">
-                        <div>
-                            <p class="blocktitle">${name}</p>
-                            <p class="blockdesc text-truncate">${desc}</p>
-                        </div>
+                    <div class="col-10 divblocktitle">
+                        <p class="blocktitle">${name}</p>
                     </div>
                 </div>
-                <div class="row row-cols-2" style="margin:0px">
-                    <div class="col blocktag text-center"> Input: ${Input_list}</i> </div>
-                    <div class="col blocktag text-center"> Output: ${Output_list} </div>
-                </div>
+
+                <hr class="blockdivider" style="visibility: visible;">
+                    <div class="col-12 fb-desc">
+                        <p class="blockdesc text-truncate">${desc}</p>
+                    </div>
+                    <div class="row row-cols-2" style="margin:0px">
+                        <div class="col blocktag text-center"> Input: ${Input_list}</i> </div>
+                        <div class="col blocktag text-center"> Output: ${Output_list} </div>
+                    </div>
+
+
             </div>
             `
         $('#'+section).append(box);
@@ -1074,3 +1126,37 @@ function Toggle_Loader(action="show",text="Loading... Please wait."){
     }
     
 }
+
+
+function OpenOptionsBox(){
+
+    $('.openOptions').on('touchstart',function(e){
+        console.log('touchstart');
+        el = $(this).closest('.block')
+        el.addClass("blocked-drag")
+        el.removeClass("block")
+
+        //add hovered classs
+        el = $(this).find('.react-box').first()
+        console.log(el)
+        el.addClass("hovered")
+
+
+    }).on('touchend',function(e){
+        console.log('touchend');
+        el = $(this).closest('.blocked-drag')
+        el.removeClass("blocked-drag")
+        el.addClass("block")
+        $(this).trigger('hover');
+        //remove hovered classs
+        el = $(this).find('.react-box').first()
+        console.log(el)
+        el.removeClass("hovered")
+    })
+    
+    
+
+
+
+}
+

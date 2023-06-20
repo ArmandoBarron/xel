@@ -1,9 +1,9 @@
 
 a {/*todos los links en xelhua tendran este color*/
-  color: #bb415c
+  color: #75163F
 }
 a:hover{
-  color: #EDBFC6
+  color: #f7d78d
 }
 
 #sectionDIV #faq .cardsec {
@@ -23,9 +23,9 @@ a:hover{
   color: #fff;
   display: block;
   text-align: left;
-  background: #EDBFC6;
+  background: radial-gradient( circle farthest-corner at 1.5% 1.4%,  rgb(117 189 255 / 12%) 0%, rgb(255 137 39 / 13%) 100.2% );
   color: #222;
-  padding: 2.5vh;
+  padding: 1.5vh;
 }
 
 
@@ -42,8 +42,9 @@ a:hover{
 }
 
 #sectionDIV #faq .cardsec .card-header .btn-header-link.collapsed { /*seccion collapsada */
-  background: #2A2B2A;
-  color: #fff;
+  background: rgb(105,47,80);
+  background: radial-gradient(circle, rgba(105,47,80,1) 0%, rgba(105,52,81,1) 50%, rgba(94,41,74,1) 100%);
+  color: #f7d78d;
 }
 
 #sectionDIV #faq .cardsec .card-header .btn-header-link.collapsed:after {
@@ -51,7 +52,7 @@ a:hover{
 }
 
 #sectionDIV #faq .cardsec .collapsing {
-  background: #EDBFC6;
+  background: linear-gradient(148deg, rgba(215,180,236,1) 0%, rgba(62,136,162,1) 14%, rgba(110,28,70,1) 47%, rgba(120,120,120,1) 81%, rgba(187,185,149,1) 100%);
   line-height: 30px;
 }
 
@@ -60,7 +61,8 @@ a:hover{
 }
 
 #sectionDIV #faq .cardsec .collapse.show {
-  background: #EDBFC6;
+  background: rgb(215,180,236);
+  background: linear-gradient(148deg, rgba(215,180,236,1) 0%, rgba(62,136,162,1) 14%, rgba(110,28,70,1) 47%, rgba(120,120,120,1) 81%, rgba(187,185,149,1) 100%);
   line-height: 30px;
   color: #222;
 }

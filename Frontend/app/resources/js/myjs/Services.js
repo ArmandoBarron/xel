@@ -22,6 +22,54 @@ var FORCE_EXECUTION_STOP= false
 var ID_rule = 1 // Filtercolumn
 var ID_CAR_ELEMENT = 1 // Filtercolumn
 var ROOT_METADATA ={}
+var STACK_LOGS = new LogerStack("logs-panel");
+
+
+render_function = function(element, self, data) {
+    const span_final = document.createElement('span');
+
+    var spanElement = document.createElement('span');
+    spanElement.style.fontStyle = 'italic';
+
+    // Establecer el texto del span
+    if (data.value_type=="function"){
+        spanElement.textContent = ' @Function';
+        spanElement.style.color = 'rgba(0, 0, 200, 0.8)';
+    }
+    else if (data.value_type=="var"){
+        spanElement.textContent = ' @Column';
+        spanElement.style.color = 'rgba(0, 255, 255, 0.8)';
+    }
+    else if (data.value_type=="reserved_word"){
+        spanElement.textContent = ' ReservedWord';
+        spanElement.style.color = 'rgba(200, 50, 0, 0.8)';
+    }
+    else{
+        spanElement.textContent = ' @NoIdeaSorry';
+        spanElement.style.color = 'rgba(0, 255, 0, 0.8)';
+    }
+    var span_text = document.createElement('span');
+    span_text.textContent = data.displayText
+    span_text.style.fontWeight  = 'bold';
+    span_text.style.fontStyle  = 'italic';
+
+    span_final.appendChild(span_text);
+    span_final.appendChild(spanElement);
+    element.appendChild(span_final)
+
+
+  }
+
+var Reserved_words = [
+    {"displayText":"@if","text":"if sentencia: expresion;","value_type":"function","render":render_function},
+    {"displayText":"@startswith","text":"COLUMN.str.startswith('A');","value_type":"function","render":render_function},
+    {"displayText":"@createColumnWhitespaces","text":"{new column with whitspaces}=1+COLUMN_NAME;","value_type":"function","render":render_function},
+    {"displayText":"@createColumn","text":"NEW_COLUMN=A_COLUMN-OTHER_COLUMN;","value_type":"function","render":render_function},
+    {"displayText":"$inputdataframe","text":"dataset","value_type":"reserved_word","render":render_function}
+
+]
+
+
 
 function Clean_graph_data(){
     DATA_WORKFLOW_STATUS = false
@@ -93,7 +141,7 @@ function Xel_clean(){
     Set_Tokensolution("")
     flowy.deleteBlocks()
     Set_DatasourceMap('','DUMMY')
-    notificarUsuario("Workspace is now clean",'secondary')
+    notificarUsuario("Workspace is now clean",'info')
     canvasElementsCount=0
 }
 
@@ -105,15 +153,17 @@ function Toggle_run_button(){
 }
 
 
-function Xel_run(as_copy=false){
+function Xel_run(as_copy=false,force=false){
     $('#output').prop('disabled', true);
     text= $("#output").text() 
+    exec_options = {"force":force}
+    console.log(exec_options)
     if (text=="RUN"){ 
         if (as_copy){
             Set_Tokensolution("")
         }
         
-        Exec_graph();
+        Exec_graph(exec_options);
         $('#output').prop('disabled', false);
         Toggle_run_button()
     }
@@ -125,7 +175,7 @@ function Xel_run(as_copy=false){
 }
 
 
-function Exec_graph(){
+function Exec_graph(exec_options={}){
     Download_log = false
     DAG = [] //CLEAN
     LIST_TASK_OVER= []
@@ -139,7 +189,7 @@ function Exec_graph(){
     $(".InspectDataIcon-task").html("")
 
     // send request to exec dag
-    pipe_dag(DATA_WORKFLOW)
+    pipe_dag(DATA_WORKFLOW,exec_options=exec_options)
 }
 
 function pipe_getdata(data_request){ //get RAW data to execute dag
@@ -244,11 +294,12 @@ function postExecutionStop(rn,error=true,message="Execution failed, check the pa
 
 
 
-function pipe_dag(data_for_workflow){ // launch dag
+function pipe_dag(data_for_workflow,exec_options={}){ // launch dag
     var data_to_send = {'SERVICE':'executeDAG',"HOST":SERVICE_GATEWAY, 'REQUEST':{'DAG':JSON.stringify(DAG),
         'data_map':data_for_workflow, 
         'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE},
-        "alias":$("#modal_save-solutions-form-name").val()
+        'options':exec_options,
+        'alias':$("#modal_save-solutions-form-name").val()
     }};
     
     if (TOKEN_SOLUTION!=""){data_to_send.REQUEST.token_solution=TOKEN_SOLUTION}
@@ -284,7 +335,6 @@ function pipe_dag(data_for_workflow){ // launch dag
 
         error: function(XMLHttpRequest, textStatus, errorThrown){
             error_result = XMLHttpRequest['responseJSON']
-
             postExecutionStop(0,true,message=error_result['message'])
         },
         dataType: 'json' // El tipo de datos esperados del servidor. Valor predeterminado: Intelligent Guess (xml, json, script, text, html).
@@ -422,8 +472,9 @@ function Handler_condition_GetData(task_id,description,isRaw,filename=null,token
     }
 
 
-    $(`#${task_id} > div.row > div.service-options > #serviceLoadingIcon`).html("") //icono de carga
-
+    //$(`#${task_id} > div.row > div.service-options > #serviceLoadingIcon`).html("") //icono de carga
+    $(`#${task_id}_serviceLoadingIcon`).html("") //icono de carga
+    
     if (isRaw)//los botones cambian dependiendo de si es la caja root o una de BB
     {  
         $(`#${task_id}_inspect`).html(`<i class="fas fa-search fa-xl elementhover" onclick="Inspect_datasource(filename='${filename}')" ></i>`)
@@ -431,10 +482,20 @@ function Handler_condition_GetData(task_id,description,isRaw,filename=null,token
         //if (isMarkable){
         //    $(`#${task_id}_showOnMapIcon`).html(`<i class="fas fa-map-marked-alt fa-lg elementhover" onclick="ShowModal_map_AAS('${token_solution}','${task_id}')"></i>`)
         //}
+        extencion = filename.split(".")[1]
+        if (extencion=="csv"){
+            $(`#${task_id}`).find(`.row:last`).attr('id', `${task_id}_icons`); //se añade el id
+            $(`#${task_id} > #${task_id}_icons > #${task_id}_DataviewIcon`).length  ? null : $(`#${task_id} > #${task_id}_icons`).append(`<div class="col-2 preview-task" style="padding:5px; text-align:center;" id="${task_id}_DataviewIcon"></div>`)
+
+            $(`#${task_id}_DataviewIcon`).html(`<i class="fa-solid fa-chart-pie fa-xl elementhover" onclick="download_data_pipe('','','','${filename}',true,true)"></i>`)
+        }
     }
     else
     {
-        LIST_TASK_OVER.push({"rn":token_solution,"task":task_id,"type":dataRet['type'],"ifdownload":dataRet['index']}) //se añade a la lista de tareas completadas
+        // para conciderar que una tarea terminó su procesamiento, esta debe arrojar un estatus de FINISHED o FAILED. caso contrario, aun no termina.
+        if (dataRet['status']=="FAILED" || dataRet['status']=="FINISHED"){
+            LIST_TASK_OVER.push({"rn":token_solution,"task":task_id,"type":dataRet['type'],"ifdownload":dataRet['index']}) //se añade a la lista de tareas completadas
+        }
 
         // añadir boton de inspect a la caja con una funcion que haga el describe. Solamente si el la tarea no falló
         if (dataRet['status']!="ERROR" && dataRet['status']!="FAILED"){
@@ -446,6 +507,13 @@ function Handler_condition_GetData(task_id,description,isRaw,filename=null,token
 
             if (dataRet['index']){
                 $(`#${task_id}_downloadDataIcon`).html(`<i class="fas fa-cloud-download-alt fa-xl elementhover" onclick="download_data_pipe('${token_solution}','${task_id}','${dataRet['type']}')"></i>`)
+            }
+
+            if (dataRet['type']=='csv'){
+                $(`#${task_id}`).find(`.row:last`).attr('id', `${task_id}_icons`); //se añade el id
+                $(`#${task_id} > #${task_id}_icons > #${task_id}_DataviewIcon`).length  ? null : $(`#${task_id} > #${task_id}_icons`).append(`<div class="col-2 preview-task" style="padding:5px; text-align:center;" id="${task_id}_DataviewIcon"></div>`)
+
+                $(`#${task_id}_DataviewIcon`).html(`<i class="fa-solid fa-chart-pie fa-xl elementhover" onclick="download_data_pipe('${token_solution}','${task_id}','${dataRet['type']}','',false,true)"></i>`)
             }
             // preview option
 
@@ -497,7 +565,7 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                 list_remain_task.forEach(function(task){ 
                     task_info = result.list_task[task]
                     if (task_info!==undefined){
-                        if (task_info['status']=="OK" || task_info['status']=="FINISHED")
+                        if (task_info['status']=="FINISHED")
                         {
                             // describir dataset intermedio
                             let task_id = task_info['task']
@@ -513,17 +581,21 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                                 }
                             });
                         }
-                        if (task_info['status']=="ERROR" || task_info['status']=="FAILED")
+                        if (task_info['status']=="ERROR"){
+                            let task_id = task_info['task']
+                            notificarUsuario("ERROR "+task_id+": "+ task_info['message'], 'warning');
+                        }
+                        if (task_info['status']=="FAILED")
                         {
                             let task_id = task_info['task']
                             let task_data = CloneJSON(task_info)
                             Handler_condition_GetData(task_id,{},false,'',token_solution,task_data)
-                            notificarUsuario("ERROR "+task_id+": "+ task_info['message'], 'danger');
+                            notificarUsuario("FAILURE in "+task_id+": "+ task_info['message'], 'danger');
                             list_remain_task = arrayRemove(list_remain_task,task) // se elimina de la lista
-    
                         }
-                        if (task_info['status']=="WAITING" || task_info['status']=="RUNNING"){
-                            console.log(`${task_info['task']}: Running`)
+
+                        if (task_info['status']=="WAITING" || task_info['status']=="RUNNING" || task_info['status']=="OK"){
+                            console.log(`${task_info['task']}: ${task_info['status']}`)
                         }
     
                     }
@@ -592,8 +664,8 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                         itt = parseInt($("#dag_iterations").val())
                         if(itt>=2){
                             $("#dag_iterations").val(itt-1)
-                            Set_Tokensolution("") //se vacía esta variable, de esta forma se fuerza a ejecutar todo desde 0
-                            setTimeout(Exec_graph(),1000)
+                            //Set_Tokensolution("") //se vacía esta variable, de esta forma se fuerza a ejecutar todo desde 0
+                            setTimeout(Exec_graph({"force":true}),1000)
                         }
                         else{
                             console.log("no more iterations")
@@ -634,8 +706,16 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
     });
 }
 
+function DownloadProject(){
+    let data_request = {'SERVICE':'getfile' ,'REQUEST':{'data':{},'type':""},"METADATA":{}}
+    data_request.REQUEST.data.token_user=MESH_USER //por defecto solo se usa este usuario
+    data_request.REQUEST.data.token_solution=TOKEN_SOLUTION 
+    data_request.REQUEST.type ="PROJECT"
+    get_file(data_request,false)
 
-function download_data_pipe(rn,task,file_ext,file_name=null,raw=false){ //descargar datos de cualquier punto de el grafo
+}
+
+function download_data_pipe(rn,task,file_ext,file_name=null,raw=false,To_DataView=false){ //descargar datos de cualquier punto de el grafo
     notificarUsuario("Data is almost ready", 'info');
     //formatar peticion dependiendo de si son datos crudos o no
     let data_request = {'SERVICE':'getfile' ,'REQUEST':{'data':{},'type':""},"METADATA":{}}
@@ -654,32 +734,90 @@ function download_data_pipe(rn,task,file_ext,file_name=null,raw=false){ //descar
 
     if (raw){ //si raw es true, se obtienen los datos iniciales
         data_request.REQUEST.type ="LAKE"
-        get_file(data_request)
+        get_file(data_request,To_DataView)
     } 
     else {
         data_request.REQUEST.type ="SOLUTION"
-        get_file(data_request)
+        get_file(data_request,To_DataView)
     } 
 }
 
-function get_file(data_request){
-    $.ajax({ // ajax para rellenar valores de temporal
-        url: 'includes/xel_getdata.php',
-        type: 'POST',
-        data:data_request,
-        success: function(liga) {  
-            console.log(liga)
-            $("#invisible_link").html(`<a id='temporal_link' href='${liga}' target='_blank' ></a>`)
-            $('#temporal_link').get(0).click();
-            $("invisible_link").html("")
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown){
-            error_result = XMLHttpRequest['responseJSON']
-            if (XMLHttpRequest.status==401){ //session expired
-                sesionExpirada()
+function descargarArchivo(url,jsonDatos) {
+    var jsonDatos = JSON.stringify(jsonDatos);
+
+    // Crear una instancia de XMLHttpRequest
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.withCredentials = true; // Enviar las cookies
+    xhr.responseType = 'blob'; // Establecer el tipo de respuesta como Blob
+
+
+    // Manejar el evento de carga
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        // Obtener el nombre del archivo del encabezado Content-Disposition
+        var contentDisposition = xhr.getResponseHeader('Content-Disposition');
+
+        var filename = contentDisposition.match(/filename=([^;\n]+)/)[1];
+
+        // Crear un enlace para la descarga
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(xhr.response);
+        link.download = filename;
+  
+        // Simular el clic en el enlace para iniciar la descarga
+        link.click();
+      } else {
+        console.error("Error al descargar el archivo.");
+      }
+    };
+    // Manejar el evento de error
+    xhr.onerror = function() {
+      console.error("Error en la solicitud.");
+    };
+    // Enviar la solicitud AJAX con los datos del JSON como cuerpo de la petición
+    xhr.send(jsonDatos);
+  }
+  
+
+
+function get_file(data_request,To_DataView=false){
+
+    if (To_DataView){
+        $.ajax({ // ajax para rellenar valores de temporal
+            url: 'includes/xel_getdata.php',
+            type: 'POST',
+            data:data_request,
+            success: function(liga) {  
+                console.log(liga)
+                if(To_DataView){
+                    liga=`DataView.php?url=${liga}`
+                    $("#invisible_link").html(`<a id='temporal_link' href='${liga}' target='_blank' ></a>`)
+                    $('#temporal_link').get(0).click();
+                    $("invisible_link").html("")
+                }
+                else{ //download
+                    $("#invisible_link").html(`<a id='temporal_link' href='${liga}' target='_blank' ></a>`)
+                    $('#temporal_link').get(0).click();
+                    $("invisible_link").html("")
+                }
+                console.log(liga)
+    
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown){
+                error_result = XMLHttpRequest['responseJSON']
+                if (XMLHttpRequest.status==401){ //session expired
+                    sesionExpirada()
+                }
             }
-        }
-    }).fail(function(){console.log("error al conectarse")});
+        }).fail(function(){console.log("error al conectarse")});
+    }
+    else{
+        descargarArchivo('includes/xel_getdata.php',data_request)
+
+    }
+
 }
 
 function CreateDynamicTable(dataset,column_list,id_table,div_container_id,title,table_class="hover w-auto dt-responsive nowrap"){
@@ -2272,10 +2410,17 @@ function Activate_CodeArea(id_textarea, Modal_selector= ".modal.fade.show" ){
             codeAreas = []
         }
         else{
-            codeAreas = BOX_info.columns
+            
+            codeAreas = []
+            
+            BOX_info.columns.forEach(function(v){
+                codeAreas.push({"displayText":v,"text":v,"value_type":"var","render":render_function})
+            })
             console.log("Si hay datos para autocompletar")
-        }
+            console.log(codeAreas)
 
+        }
+        codeAreas = codeAreas.concat(Reserved_words)
 
 
         CODEAREA_POINTERS[id_textarea] =CodeMirror.fromTextArea(elem,{
@@ -2290,18 +2435,20 @@ function Activate_CodeArea(id_textarea, Modal_selector= ".modal.fade.show" ){
                                                     var currentLine = cm.getLine(cursor.line);
                                                     var lineUntilCursor = currentLine.slice(0, cursor.ch);
                                                     var words = lineUntilCursor.split(/\s+/);
+
                                                     var currentWord = words[words.length - 1];
                                                     
                                                     var matches = codeAreas.filter(function(word) {
-                                                      return word.includes(currentWord);
+                                                      return word.displayText.includes(currentWord);
                                                     });
-                                              
+
                                                     return {
                                                       from: CodeMirror.Pos(cursor.line, cursor.ch - currentWord.length),
                                                       to: cursor,
                                                       list: matches
                                                     };
-                                                }
+                                                },
+                                                
                                             }
         })
                                             
@@ -2395,7 +2542,6 @@ function Activate_Autcomplete(tag_4_auto, Modal_selector= ".modal.fade.show" ) {
     });
     
 }
-
 
 /////
 function SELECT_ShowValue(combo_label="default", combo){
@@ -2668,6 +2814,10 @@ else{
 
 }
 
+
+
+
+
 function remove_list_element(el){
     el.closest('li').remove()
 }
@@ -2880,3 +3030,4 @@ $("#btnLogGhest").click(function(event) {
 
     
 });
+

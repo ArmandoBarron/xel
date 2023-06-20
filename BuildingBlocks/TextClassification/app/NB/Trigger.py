@@ -15,7 +15,22 @@ import multiprocessing as mp
 import signal
 
 ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
+logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
+
+def call_app(comando):
+    sp = subprocess.Popen(comando, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True,close_fds=True)
+    LOGER.debug("==== PID ====== %s" % sp.pid )
+    while True:
+        linea = sp.stdout.readline()
+        if not linea:
+            break
+        linea_decodificada = linea.decode().rstrip()
+        LOGER.info("stdout: %s" % linea_decodificada )
+
+    sp.wait()
+    sp.terminate()
+    return sp.returncode
 
 #############################
 def execute(params,AppConfig):
@@ -78,47 +93,26 @@ def execute(params,AppConfig):
                 execution_status=1
         else:
             command = Transform_config['COMMAND']
-            #LOGER.error("==== FORMATING COMMAND ======")
-            command = utils.FormatCommand(command,params,reserved_params=RESERVED_PARAMS)
-            LOGER.error("==== EXECUTING COMMAND ====== %s" % command )
-            results={"execution_status":0}
-            def call_app(comando):
-                sp = subprocess.Popen(comando, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True,close_fds=True)
-                LOGER.error("==== PID ====== %s" % sp.pid )
+            command = utils.FormatCommand(command,params,reserved_params=RESERVED_PARAMS) # ==== FORMATING COMMAND ======
+            LOGER.info("==== EXECUTING COMMAND ====== %s" % command )
 
-                #sp.wait()
-                try:
-                    stdouterr, _ = sp.communicate(timeout=10000)
-                    #stdouterr = stdouterr.decode("utf-8")
-                    LOGER.error("==== EXECUTING COMPLETE ====== %s" % comando )
-                    #logging.error(stdouterr)
-                    #execution_status = sp.returncode
-                    results["execution_status"] = sp.returncode
-                    sp.stdout.close()
-                    sp.terminate()
-                except TimeoutError as te:
-                    LOGER.error("==== TIMEOUT ====== %s" % comando )
-                    sp.kill()
-                    results["execution_status"] = 1
-                return True
+            #results={"execution_status":0}
+            #thread1 = mp.Process(target = call_app, args = (command,results) )
+            #thread1.start()
+            #thread1.join()
+            #thread1.terminate()
+            #thread1.close()
+            #execution_status = results["execution_status"]
+            execution_status = call_app(command)
+            LOGER.info("status code: %s" % execution_status )
 
-            thread1 = mp.Process(target = call_app, args = (command,) )
-            thread1.start()
-            thread1.join()
-            thread1.terminate()
-            thread1.close()
-
-            execution_status = results["execution_status"]
-
-            #execution_status = os.system(command)
         EXECUTION_TIME = time.time() - EXECUTION_TIME
         ########################################################################
 
         if (execution_status!=0):
             app_message="Internal error in the application"
 
-
-        ### some assumtions###
+        ### some assumtions ###
         ### data results are in SINK (BBOX_OUTPUT_PATH)
         ### must especify compress option or output_namefile option... in other case a error will rise.
 
@@ -136,10 +130,10 @@ def execute(params,AppConfig):
                         Load_config['COMPRESS']=True
                     else:
                         result=RESERVED_PARAMS['SINK']+namefile #its just a file name and we add a default path
-                    result = shutil.copy(result,params['BBOX_ROLLBACK_PATH']) #copy file generated to rollback folder
+                    result = shutil.move(result,params['BBOX_ROLLBACK_PATH']) #move file generated to rollback folder
                     break
                 except Exception as e:
-                    LOGER.error("-- NOT THIS ONE:%s" % tmp_name)
+                    LOGER.debug("-- NOT THIS ONE:%s" % tmp_name)
                     pass
 
 
@@ -147,14 +141,14 @@ def execute(params,AppConfig):
             result = utils.CompressFile(params['BBOX_ROLLBACK_PATH'],RESERVED_PARAMS['SINK'],ignore_list=Load_config['ignore_list'])
 
         #clean everything
-        #shutil.rmtree(params['BBOX_INPUT_PATH'],ignore_errors=True)
-        
-        os.remove(params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE'])
-        shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True) #esto remueve los datos de entrada
-        shutil.rmtree(params['BBOX_OUTPUT_PATH'],ignore_errors=True)
+        #os.remove(params['BBOX_INPUT_PATH']+params['BBOX_INPUT_NAMEFILE']) #SINK
+        shutil.rmtree(params['BBOX_INPUT_PATH'],ignore_errors=True) #esto remueve los datos de entrada (SOURCE)
+        shutil.rmtree(params['BBOX_TEMP_PATH'],ignore_errors=True) #esto remueve los datos de entrada temporales usados por la applicacion
+        shutil.rmtree(params['BBOX_OUTPUT_PATH'],ignore_errors=True) #esto remueve los datos de salida de la app (SINK)
+        # los datos quedan persistentes en la carpeta rollback hasta que se envian a los siguientes ABOX (BBOX_ROLLBACK_PATH)
         
         name,ext = result.split(".")
-        LOGER.error(result)
+        LOGER.info("results are in %s" % result)
         response = {"data":result,"type":ext,"status":"OK","message":app_message,"EXECUTION_TIME":EXECUTION_TIME}
 
     except (Exception,ValueError) as e:

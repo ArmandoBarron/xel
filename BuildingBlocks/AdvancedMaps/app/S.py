@@ -14,7 +14,7 @@ from BB_dispatcher import bb_dispatcher
 from ThreadCreator import threadMonitor
 import multiprocessing as mp
 import gc
-
+import shutil
 
 #solutions
 SOLUTIONS_FILE="records.txt"
@@ -173,22 +173,18 @@ def ClientProcess(metadata,data_acq_time):
 
     #Aqui iba el terminate, pero lo movi arriba para enviar el hash antes de ejecutar los hijos
 
-
     #Removing results
-    os.remove(result['data'])
+    shutil.rmtree(result['data'],ignore_errors=True) 
     del result
     
     TIME_SERVICE=time.time()-TIME_SERVICE
     AG.Set_Time("serv",TIME_SERVICE)
     acq= AG.Get_Times("acq")
     AG.Set_Time("acq",acq+TIME_ACQUISITION)
-        
     AG.Set_Time("trans",TIME_TRANSFORM)
     AG.Set_Time("exec",TIME_EXECUTION)
     AG.ReportTimes()
-    #AG.join()
     AG.join()
-    #AG.close()
     LOGER.info("=========== postman  removed ==============")
     gc.collect()
     return True

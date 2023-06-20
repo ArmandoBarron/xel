@@ -37,6 +37,26 @@ def zip_creation(list_files_paths,filename,destination ):
 
     return final_path
 
+def CompressFile(path_compressfile,path_results,ignore_list=[],namefile ="output.zip"):
+    """
+    path_compressfile::str -> /var/temp/
+    path_results::str -> /var/temp/
+    """
+    fname = path_compressfile+namefile
+    with zipfile.ZipFile(fname, 'w', zipfile.ZIP_DEFLATED) as zipObj:
+    # Iterate over all the files in directory
+        for folderName, subfolders, filenames in os.walk(path_results):
+            for filename in filenames:
+                print(filename)
+                #create complete filepath of file in directory
+                if filename not in ignore_list:
+                    filePath = os.path.join(folderName, filename)
+                    archive_file_path = os.path.relpath(filePath, path_results)
+                    # Add file to zip
+                    zipObj.write(filePath, archive_file_path)
+                    #zipObj.write(filePath, os.path.relpath(filePath, src_path))
+
+    return fname
 
 ##################################
 
@@ -150,7 +170,7 @@ def DatasetDescription(datos):
     response['unique']=dict()
     response['columns'] = list(datos.columns.values)
     des = datos.describe(include='all')
-    LOG.error(des)
+
     for col in response['columns']:
         des_col = des[col]
         column_description = dict()
@@ -165,14 +185,17 @@ def DatasetDescription(datos):
         #se añade el tipo de datos
         typename =datos[col].dtype.name
         column_description['type'] = typename
+        #se añade la mediana
+        if typename != "object":
+            column_description['median'] = datos[col].median()
         # se cuentan nulos
         column_description['NaN'] = str(datos[col].isna().sum())
-        sample = json.loads(datos.head(150).to_json(orient="records"))
-        response['sample'] = sample
+        #dataset de ejemplo
+        response['sample'] = json.loads(datos.head(100).to_json(orient="records"))
 
-        if typename=="object":
-            LOG.error("Se encontraron unicos en %s" % col)
-            response['unique'][col] =list(datos[col].fillna("NaN").unique()) # sagregan los valores unicos
+        #if typename=="object":
+        #    LOG.error("Se encontraron unicos en %s" % col)
+        #    response['unique'][col] =list(datos[col].fillna("NaN").unique()) # sagregan los valores unicos
         
         response['info'][col] = column_description
     
