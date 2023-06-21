@@ -18,7 +18,6 @@ from os import listdir
 import chardet
 import magic as M
 
-
 # local imports
 from functions import *
 from Proposer import Paxos
@@ -27,8 +26,6 @@ from BB_dispatcher import bb_dispatcher
 from PostmanPaxos import postman
 from DataGarbageCollector import GarbageCollector
 import genesis_client as GC
-from storage.mictlanx_client import mictlanx_client
-
 
 
 ########## GLOBAL VARIABLES ##########
@@ -44,6 +41,7 @@ NETWORK=os.getenv("NETWORK")
 MODE=os.getenv("MODE") 
 REMOTE_STORAGE=TranslateBoolStr(os.getenv("REMOTE_STORAGE"))
 if REMOTE_STORAGE:
+    from storage.mictlanx_client import mictlanx_client
     STORAGE_CLIENT = mictlanx_client()
 else:
     STORAGE_CLIENT = None

@@ -15,7 +15,7 @@ RUN apt-get install libmagic1 -y
 RUN pip install python-magic==0.4.27 && pip install nanoid
 #RUN pip install -i https://test.pypi.org/simple/ mictlanx==0.0.29
 
-RUN pip install --extra-index-url https://testpypi.python.org/pypi mictlanx==0.0.32
+#RUN pip install --extra-index-url https://testpypi.python.org/pypi mictlanx==0.0.32
 
 
 COPY ./app app
