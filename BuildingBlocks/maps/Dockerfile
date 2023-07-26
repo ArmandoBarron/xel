@@ -13,7 +13,7 @@ RUN pip install markupsafe==2.0.1 --user
 
 RUN pip install geopandas --user
 RUN pip install plotly==5.9.0 --user
-
+RUN pip install geojson --user
 
 COPY ./app app
 WORKDIR /home/app

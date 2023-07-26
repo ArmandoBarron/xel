@@ -17,24 +17,26 @@ ServicesArr.push(
             default: null,
             parent: [] 
         },
-        params: {
+                params: {
                 actions:["MARKER"],
                 geocve_column:"",
+                geocve_ent:"",
+                geocve_mun:"",
                 area:"",
                 title:"",
-            lat:0,
-            lon:0,
-            groupby:"",
-            variables:"",
-            class:"",
-            normalize:"0",
-            label:"",
-            size:"",
-            radius:5,
-            kind_poly_map:"",
-            temporal_column:"",
-            additional_columns:"",
-            SAVE_DATA:true
+                lat:0,
+                lon:0,
+                groupby:"",
+                variables:"",
+                class:"",
+                normalize:"0",
+                label:"",
+                size:"",
+                radius:5,
+                kind_poly_map:"",
+                temporal_column:"",
+                additional_columns:"",
+                SAVE_DATA:true
         },
         html: `
         <div class="form-check" style="text-align: right;">
@@ -52,6 +54,7 @@ ServicesArr.push(
                                         <option value="MARKER"> HeatMap (lat/lon)</option>
                                         <option value="SCATTERMAP"> Labeled Map (lat/lon)</option>
                                         <option value="DENSITY"> Density Map (lat/lon)</option>
+                                        <option value="CITYLAKES"> Lakes (Municipios)</option>
 
                                 </select>
                                 </div>
@@ -64,6 +67,18 @@ ServicesArr.push(
                                 </div>
                         </div>
 
+                        <div class="form-group row m-2" servopt="CITYLAKES">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">column with geocve entidad: </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="geocve_ent" onclick=fillselect(this,mult=false)></select>
+                                </div>
+                        </div>
+                        <div class="form-group row m-2" servopt="CITYLAKES">
+                                <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">column with geocve municipio: </label>
+                                <div class="col-sm-8">
+                                <select class="form-control" id="geocve_mun" onclick=fillselect(this,mult=false)></select>
+                                </div>
+                        </div>
 
                         <div class="form-group row m-2" servopt="POLY">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Zone: </label>
@@ -77,7 +92,7 @@ ServicesArr.push(
                         </div>
 
 
-                        <div class="form-group row m-2" servopt="POLY SCATTERMAP DENSITY STATES">
+                        <div class="form-group row m-2" servopt="POLY SCATTERMAP DENSITY STATES CITYLAKES">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Title of the chart:</label>
                                 <div class="col-sm-8">
                                         <input id="title" type="text" class="form-control">
@@ -132,7 +147,7 @@ ServicesArr.push(
                                 </div>
                         </div>
 
-                        <div servopt="POLY SCATTERMAP STATES" class="form-group row m-2">
+                        <div servopt="POLY SCATTERMAP STATES CITYLAKES" class="form-group row m-2">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">class column (used for color map):  </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="class" onclick=fillselect(this,mult=false,source=null,add="clase")>
@@ -141,7 +156,7 @@ ServicesArr.push(
                                 </div>
                         </div>
 
-                        <div servopt="MARKER POLY SCATTERMAP STATES" class="form-group row m-2">
+                        <div servopt="MARKER POLY SCATTERMAP STATES CITYLAKES" class="form-group row m-2">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">ID (to identify the points in the map): </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="label" onclick=fillselect(this,mult=false)></select>
@@ -165,7 +180,7 @@ ServicesArr.push(
                                 </div>
                         </div>
 
-                        <div servopt="STATES" class="form-group row m-2">
+                        <div servopt="STATES CITYLAKES" class="form-group row m-2">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Temporal column (optional) </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="temporal_column" onclick=fillselect(this,mult=false,source=null,add="clase")></select>

@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"Mapa de Municipios Y Lagos",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}PolyAndScatterMap.py @{SOURCE} @{SINK} '@{geocve_ent}' '@{geocve_mun}' '@{label}' '@{class}' '@{temporal_column}' '@{title}' '@{CWD}CalidadAgua.csv' 'LONGITUD' 'LATITUD' 'SEMAFORO' 'SITIO'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"mapa.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}
