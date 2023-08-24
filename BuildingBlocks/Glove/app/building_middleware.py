@@ -28,7 +28,7 @@ list_applications = [name for name in os.listdir(".") if (os.path.isdir(name) an
 
 
 
-def middleware(data,actions,workParams,LOGER=LOG):
+def middleware(data,actions,workParams,LOGER=LOG,ENV={},POSTMAN = None):
     try:
         LOGER.info(list_applications)
         LOGER.info("Running BB middleware")
@@ -54,9 +54,12 @@ def middleware(data,actions,workParams,LOGER=LOG):
                 #get params for service
                 params = workParams[app] #it has the character for the application and _params (e.g. A)
 
+                #ADD ENV params
+                params['ENV'] = ENV
+
                 #execute application as blackbox
                 LOGER.info("RUNNING BLACKBOX")
-                data = mod.blackbox(data,params) #data is a json
+                data = mod.blackbox(data,params,POSTMAN=POSTMAN) #data is a json
                 LOGER.info("BLACKBOX FINISHED with status: %s" % data['status'])
 
                 #write log

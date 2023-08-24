@@ -498,14 +498,16 @@ def save_data(value):
     
     # default options
     force = False
-
+    just_deploy = False
+    
     #custom options
-    if 'force' in options:
-        force=options['force']
-        LOG.info("si hay force")
+    force = options['force'] if 'force' in options else False
+    just_deploy = options['justdeploy'] if 'justdeploy' in options else False
+
 
 
     LOG.info("EJECUTANDO DE NUEVO: %s" % force)
+    LOG.info("SOLO DESPLEGANDO: %s" % just_deploy)
 
     is_already_running=False
     solution =  Get_solution_if_exist(RN,auth)
@@ -519,10 +521,11 @@ def save_data(value):
             
             new_dag = validate_solution(dag,solution,RN)
             BRANCHES[RN]["DAG"]=dag        
-            #BRANCHES[RN]["subtask_list"]=dict()     # subtask no existe, por lo que hay que añadirlo
-            #BRANCHES[RN]["subdags"]=dict()   # subtask no existe, por lo que hay que añadirlo
             dag = new_dag
-            update_solution_status(RN,"RUNNING")
+            if just_deploy:
+                update_solution_status(RN,"DEPLOYING")
+            else:
+                update_solution_status(RN,"RUNNING")
         else:
             is_already_running=True
     else:
@@ -534,8 +537,10 @@ def save_data(value):
         BRANCHES[RN]["task_list"]=dict()
         BRANCHES[RN]["subtask_list"]=dict()
         BRANCHES[RN]["subdags"]=dict()
-
-        update_solution_status(RN,"RUNNING")
+        if just_deploy:
+            update_solution_status(RN,"DEPLOYING")
+        else:
+            update_solution_status(RN,"RUNNING")
 
     return {"DAG":dag,"task_list":BRANCHES[RN]["task_list"],"is_already_running":is_already_running}
 

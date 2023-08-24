@@ -363,6 +363,20 @@ class postman(Thread):
             return self.times
         else:
             return self.times[key]
+    
+    def GetReference(self,query,ENV={}):
+        try:
+            ToSend=json.dumps({"query":query,"ENV":ENV})
+            url = "http://%s/reference/get" % (self.API_GATEWAY)
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'x-access-token': self.API_KEY}
+            res =api.post(url,data=ToSend,headers=headers).json()
+            self.LOGER.error(res)
+            if res['status']=="OK":
+                return res["value"]
+            return None
+        except Exception as e:
+            self.LOGER.error("EXPETION: %s" % e)
+            return None
 
     def Set_Time(self,time_key,value,operation="replace"):
         if operation=="replace":

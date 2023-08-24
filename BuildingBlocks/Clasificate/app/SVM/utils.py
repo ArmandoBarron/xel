@@ -8,7 +8,8 @@ import tempfile
 from zipfile import ZipFile, ZIP_DEFLATED
 LOGER = logging.getLogger()
 from os.path import basename
-
+import time
+import csv
 
 def UncompressFile(path_compressfile,path_results):
     """
@@ -48,9 +49,44 @@ def FormatParam(param):
         return str(param)
 
 
-def FormatCommand(command,params,reserved_params={}):
-    
+def Get_Env_FromFile(archivo_csv):
+    try:
+        with open(archivo_csv, "r", newline="",encoding="utf-8-sig") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            # Ignorar la primera línea (encabezados)
+            encabezados = next(csv_reader)
+            segunda_fila = next(csv_reader)
+            segunda_fila_dict = dict(zip(encabezados, segunda_fila))
+            json_data = json.dumps(segunda_fila_dict)
+        
+        return json.loads(json_data)
+    except (FileNotFoundError, csv.Error) as e:
+        return {}
+
+
+def get_var_in_string(command,initial="$ENV"):
+    start = command.find(initial+"(") + (1 + len(initial))
+    if start==1: #given that -1 + 2 = 1
+        return None
+    end = command.find(')', start)
+    if start>end:
+        return None
+    parameter_found = command[start:end]
+    return parameter_found
+
+def FormatCommand(command,params,reserved_params={},POSTMAN=None,default_none=True):
+    """
+    @{param}
+    @{param::str::defult value}
+    @{$ENV()}
+    @{$VAR()}
+    @{$REF::tabla.query} e.g. @{$REF.incidencias_mundial.}
+
+    @{$VAR::descripcion.pez}
+
+    """
     while True:
+        #LOGER.error("command: %s" % command)
         start = command.find('@{') + 2
         if start==1: #given that -1 + 2 = 1
             break
@@ -65,9 +101,48 @@ def FormatCommand(command,params,reserved_params={}):
         elif parameter_found in params:
             temp_p = FormatParam(params[parameter_found]) #fillter the params to change it to a valid format (e.g a list [] to a string separated by commas)
             command = command.replace("@{%s}" % parameter_found,temp_p)
+
+        elif "$REF" in parameter_found:
+            # REF::mortality
+
+            temporal_parm_found  = parameter_found.split("::",1)[1]
+
+            if POSTMAN is not None:
+                LOGER.info("si hay postman")
+                if len(reserved_params['ENV_DATASET'])>=1:
+                    LOGER.info("Enviando ENV DATASET: %s" %(reserved_params['ENV_DATASET']))
+                    temp_p =POSTMAN.GetReference(temporal_parm_found,ENV=reserved_params['ENV_DATASET'])
+                else:
+                    temp_p =POSTMAN.GetReference(temporal_parm_found,ENV=params['ENV'])
+
+                LOGER.info("resultado de postman: %s" %temp_p)
+                command = command.replace("@{$REF::%s}" % temporal_parm_found,str(temp_p))
+            else:
+                LOGER.error("POSTMAN IS NONE") 
+                command = command.replace("@{%s}" % parameter_found,"-")
+                
+        elif "$ENV" in parameter_found:
+            temporal_parm_found  = get_var_in_string(parameter_found,initial="$ENV") #
+            #LOGER.error("IMPRIMIENTO LA LISTA DE PARAMETROS:")
+            #LOGER.error(params)
+            #LOGER.error(params['ENV'])
+            #LOGER.error("parametro encontrado en ENV:" +temporal_parm_found)
+
+            if temporal_parm_found in params['ENV']:
+                temp_p = FormatParam(params['ENV'][temporal_parm_found]) #fillter the params to change it to a valid format (e.g a list [] to a string separated by commas)
+                command = command.replace("@{%s}" % parameter_found,temp_p)
+            elif temporal_parm_found in reserved_params['ENV_DATASET']:
+                temp_p = FormatParam(reserved_params['ENV_DATASET'][temporal_parm_found]) #fillter the params to change it to a valid format (e.g a list [] to a string separated by commas)
+                command = command.replace("@{%s}" % parameter_found,temp_p)
+            else:
+                command = command.replace("@{%s}" % parameter_found,"NONE")
+
         else:
             #if the parameter does not exist, then a default - is allocated
-            command = command.replace("@{%s}" % parameter_found,"-")
+            if default_none:
+                command = command.replace("@{%s}" % parameter_found,"-")
+            else:
+                command = command.replace("@{%s}" % parameter_found,"")
 
-    
+    #LOGER.error("final command: %s" % command)
     return command

@@ -4573,41 +4573,7 @@ function showAllOnMap(data) {
     });
 }
 
-// This function starts the timer
-function startTimer() {
-    clearInterval(document.timer);
-    centesimas = 0;
-    segundos = 0;
-    minutos = 0;
-    horas = 0;
-    document.timer = setInterval(cronometro, 10);
-}
 
-function sesionExpirada() {
-    $("#modExpirado").modal('show');
-
-}
-
-function cronometro() {
-    if (centesimas < 99) {
-        centesimas++;
-    }
-    if (centesimas == 99) {
-        centesimas = -1;
-    }
-    if (centesimas == 0) {
-        segundos++;
-    }
-    if (segundos == 59) {
-        segundos = -1;
-    }
-    if ((centesimas == 0) && (segundos == 0)) {
-        minutos++;
-    }
-    if (minutos == 59) {
-        sesionExpirada();
-    }
-}
 
 /*** DASHBOARD FUNCTIONS ****/
 

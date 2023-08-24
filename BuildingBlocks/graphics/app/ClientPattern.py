@@ -54,6 +54,20 @@ class client_pattern():
                     new_dag.append(ch)
         return new_dag
 
+    def GetSubtaskContextVariables(self, id_str):
+        dict_var_context = {}
+        string_context = id_str.replace("-VAL-","/")
+        string_context = string_context.replace("-LVL-","/")
+        string_context = string_context.replace("-MAP-","/")
+        string_context = string_context.replace("-subtask-","/")
+        string_arr = string_context.split("/")
+        for var in string_arr:
+            key_val = var.split("=")
+            if len(key_val)==2:
+                dict_var_context[key_val[0]] =key_val[1]
+        return dict_var_context
+            
+
     def Prepare_subdag_instance(self,dag,task,as_original = False):
         new_dag=[]
         for ch in dag:
@@ -441,17 +455,14 @@ class client_pattern():
                     data_pointer = open(data_path['data'],"rb")
                     dag_to_send = self.Prepare_subdag_instance([temp],task)[0]
                     dag_to_send = self.CloneDict(dag_to_send)
-                    
+                    ENV_VARS= self.GetSubtaskContextVariables(task)
+                    self.LOGER.info("variables ENV: %s "%ENV_VARS)
                     self.LOGER.error("----------------------------preparing subchild: %s"% dag_to_send['id'])
 
                     if dag_to_send['id'] not in res_monitor: #si aun no se dispacha entones se a enviar
                         #self.LOGER.error("----------------------------sending to subchild: %s"%dag_to_send['id'])
-                        # AQUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # AQUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # el postman no tiene la info del hash de los datos de entrada. DEbo hacer una trampa para poder calcularlo y guardarlo!!!
-                        # PERO COMO NO TENGO LOS DATOS, LO DEB E HACER EL PROPIO BB
 
-                        dispatcher_client.Send_to_BB(data_map,data_pointer,auth,dag_to_send,parent = task)
+                        dispatcher_client.Send_to_BB(data_map,data_pointer,auth,dag_to_send,parent = task,ENV=ENV_VARS)
                         #self.LOGER.error("----------------------------sent to subchild: %s"%dag_to_send['id'])
                         treshold+=1
                         cummulative_treshold +=1

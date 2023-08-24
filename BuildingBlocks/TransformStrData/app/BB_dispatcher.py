@@ -23,7 +23,7 @@ class bb_dispatcher():
         self.Tolerant_errors=Tolerant_errors
 
 
-    def Send_to_BB(self,data_map,data_pointer,auth,child,parent = None):
+    def Send_to_BB(self,data_map,data_pointer,auth,child,ENV={},parent = None):
         if parent is None:
             parent = self.PARENT
 
@@ -48,7 +48,7 @@ class bb_dispatcher():
             ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'Starting ejecution.','INIT',id_service=child['id'],parent=parent,dag=child,include_hash=True)
             self.POSTMAN.WarnGateway(ToSend)
             while(True):
-                data = C.RestRequest(ip,port,{'data':data_map,'DAG':child,"auth":auth},data_file=data_pointer)
+                data = C.RestRequest(ip,port,{'data':data_map,'DAG':child,"auth":auth,"ENV":ENV},data_file=data_pointer)
                 if data is not None:
                     self.LOGER.info(">>> DATA SENT SUCCESFULLY <<<")
                     errors_counter=0

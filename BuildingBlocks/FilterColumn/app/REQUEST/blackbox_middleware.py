@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
 
 
-def blackbox(data,params):
+def blackbox(data,params,POSTMAN=None):
 
     ###########################################################################
     ################################# EXTRACT #################################
@@ -56,7 +56,7 @@ def blackbox(data,params):
     ############################## TRANSFORM #############################
     ######################################################################
     ####################### execute the application ######################
-    response = Trigger.execute(params,App_configurations)
+    response = Trigger.execute(params,App_configurations,POSTMAN=POSTMAN)
     if response['status'] != 0:
         return {'data':'','type':'','status':'ERROR','message':"Bad execution in %s blackbox: %s" % (NAME_APPLICATION,response['data']['message'])}
     response = response['data']

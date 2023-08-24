@@ -14,7 +14,7 @@ TOKEN_ORG = "ed4ade2b846402b9ae56c75e1df923c71a1a081a339dccb7fa9d2c22194ddaff" #
 
 TOKEN_REQUIERD=os.getenv("TOKEN_REQUIERD") 
 API_KEY=os.getenv("API_KEY") # sha256 hash (eg. "9aa491c85508cfeead30c569c88c8f26e3881792a3f158a323ee9ac6150ab1cd") 
-interval_expiration = 60*24 #60 minutes * 48 hours = 2 days
+interval_expiration = 60*48 #60 minutes * 48 hours = 2 days
 
 
 SESSIONS = {API_KEY:{"expiration_date":None,"API_key":True,"tokenuser":API_KEY}} #{"access_token":"{expiration_date","tokenuser","API_key":true}}
@@ -195,6 +195,7 @@ def login_request(username,password):
         #registrar session
         json_result =result.json()
         expiration_date = datetime.datetime.now() + datetime.timedelta(minutes=interval_expiration)
+        LOG.info("la sesión expira en %s" %expiration_date)
         SESSIONS[json_result['data']['access_token']] = {"expiration_date":expiration_date, "tokenuser":json_result['data']['tokenuser']}
     return make_response(jsonify(result.json()), result.status_code)
 
@@ -205,8 +206,6 @@ def logout_request(tokenuser,access_token):
     except:
         return make_response(jsonify({"message": "Invalid token!"}), 403)
     
-
-
 def register_user(username,email,password):
 
     url = 'http://%s/auth/v1/users/' % IP_AUTH_SERVICE
@@ -240,13 +239,12 @@ def verify_session_token(token):
         tokenuser= SESSIONS[token]['tokenuser']
 
         now = datetime.datetime.now() 
-        #LOG.debug("now: %s"% now)
-        #LOG.debug("expire: %s"% expiration_date)
-        #LOG.debug("expired?: %s"% (now>expiration_date))
+        LOG.info("now: %s"% now)
+        LOG.info("expire: %s"% expiration_date)
+        LOG.info("expired?: %s"% (now>expiration_date))
 
         if now>expiration_date:
-            #update token
-            update_access_token(token,tokenuser)
+            update_access_token(token,tokenuser) #update token
             return False
         else:
             return True

@@ -56,6 +56,8 @@ DEBUG_MODE = TranslateBoolStr(os.getenv("DEBUG_MODE"))
 DATASET_EXAMPLES_FOLDER="./examples/datasets/"
 DAG_EXAMPLES_FOLDER="./examples/dags/"
 
+REFERENCES_FOLDER="./references/"
+
 
 TIMES_list = {}
 #create logs folder
@@ -145,7 +147,7 @@ def GetDataPath(params):
             name = "project_"+credentials['token_solution']
             ext="zip"
             path = BKP_FOLDER + name +"."+ext
-            LOGER.info(data_path)
+            #LOGER.info(data_path)
             if FileExist(path):
                 pass #verify if data exist
             else:
@@ -193,9 +195,8 @@ def verify_extentions(data_path,ext,response,filename,delimiter=","):
 
         elif ext=="csv":  #describe csv
             enc = detect_encode(data_path)
-            LOGER.info(enc)
-            LOGER.info(delimiter)
-
+            #LOGER.info(enc)
+            #LOGER.info(delimiter)
             dataset= pd.read_csv(data_path,encoding=enc['encoding'],sep=delimiter)
             #LOGER.info(dataset)
             response['info']['files_info'][filename] = DatasetDescription(dataset)
@@ -336,6 +337,79 @@ def stop_DAG(token_project,token_solution):
     paxos_response = PROPOSER.Consult_v2(token_project,token_solution,None,kind_task="task_list",force_stop_healthcheck=True) # consult request in paxos distributed memory
     make_response({"status":"OK","message":"solution stopped"},200)    
 
+#service to deploy service stack
+@app.route('/deploy', methods=['POST'])
+@token_required
+@resource_autorization_requiered
+def deploy_resources():
+    """
+    {DAG:{},token_solution(optional),auth}
+    """
+    params = request.get_json(force=True)
+    envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
+    DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
+
+    Alias = params['alias'] if 'alias' in params else 'default'
+
+    RN = CreateSolutionID(params)
+    TIMES_list[RN]={"deploy":0,"total":time.time(),"recovery":0,"alias":Alias}
+
+    exec_options = {}
+    if 'options' in params:
+        exec_options = params['options'] 
+        if 'force' in exec_options:
+            exec_options['force'] = TranslateBoolStr(exec_options['force'])
+    
+    exec_options['justdeploy'] =True
+
+    ######## paxos ##########
+    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params,options=exec_options) # save request in paxos distributed memory
+    if paxos_response['status'] == "ERROR":
+        LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
+        return make_response({"status":"ERROR","message":"Mesh is not accepting requests"},503)
+    #########################
+    #Paxos returns the list of task tat will be executed. if list is void, then all the task have been executed before and must be pass the FORCE option to execute them again
+    res = paxos_response['value']
+
+    ###################### DEPLOY SERVICES #########################
+    if MODE == "SERVERLESS" and len(res['DAG'])>0:
+        temp = time.time()
+        LOGER.info("---------------------------- DEPLOYING")
+        GC.start_services({
+                "DAG":res['DAG'],
+                "id_stack": RN,
+                "mode":"compose",
+                "engine":"nez",
+                "replicas": 2})
+        LOGER.info("---------------------------- DEPLOYED")
+        #LOGER.info(res['DAG'])
+        TIMES_list[RN]['deploy'] = time.time() - temp
+        time.sleep(.5)
+        response = make_response({"status":"OK","message":"solution deployed",'token_solution':RN},200)    
+    else:
+        response = make_response({"status":"ERROR","message":"Error at deploying solution"},500)    
+    ################################################################
+    return response
+
+@app.route('/removestack', methods=['POST'])
+@token_required
+@resource_autorization_requiered
+def remove_deployed_stack():
+    params = request.get_json(force=True)
+    token_solution = params['token_solution']
+
+    response = make_response({"status":"OK","message":"stack not found"},200)    
+    try:
+        if MODE == "SERVERLESS": #stop containers
+            if not DEBUG_MODE:
+                LOGER.error("STOPING CONTAIENRS")
+                GC.remove_services(token_solution)
+                PROPOSER.Update_resource('','',{"context":token_solution},read_action="CONTEXT_DOWN")
+                response = make_response({"status":"OK","message":"stack removed"},200)    
+    except Exception as e:
+        LOGER.error(e)
+    return response
+
 #service to execute a set of application in a DAG
 @app.route('/executeDAG', methods=['POST'])
 @token_required
@@ -356,7 +430,6 @@ def execute_DAG():
             {data:{shared_token,task,filename(optional)},type:SHARED} #un catalogo del usuario
     """
 
-
     params = request.get_json(force=True)
     envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
     data = params['data_map'] #data to be transform {data:,type:}
@@ -367,13 +440,6 @@ def execute_DAG():
         exec_options = params['options'] 
         if 'force' in exec_options:
             exec_options['force'] = TranslateBoolStr(exec_options['force'])
-
-
-    LOGER.info(exec_options)
-
-    Alias="default"
-    if 'alias' in params:
-        Alias = params['alias']
 
     data_path,name,ext= GetDataPath(data) #get data path
 
@@ -390,7 +456,6 @@ def execute_DAG():
 
     #A resquest random number for monitoring is created. 
     RN = CreateSolutionID(params)
-    TIMES_list[RN]={"deploy":0,"total":time.time(),"recovery":0,"alias":Alias}
 
     ######## paxos ##########
     paxos_response = PROPOSER.Save(RN,DAG,envirioment_params,options=exec_options) # save request in paxos distributed memory
@@ -406,21 +471,6 @@ def execute_DAG():
     is_already_running = res['is_already_running']
 
     if not is_already_running:
-        ###################### DEPLOY SERVICES #########################
-        if MODE == "SERVERLESS" and len(res['DAG'])>0:
-            temp = time.time()
-            LOGER.info("---------------------------- DEPLOYING")
-            GC.start_services({
-                    "DAG":res['DAG'],
-                    "id_stack": RN,
-                    "mode":"compose",
-                    "engine":"nez",
-                    "replicas": 2})
-            LOGER.info("---------------------------- DEPLOYED")
-            #LOGER.info(res['DAG'])
-            TIMES_list[RN]['deploy'] = time.time() - temp
-            time.sleep(1)
-        ################################################################
 
         dispatcher_parent = '' # is void if coordinator is the parent
         for branch in new_dag:
@@ -520,21 +570,16 @@ def monitoring_v2(token_project,token_solution):
 
 
     if solution_status['status']=="FAILED" or solution_status['status']=="FINISHED":
-        try:
+        LOGER.info("YA TERMINO LA SOLUCION")
+        if token_solution in TIMES_list:
             TIMES_list[token_solution]['total'] = time.time() - TIMES_list[token_solution]['total']
-            f = open(logs_folder+'soluciones.txt', 'a+'); 
-            f.write("%s,%s,%s,%s,%s\n" %(token_solution,TIMES_list[token_solution]['total'],TIMES_list[token_solution]['recovery'],TIMES_list[token_solution]['deploy'],TIMES_list[token_solution]['alias'] )) 
-            f.close()
+            with open(logs_folder+'soluciones.txt', 'a+') as f: 
+                f.write("%s,%s,%s,%s,%s\n" %(token_solution,TIMES_list[token_solution]['total'],
+                                            TIMES_list[token_solution]['recovery'],
+                                            TIMES_list[token_solution]['deploy'],
+                                            TIMES_list[token_solution]['alias'] )) 
             del TIMES_list[token_solution]
-            if MODE == "SERVERLESS": #stop containers
-                if not DEBUG_MODE:
-                    LOGER.error("STOPING CONTAIENRS")
-                    GC.remove_services(token_solution)
-                    PROPOSER.Update_resource('','',{"context":token_solution},read_action="CONTEXT_DOWN")
 
-                    
-        except Exception as e:
-            LOGER.error(e)
     return make_response(ToSend,200)
 
 ## =============================================================== ##
@@ -582,13 +627,13 @@ def getfileintask():
     params = request.get_json(force=True)
     data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
     file_exist=FileExist(data_path) #verify if data exist
-    LOGER.error(data_path)
+    #LOGER.error(data_path)
 
     if file_exist:
         return send_file(
                 data_path,
                 as_attachment=True,
-                attachment_filename="%s.%s" %(name,ext)
+                download_name="%s.%s" %(name,ext) #attachment_filename
         )
     else:
         return make_response({"status":"ERROR", "message":"file not found"},404)
@@ -807,7 +852,7 @@ def delete_userfile(tokenuser,workspace,filename):
 @app.route('/ArchiveData/<RN>/<task>', methods = ['POST'])
 @API_required
 def upload_file(RN,task):
-    LOGER.debug("INDEX DATA to %s" %RN)
+    #LOGER.debug("INDEX DATA to %s" %RN)
     tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
     path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
     f = request.files['file']
@@ -827,7 +872,7 @@ def upload_file(RN,task):
         response={"status":"OK","message":"","file_exist":True,"info":{"parent_filename":filename,"list_of_files":[],"files_info":{}}}
 
         response,file_validation=verify_extentions(data_path,ext,response,filename,delimiter=",")
-        LOGER.info("SAVING DESC IN %s" % description_filepath)
+        #LOGER.info("SAVING DESC IN %s" % description_filepath)
         if file_validation: #save in file
             with open(description_filepath,'w') as f:
                 f.write(json.dumps(response))
@@ -961,6 +1006,54 @@ def describeDatasetv2():
     LOGER.info(init-time.time())
     return make_response(response,200)
 
+
+@app.route('/reference/get', methods=['POST'])
+def GetReference():
+    """
+    query = table.query
+    Mundial=@{$REF::ref_incidencia_both_mexico.$VAR::descripcion}
+    """
+    params = request.get_json()
+    table = params['query'] #tabla
+    env_params = params['ENV']
+
+    #leer el mapa de variables de interes
+    with open('%sreferencesIV.json' % (REFERENCES_FOLDER) ) as json_file:
+        IVRef = json.load(json_file) #read all configurations for services
+    
+    if table not in IVRef:
+        return make_response({"status":"ERROR","message":"not in database"},404)    
+
+    data_path = "%s%s" % (REFERENCES_FOLDER,FormatCommand(IVRef[table]["path"], env_params))
+    data_path= data_path.replace(">","+")
+    LOGER.info("data path de la referencia corregido: %s" % data_path)
+
+    file_exist=FileExist(data_path) #verify if data exist
+    if file_exist:
+        ref_dataset = pd.read_csv(data_path)
+        queryValue="0"
+
+        if IVRef[table]["mode"] == "range": #IF RANGE
+            queryValue =int(env_params[IVRef[table]['code']][1:]) if IVRef[table]["RemoveFirstLetter"] else env_params[IVRef[table]['code']] #aqui el str puede causar error
+            ref_dataset[['min_col', 'max_col']] = ref_dataset[IVRef[table]["range_col"]].str.split(IVRef[table]["sep"], expand=True)
+            ref_dataset['max_col'].fillna(ref_dataset['min_col'], inplace=True)
+            columnas_a_convertir = ["max_col", "min_col"]
+            ref_dataset[columnas_a_convertir] = ref_dataset[columnas_a_convertir].apply(pd.to_numeric, errors='coerce')
+            filtro =  (ref_dataset["min_col"] <= queryValue) & (ref_dataset["max_col"] >= queryValue)
+            ref_dataset = ref_dataset[filtro].reset_index()
+
+            #LOGER.info(ref_dataset)
+            #LOGER.error("any fitlered value: %s " % filtro.any())
+        
+        if ref_dataset.empty:
+            ref_value = 0
+        else:
+            ref_value = ref_dataset[IVRef[table]["VI"]][0]
+
+        LOGER.info("reference value: %s ; key: %s" % (ref_value,queryValue ))
+        return make_response({"status":"OK","message":"reference found","value": ref_value},200)    
+    else:
+        return make_response({"status":"ERROR","message":"not found"},404)    
 
 
 

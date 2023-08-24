@@ -42,17 +42,14 @@ def ClientProcess(metadata,data_acq_time):
 
     AG=postman(GATEWAYS_LIST,SERVICE_NAME,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,API_GATEWAY=API_GATEWAY,LOGER=LOGER,tokenuser=auth['user'])
     os.chdir(BASE_PATH) #in case of error must be set the base path
-
     
     service = DAG['service']
     service_name = service
     params = DAG['params']
 
-    if 'childrens' in DAG:
-        children = DAG['childrens']
-    else:
-        children = []
-    
+    children = DAG['childrens'] if 'childrens' in DAG else []
+    ENV_VARS = metadata['ENV'] if 'ENV' in metadata else {}
+
     id_service =DAG['id']
     control_number = DAG['control_number']
 
@@ -107,7 +104,7 @@ def ClientProcess(metadata,data_acq_time):
         #index_opt = False #los patrones no indexan datos
     else:
         ############# APP EXECUTION #############
-        result = BB.middleware(data,actions,params,LOGER=LOGER) #{data,type,status,message}
+        result = BB.middleware(data,actions,params,LOGER=LOGER,ENV=ENV_VARS,POSTMAN=AG) #{data,type,status,message}
         if 'EXECUTION_TIME' in result:
             TIME_EXECUTION = result['EXECUTION_TIME']
             del result['EXECUTION_TIME']
@@ -163,7 +160,7 @@ def ClientProcess(metadata,data_acq_time):
                 f = open(result['data'],"rb") #open result file to send it to another service
 
             # send request to the next BB
-            dispatcher.Send_to_BB(result,f,auth,child)
+            dispatcher.Send_to_BB(result,f,auth,child,ENV=ENV_VARS)
     except KeyError as ke:
         LOGER.error("ERROR: we can't find chilfrens children")
 

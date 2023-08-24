@@ -12,7 +12,6 @@ import tempfile
 import time
 import subprocess
 import multiprocessing as mp
-import signal
 
 ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +32,7 @@ def call_app(comando):
     return sp.returncode
 
 #############################
-def execute(params,AppConfig):
+def execute(params,AppConfig,POSTMAN=None):
     """
     params:: type(dict) - 
     AppConfig:: type(dict) 
@@ -54,6 +53,7 @@ def execute(params,AppConfig):
 
             params['BBOX_ROLLBACK_PATH']:: type(string). Persistent folder for .
 
+            params['ENV']
         
     return: dict(). {status,data:{'status','data','type','message'}}
     """ 
@@ -75,6 +75,8 @@ def execute(params,AppConfig):
 
     ############## develepores can modify this function in order to set the envirioment to the app ###########
     CustomScript.config_env()
+    RESERVED_PARAMS['ENV_DATASET'] = utils.Get_Env_FromFile(RESERVED_PARAMS['SOURCE'])
+    LOGER.info("ENV DATASET: %s" %(RESERVED_PARAMS['ENV_DATASET']))
     ##########################################################################################################
     execution_status=1
     try:
@@ -93,17 +95,10 @@ def execute(params,AppConfig):
                 execution_status=1
         else:
             command = Transform_config['COMMAND']
-            command = utils.FormatCommand(command,params,reserved_params=RESERVED_PARAMS) # ==== FORMATING COMMAND ======
+            command = utils.FormatCommand(command,params,reserved_params=RESERVED_PARAMS,POSTMAN=POSTMAN) # ==== FORMATING COMMAND ======
             LOGER.info("==== EXECUTING COMMAND ====== %s" % command )
-
-            #results={"execution_status":0}
-            #thread1 = mp.Process(target = call_app, args = (command,results) )
-            #thread1.start()
-            #thread1.join()
-            #thread1.terminate()
-            #thread1.close()
-            #execution_status = results["execution_status"]
             execution_status = call_app(command)
+
             LOGER.info("status code: %s" % execution_status )
 
         EXECUTION_TIME = time.time() - EXECUTION_TIME
@@ -123,7 +118,7 @@ def execute(params,AppConfig):
 
             for tmp_name in list_namefiles: #check all posible outputs
                 try:
-                    namefile = utils.FormatCommand(tmp_name,params,reserved_params=RESERVED_PARAMS) #format namefile 
+                    namefile = utils.FormatCommand(tmp_name,params,reserved_params=RESERVED_PARAMS,POSTMAN=POSTMAN) #format namefile 
                     if len(namefile.split("/"))>=2: #its a path
                         result = namefile
                         #if its a path by default compress is TRUE
@@ -155,6 +150,10 @@ def execute(params,AppConfig):
         response = {"data":result,"type":ext,"status":"OK","message":app_message,"EXECUTION_TIME":EXECUTION_TIME}
 
     except (Exception,ValueError) as e:
+        exception_type, exception_object, exception_traceback = sys.exc_info()
+        filename_error = exception_traceback.tb_frame.f_code.co_filename
+        line_number = exception_traceback.tb_lineno
+        LOGER.error("BLACKBOX ERROR: "+str(e)+", line: "+str(line_number)+ " in "+filename_error)
         response = {"data":"","type":"","status":"ERROR","message":"%s" %(e)}
         return {'status':1,'data':response}
 

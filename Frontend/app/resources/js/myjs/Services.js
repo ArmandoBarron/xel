@@ -176,6 +176,7 @@ function Xel_run(as_copy=false,force=false){
 
 
 function Exec_graph(exec_options={}){
+    // ==================================== deployting phase
     Download_log = false
     DAG = [] //CLEAN
     LIST_TASK_OVER= []
@@ -189,7 +190,40 @@ function Exec_graph(exec_options={}){
     $(".InspectDataIcon-task").html("")
 
     // send request to exec dag
-    pipe_dag(DATA_WORKFLOW,exec_options=exec_options)
+    // first setp: deploy services
+    var data_to_send = {'SERVICE':'deploy',"HOST":SERVICE_GATEWAY, 'REQUEST':{'DAG':JSON.stringify(DAG),
+        'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE},
+        'options':exec_options,
+        'alias':$("#modal_save-solutions-form-name").val()
+    }};
+
+    if (TOKEN_SOLUTION!=""){data_to_send.REQUEST.token_solution=TOKEN_SOLUTION}
+
+    $.ajax({
+        type: "POST", // la variable type guarda el tipo de la peticion GET,POST,..
+        url: 'includes/xel_Request.php', //url guarda la ruta hacia donde se hace la peticion
+        data: data_to_send, // data recive un objeto con la informacion que se enviara al servidor
+        beforeSend: function() {
+            notificarUsuario("Deploying...", 'info');
+        },
+        success: function(response) { //success es una funcion que se utiliza si el servidor retorna informacion
+            if (response['status']=="OK"){
+                notificarUsuario("Resources have been deployed", 'info');
+                Set_Tokensolution(response['token_solution'])
+                //exec
+                pipe_dag(DATA_WORKFLOW,exec_options=exec_options)
+            }
+            else{
+                notificarUsuario("Resources could't have deployed", 'info');
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+            notificarUsuario("Resources could't have deployed", 'info');
+        },
+        dataType: 'json' // El tipo de datos esperados del servidor. Valor predeterminado: Intelligent Guess (xml, json, script, text, html).
+    });
+
+
 }
 
 function pipe_getdata(data_request){ //get RAW data to execute dag
@@ -626,7 +660,7 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                 else{ // esto quiere decir que todas las task devolvieron ya un status, pero puede que aun no terminen
                     
                     lista_tareas = Listar_tareas([],dataObject.children)
-                    if (lista_tareas.length == LIST_TASK_OVER.length){
+                    if (lista_tareas.length == LIST_TASK_OVER.length){ //si esta condicion se cumple, entonces todas las tareas terminaron
                         
                         // se remueven todos los iconos de carga
                         $('.serviceLoadingIcon-root').html("")
@@ -660,18 +694,36 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                             }
                         }
     
-                        // execute again if there are more iterations
-                        itt = parseInt($("#dag_iterations").val())
-                        if(itt>=2){
-                            $("#dag_iterations").val(itt-1)
-                            //Set_Tokensolution("") //se vacía esta variable, de esta forma se fuerza a ejecutar todo desde 0
-                            setTimeout(Exec_graph({"force":true}),1000)
-                        }
-                        else{
-                            console.log("no more iterations")
-                        }
+                        // para finalizar, se elimina el stack, a menos que se especifique lo contrario (futu wok (future work))
+                        var data_to_send = {'SERVICE':'removestack',"HOST":SERVICE_GATEWAY, 'REQUEST':{'token_solution':TOKEN_SOLUTION,
+                                            'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE}}};
+                    
+                            $.ajax({
+                                type: "POST", // la variable type guarda el tipo de la peticion GET,POST,..
+                                url: 'includes/xel_Request.php', //url guarda la ruta hacia donde se hace la peticion
+                                data: data_to_send, // data recive un objeto con la informacion que se enviara al servidor
+                                beforeSend: function() {
+                                    notificarUsuario("Removing stack", 'info')
+                                },
+                                success: function(result) {  
+                                    notificarUsuario(result['message'], 'warning')
+    
+                                    itt = parseInt($("#dag_iterations").val()) // execute again if there are more iterations
+                                    if(itt>=2){
+                                        $("#dag_iterations").val(itt-1)
+                                        setTimeout(Exec_graph({"force":true}),1000)
+                                    }
+                                    else{console.log("no more iterations")}
+    
+                                },
+                                error: function(XMLHttpRequest, textStatus, errorThrown){
+                                    error_result = XMLHttpRequest['responseJSON']
+                                    postExecutionStop(0,true,message=error_result['message'])
+                                },
+                                dataType: 'json' // El tipo de datos esperados del servidor. Valor predeterminado: Intelligent Guess (xml, json, script, text, html).
+                            });
 
-
+                        // end remove stacl
                     }
                     else{
                         console.log(LIST_TASK_OVER)
@@ -2979,6 +3031,10 @@ function LoginUser(username,password){
          }
     });
 
+}
+
+function sesionExpirada() {
+    $("#modExpirado").modal('show');
 }
 
 function LogOutUser(){

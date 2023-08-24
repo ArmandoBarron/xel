@@ -1,0 +1,20 @@
+{
+    "cancer_mortality": {
+        "path":"mortality/mor_@{SEXO}_mundial_@{RANGO_EDAD}.csv",
+        "VI": "ASR (World)",
+        "code":"CAUSA_DEF",
+        "mode": "range",
+        "range_col": "range",
+        "sep": "-",
+        "RemoveFirstLetter": true
+    },
+    "cancer_incidence": {
+        "path":"incidence/inc_@{SEXO}_mundial_@{RANGO_EDAD}.csv",
+        "VI": "ASR (World)",
+        "code":"CAUSA_DEF",
+        "mode": "range",
+        "range_col": "range",
+        "sep": "-",
+        "RemoveFirstLetter": true
+    }
+}

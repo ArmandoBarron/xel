@@ -637,4 +637,62 @@ if chart_template==16: # regresion
 
     export_figures(fig, outputpath,imagefile_name,config)
 
+if chart_template==17: # multiple Lin regresion
+    """
+    python3 graph.py test_solo_CO.csv ./output '17' '' '' '' '' 'year' 'contamiantes_value' '' '' '' '' '' 'title' '' '' mexico=5
+
+    """
+
+    imagefile_name = "Regression"
+
+    list_layers = []
+    df_grouped = df.groupby(SUBGROUP)
+    for namedf,group_df in df_grouped:
+        df_temp = group_df.sort_values(COLUMN_X)
+        X = df_temp[[COLUMN_X]]
+        X_train = X
+        y_train = df_temp[COLUMN_Y]
+
+        reg_name = "reg. %s" %namedf
+        data_name = "%s" %namedf
+
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+
+        x_range = X[COLUMN_X].tolist()
+        y_range = model.predict(X)
+
+        #valores x a predecir
+        x_value = df[COLUMN_X].unique()
+        list_layers.append(go.Scatter(x=X_train.squeeze(), y=y_train, name=data_name, mode='markers', marker=dict(opacity=0.4))) #data
+        list_layers.append(go.Scatter(x=x_range, y=y_range, name=reg_name)) #data
+
+           
+        fig = go.Figure(list_layers)
+
+    for ref in REFERENCE_VALUE:
+        name,value = ref.split("=")
+        fig.add_traces(go.Scatter(x=x_value, y=[value]*len(x_value), mode='lines', line=dict(dash='dash'), name=name))
+
+    fig.update_layout(
+        yaxis=dict(
+            title=COLUMN_Y,  # Nombre del eje y
+            titlefont=dict(size=16)  # Tamaño de la fuente del nombre del eje y
+        ),
+        xaxis=dict(
+            title=COLUMN_X,  # Nombre del eje y
+            titlefont=dict(size=16)  # Tamaño de la fuente del nombre del eje y
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01,
+            bgcolor='rgba(0, 0, 0, 0)'
+        )
+    )
+
+    export_figures(fig, outputpath,imagefile_name,config)
+
 exit(0)

@@ -133,7 +133,7 @@ def createFolderIfNotExist(folder_name,wd=""):
     return wd+folder_name
 
 
-def Request2Dataset(df_path,peticiones):
+def Request2Dataset(df_path,peticiones,return_type="json"):
     df = pd.read_csv(df_path)
     results = []
     LOG.error(peticiones)
@@ -150,11 +150,11 @@ def Request2Dataset(df_path,peticiones):
                 val = val.replace("\"","")
                 res = df.query(val)
 
-            LOG.error(df.query(val))
-
-            res = res.to_json(orient="records")
+            if return_type == "json":
+                res = res.to_json(orient="records")
+            
             results.append(res)
-    del df
+    #del df
     return results
 
 def DatasetDescription(datos):
@@ -229,6 +229,47 @@ def TranslateBoolStr(var_str):
     else:
         var_str = False
     return var_str
+
+def FormatParam(param):
+    if isinstance(param, list):
+        return ",".join([str(i) for i in param])
+    elif isinstance(param, dict):
+        return json.dumps(param)
+    else:
+        return str(param)
+    
+def FormatCommand(command,params,reserved_params={},default_none=True):
+    """
+    @{param}
+    @{param::str::defult value}
+    @{$ENV()}
+    @{$REF::}
+
+    """
+    while True:
+        #LOGER.error("command: %s" % command)
+        start = command.find('@{') + 2
+        if start==1: #given that -1 + 2 = 1
+            break
+        end = command.find('}', start)
+        if start>end:
+            return None
+        parameter_found = command[start:end]
+        #LOGER.error("---------------> %s" % parameter_found)
+        ########## REPLACE PARAMS FOUND #############
+        if parameter_found in reserved_params:
+            command = command.replace("@{%s}" % parameter_found,reserved_params[parameter_found])
+        elif parameter_found in params:
+            temp_p = FormatParam(params[parameter_found]) #fillter the params to change it to a valid format (e.g a list [] to a string separated by commas)
+            command = command.replace("@{%s}" % parameter_found,temp_p)
+        else:
+            #if the parameter does not exist, then a default - is allocated
+            if default_none:
+                command = command.replace("@{%s}" % parameter_found,"-")
+            else:
+                command = command.replace("@{%s}" % parameter_found,"")
+
+    return command
 
 def detect_encode(file):
     detector = UniversalDetector()

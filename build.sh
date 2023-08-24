@@ -51,7 +51,7 @@ option=1
     docker build -t ${tag_gui} ./Frontend
     docker build -t ${tag_coordinator} AG
     docker build -t ${tag_paxos} ./NonFunctional/Paxos
-    docker build -t ${tag_yaml_creator} ./NonFunctional/Services_Creator
+    #docker build -t ${tag_yaml_creator} ./NonFunctional/Services_Creator
 
     #construir imagenes de servicios de xelhua (BB)
     docker build -t ${tag_filtercolumn} ./BuildingBlocks/FilterColumn #Filtrar columnas
