@@ -173,12 +173,12 @@ fig = px.choropleth_mapbox(df, geojson=geo, locations=geocve_column,
                         hover_name=string_label,
                         zoom=zoom,
                         center = cent,
-                        mapbox_style="carto-positron",
+                        mapbox_style="stamen-terrain",
                         color=label_color,
                         animation_frame=temporal,
                         range_color=range_color,
                         #hover_data=["REF_ESTATAL","REF_NACIONAL"],
-                        opacity=0.5)
+                        opacity=0.7)
 
 fig.update_traces(marker_line_width=0)
 

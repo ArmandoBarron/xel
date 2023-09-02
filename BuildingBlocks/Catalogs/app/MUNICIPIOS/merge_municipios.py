@@ -13,9 +13,10 @@ cve_ent = sys.argv[4]
 cve_mun = sys.argv[5]
 
 catalog = ACTUAL_PATH + "municipios_geo.csv"
-
 df_data = pd.read_csv(inputpath)
 df_mun =pd.read_csv(catalog)
+
+df_mun= df_mun[['CVE_ENT','CVE_MUN','lat','lon']]
 print("merging..")
 print(df_mun)
 print(df_data)
