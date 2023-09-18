@@ -626,3 +626,49 @@ ServicesArr.push(
         }
     )
     
+
+    
+ServicesArr.push(
+        {
+            id: "reports",
+            process_tag:"charts",
+            valid_datatypes:{input:["csv"],output:["HTML"]},
+            name: "reports",
+            section:SECTION,
+            desc: `Automatically detects and highlights the insights present in the data, such as missing data, distinct count and statistics.`,
+            columns:{
+                default: null,
+                parent: [] 
+            },
+            params: {
+                actions:"",
+                title:"",
+                SAVE_DATA:true
+            },
+            html: `
+            <div class="form-check" style="text-align: right;">
+                <input type="checkbox" checked class="form-check-input" id="SAVE_DATA">
+                <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
+            </div>
+            <br>
+
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Reports Engine: </label>
+                        <div class="col-sm-8">
+                        <select class="form-control" id="actions">
+                                <option value="DATAPREP"> Dashborad by dataprep </option>
+                        </select>
+                        </div>
+                </div>
+                        
+                <div class="form-group row m-2">
+                        <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Title for the report:</label>
+                        <div class="col-sm-8">
+                                <input id="title" type="text" class="form-control">
+                        </div>
+                </div>
+                        
+    `
+        }
+    )
+    

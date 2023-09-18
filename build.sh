@@ -37,6 +37,7 @@ tag_grobid="xel_bb_grobid:v2.0"
 tag_glove="xel_bb_glove:v2.0"
 tag_classification_models="xel_bb_classification_models:v2.0"
 tag_advanced_map="xel_bb_advanced_map:v2.0"
+tag_reports="xel_bb_reports:v2.0"
 
 option=1
 
@@ -49,29 +50,29 @@ option=1
     echo "construyendo imagenes"
     # construir imagenes de modulos de xelhua
     docker build -t ${tag_gui} ./Frontend
-    docker build -t ${tag_coordinator} AG
-    docker build -t ${tag_paxos} ./NonFunctional/Paxos
+    #docker build -t ${tag_coordinator} AG
+    #docker build -t ${tag_paxos} ./NonFunctional/Paxos
     #docker build -t ${tag_yaml_creator} ./NonFunctional/Services_Creator
-
-    #construir imagenes de servicios de xelhua (BB)
-    docker build -t ${tag_filtercolumn} ./BuildingBlocks/FilterColumn #Filtrar columnas
-    docker build -t ${tag_fusion} ./BuildingBlocks/Fusion #Fusion
-    docker build -t ${tag_correlations} ./BuildingBlocks/Correlations
-    docker build -t ${tag_data_split} ./BuildingBlocks/DataSplit
-    docker build -t ${tag_data_clean} ./BuildingBlocks/DataClean
-    docker build -t ${tag_imputation} ./BuildingBlocks/Imputation
-    docker build -t ${tag_charts} ./BuildingBlocks/graphics
-    docker build -t ${tag_maps} ./BuildingBlocks/maps
-    docker build -t ${tag_catalog} ./BuildingBlocks/Catalogs
-    docker build -t ${tag_regressions} ./BuildingBlocks/Regressions
-    docker build -t ${tag_statistics} ./BuildingBlocks/statistics
-    docker build -t ${tag_transform} ./BuildingBlocks/TransformStrData
-    docker build -t ${tag_clustering} ./BuildingBlocks/ClusteringAlgh
-    docker build -t ${tag_acquisition} ./BuildingBlocks/Acq
-    docker build -t ${tag_grobid} ./BuildingBlocks/Grobid
-    docker build -t ${tag_glove} ./BuildingBlocks/Glove
-    docker build -t ${tag_classification_models} ./BuildingBlocks/Clasificate #modelos de clasificacion
-    docker build -t ${tag_advanced_map} ./BuildingBlocks/AdvancedMaps
+    ##construir imagenes de servicios de xelhua (BB)
+    #docker build -t ${tag_filtercolumn} ./BuildingBlocks/FilterColumn #Filtrar columnas
+    #docker build -t ${tag_fusion} ./BuildingBlocks/Fusion #Fusion
+    #docker build -t ${tag_correlations} ./BuildingBlocks/Correlations
+    #docker build -t ${tag_data_split} ./BuildingBlocks/DataSplit
+    #docker build -t ${tag_data_clean} ./BuildingBlocks/DataClean
+    #docker build -t ${tag_imputation} ./BuildingBlocks/Imputation
+    #docker build -t ${tag_charts} ./BuildingBlocks/graphics
+    #docker build -t ${tag_maps} ./BuildingBlocks/maps
+    #docker build -t ${tag_catalog} ./BuildingBlocks/Catalogs
+    #docker build -t ${tag_regressions} ./BuildingBlocks/Regressions
+    #docker build -t ${tag_statistics} ./BuildingBlocks/statistics
+    #docker build -t ${tag_transform} ./BuildingBlocks/TransformStrData
+    #docker build -t ${tag_clustering} ./BuildingBlocks/ClusteringAlgh
+    #docker build -t ${tag_acquisition} ./BuildingBlocks/Acq
+    #docker build -t ${tag_grobid} ./BuildingBlocks/Grobid
+    #docker build -t ${tag_glove} ./BuildingBlocks/Glove
+    #docker build -t ${tag_classification_models} ./BuildingBlocks/Clasificate #modelos de clasificacion
+    #docker build -t ${tag_advanced_map} ./BuildingBlocks/AdvancedMaps
+    docker build -t ${tag_reports} ./BuildingBlocks/Reports
 
     #depercated
     #docker build -t ${tag_deeplearning} ./BuildingBlocks/DeepLearning

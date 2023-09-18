@@ -306,6 +306,19 @@
         "SERVICE_IP": "",
         "SERVICE_PORT": "80"
       }
+    },
+    "reports": {
+      "image": "xel_bb_reports",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+        "TPS_MANAGER": "http://tps_manager:5000",
+        "API_GATEWAY": "coordinator:5555",
+        "NETWORK": "LocalCluster",
+        "SERVICE_NAME": "",
+        "SERVICE_IP": "",
+        "SERVICE_PORT": "80"
+      }
     }
   },
   "names": {
@@ -331,6 +344,8 @@
     "Converters": "bb_converters",
     "Acquisition": "bb_acquisition_1",
     "Grobid": "bb_grobid",
-    "Glove": "bb_glove"
+    "Glove": "bb_glove",
+    "reports": "bb_reports"
+
   }
 }

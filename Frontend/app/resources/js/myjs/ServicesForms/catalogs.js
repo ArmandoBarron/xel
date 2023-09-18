@@ -50,7 +50,7 @@ ServicesArr.push({
                         <div class="form-group row m-2">
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Json</label>
                                 <div class="col-sm-8">
-                                        <textarea id="json_dict" class="form-control" rows="3" placeholder='{key:{\n"col1":"value1",\n "col2":"value2\n}} '> </textarea>
+                                        <textarea id="json_dict" class="form-control codearea" rows="3" placeholder='{key:{\n"col1":"value1",\n "col2":"value2\n}} '> </textarea>
                                 </div>
                         </div>
 

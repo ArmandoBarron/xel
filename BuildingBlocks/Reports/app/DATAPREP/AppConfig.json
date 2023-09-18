@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"REPORTS DATA PREP",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}report_dataprep.py @{SOURCE} @{SINK} '@{title}'",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"MyReport.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}
