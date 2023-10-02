@@ -19,6 +19,21 @@
 
 }
 
+.button_config {
+    background: radial-gradient( circle farthest-corner at 1.5% 1.4%, #17a2b829 0%, rgb(125 10 66 / 6%) 80% );
+    border-bottom: 0px;
+    padding: 10px;
+    margin: 1px;
+    border-radius:10px
+}
+
+.button_config:hover{
+    box-shadow: inset 20px 15px 1px 16px rgb(112 112 112 / 45%);
+    cursor: pointer;
+    transform: scale(1.30);
+    transition: transform .2s;
+}
+
 .divblocktitle {
     display: flex;
     align-items: center;

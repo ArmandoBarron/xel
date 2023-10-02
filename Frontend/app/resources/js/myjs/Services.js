@@ -1145,6 +1145,15 @@ function Show_configurations(id_servicio){
         $(`#patt-workers`).val(p_info['workers'])
         $(`#patt-reduce_mode`).selectpicker('val',p_info['spec']['reduce_mode'])
         $(`#patt-level_to_process`).selectpicker('val',p_info['spec']['level_to_process'])
+   }else{
+    $(`#patt-kind`).selectpicker('val',"")
+    $('#patt-active').bootstrapToggle('off')
+    $(`#patt-variables`).val()
+    $('#patt-limit_threads').bootstrapToggle('on')
+    $(`#patt-workers`).val(2)
+    $(`#patt-reduce_mode`).selectpicker('val',"")
+    $(`#patt-level_to_process`).selectpicker('val',"")
+
    }
 
    
@@ -1172,6 +1181,9 @@ function OptionsHandler(combobox,onlyhide=false){
     else{
         console.log("el valor es undefined")
     }
+
+    //init functions
+    init_visual_in_modal()
 
 }
 
@@ -1457,12 +1469,12 @@ function fillWorkspaceFilesliest(if_multiple=false){
                     content += `<td>${file[h]}</td>`
                 });
                 if (if_multiple){
-                    content +=`<td><button onclick="ShoppingCar_add_element('${MESH_WORKSPACE}/${file['filename']}','${MESH_WORKSPACE}/${file['filename']}', '.ShoppingCar-list')" class="btn btn-outline-info btn-block">Add <i class="far fa-check-circle"></i></button>
+                    content +=`<td><button onclick="ShoppingCar_add_element('${MESH_WORKSPACE}/${file['filename']}','${MESH_WORKSPACE}/${file['filename']}', '.ShoppingCar-list')" class="btn btn-outline-info">Add <i class="far fa-check-circle"></i></button>
                     </td>`
                 }
                 else{
-                    content +=`<td><button onclick="LoadExistingDataset('${sourceId}','${file['filename']}')" class="btn btn-outline-info btn-block">Read <i class="far fa-check-circle"></i></button>
-                    <button onclick="DeleteDataset('${file_id}','${file['filename']}','table_LoadedFiles' )" class="btn btn-outline-danger btn-block">Delete <i class="fas fa-trash"></i></button>
+                    content +=`<td><button onclick="LoadExistingDataset('${sourceId}','${file['filename']}')" class="btn btn-outline-info">Read <i class="far fa-check-circle"></i></button>
+                    <button onclick="DeleteDataset('${file_id}','${file['filename']}','table_LoadedFiles' )" class="btn btn-outline-danger">Delete <i class="fas fa-trash"></i></button>
                     </td>`
                 }
 
@@ -2127,7 +2139,9 @@ function BTN_retrieve_solution(token_solution,as_copy=false){
             flowy.import(result.metadata.frontend);
             currentLayout = [...flowy.output().blockarr]
             // load metadata into page
-            Metadata_assign(result.metadata,as_copy)
+
+
+            Metadata_assign(result.metadata,ignore_context=as_copy,token_solution=result.token_solution)
             canvasElementsCount = result.metadata.canvasElementsCount
             Toggle_Modal("hide")
             
@@ -2248,7 +2262,7 @@ function create_table_templates(div_container){
                 "order": [[ 1, "desc" ]]
 
             } );
-            console.log(id_table)
+            console.log("id tabla:" + id_table)
 
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -2273,16 +2287,16 @@ function BTN_list_solution(){
         data:data_request,
         success: function(response) {  
             console.log(response)
-            $('#modal_list-solutions-body').append("<div id='modal_list-solutions-table' class='form-group nowrap container col-12 table-responsive courtain' style='display:none'></div>");
+            $('#modal_list-solutions-body').append("<div id='modal_list-solutions-table' ></div>");
             
             headeres_always_show = ['name','last_update','tags']
-            headeres_never_show = ['desc','token_solution', 'actions']
+            headeres_never_show = ['token_solution','desc', 'actions']
 
-            headeres = ['name','last_update','tags','desc','token_solution']
+            headeres = ['name','last_update','tags','token_solution','desc']
 
             content = ""
             content += `
-                <table class="hover compact dt-responsive" id="table-solutions">
+                <table class="table table-hover" id="table-solutions" style="width:100%">
                     <caption>List of solutions</caption>
                     <thead>
                         <tr>`
@@ -2304,15 +2318,15 @@ function BTN_list_solution(){
                     }
                     //text-break
                     else if (h=="desc"){
-                        content += `<td><p class="text-break">${value['metadata'][h]}</p></td>`
+                        content += `<td>${value['metadata'][h]}</td>`
                     }
                     else{
                         content += `<td>${value['metadata'][h]}</td>`
                     }
                 });
                 content +=`<td>
-                            <button type='button' onclick='BTN_retrieve_solution("${value["token_solution"]}")' class="btn btn-outline-primary btn-block">Retrive</button>
-                            <button type='button' onclick='BTN_delete_solution("${value["token_solution"]}","solution_${solution_id}", "table-solutions")' class="btn btn-outline-danger btn-block">Delete</button>
+                            <button type='button' onclick='BTN_retrieve_solution("${value["token_solution"]}")' class="btn btn-outline-info">Retrive</button>
+                            <button type='button' onclick='BTN_delete_solution("${value["token_solution"]}","solution_${solution_id}", "table-solutions")' class="btn btn-outline-dark">Delete</button>
                         </td>`
                 content +=`</tr>`
                 solution_id+=1
@@ -2323,18 +2337,26 @@ function BTN_list_solution(){
 
             // SHOW MODAL
             //$('#modal_list-solutions').modal('show');
-            
 
             // create datatable
             $("#table-solutions").DataTable({
                 responsive: true,
-                "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
-                "scrollX": false,
+                "scrollX": true,
+                "scrollY": 250,
+                buttons: [
+                    {
+                        text: 'Reload',
+                        action: function ( e, dt, node, config ) {
+                            dt.ajax.reload();
+                        }
+                    }
+                ],
                 columnDefs: [{ 'targets': 1, type: 'date-euro' }],
                 "order": [[ 1, "desc" ]]
             } );
-            
+            $("#table-solutions").DataTable().draw()
 
+            console.log("dibujando tabla")
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
             error_result = XMLHttpRequest['responseJSON']
@@ -2454,7 +2476,7 @@ function Activate_CodeArea(id_textarea, Modal_selector= ".modal.fade.show" ){
         console.log(Modal_selector)
 
         sourceid = $(Modal_selector).data("sourceId")
-        console.log(sourceid)
+
         BOX_info = get_metadata_box(sourceid,source=null)
         const isEmpty = Object.keys(BOX_info).length === 0 //si es null no se hace nada
         if(isEmpty){
@@ -2462,14 +2484,11 @@ function Activate_CodeArea(id_textarea, Modal_selector= ".modal.fade.show" ){
             codeAreas = []
         }
         else{
-            
             codeAreas = []
-            
             BOX_info.columns.forEach(function(v){
                 codeAreas.push({"displayText":v,"text":v,"value_type":"var","render":render_function})
             })
             console.log("Si hay datos para autocompletar")
-            console.log(codeAreas)
 
         }
         codeAreas = codeAreas.concat(Reserved_words)

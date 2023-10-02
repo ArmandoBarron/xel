@@ -10,7 +10,7 @@ import logging
 import json
 from chardet.universaldetector import UniversalDetector
 import numpy as np
-
+import csv
 
 
 
@@ -122,6 +122,56 @@ def validatePathIfSubtask(folder_name):
         folder_name = folder_name.replace("-subtask-","/")
     
     return folder_name
+
+def getMetadataFromPath(id_service):
+    m = {}
+    path_separator = "."
+    #["product_type","product_kind","product_level","level_path","porfile","path"]
+    list_metadata = []
+    if "-LVL-" in id_service:
+        level_id,other = id_service.split("-LVL-")
+
+        if '-MAP-' in id_service:
+            m["product_type"] = "dataview"
+            other, m["product_kind"] =other.split("-MAP-")
+        if '-subtask-' in id_service:
+            m["product_type"] = "product"
+            other, m["product_kind"] =other.split("-subtask-")
+
+        i=0
+        lvlpath = []
+        lvlvalue = []
+        for pairs in other.split("-VAL-"):
+            i+=1
+            key,value = pairs.split("=")
+            lvlvalue.append(value)
+            lvlpath.append(key)
+        m["level_path"] = path_separator.join(lvlpath) 
+        m["porfile"] = path_separator.join(lvlvalue) 
+        m["product_level"] = i
+        list_metadata = [m["product_type"],m["product_kind"],m["product_level"],m["level_path"],m["porfile"]]
+    else:
+        m["product_kind"] = id_service
+        m["product_type"] = "product"
+        m["product_level"] = 0
+        list_metadata = [m["product_type"],m["product_kind"],m["product_level"],"",""]
+
+    return list_metadata
+
+def append_log_products(new_data,filename=""):
+    fieldnames = ["product_type","product_kind","product_level","level_path","porfile","path"]
+
+    if not os.path.exists(filename):
+        # Si el archivo no existe, crea uno nuevo y escribe los encabezados
+        with open(filename, mode="w", newline="") as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+
+    # Abrir el archivo CSV en modo append
+    with open(filename, mode="a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(new_data)
+
 
 def createFolderIfNotExist(folder_name,wd=""):
     try:

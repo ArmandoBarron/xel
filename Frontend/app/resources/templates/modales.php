@@ -350,7 +350,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
         <div class="col-2">
-                    <button onclick="Show_configurations('')" type="button" class="btn btn-secondary"><i class="fas fa-cog"></i></button>
+                    <button onclick="Show_configurations('')" type="button" class="button_config"><i class="fas fa-cog"></i></button>
         </div>
         <div class="col-8">
           <h3 class="modal-title">Modal title</h3>

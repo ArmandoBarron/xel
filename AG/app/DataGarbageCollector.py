@@ -54,7 +54,7 @@ class GarbageCollector(Thread):
                 diferencia_tiempo = hora_actual - hora_modificacion
 
                 # Verificar si la diferencia de tiempo es menor a 1 hora (60 minutos)
-                if diferencia_tiempo > timedelta(minutes=60):
+                if diferencia_tiempo > timedelta(minutes=30):
                     self.LOGER.debug("solucion temporal detectada, toca borrarla")
                     try:
                         rmtree(ruta_archivo)

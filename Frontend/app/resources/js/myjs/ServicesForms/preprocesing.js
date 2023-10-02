@@ -512,32 +512,31 @@ ServicesArr.push({
                         <div class="form-group row m-2">
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm"> Process: </label>
                                 <div class="col-sm-8">
-                                <select class="form-control" id="actions" onchange="ChangeVisibileOptionsOfService(this)">
+                                <select class="form-control" id="actions" onchange="OptionsHandler(this)">
                                         <option value="MAPR" selected> Map reduce </option>
                                         <option value="EVAL"> Query </option>
                                         <option value="UPDATE"> delete or reneame columns </option>
                                         <option value="MELT"> Melt columns (columns to rows) </option>
-
                                 </select>
                                 </div>
                         </div>
 
                         
-                        <div class="form-group row m-2" servopt="MAPR MELT" >
+                        <div class="form-group row m-2" opth opt-actions="MAPR MELT">
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Column of groups</label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="group_columns" data-actions-box="true" onclick=fillselect(this) ></select>
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="MELT" >
+                        <div class="form-group row m-2" opth opt-actions="MELT" >
                                 <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">New column name:</label>
                                 <div class="col-sm-8">
                                         <input id="column_name" type="text" class="form-control" placeholder="e.g. column_value">
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="UPDATE" >
+                        <div class="form-group row m-2" opth opt-actions="UPDATE" >
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Delete columns?:</label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="if_delete">
@@ -547,7 +546,7 @@ ServicesArr.push({
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="MAPR UPDATE" >
+                        <div class="form-group row m-2" opth opt-actions="MAPR UPDATE" >
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Columns: </label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="columns" data-actions-box="true" onclick=fillselect(this) >
@@ -556,7 +555,7 @@ ServicesArr.push({
                         </div>
 
     
-                        <div class="form-group row m-2" servopt="MAPR" >
+                        <div class="form-group row m-2" opth opt-actions="MAPR" >
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Operator:</label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="group_by">
@@ -568,7 +567,7 @@ ServicesArr.push({
                                 </select>
                                 </div>
                         </div>
-                        <div class="form-group row m-2" servopt="MAPR" >
+                        <div class="form-group row m-2" opth opt-actions="MAPR" >
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Assign results to original dataset:</label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="if_assign">
@@ -579,14 +578,14 @@ ServicesArr.push({
                         </div>
 
                         <hr>
-                        <div class="form-group row m-2" servopt="MAPR" >
+                        <div class="form-group row m-2" opth opt-actions="MAPR" >
                                 <label for="txttype" class="col-sm-12 col-form-label col-form-label-sm">Optional query:</label>
                                 <div class="col-sm-12">
                                         <textarea id="query_str" type="text" class="form-control codearea"></textarea>
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="EVAL" >
+                        <div class="form-group row m-2" opth opt-actions="EVAL" >
                                 <label for="txttype" class="col-sm-12 col-form-label col-form-label-sm">Environment</label>
                                 <div class="col-sm-12">
                                         <textarea id="exec_code" type="text" class="form-control codearea"></textarea>
@@ -597,7 +596,7 @@ ServicesArr.push({
 
                         </div>
 
-                        <div class="form-group row m-2" servopt="EVAL" >
+                        <div class="form-group row m-2" opth opt-actions="EVAL" >
                                 <label for="txttype" class="col-sm-12 col-form-label col-form-label-sm">Create or alter columns:</label>
                                 <div class="col-sm-12">
                                         <textarea id="query_list" type="text" class="form-control codearea" placeholder="e.g. create a column C as: C  = A + B "></textarea>
@@ -609,7 +608,7 @@ ServicesArr.push({
                                 </div>
                         </div>
 
-                        <div class="form-group row m-2" servopt="EVAL" >
+                        <div class="form-group row m-2" opth opt-actions="EVAL" >
                                 <label for="txttype" class="col-sm-12 col-form-label col-form-label-sm">Query for filter:</label>
                                 <div class="col-sm-12">
                                         <textarea id="query_flt" type="text" class="form-control codearea" placeholder="e.g. fecha < 2000 "></textarea>
@@ -617,7 +616,7 @@ ServicesArr.push({
 
                         </div>
 
-                        <div class="form-group row m-2" servopt="UPDATE" >
+                        <div class="form-group row m-2" opth opt-actions="UPDATE" >
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Rename columns?</label>
                                 <div class="col-sm-8">
                                 <select class="form-control" id="if_rename">
@@ -626,7 +625,7 @@ ServicesArr.push({
                                 </select>
                                 </div>
                         </div>
-                        <div class="form-group row m-2" servopt="UPDATE" >
+                        <div class="form-group row m-2" opth opt-actions="UPDATE" >
                         <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">json string with column names:</label>
                         <div class="col-sm-8">
                                 <input id="rename_dict" type="text" class="form-control autocomplete-column">

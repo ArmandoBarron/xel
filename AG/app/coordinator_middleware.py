@@ -343,7 +343,7 @@ def stop_DAG(token_project,token_solution):
 @resource_autorization_requiered
 def deploy_resources():
     """
-    {DAG:{},token_solution(optional),auth}
+    {DAG:{},token_solution(optional),auth:{}}
     """
     params = request.get_json(force=True)
     envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
@@ -409,6 +409,26 @@ def remove_deployed_stack():
     except Exception as e:
         LOGER.error(e)
     return response
+
+
+@app.route('/exec', methods=['POST'])
+@token_required
+def exec_func():
+    """
+    {resource:"",params:{}(optional)}
+    
+    also, must attach data in "file"
+    """
+
+    f = request.files['file']
+    filename = f.filename
+    filetype = filename.split(".")[-1]
+
+    params = request.get_json(force=True)
+    resource = params['resource'] if 'resource' in params else "funxion"
+    parameters = params['params'] if 'params' in params else {}
+    
+
 
 #service to execute a set of application in a DAG
 @app.route('/executeDAG', methods=['POST'])
@@ -859,6 +879,7 @@ def upload_file(RN,task):
     filename = f.filename
     data_path= os.path.join(path_to_archive, filename)
     f.save(data_path)
+    
     #LOGER.info(request.cookies)
     if filename == "map_metadata.json":
         metadata_folder = createFolderIfNotExist("metadata/" ,wd=tmp_f)
@@ -897,6 +918,11 @@ def upload_file(RN,task):
         LOGER.info(res)
 
     f.close()
+    #save log
+    meta = getMetadataFromPath(task)
+    meta.append(data_path.split(RN)[1]) #path
+    append_log_products(meta,filename="%s/%s/list_products.csv" %(BKP_FOLDER,RN))
+
 
     del f
     return json.dumps({"status":"OK", "message":"OK"})

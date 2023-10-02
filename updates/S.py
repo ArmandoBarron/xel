@@ -201,10 +201,6 @@ SERVICE_IP=os.getenv("HOSTNAME")
 SERVICE_PORT=os.getenv("SERVICE_PORT") 
 TPSHOST = os.getenv("TPS_MANAGER") 
 
-
-
-
-
 Tolerant_errors=10 #total of errors that can be tolarated
 ##### TEMP_AG communication handler
 TEMP_AG=postman(GATEWAYS_LIST,SERVICE_NAME,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,LOGER=LOGER)
@@ -307,6 +303,11 @@ while True:
     else:
         metadata['data']['data'] = inputfile_name
     try:
+        # aqui se puede agregar una cola. si el hay espacio para procesar entonces se manda directo la peticion
+        # si no hay espacio para procesar se manda directo a la cola hasta que uno de los procesos termine
+        # la cola debe informar mediante el postman el status de "en cola"
+
+
         thread1 = mp.Process(target = ClientProcess, args = (metadata,data_acq_time) )
         thread1.start()
         TH_MONITOR.AppendThread(thread1)

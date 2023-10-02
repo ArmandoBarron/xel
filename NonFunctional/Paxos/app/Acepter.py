@@ -71,14 +71,8 @@ def create_string_for_fingerprint(params,id_process,parent=''):
 
 def warp_fingerprint(taskInDag,parent='',mode='params'): #params, pattern
     id_service =taskInDag['id']
-    #pattern = ''
-    #if 'pattern' in taskInDag:
-    #    pattern = json.dumps(taskInDag['pattern'])
-
     chained_string = create_string_for_fingerprint(taskInDag[mode],id_service,parent=parent)
     fp_dag=Create_fingerprint(chained_string)
-
-
     return fp_dag
 
 def Create_fingerprint(input_data,mode="str"):
@@ -696,15 +690,8 @@ def get_task_runtime_info(value): #new version of consult data
         elif val['status']=="ERROR":
             ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
             update_task_status(RN,task,"FAILED",val['message'])
-            
-            #tree_task = LookForParams(solution_dag,task) 
-            #if tree_task is None:
-            #    tree_task = solution["subdags"][task] #is a subtask
             tree_task = solution["subdags"][task] #is a subtask
-
             update_task_status_in_cascade(RN,tree_task['childrens'],"FAILED","Parent task have failed",parent=task)
-            #if kind=="subtask_list":
-            #    del solution["subdags"][task]
 
         else:
             pass

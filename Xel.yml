@@ -52,6 +52,10 @@ services:
     mem_limit: 1024M
     mem_reservation: 128M
     cpus: 4
+    depends_on:
+      - accepter_1
+      - accepter_2
+      - accepter_3
     deploy: 
       placement: 
         constraints: 
@@ -184,8 +188,6 @@ services:
     restart: always
     networks:
       - service_mesh
-    depends_on:
-      - coordinator
     volumes:
       - ./localdata/LAKE/METADATA:/home/app/METADATA #for debugging
 
@@ -203,8 +205,6 @@ services:
     restart: always
     networks:
       - service_mesh
-    depends_on:
-      - coordinator
     volumes:
       - ./localdata/LAKE/METADATA:/home/app/METADATA #for debugging
 
@@ -222,8 +222,6 @@ services:
     restart: always
     networks:
       - service_mesh
-    depends_on:
-      - coordinator
     volumes:
       - ./localdata/LAKE/METADATA:/home/app/METADATA #for debugging
       #- ./NonFunctional/Paxos/app:/home/app #for debugging

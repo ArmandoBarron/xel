@@ -96,12 +96,12 @@
             <p class="text-left text-uppercase font-italic">Export/import Dags</p>
 
                 <div class="btn-group btn-block">
-                    <button id="btnImport" class="btn btn-outline-warning ">IMPORT</button>
-                    <button id="btnExport" class="btn btn-outline-primary ">EXPORT</button>
+                    <button id="btnImport" class="btn btn-outline-info ">IMPORT</button>
+                    <button id="btnExport" class="btn btn-outline-dark ">EXPORT</button>
                 </div>
                 <div class="btn-group btn-block">
-                    <button id="btnSave-solutions" onClick="$('#modal_save-solutions').modal('show');" class="btn btn-outline-warning">SAVE</button>
-                    <button id="btnList-solutions" onClick="BTN_list_solution()" class="btn btn-outline-primary ">LIST</button>
+                    <button id="btnSave-solutions" onClick="$('#modal_save-solutions').modal('show');" class="btn btn-outline-info">SAVE</button>
+                    <button id="btnList-solutions" onClick="BTN_list_solution()" class="btn btn-outline-dark ">LIST</button>
                 </div>
                 <input type="file" style="display: none" id="inputImport"/>
 
@@ -112,7 +112,7 @@
              <p class="text-left text-uppercase font-italic">Download project</p>
 
                 <div class="btn-group btn-block">
-                    <button class="btn btn-outline-primary" onclick="DownloadProject()">Download</button>
+                    <button class="btn btn-outline-light" onclick="DownloadProject()">Download</button>
                 </div>
               </div>  
           </div>

@@ -66,12 +66,15 @@ $(document).ready(function () {
 
 
     $('.modal.fade').on('shown.bs.modal', function (e) { //function que se ejecutan cuando el modal se abre
+        $("#table-solutions").DataTable().draw()
+
         ChangeVisibileOptionsOfService("",onlyhide=false) //este muestra los divs de la seccion seleccionada
         $(".courtain").show("slow") //se muestran todos los elementos de clase courtain (para hacerlo mas bonito)
         $(".compact-dt").DataTable().columns.adjust()//se ajustan las datatable
         $(".selectpicker").selectpicker("refresh")
+        init_visual_in_modal()
         //Activate_Autcomplete() //se añade el evento para autocompletar
-        
+        console.log("se abrio el modal")
     })
     $('.modal.fade').on('hidden.bs.modal', function (e) { // funcion que se ejecuta cuando se cierra un modal
         $(".courtain").hide("slow")
@@ -664,7 +667,7 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
     //            </div>
     //    `
     //}
-
+    console.log(html_2_add)
     $(`#${modal2open} .modal-body`).html(html_2_add+template.html);
     $('.selectpicker').selectpicker('refresh') //carga los selectpicker en el modal
 
@@ -760,10 +763,9 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
                 if (type=="shopping-car-list"){
                     ID_CAR_ELEMENT = 1
                     parent.params[p].forEach(function(element,index){
-                        console.log("se deberia estar añadiendo")
-                        console.log(element)
-                        console.log("#"+p)
-
+                        //console.log("se deberia estar añadiendo")
+                        //console.log(element)
+                        //console.log("#"+p)
                         ShoppingCar_add_element(element,element,"#"+p)
                     });
     
@@ -775,7 +777,7 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
                 if(input[0].tagName == "TEXTAREA"){
                     Activate_CodeArea(p,Modal_selector="#"+modal2open)
                     CODEAREA_POINTERS[p].setValue(parent.params[p]);
-                    CODEAREA_POINTERS[p].refresh()
+                    //CODEAREA_POINTERS[p].refresh()
 
                 }
 
@@ -818,11 +820,16 @@ function demoflowy_showModalFromId(canvasId,canvasType) {
     //$(`#${modal2open} .modal-title`).text(parent.alias);
     $(`#${modal2open} .modal-title`).html(`<input type="text" class="invisible-input" id="alias_for_service" value="${parent.alias}" /> `);
 
-
 }
 
 
+function init_visual_in_modal(){
+    //init codeareas
+    for (var clave in CODEAREA_POINTERS) {
+        CODEAREA_POINTERS[clave].refresh()
+    }
 
+}
 
 function demoflowy_saveChanges() {
     Modal_selector = ".modal.fade.show" // sirve para los modal activos (debe estar activo primero)
@@ -923,6 +930,7 @@ function demoflowy_saveChanges() {
         else if(tagname == "TEXTAREA"){
             console.log(CODEAREA_POINTERS[p].getValue())
             parent.params[p] = CODEAREA_POINTERS[p].getValue();
+            delete CODEAREA_POINTERS[p]
         } 
         else {
             
@@ -1016,7 +1024,7 @@ function Process_list_collector(){
 
 function Metadata_collector(){
     obj_metadata= {}
-    token = $("#modal_save-solutions-form-tokensolution").val()
+    token = TOKEN_SOLUTION //$("#modal_save-solutions-form-tokensolution").val()
     name = $("#modal_save-solutions-form-name").val()
     desc= $("#modal_save-solutions-form-desc").val()
     tags= $("#modal_save-solutions-form-tags").val().split(",")
@@ -1036,7 +1044,8 @@ function Metadata_collector(){
 
 }
 
-function Metadata_assign(meta,ignore_context=false){
+function Metadata_assign(meta,ignore_context=false,token_solution=""){
+    console.log("ignore context: "+ ignore_context )
     if (ignore_context){ //empty all values except by datasource
         $("#modal_save-solutions-form-name").val("")
         $("#modal_save-solutions-form-desc").val("")
@@ -1051,7 +1060,12 @@ function Metadata_assign(meta,ignore_context=false){
         $("#modal_save-solutions-form-desc").val(meta.desc)
         $("#modal_save-solutions-form-tags").val(meta.tags)
         // load token
-        Set_Tokensolution(meta.token)
+        if (token_solution!=""){
+            Set_Tokensolution(token_solution)
+        }
+        else{
+            Set_Tokensolution(meta.token)
+        }
         //import dataset info
         Set_DatasourceMap(meta.datasource,meta.datasource_type)
     }
