@@ -98,7 +98,8 @@ def resource_autorization_requiered(f):
                     pass
                 else: #invalid token 
                     return make_response(jsonify({"message": "Unable to access!."}), 403)
-            except:
+            except Exception as e:
+                LOG.error("error in resource_autorization_requiered:%s"%(e))
                 return make_response(jsonify({"message": "Invalid token!"}), 403)
 
         else:
@@ -134,7 +135,8 @@ def token_required(f):
                     pass
                 else: #invalid token 
                     return make_response(jsonify({"message": "Token expired!."}), 401)
-            except:
+            except Exception as e:
+                LOG.error(e)
                 return make_response(jsonify({"message": "Invalid token!"}), 401)
 
             # Return the user information attached to the token

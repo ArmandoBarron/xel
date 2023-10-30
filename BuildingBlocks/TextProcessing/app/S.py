@@ -101,6 +101,7 @@ def ClientProcess(metadata,data_acq_time):
         #client_pattern
         CP = client_pattern(control_number,id_service,LOGER=LOGER,POSTMAN=AG,Monitor_Threads=TH_MONITOR)
         result = CP.run_pattern(pattern,data,auth,DAG)
+        result["metadata"] = {"product_name":"list of products by level"}
         #index_opt = False #los patrones no indexan datos
     else:
         ############# APP EXECUTION #############
@@ -110,6 +111,9 @@ def ClientProcess(metadata,data_acq_time):
             del result['EXECUTION_TIME']
 
     del data
+    if "metadata" not in result:
+        result['metadata'] = {}
+
     TIME_TRANSFORM=time.time()-TIME_TRANSFORM
     LOGER.info("Finishing execution process... %s" % service_name)
     ## ======================================================================= ##
@@ -118,7 +122,7 @@ def ClientProcess(metadata,data_acq_time):
     LOGER.info("Starting indexing process...%s" % result['data'])
     if index_opt and result['status']!="ERROR": #save results 
         index_time = time.time() #<--- time flag
-        label = AG.ArchiveData(result['data'],result['data'].split("/")[-1])
+        label = AG.ArchiveData(result['data'],result['data'].split("/")[-1],metadata=result['metadata'])
         index_time= time.time() - index_time #<--- time flag
     else:
         label=False
@@ -200,10 +204,6 @@ SERVICE_NAME=os.getenv("SERVICE_NAME")
 SERVICE_IP=os.getenv("HOSTNAME") 
 SERVICE_PORT=os.getenv("SERVICE_PORT") 
 TPSHOST = os.getenv("TPS_MANAGER") 
-
-
-
-
 
 Tolerant_errors=10 #total of errors that can be tolarated
 ##### TEMP_AG communication handler
@@ -307,6 +307,11 @@ while True:
     else:
         metadata['data']['data'] = inputfile_name
     try:
+        # aqui se puede agregar una cola. si el hay espacio para procesar entonces se manda directo la peticion
+        # si no hay espacio para procesar se manda directo a la cola hasta que uno de los procesos termine
+        # la cola debe informar mediante el postman el status de "en cola"
+
+
         thread1 = mp.Process(target = ClientProcess, args = (metadata,data_acq_time) )
         thread1.start()
         TH_MONITOR.AppendThread(thread1)

@@ -876,6 +876,14 @@ def upload_file(RN,task):
     tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
     path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
     f = request.files['file']
+    
+    if 'metadata' in request.cookies:
+        metadata = json.loads(request.cookies['metadata'])
+        LOGER.error("METADATAAAAAAAA")
+        LOGER.error(metadata)
+    else:
+        metadata = {"product_name":"product"}
+
     filename = f.filename
     data_path= os.path.join(path_to_archive, filename)
     f.save(data_path)
@@ -921,6 +929,11 @@ def upload_file(RN,task):
     #save log
     meta = getMetadataFromPath(task)
     meta.append(data_path.split(RN)[1]) #path
+    if 'product_name' in metadata:
+        meta.append(metadata["product_name"]) #product_name
+    else:
+        meta.append("dataset/product") #product_name
+
     append_log_products(meta,filename="%s/%s/list_products.csv" %(BKP_FOLDER,RN))
 
 

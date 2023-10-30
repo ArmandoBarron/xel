@@ -298,7 +298,7 @@ class postman(Thread):
             time.sleep(time_interval)
         return True
 
-    def ArchiveData(self,data_path,namefile, id_service=None,mining_statistics=False):
+    def ArchiveData(self,data_path,namefile, id_service=None,mining_statistics=False,metadata={}):
         if id_service is None:
             id_service=self.id_service
         
@@ -313,10 +313,11 @@ class postman(Thread):
             cookies={}
             if mining_statistics:
                 cookies = {'x-mining-statistics':"True"}
-                self.LOGER.info(cookies)
+            cookies["metadata"] = json.dumps(metadata)
+            self.LOGER.info(cookies)
 
             url = 'http://%s/ArchiveData/%s/%s' % (self.API_GATEWAY,self.RN,id_service)
-            res = api.post(url, files={"file":(namefile,file_pointer)},headers=headers,cookies=cookies ).json()
+            res = api.post(url, files={"file":(namefile,file_pointer)},headers=headers,cookies=cookies).json()
             self.times['idx']+= time.time()-t
             file_pointer.close()
             del file_pointer

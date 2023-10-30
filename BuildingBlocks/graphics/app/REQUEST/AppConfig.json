@@ -12,6 +12,26 @@
             "OUTPUT_NAMEFILE":"chart.html",
             "COMPRESS":false,
             "ignore_list":[]
+        },
+    "METADATA":{
+        "key":"@{chart}",
+        "list":{
+            "1":"Density",
+            "2":"Scatter matrix map",
+            "3":"Parallel categories",
+            "4":"Temporal bubble plot",
+            "5":"Line plot",
+            "6":"Sunbrust",
+            "7":"Scatter",
+            "8":"3D Scatter",
+            "9":"3D Scatter",
+            "10":"Bar plot ",
+            "11":"Box plot",
+            "12":"Cumulative bar plot",
+            "13":"TreeMap",
+            "14":"Sorted Barplot",
+            "15":"Custom Heatmap",
+            "16":"Regression"
         }
-
+    }
 }

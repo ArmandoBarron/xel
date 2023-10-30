@@ -125,7 +125,7 @@ def validatePathIfSubtask(folder_name):
 
 def getMetadataFromPath(id_service):
     m = {}
-    path_separator = "."
+    path_separator = "->"
     #["product_type","product_kind","product_level","level_path","porfile","path"]
     list_metadata = []
     if "-LVL-" in id_service:
@@ -159,7 +159,7 @@ def getMetadataFromPath(id_service):
     return list_metadata
 
 def append_log_products(new_data,filename=""):
-    fieldnames = ["product_type","product_kind","product_level","level_path","porfile","path"]
+    fieldnames = ["product_type","product_kind","product_level","level_path","porfile","path","product_name"]
 
     if not os.path.exists(filename):
         # Si el archivo no existe, crea uno nuevo y escribe los encabezados

@@ -147,7 +147,16 @@ def execute(params,AppConfig,POSTMAN=None):
         
         name,ext = result.split(".")
         LOGER.info("results are in %s" % result)
-        response = {"data":result,"type":ext,"status":"OK","message":app_message,"EXECUTION_TIME":EXECUTION_TIME}
+        LOGER.info("metadata")
+
+        metadata = {"product_name":AppConfig["NAME_APPLICATION"]}
+        if "METADATA" in AppConfig:
+            meta = AppConfig["METADATA"]
+            metadata['product_name']  = utils.FormatCommand(meta['key'],params,reserved_params=RESERVED_PARAMS,POSTMAN=POSTMAN) # ==== FORMATING COMMAND ======
+            if 'list' in meta:
+                metadata['product_name'] = meta["list"][metadata['product_name']]
+  
+        response = {"data":result,"type":ext,"status":"OK","message":app_message,"EXECUTION_TIME":EXECUTION_TIME,"metadata":metadata}
 
     except (Exception,ValueError) as e:
         exception_type, exception_object, exception_traceback = sys.exc_info()

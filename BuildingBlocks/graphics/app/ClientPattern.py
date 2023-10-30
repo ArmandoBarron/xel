@@ -135,11 +135,8 @@ class client_pattern():
             if res_monitor['status']=="OK":
                 for dag in list_of_dags:
                     if_finished = self.Corroborate_pipe_finished(dag,res_monitor["list_task"])
-
                     if not if_finished:
                         on_waiting.append(dag)
-                    else:
-                        interval=.3
 
             else:
                 self.LOGER.error("El monitor no devolvio nada")
@@ -149,7 +146,6 @@ class client_pattern():
                 break
             if att>max_attempts:
                 self.LOGER.error("aun estamos esperando las siguientes tareas")
-                interval=15
                 self.LOGER.error(on_waiting)
                 att=0
 
@@ -347,7 +343,7 @@ class client_pattern():
                         formated_names.append("%s=%s" %(selected_levels[i],form_name))
 
                     id_group = "-VAL-".join(formated_names).replace("/", "") #se remueven los slashes para evitar conflictos
-
+                    # 1-LVL-a=1-VAL-b=2-VAL-c=3-MAP-IdService
 
                     #self.LOGER.debug("----------------------------%s: Guardando subdataset" % id_group)
                     data_map = self.CreateDataMap(group,id_group)
@@ -453,11 +449,8 @@ class client_pattern():
                     temp = sub_child.copy()
                     data_map = {"data":task,"type":"SOLUTION"}
                     data_pointer = open(data_path['data'],"rb")
-                    dag_to_send = self.Prepare_subdag_instance([temp],task)[0]
-                    dag_to_send = self.CloneDict(dag_to_send)
+                    dag_to_send =  self.CloneDict(self.Prepare_subdag_instance([temp],task)[0])
                     ENV_VARS= self.GetSubtaskContextVariables(task)
-                    self.LOGER.info("variables ENV: %s "%ENV_VARS)
-                    self.LOGER.error("----------------------------preparing subchild: %s"% dag_to_send['id'])
 
                     if dag_to_send['id'] not in res_monitor: #si aun no se dispacha entones se a enviar
                         #self.LOGER.error("----------------------------sending to subchild: %s"%dag_to_send['id'])
