@@ -80,8 +80,8 @@ LOGER.info(ACCEPTORS_LIST)
 PROPOSER = Paxos(ACCEPTORS_LIST)
 
 # Garbage collector para backups
-GarbageColl = GarbageCollector(PROPOSER,BKP_FOLDER,LOGER,stopwatch=30)
-GarbageColl.start()
+GarbageColl = GarbageCollector(PROPOSER,BKP_FOLDER,LOGER,stopwatch=120)
+#GarbageColl.start()
 ########## END GLOBAL VARIABLES ##########
 
 
@@ -644,18 +644,23 @@ def getfileintask():
     {"status":"OK"/"ERROR", "message":"", "info":[] }
 
     """
-    params = request.get_json(force=True)
-    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
-    file_exist=FileExist(data_path) #verify if data exist
-    #LOGER.error(data_path)
+    try:
+        params = request.get_json(force=True)
+        data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+        file_exist=FileExist(data_path) #verify if data exist
+        #LOGER.error(data_path)
 
-    if file_exist:
-        return send_file(
-                data_path,
-                as_attachment=True,
-                download_name="%s.%s" %(name,ext) #attachment_filename
-        )
-    else:
+        if file_exist:
+            return send_file(
+                    data_path,
+                    as_attachment=True,
+                    download_name="%s.%s" %(name,ext) #attachment_filename
+            )
+        else:
+            return make_response({"status":"ERROR", "message":"file not found"},404)
+    except Exception as e:
+        LOGER.error(e)
+        LOGER.error("file not found")
         return make_response({"status":"ERROR", "message":"file not found"},404)
 
 ## =============================================================== ##
@@ -879,8 +884,8 @@ def upload_file(RN,task):
     
     if 'metadata' in request.cookies:
         metadata = json.loads(request.cookies['metadata'])
-        LOGER.error("METADATAAAAAAAA")
-        LOGER.error(metadata)
+
+
     else:
         metadata = {"product_name":"product"}
 
@@ -935,7 +940,6 @@ def upload_file(RN,task):
         meta.append("dataset/product") #product_name
 
     append_log_products(meta,filename="%s/%s/list_products.csv" %(BKP_FOLDER,RN))
-
 
     del f
     return json.dumps({"status":"OK", "message":"OK"})

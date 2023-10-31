@@ -458,8 +458,8 @@ def verify_abox_process(token_solution,task_id):
         parent_products = BRANCHES[token_solution][key_list][task_parent_id]['products_fingerprint']
         task_products = BRANCHES[token_solution][key_list][task_id]['products_fingerprint']
 
-        LOG.info("PARENT HASH: %s" %(parent_products['output'] ) )
-        LOG.info("TASK SOURCE HASH: %s" %(task_products['input'] ) )
+        LOG.debug("PARENT HASH: %s" %(parent_products['output'] ) )
+        LOG.debug("TASK SOURCE HASH: %s" %(task_products['input'] ) )
 
         for source in task_products['input']:
             if source in parent_products['output']:
@@ -703,9 +703,9 @@ def get_task_runtime_info(value): #new version of consult data
         list_info[task]=ToSend
 
     if 'monitoring_tasks' not in value:
-        LOG.info("numero de tareas: %s" % n_task)
+        #LOG.info("numero de tareas: %s" % n_task)
         LOG.info("numero de tareas terminadas: %s" % count_finished_task)
-        LOG.info("numero de subtareas terminadas: %s" % count_finished_subtask)
+        #LOG.info("numero de subtareas terminadas: %s" % count_finished_subtask)
         if 'subtask_list' in solution:
             LOG.info("numero de subtareas: %s" % len(solution["subtask_list"]))
         LOG.info("numero de tareas fallidas: %s" % count_error_task)

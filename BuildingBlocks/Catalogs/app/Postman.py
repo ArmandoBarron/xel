@@ -105,7 +105,9 @@ class postman(Thread):
             if res['status']=="OK":
                 return res
             return None
-        except Exception:
+        except Exception as e:
+            self.LOGER.error("BAD REQUEST AT MONITORING")
+            self.LOGER.error(e)
             return None
         
     def ValidateSubtask(self,token_solution,task_list):

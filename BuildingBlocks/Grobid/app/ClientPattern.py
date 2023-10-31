@@ -132,24 +132,27 @@ class client_pattern():
             on_waiting = []
             res_monitor = self.POSTMAN.MonitorSpecificService(auth['user'],self.TOKEN_SOLUTION,list_task,kind="subtask_list")
             att+=1
-            if res_monitor['status']=="OK":
-                for dag in list_of_dags:
-                    if_finished = self.Corroborate_pipe_finished(dag,res_monitor["list_task"])
-                    if not if_finished:
-                        on_waiting.append(dag)
+            if res_monitor is not None:
+            
+                if res_monitor['status']=="OK":
+                    for dag in list_of_dags:
+                        if_finished = self.Corroborate_pipe_finished(dag,res_monitor["list_task"])
+                        if not if_finished:
+                            on_waiting.append(dag)
 
-            else:
-                self.LOGER.error("El monitor no devolvio nada")
+                else:
+                    self.LOGER.error("El monitor no devolvio nada")
 
-            #todas terminaron
-            if len(on_waiting) < len(list_of_dags):
-                break
-            if att>max_attempts:
-                self.LOGER.error("aun estamos esperando las siguientes tareas")
-                self.LOGER.error(on_waiting)
-                att=0
+                #todas terminaron
+                if len(on_waiting) < len(list_of_dags):
+                    break
+                if att>max_attempts:
+                    self.LOGER.error("aun estamos esperando las siguientes tareas")
+                    self.LOGER.error(on_waiting)
+                    att=0
 
-            time.sleep(interval)
+                time.sleep(interval)
+
         return on_waiting
 
     def Monitoring(self,list_of_task,auth):
