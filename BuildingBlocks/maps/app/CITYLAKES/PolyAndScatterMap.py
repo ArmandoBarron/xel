@@ -166,6 +166,9 @@ cent ={"lat":lat, "lon": lon}
 #cent = centers[15]
 zoom = 7
 
+df[temporal] = df[temporal].apply(pd.to_numeric, errors='coerce', downcast='integer')
+#df[temporal] = df[temporal].apply(pd.to_numeric, errors='coerce', downcast='float')
+df= df.sort_values(by=[temporal])
 
 fig = px.choropleth_mapbox(df, geojson=geo, locations=geocve_column, 
                         featureidkey="properties.CVEGEO",
@@ -173,7 +176,7 @@ fig = px.choropleth_mapbox(df, geojson=geo, locations=geocve_column,
                         hover_name=string_label,
                         zoom=zoom,
                         center = cent,
-                        mapbox_style="stamen-terrain",
+                        mapbox_style="open-street-map",
                         color=label_color,
                         animation_frame=temporal,
                         range_color=range_color,
