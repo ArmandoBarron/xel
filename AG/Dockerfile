@@ -13,6 +13,7 @@ RUN python -m pip install --upgrade pip
 RUN apt-get update
 RUN apt-get install libmagic1 -y
 RUN pip install python-magic==0.4.27 && pip install nanoid
+RUN pip install chardet==5.2.0
 #RUN pip install -i https://test.pypi.org/simple/ mictlanx==0.0.29
 
 #RUN pip install --extra-index-url https://testpypi.python.org/pypi mictlanx==0.0.32

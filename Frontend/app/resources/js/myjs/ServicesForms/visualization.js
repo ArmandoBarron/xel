@@ -243,6 +243,7 @@ ServicesArr.push(
                 <label class="form-check-label" for="SAVE_DATA">Index results (uncheck to improve the preformance)</label>
             </div>
             <br>
+
                         <div class="form-group row m-2">
                                     <label for="txttype" class="col-sm-4 col-form-label col-form-label-sm">Product: </label>
                                     <div class="col-sm-8">

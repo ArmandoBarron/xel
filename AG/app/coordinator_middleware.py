@@ -15,7 +15,6 @@ import tempfile
 import shutil
 import time
 from os import listdir
-import chardet
 import magic as M
 
 # local imports

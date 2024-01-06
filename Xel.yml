@@ -72,7 +72,9 @@ services:
     volumes:
       - sdb_volume:/data/db
     networks:
-      - service_mesh
+      - service_mesh 
+    ports: # for development
+      - "27017:27017" #for development
     mem_limit: 640M
     mem_reservation: 128M
     cpus: 1.5
