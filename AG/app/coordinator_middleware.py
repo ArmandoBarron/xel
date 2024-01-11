@@ -384,7 +384,7 @@ def deploy_resources():
         #LOGER.info(res['DAG'])
         TIMES_list[RN]['deploy'] = time.time() - temp
         time.sleep(.5)
-        response = make_response({"status":"OK","message":"solution deployed",'token_solution':RN},200)    
+        response = make_response({"status":"OK","message":"solution deployed",'token_solution':RN,"dag":res['DAG']},200)    
     else:
         response = make_response({"status":"ERROR","message":"Error at deploying solution"},500)    
     ################################################################
@@ -486,6 +486,7 @@ def execute_DAG():
     res = paxos_response['value']
 
     new_dag = res['DAG']
+    LOGER.error(new_dag)
     task_list = res['task_list']
     is_already_running = res['is_already_running']
 

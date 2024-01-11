@@ -667,7 +667,6 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
     
                         var tiempo_ejecucion = ((Date.now() -INIT_TIME)/1000) -2 ; // se le quitan los 2 segundos que se agregan
                         notificarUsuario("Solution Complete. Response Time: "+tiempo_ejecucion , 'info')
-                        Toggle_run_button()
 
                         if ($("#dag_saveresults").is(":checked")){ //auto download data
                             for (var i = 0; i < LIST_TASK_OVER.length; i++) {
@@ -707,7 +706,8 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                                 },
                                 success: function(result) {  
                                     notificarUsuario(result['message'], 'warning')
-    
+                                    Toggle_run_button()
+
                                     itt = parseInt($("#dag_iterations").val()) // execute again if there are more iterations
                                     if(itt>=2){
                                         $("#dag_iterations").val(itt-1)

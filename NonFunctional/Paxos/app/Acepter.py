@@ -371,13 +371,13 @@ def validate_end_process(token_solution,key_list,id_service):
         return True
     return False
 
-def validate_solution(dag, solution,token_solution,parent=''):
+def validate_solution(dag, StoredSolution,token_solution,parent=''):
     global BRANCHES
     #compare the new dag with task list in the solution already stored in memory (or db)
 
     new_dag=[]
     for taskInDag in dag:
-        LOG.info("%s - solution datatype: %s" % (taskInDag['id'],type(solution)))
+        #LOG.info("%s - solution datatype: %s" % (taskInDag['id'],type(StoredSolution)))
         if 'childrens' not in taskInDag:
             taskInDag['childrens']=[]
         childrens = taskInDag['childrens']
@@ -390,7 +390,7 @@ def validate_solution(dag, solution,token_solution,parent=''):
 
         if if_exist:
 
-            taskInSolution = solution['task_list'][id_service]
+            taskInSolution = StoredSolution['task_list'][id_service]
             Fingerprints_comparation = Compare_fingerprints(taskInSolution['fingerprint'],fp_dag)
 
             parent_comparation = Compare_parents(taskInSolution['parent'],parent) 
@@ -400,7 +400,7 @@ def validate_solution(dag, solution,token_solution,parent=''):
             if 'pattern' in taskInDag:
                 fp_pattern = warp_fingerprint(taskInDag,mode="pattern")
                 
-                temp_dag = LookForParamsV2(solution['DAG'],id_service) # en la primera ejecucion es children al venir directo de la bd. despues en childrens al estar en memoria
+                temp_dag = LookForParamsV2(StoredSolution['DAG'],id_service) # en la primera ejecucion es children al venir directo de la bd. despues en childrens al estar en memoria
                 original_fp_pattern = warp_fingerprint(temp_dag,mode="pattern")
                 pattern_comparation = Compare_fingerprints(original_fp_pattern,fp_pattern)
                 is_pattern_diff = not pattern_comparation
@@ -411,20 +411,20 @@ def validate_solution(dag, solution,token_solution,parent=''):
 
             if (Fingerprints_comparation and taskInSolution['status']=="FINISHED" and parent_comparation and (not is_pattern_diff)):
                 #validate status and fingerprints
-                update_task_status(token_solution,id_service,"OK","Task has no changes",is_recovered = True)
+                #update_task_status(token_solution,id_service,"FINISHED","Task has no changes",is_recovered = True)
                 
-                children_dag = validate_solution(childrens,solution,token_solution,parent=id_service)
+                children_dag = validate_solution(childrens,StoredSolution,token_solution,parent=id_service)
                 for x in children_dag:
                     new_dag.append(x)
             
             elif taskInSolution['status']=="STARTING":
-                pass
+                new_dag.append(taskInDag) #will return all task that are going to exec again
+
             else:    
                 taskInDag['validations']={"is_fp_different":is_fp_different,"is_pattern_diff":is_pattern_diff}
                 new_dag.append(taskInDag)
                 update_task_status(token_solution,id_service,"STARTING","Task has changes",fingerprint=fp_dag,parent=parent,is_fp_different=is_fp_different,is_pattern_diff=is_pattern_diff)
                 update_task_status_in_cascade(token_solution,childrens,"STARTING","Parent task has changes",parent=id_service)
-
 
 
         else: #the task is not in memory, so it is new
@@ -500,7 +500,7 @@ def save_data(value):
 
 
 
-    LOG.info("EJECUTANDO DE NUEVO: %s" % force)
+    LOG.info("FORCING EXEC: %s" % force)
     LOG.info("SOLO DESPLEGANDO: %s" % just_deploy)
 
     is_already_running=False
