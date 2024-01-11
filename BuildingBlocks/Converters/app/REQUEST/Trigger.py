@@ -152,9 +152,10 @@ def execute(params,AppConfig,POSTMAN=None):
         metadata = {"product_name":AppConfig["NAME_APPLICATION"]}
         if "METADATA" in AppConfig:
             meta = AppConfig["METADATA"]
-            metadata['product_name']  = utils.FormatCommand(meta['key'],params,reserved_params=RESERVED_PARAMS,POSTMAN=POSTMAN) # ==== FORMATING COMMAND ======
-            if 'list' in meta:
-                metadata['product_name'] = meta["list"][metadata['product_name']]
+            if 'key' in meta:
+                metadata['product_name']  = utils.FormatCommand(meta['key'],params,reserved_params=RESERVED_PARAMS,POSTMAN=POSTMAN) # ==== FORMATING COMMAND ======
+                if 'list' in meta:
+                    metadata['product_name'] = meta["list"][metadata['product_name']]
   
         response = {"data":result,"type":ext,"status":"OK","message":app_message,"EXECUTION_TIME":EXECUTION_TIME,"metadata":metadata}
 

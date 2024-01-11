@@ -164,9 +164,6 @@ def create_env_file(alias,env_filename,environment_var_name):
 
 
 def execute(request):    
-    
-    
-    
     resultfile_location = conf['resultfile_location']
     resultfile_extension = conf['resultfile_extension']
     
@@ -210,8 +207,6 @@ def execute(request):
         alias = request[conf['alias_key']]
     else:
         alias = resultfile_id
-    
-    
     
     env_filename = conf['docker_envfile_location'] + conf['docker_envfile_name']    
     create_env_file(alias, env_filename, conf['environment_variable_name'])

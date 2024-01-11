@@ -661,7 +661,6 @@ def get_task_runtime_info(value): #new version of consult data
             #temp_dag = LookForParams(solution_dag,task) #si esto es none entonces no esta en el dag original
             ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
             ToSend['DAG'] = solution["subdags"][task] # {} can be void
-
             ToSend['parent'] =  val['parent'] 
             LOG.info("================================== SE VA A RECUPERAR: %s" % task)
             #LOG.info("el dag es : %s" % val['dag'])
