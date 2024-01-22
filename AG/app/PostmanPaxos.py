@@ -72,7 +72,7 @@ class postman():
     def set_hash(self,hash):
         self.hash_product = hash
     
-    def CreateMessage(self,RN,message,status,id_service=None,type_data='',parent='',label='',index_opt='',times=None,dag=None,include_hash=False):
+    def CreateMessage(self,RN,message,status,id_service=None,type_data='',parent='',label='',index_opt='',times=None,dag=None,include_hash=False,token_user=None):
         if id_service is None:
             id_service = self.id_service
 
@@ -87,5 +87,7 @@ class postman():
         if include_hash:
             ToSend['hash_product'] = self.hash_product
 
+        if token_user is not None:
+            ToSend['token_user'] = token_user
 
         return ToSend

@@ -123,40 +123,41 @@ def validatePathIfSubtask(folder_name):
     
     return folder_name
 
-def getMetadataFromPath(id_service):
-    m = {}
-    path_separator = "->"
+def getMetadataFromPath(id_service,as_list=True):
     #["product_type","product_kind","product_level","level_path","porfile","path"]
-    list_metadata = []
+
+    m = {}
+    path_separator = "."
     if "-LVL-" in id_service:
         level_id,other = id_service.split("-LVL-")
-
         if '-MAP-' in id_service:
             m["product_type"] = "dataview"
             other, m["product_kind"] =other.split("-MAP-")
         if '-subtask-' in id_service:
             m["product_type"] = "product"
             other, m["product_kind"] =other.split("-subtask-")
-
         i=0
-        lvlpath = []
-        lvlvalue = []
+        lvlpath = []; lvlvalue = []
         for pairs in other.split("-VAL-"):
             i+=1
             key,value = pairs.split("=")
             lvlvalue.append(value)
             lvlpath.append(key)
+
         m["level_path"] = path_separator.join(lvlpath) 
         m["porfile"] = path_separator.join(lvlvalue) 
         m["product_level"] = i
-        list_metadata = [m["product_type"],m["product_kind"],m["product_level"],m["level_path"],m["porfile"]]
     else:
         m["product_kind"] = id_service
         m["product_type"] = "product"
         m["product_level"] = 0
-        list_metadata = [m["product_type"],m["product_kind"],m["product_level"],"",""]
+        m["level_path"] = ""
+        m["porfile"] = ""
 
-    return list_metadata
+    if as_list:
+        return [m["product_type"],m["product_kind"],m["product_level"],m["level_path"],m["porfile"]]
+    else:
+        return m
 
 def append_log_products(new_data,filename=""):
     fieldnames = ["product_type","product_kind","product_level","level_path","porfile","path","product_name"]
@@ -263,15 +264,6 @@ def GetExtension(filepath):
         fext = "folder"
     return fext
 
-def GetFileDetails(filepath,filename):
-    file_stats= {
-        "filename":filename,
-        "size":"%.2f MB" %(os.path.getsize(filepath)/(1024*1024)),
-        "created at": time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getctime(filepath))),
-        "last modification": time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getmtime(filepath))),
-        "last access":time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getatime(filepath)))
-    }
-    return file_stats
 
 def TranslateBoolStr(var_str):
     if var_str =="True" or var_str =="TRUE" or var_str =="true":

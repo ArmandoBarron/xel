@@ -10,13 +10,16 @@ class Paxos:
         self.N = len(self.acepters)
         self.PV = 0
 
-    def Save(self,control_number,DAG,auth,options={}):
+    def Save(self,control_number,DAG,auth,metadata={},options={},dataobject=None):
         """
          value = {"control_number":,"params":}
         """
         res= self.Consensus()
         if res['status']=="OK":
-            value = {"control_number":control_number,"params":None,'DAG':DAG,"auth":auth,"options":options}
+            value = {"control_number":control_number,"params":None,'DAG':DAG,"auth":auth,"options":options,"metadata":metadata}
+            if dataobject is not None:
+                value['dataobject'] = dataobject
+
             res= self.accept(value,action="SAVE_SOLUTION")    
         return res
     
@@ -67,15 +70,6 @@ class Paxos:
         """
         value = {"control_number":control_number,"params":params}
         res= self.accept(value,action="UPDATE_TASK")
-        return res
-
-
-    def Consult(self,control_number,params=None):
-        """
-         value = {"control_number":,"params":}
-        """
-        value = {"control_number":control_number,"params":params}
-        res= self.accept(value,action="CONSULT")
         return res
 
     def Consult_v2(self,token_project,control_number,tasks,params=None,kind_task="task_list",show_history=None,force_stop_healthcheck=False):

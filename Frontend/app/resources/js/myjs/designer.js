@@ -966,6 +966,8 @@ function demoflowy_saveChanges() {
 
     $(`#${id}`).find('div.card-text').html(fulltext);
     demoflowy_closeModal();
+    // trigger autosave
+    BTN_save_solution()
 }
 
 function ShowBoxParametersNav(el){

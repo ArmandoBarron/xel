@@ -50,7 +50,7 @@ class client_pattern():
         for ch in dag:
             if 'pattern' in ch:
                 if (ch['pattern']['kind']=="Chain" or ch['pattern']['kind']=="Reduce") and ch['pattern']['active']:
-                    ch['childrens'] = self.ValidateChain(ch['childrens'])
+                    ch['children'] = self.ValidateChain(ch['children'])
                     new_dag.append(ch)
         return new_dag
 
@@ -80,7 +80,7 @@ class client_pattern():
                         id_group = task.split("-MAP-")[0] #se obtiene el id_group
                         temp['id'] = "%s-subtask-%s" % (id_group,temp['id']) #c-subtask-a-subtask-imputation
 
-                    temp['childrens'] = self.Prepare_subdag_instance(json.loads(json.dumps(temp['childrens'])),task)
+                    temp['children'] = self.Prepare_subdag_instance(json.loads(json.dumps(temp['children'])),task)
                     new_dag.append(temp)
         return new_dag
 
@@ -89,7 +89,7 @@ class client_pattern():
         if dag['id'] in list_task: #verify childs
             task_info = list_task[dag['id']]
             if task_info['status']=="OK" or task_info['status']=="FINISHED" or task_info['status']=="ERROR" or task_info['status']=="FAILED":
-                for ch in dag['childrens']:
+                for ch in dag['children']:
                     if not self.Corroborate_pipe_finished(ch,list_task):
                         return False
             else:
@@ -101,7 +101,7 @@ class client_pattern():
     def list_tasks_in_DAGs(self,list_dags,list_tasks=[]):
         for dag in list_dags:
             list_tasks.append(dag['id'])
-            list_tasks = self.list_tasks_in_DAGs(dag['childrens'],list_tasks)
+            list_tasks = self.list_tasks_in_DAGs(dag['children'],list_tasks)
         return list_tasks
 
     def list_tasks_in_DAGs_by_pattern(self,list_dags,task_obj={}):
@@ -114,7 +114,7 @@ class client_pattern():
                             task_obj[l]={} 
                         task_obj[l][dag['id']] ={"id":dag["id"],"alias":dag["alias"],"service":dag["service"],"params":dag["params"]}
             
-            task_obj = self.list_tasks_in_DAGs_by_pattern(dag['childrens'],task_obj)
+            task_obj = self.list_tasks_in_DAGs_by_pattern(dag['children'],task_obj)
         return task_obj
 
 
@@ -241,24 +241,24 @@ class client_pattern():
 
         #se hace una copia del dag original y se eliminan los child 
         if kind_pattern=="Map":
-            endpoints = sub_child['childrens']
-            for key in range(len(sub_child['childrens'])):
-                if 'pattern' in dag['childrens'][key]:
-                    if dag['childrens'][key]['pattern']['kind']=="Reduce":
-                        dag['childrens'][key]['pattern']['workers'] =pattern_info['workers']
-                        dag['childrens'][key]['pattern']['context'] =substack_id
+            endpoints = sub_child['children']
+            for key in range(len(sub_child['children'])):
+                if 'pattern' in dag['children'][key]:
+                    if dag['children'][key]['pattern']['kind']=="Reduce":
+                        dag['children'][key]['pattern']['workers'] =pattern_info['workers']
+                        dag['children'][key]['pattern']['context'] =substack_id
 
         elif kind_pattern=="Reduce" or kind_pattern=="Chain" :
-            for key in range(len(sub_child['childrens'])):
-                if 'pattern' in dag['childrens'][key]:
-                    if dag['childrens'][key]['pattern']['kind']=="Chain":
-                        dag['childrens'][key]['pattern']['parent_instructions'] =pattern_info['parent_instructions'].copy()
-                        dag['childrens'][key]['pattern']['spec']['level_to_process'] =pattern_info['spec']['level_to_process']
-                        dag['childrens'][key]['pattern']['workers'] =pattern_info['workers']
-                        dag['childrens'][key]['pattern']['context'] =pattern_info['context']
+            for key in range(len(sub_child['children'])):
+                if 'pattern' in dag['children'][key]:
+                    if dag['children'][key]['pattern']['kind']=="Chain":
+                        dag['children'][key]['pattern']['parent_instructions'] =pattern_info['parent_instructions'].copy()
+                        dag['children'][key]['pattern']['spec']['level_to_process'] =pattern_info['spec']['level_to_process']
+                        dag['children'][key]['pattern']['workers'] =pattern_info['workers']
+                        dag['children'][key]['pattern']['context'] =pattern_info['context']
 
         else:
-            sub_child['childrens']=[]
+            sub_child['children']=[]
             endpoints = [sub_child]
 
 
@@ -325,7 +325,7 @@ class client_pattern():
                     formated_names = []
                     form_name =name[-1].split(".")[0] #se toma el ultimo valor de la lista name
                     if not form_name in xelhua["levels"][str(lvl)]["values"]:
-                        xelhua["levels"][str(lvl)]["values"][form_name]={"id":id_values,"name":form_name,"childrens":{}}
+                        xelhua["levels"][str(lvl)]["values"][form_name]={"id":id_values,"name":form_name,"children":{}}
                         id_for_parents = id_values
                         id_values+=1
                     else:
@@ -336,11 +336,11 @@ class client_pattern():
                         if i == lvl_idx:
                             pass
                         else: #its a parent
-                            if not str(lvl) in xelhua["levels"][str(i+1)]["values"][form_name]['childrens']:
-                                xelhua["levels"][str(i+1)]["values"][form_name]['childrens'][str(lvl)]=[]
-                            # se veirifica si ya existe el valor en la lista de childrens. si no existe se agrega
-                            if not id_for_parents in xelhua["levels"][str(i+1)]["values"][form_name]['childrens'][str(lvl)]:
-                                xelhua["levels"][str(i+1)]["values"][form_name]['childrens'][str(lvl)].append(id_for_parents)
+                            if not str(lvl) in xelhua["levels"][str(i+1)]["values"][form_name]['children']:
+                                xelhua["levels"][str(i+1)]["values"][form_name]['children'][str(lvl)]=[]
+                            # se veirifica si ya existe el valor en la lista de children. si no existe se agrega
+                            if not id_for_parents in xelhua["levels"][str(i+1)]["values"][form_name]['children'][str(lvl)]:
+                                xelhua["levels"][str(i+1)]["values"][form_name]['children'][str(lvl)].append(id_for_parents)
 
                         group[selected_levels[i]]=name[i]
                         formated_names.append("%s=%s" %(selected_levels[i],form_name))
@@ -373,8 +373,8 @@ class client_pattern():
             thread1.start()
             self.TH_MONITOR.AppendThread(thread1)
             #se añaden las instrucciones para el los hjos que haran reduce
-            for key in range(len(sub_child['childrens'])):
-                dag['childrens'][key]['pattern']['parent_instructions'] ={"list_task":list_of_task,"context":substack_id,"levels":vars,"dispatcher":self.SERVICE_ID}
+            for key in range(len(sub_child['children'])):
+                dag['children'][key]['pattern']['parent_instructions'] ={"list_task":list_of_task,"context":substack_id,"levels":vars,"dispatcher":self.SERVICE_ID}
 
             with open(self.BBOX_OUTPUT_PATH+output_name, "w") as write_file:
                 json.dump(xelhua, write_file, indent=4)

@@ -147,8 +147,8 @@ def get_childs(childs_list, data, replicas_key, default_replicas, replicate_dict
             replicate_dictionary[data[i]['service']] = data[i][replicas_key]
         else:
             replicate_dictionary[data[i]['service']] = default_replicas
-        if(len(data[i]["childrens"]) > 0):
-            get_childs(childs_list,data[i]['childrens'], replicas_key, default_replicas, replicate_dictionary)
+        if(len(data[i]["children"]) > 0):
+            get_childs(childs_list,data[i]['children'], replicas_key, default_replicas, replicate_dictionary)
 
 def get_id():
     # datetime object containing current date and time

@@ -37,7 +37,7 @@ class bb_dispatcher():
         #------------------#
         if 'info' in res: #no more nodes
             self.LOGER.error("NO NODES FOUND")
-            data = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'no available resources found.','ERROR',id_service=child['id'])
+            data = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'no available resources found.','ERROR',id_service=child['id'],token_user=auth['user'])
             self.POSTMAN.WarnGateway(data)
         else:
             errors_counter=0
@@ -45,7 +45,7 @@ class bb_dispatcher():
             ip = res['ip'];port = res['port']
             self.LOGER.debug("Children >>>>>> IP:%s PORT: %s " %(ip,port) )
             #note: warn moved
-            ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'Starting ejecution.','INIT',id_service=child['id'],parent=parent,dag=child,include_hash=True)
+            ToSend = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'Starting ejecution.','INIT',id_service=child['id'],parent=parent,dag=child,include_hash=True,token_user=auth['user'])
             self.POSTMAN.WarnGateway(ToSend)
             while(True):
                 data = C.RestRequest(ip,port,{'data':data_map,'DAG':child,"auth":auth},data_file=data_pointer)
@@ -63,7 +63,7 @@ class bb_dispatcher():
                         #------------------#
                         errors_counter=0 #reset counter 
                         if 'info' in res: #no more nodes
-                            data = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'no available resources found: %s attempts.' % str(errors_counter) ,'ERROR',id_service=child['id'])
+                            data = self.POSTMAN.CreateMessage(self.TOKEN_SOLUTION,'no available resources found: %s attempts.' % str(errors_counter) ,'ERROR',id_service=child['id'],token_user=auth['user'])
                             self.POSTMAN.WarnGateway(data)
                             break
                         ip = res['ip'];port = res['port']

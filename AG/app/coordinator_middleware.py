@@ -15,7 +15,7 @@ import tempfile
 import shutil
 import time
 from os import listdir
-import magic as M
+
 
 # local imports
 from functions import *
@@ -24,6 +24,8 @@ from Auth import login_request, register_user, token_required,data_autorization_
 from BB_dispatcher import bb_dispatcher 
 from PostmanPaxos import postman
 from DataGarbageCollector import GarbageCollector
+from FSController import FSController,MessageController
+
 import genesis_client as GC
 
 
@@ -54,23 +56,12 @@ DEBUG_MODE = TranslateBoolStr(os.getenv("DEBUG_MODE"))
 
 DATASET_EXAMPLES_FOLDER="./examples/datasets/"
 DAG_EXAMPLES_FOLDER="./examples/dags/"
-
 REFERENCES_FOLDER="./references/"
 
 
 TIMES_list = {}
-#create logs folder
-logs_folder= "./logs/"
-createFolderIfNotExist(logs_folder)
-#fh = logging.FileHandler(logs_folder+'info.log')
 
-#Backups folder
-BKP_FOLDER= "./BACKUPS/"
-createFolderIfNotExist(BKP_FOLDER)
-
-#supplies folder
-SPL_FOLDER= "./SUPPLIES/"
-createFolderIfNotExist(SPL_FOLDER)
+FS = FSController(LOGER=LOGER,CLOUD=STORAGE_CLIENT,REMOTE_STORAGE=REMOTE_STORAGE)
 
 #select load blaancer
 Tolerant_errors=0 #total of errors that can be tolarated
@@ -79,13 +70,13 @@ LOGER.info(ACCEPTORS_LIST)
 PROPOSER = Paxos(ACCEPTORS_LIST)
 
 # Garbage collector para backups
-GarbageColl = GarbageCollector(PROPOSER,BKP_FOLDER,LOGER,stopwatch=120)
+#GarbageColl = GarbageCollector(PROPOSER,BKP_FOLDER,LOGER,stopwatch=120)
 #GarbageColl.start()
 ########## END GLOBAL VARIABLES ##########
 
 
 def GetPostman(service=None,hash_product=""):
-    return postman(PROPOSER,logs_folder,service=service,LOGER=LOGER,hash_product=hash_product)
+    return postman(PROPOSER,FS.GetFolder("RESULTS"),service=service,LOGER=LOGER,hash_product=hash_product)
 
 def init_user(user,password):
     if INIT_EXAMPLE:
@@ -95,8 +86,8 @@ def init_user(user,password):
         tokenuser = userinfo['data']['tokenuser']
         access_token = userinfo['data']['access_token']
         logout_request(tokenuser,access_token)
-        defaulth_path= GetWorkspacePath(tokenuser,"Default")
-        examples_path= GetWorkspacePath(tokenuser,"Examples")
+        defaulth_path= FS.GetWorkspacePath(tokenuser,"Default")
+        examples_path= FS.GetWorkspacePath(tokenuser,"Examples")
         shutil.copytree(DATASET_EXAMPLES_FOLDER,examples_path,dirs_exist_ok=True) #copy datasets
         
         #load dags
@@ -110,65 +101,10 @@ def init_user(user,password):
             dag_obj['metadata']['datasource']['catalog'] = "Examples"
 
             ######## paxos ##########
-            paxos_response = PROPOSER.Store(token_solution,json.dumps(dag_obj['dataobject']),dag_obj['metadata'],{"user":tokenuser,"workspace":"Examples"})
-
+            PROPOSER.Store(token_solution,json.dumps(dag_obj['dataobject']),dag_obj['metadata'],{"user":tokenuser,"workspace":"Examples"})
+            ####################
 
     return 0
-
-def GetSolutionPath(token_solution):
-    return "%s%s/" %(BKP_FOLDER,token_solution)
-
-def GetDataPath(params):
-    typeOfData = params['type']
-    credentials = params['data']
-    try:
-        if typeOfData=="RECORDS":
-            input_data = pd.DataFrame.from_records(params['data']) #data is now a dataframe
-            INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix=".csv") #create temporary file
-            path= INPUT_TEMPFILE.name; INPUT_TEMPFILE.close()
-            input_data.to_csv(path, index = False, header=True) #write DF to disk
-        if typeOfData =="SOLUTION":
-            #hay que descargar el catalogo si es necesario
-            #cuando se añada SKYCDS el BKP_FOLDER se remplaza por el token del usuario
-            # BKP_FOLDER = credentials['token_user']
-
-            path = BKP_FOLDER+credentials['token_solution']+"/"+ validatePathIfSubtask(credentials['task']) +"/"
-            if 'filename' in credentials:
-                path+=credentials['filename']
-            else:
-                #tmp = os.listdir(path)
-                tmp = [f for f in os.listdir(path) if not f.startswith('.')] #ignore hidden ones
-                path +=tmp[0]
-        elif typeOfData=="PROJECT":
-            if credentials['token_solution'] == "":
-                raise ValueError
-            data_path = BKP_FOLDER+credentials['token_solution']+"/"
-            name = "project_"+credentials['token_solution']
-            ext="zip"
-            path = BKP_FOLDER + name +"."+ext
-            #LOGER.info(data_path)
-            if FileExist(path):
-                pass #verify if data exist
-            else:
-                path = CompressFile(BKP_FOLDER,data_path,namefile ="%s.%s"% (name,ext) )
-
-        elif typeOfData=="LAKE":
-            path = GetWorkspacePath(credentials['token_user'],credentials['catalog']) + credentials['filename']
-        elif typeOfData=="DUMMY": #no data, just a dummy file (is the easiest way to avoid an error, sorry in advance)
-            text_for_test="WAKE ME UP, BEFORE YOU GO GO.."
-            INPUT_TEMPFILE = tempfile.NamedTemporaryFile(delete=False,suffix=".txt") #create temporary file
-            path = INPUT_TEMPFILE.name
-            INPUT_TEMPFILE.write(text_for_test.encode())
-            INPUT_TEMPFILE.close()
-        else:
-            path="."
-
-        name,ext = path.split("/")[-1].split(".") #get the namefile and then split the name and extention
-        return path,name,ext
-    except Exception as e:
-        LOGER.error("ERROR CAUGHT trying to read the file")
-        LOGER.error(e)
-        raise(ValueError)
 
 def verify_extentions(data_path,ext,response,filename,delimiter=","):
         valid = False #flag to mark a valid file
@@ -220,14 +156,7 @@ def verify_extentions(data_path,ext,response,filename,delimiter=","):
         
         return response,valid 
 
-def GetWorkspacePath(tokenuser,workspace=None):
-    #se creara el cataloog de fuentes de datos si es que no existe
-    createFolderIfNotExist("%s%s" %(SPL_FOLDER,tokenuser))
-    if workspace is None:
-        return "%s%s/" %(SPL_FOLDER,tokenuser)
-    else:
-        createFolderIfNotExist("%s%s/%s" %(SPL_FOLDER,tokenuser,workspace)) #create folders of user and workspace
-        return "%s%s/%s/" %(SPL_FOLDER,tokenuser,workspace)
+
 
 
 #service to execute applications
@@ -255,7 +184,6 @@ def prueba():
 @app.route('/health',methods=['GET'])
 def health():
     return json.dumps({"status":"OK"})
-
 
 @app.route('/signup',methods=['POST'])
 def signup():
@@ -293,14 +221,12 @@ def AddServiceResource():
     paxos_response = PROPOSER.Update_resource(service,service_ID,ToSend,read_action="ADD") # save request in paxos distributed memory
     return json.dumps(paxos_response)
 
-
 @app.route('/ASK', methods=['POST'])
 @token_required
 def ASK():
     params = request.get_json()
     postman = GetPostman()
     return postman.AskGateway(params)
-
 
 @app.route('/STATUS', methods=['GET'])
 @token_required
@@ -315,18 +241,16 @@ def append_log():
     tmp= params['times'] #id,acq,serv,trans,exec,idx,comm
     token_solution = params['token_solution']
 
-    f = open('%sLOG_%s.txt' % (logs_folder,token_solution), 'a+');
-    f.write("%s, %s, %s, %s, %s, %s, %s\n" %(tmp['id'],tmp['acq'],tmp['serv'],tmp['trans'],tmp['exec'],tmp['idx'],tmp['comm'])) 
-    f.close()
-    del f
+    FS.write_time_log(tmp,token_solution)
+    
     return json.dumps({'status':'OK'})
-
 
 @app.route('/WARN', methods=['POST'])
 @token_required
 def WARN():
     warn_message = request.get_json(force=True)
     postman = GetPostman()
+    LOGER.error(warn_message)
     return postman.WarnGateway(warn_message)
 
 @app.route('/stopDAG/<token_project>/<token_solution>', methods=['GET'])
@@ -342,13 +266,15 @@ def stop_DAG(token_project,token_solution):
 @resource_autorization_requiered
 def deploy_resources():
     """
-    {DAG:{},token_solution(optional),auth:{}}
+        {DAG:{},token_solution(optional),auth:{}}
     """
     params = request.get_json(force=True)
     envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
     DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
 
     Alias = params['alias'] if 'alias' in params else 'default'
+    meta = params['metadata'] if 'metadata' in params else {}
+    dataobject = params['dataobject'] if 'dataobject' in params else None
 
     RN = CreateSolutionID(params)
     TIMES_list[RN]={"deploy":0,"total":time.time(),"recovery":0,"alias":Alias}
@@ -362,7 +288,7 @@ def deploy_resources():
     exec_options['justdeploy'] =True
 
     ######## paxos ##########
-    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params,options=exec_options) # save request in paxos distributed memory
+    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params,metadata=meta,options=exec_options,dataobject=dataobject) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
         LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
         return make_response({"status":"ERROR","message":"Mesh is not accepting requests"},503)
@@ -373,7 +299,6 @@ def deploy_resources():
     ###################### DEPLOY SERVICES #########################
     if MODE == "SERVERLESS" and len(res['DAG'])>0:
         temp = time.time()
-        LOGER.info("---------------------------- DEPLOYING")
         GC.start_services({
                 "DAG":res['DAG'],
                 "id_stack": RN,
@@ -381,12 +306,12 @@ def deploy_resources():
                 "engine":"nez",
                 "replicas": 2})
         LOGER.info("---------------------------- DEPLOYED")
-        #LOGER.info(res['DAG'])
+
         TIMES_list[RN]['deploy'] = time.time() - temp
         time.sleep(.5)
         response = make_response({"status":"OK","message":"solution deployed",'token_solution':RN,"dag":res['DAG']},200)    
     else:
-        response = make_response({"status":"ERROR","message":"Error at deploying solution"},500)    
+        response = make_response({"status":"OK","message":"No more nodes needed",'token_solution':RN,"dag":res['DAG']},200)    
     ################################################################
     return response
 
@@ -409,7 +334,6 @@ def remove_deployed_stack():
         LOGER.error(e)
     return response
 
-
 @app.route('/exec', methods=['POST'])
 @token_required
 def exec_func():
@@ -428,8 +352,7 @@ def exec_func():
     parameters = params['params'] if 'params' in params else {}
     
 
-
-#service to execute a set of application in a DAG
+#service to execute a set of applications in a DAG
 @app.route('/executeDAG', methods=['POST'])
 @token_required
 @resource_autorization_requiered
@@ -453,31 +376,32 @@ def execute_DAG():
     envirioment_params = params['auth'] #params wich define the enviroment  {user:,workspace:}
     data = params['data_map'] #data to be transform {data:,type:}
     DAG = json.loads(params['DAG']) #it have the parameters, the sub dag ,and the secuence of execution (its a json).
-    
+    meta = params['metadata'] if 'metadata' in params else {}
+    dataobject = params['dataobject'] if 'dataobject' in params else None
+
+    RN = CreateSolutionID(params)    #A resquest random number for monitoring is created. 
+
     exec_options = {}
     if 'options' in params:
         exec_options = params['options'] 
         if 'force' in exec_options:
             exec_options['force'] = TranslateBoolStr(exec_options['force'])
+            
+            if exec_options['force']:#force run
+                FS.clean_results_dir(RN) #clean dir with results
 
-    data_path,name,ext= GetDataPath(data) #get data path
 
-    data['data'] = data_path
-    data['type'] = ext
-
-    LOGER.info(data_path)
+    data_path,name,ext= FS.GetDataPath(data) #get data path
 
     # verify if data exist
-    if (os.path.exists(data['data'])):
-        pass
-    else:
+    if not (FileExist(data_path)):
         return make_response({"status":"ERROR","message":"404: Data not found."},406)
 
-    #A resquest random number for monitoring is created. 
-    RN = CreateSolutionID(params)
+    MC = MessageController(DAG,RN,envirioment_params,LOGER=LOGER)
+    MC.AssignDataMap(data_path,ext)
 
     ######## paxos ##########
-    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params,options=exec_options) # save request in paxos distributed memory
+    paxos_response = PROPOSER.Save(RN,DAG,envirioment_params,metadata=meta,options=exec_options,dataobject=dataobject) # save request in paxos distributed memory
     if paxos_response['status'] == "ERROR":
         LOGER.error("PAXOS PROTOCOL DENIED THE REQUEST")
         return make_response({"status":"ERROR","message":"Mesh is not accepting requests"},503)
@@ -486,12 +410,10 @@ def execute_DAG():
     res = paxos_response['value']
 
     new_dag = res['DAG']
-    LOGER.error(new_dag)
     task_list = res['task_list']
     is_already_running = res['is_already_running']
 
     if not is_already_running:
-
         dispatcher_parent = '' # is void if coordinator is the parent
         for branch in new_dag:
             branch['control_number'] = RN
@@ -499,33 +421,24 @@ def execute_DAG():
                 parent = task_list[branch['id']]['parent']
                 if parent is None or parent=="": #if service has no parent
                     LOGER.info(" service has no parent ")
-                    path_bk_data = data_path
-                    ext_bk_data = ext
+                    data_map = MC.GetDataMap()
                 else:
                     LOGER.info(" ========= recovering data ========== Executing: %s with parent %s " % (branch['id'],parent) )
-                    path_bk_data = "%s%s/%s" %(BKP_FOLDER,RN,parent)
-                    tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
-                    path_bk_data +="/"+tmp[0]
-                    ext_bk_data = path_bk_data.split(".")[-1]
-                    LOGER.info("recovering data from %s ..." % path_bk_data)
+                    data_map = FS.RecoverDataFromtask(RN,parent)
                     dispatcher_parent = parent
-
-                data_format ={"data":path_bk_data,"type":ext_bk_data}
-                metadata = {"data":data_format,"DAG":branch,"auth":envirioment_params}
-                service = branch['service'] #name of the service to send the instructions
+ 
+                metadata = MC.CreateXelRequest(data_map,branch,envirioment_params)
                 thread1 = Thread(target = execute_service, args = (dispatcher_parent,metadata,True))
                 thread1.start()
             else:
                 LOGER.info(" ========= sending Raw data ========== ")
-
-                metadata = {"data":data,"DAG":branch,"auth":envirioment_params}
-                
-                service = branch['service']
+                metadata = MC.CreateXelRequest(MC.GetDataMap(),branch,envirioment_params)
                 thread1 = Thread(target = execute_service, args = (dispatcher_parent,metadata,True) )
                 thread1.start()
                 sleep(.5)
     else:
         LOGER.warning("Solution is already running")
+
     return make_response({"status":"OK",'token_solution':RN,"DAG":DAG,"is_already_running":is_already_running},202)
 
 #service to monitoring a solution with a control number
@@ -535,6 +448,7 @@ def monitoring_v2(token_project,token_solution):
     tasks = None
     kind_task = "task_list" #subtask
     show_history=None
+    MC = MessageController(None,token_solution,None,LOGER=LOGER)
 
     if request.method == 'POST':
         params = request.get_json(force=True)
@@ -564,19 +478,13 @@ def monitoring_v2(token_project,token_solution):
                 temp = time.time()
                 dag = value['DAG']
                 parent = value['parent']
-                path_bk_data = "%s%s/%s" %(BKP_FOLDER,token_solution,parent)
-                tmp = [f for f in os.listdir(path_bk_data) if not f.startswith('.')] #ignore hidden ones
+                data_map = FS.RecoverDataFromtask(token_solution,parent)
 
-                path_bk_data +="/"+tmp[0]
                 LOGER.info("========================================================================================")
-                LOGER.info("============================ recovering data %s ========================" % path_bk_data)
+                LOGER.info("============================ recovering data %s ========================" % data_map['data'])
                 LOGER.info("========================================================================================")
-
                 dag['control_number'] = token_solution # must be added, BB need it
-                data ={"data":path_bk_data,"type":path_bk_data.split(".")[-1]}
-
-                metadata = {"data":data,"DAG":dag,"auth":{"user":token_project,"workspace":"not important"}}
-                service = dag['service'] #name of the service to send the instructions
+                metadata = MC.CreateXelRequest(data_map,dag,{"user":token_project,"workspace":"not important"})
 
                 thread1 = Thread(target = execute_service, args = (parent,metadata))
                 thread1.start()
@@ -590,14 +498,9 @@ def monitoring_v2(token_project,token_solution):
 
 
     if solution_status['status']=="FAILED" or solution_status['status']=="FINISHED":
-        LOGER.info("YA TERMINO LA SOLUCION")
         if token_solution in TIMES_list:
             TIMES_list[token_solution]['total'] = time.time() - TIMES_list[token_solution]['total']
-            with open(logs_folder+'soluciones.txt', 'a+') as f: 
-                f.write("%s,%s,%s,%s,%s\n" %(token_solution,TIMES_list[token_solution]['total'],
-                                            TIMES_list[token_solution]['recovery'],
-                                            TIMES_list[token_solution]['deploy'],
-                                            TIMES_list[token_solution]['alias'] )) 
+            FS.write_solution_log(TIMES_list[token_solution],token_solution)
             del TIMES_list[token_solution]
 
     return make_response(ToSend,200)
@@ -646,7 +549,7 @@ def getfileintask():
     """
     try:
         params = request.get_json(force=True)
-        data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+        data_path,name,ext= FS.GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
         file_exist=FileExist(data_path) #verify if data exist
         #LOGER.error(data_path)
 
@@ -660,7 +563,6 @@ def getfileintask():
             return make_response({"status":"ERROR", "message":"file not found"},404)
     except Exception as e:
         LOGER.error(e)
-        LOGER.error("file not found")
         return make_response({"status":"ERROR", "message":"file not found"},404)
 
 ## =============================================================== ##
@@ -692,7 +594,7 @@ def delete_sol_from_DB():
         token_solution = params['token_solution']
         ######## paxos ##########
         paxos_response = PROPOSER.Delete(token_solution,auth) # consult request in paxos distributed memory
-        solution_path = GetSolutionPath(token_solution)
+        solution_path = FS.GetSolutionPath(token_solution)
     except:
         return make_response({"message":"invalid token solution"},404)
 
@@ -751,47 +653,32 @@ def List_solutions_user():
 @app.route('/workspace/create/<tokenuser>/<workspace>', methods=['GET'])
 @token_required
 def create_workspace(tokenuser,workspace):
-    GetWorkspacePath(tokenuser,workspace)
+    FS.GetWorkspacePath(tokenuser,workspace)
     return {"status":"OK"}
 
 @app.route('/workspace/delete/<tokenuser>/<workspace>', methods=['GET'])
 @token_required
 def delete_workspace(tokenuser,workspace):
-    ws = GetWorkspacePath(tokenuser,workspace)
-    shutil.rmtree(ws)
+    FS.DeleteWorkspace(tokenuser,workspace)
     return {"status":"OK"}
 
 @app.route('/workspace/list/<tokenuser>', methods=['GET'])
 @token_required
 def list_user_workspaces(tokenuser):
-    path_workspaces= GetWorkspacePath(tokenuser)
-    list_workspaces = [f for f in os.listdir(path_workspaces) if not f.startswith('.')] #ignore hidden ones
-
+    list_workspaces = path_workspaces= FS.GetAllWorkspaces(tokenuser)
     return {"status":"OK", "info":{"workspaces":list_workspaces}}
 
 @app.route('/workspace/list/<tokenuser>/<workspace>', methods=['GET'])
 @token_required
 def list_userfiles_workspaces(tokenuser,workspace):
-    path_workspace= GetWorkspacePath(tokenuser,workspace)
-    list_of_files = [f for f in os.listdir(path_workspace) if not f.startswith('.')] #ignore hidden ones
-    list_files_details = []
-    for f in list_of_files:
-        list_files_details.append(GetFileDetails(path_workspace+f,f))
-    
+    list_files_details= FS.ListFilesWorkspace(tokenuser,workspace)
     return {"status":"OK", "info":{"list_files_details":list_files_details}}
 
 ## =========== GET DATA ============ ##
 @app.route('/workspace/getfile/<tokenuser>/<workspace>/<filename>', methods=['GET'])
 @token_required
 def get_userfile_workspace(tokenuser,workspace,filename):
-    data_path= GetWorkspacePath(tokenuser,workspace)+filename
-    file_exist=FileExist(data_path) #verify if data exist
-    if file_exist:
-        with open(data_path,"rb") as f:
-            binary_data = f.read()
-    else:
-        binary_data = 'File not found. sorry.'.encode()
-    binary_data = b64decode(binary_data)
+    binary_data  = FS.GetFileWorkspace(tokenuser,workspace,filename)
     return send_file(
                 io.BytesIO(binary_data),
                 as_attachment=True,
@@ -807,16 +694,13 @@ def UploadDataset():
     """
     f = request.files['file']
     filename = f.filename
-    filetype = filename.split(".")[-1]
-
     workspace = request.form['workspace']
     tokenuser = request.form['user']
 
-    # get worspace path
-    workspace_path= GetWorkspacePath(tokenuser,workspace)
+    # get worspace pathGetWorkspacePath
+    workspace_path= FS.GetWorkspacePath(tokenuser,workspace)
     f.save(os.path.join(workspace_path, filename)) #añadir DS al catalogo de fuentes de datos
-    LOGER.info("Data saved in %s" % workspace_path+filename)
-
+    #LOGER.info("Data saved in %s" % workspace_path+filename)
     return make_response({"status":"OK"},200) 
 
 @app.route('/CreatePackage', methods=['POST'])
@@ -837,14 +721,14 @@ def CreatePackage():
     params = request.get_json(force=True)
     list_paths= []
     # verify if zip already exist
-    destination = GetWorkspacePath(params['tokenuser'],params['destination'])
+    destination = FS.GetWorkspacePath(params['tokenuser'],params['destination'])
 
     file_exist=FileExist(destination+params['name_package']) #verify if data exist
     if not file_exist or params['force_cration']:
 
         for Pathfile in params["list_files"]:
             workspace,filename=Pathfile.split("/")
-            list_paths.append(GetWorkspacePath(params['tokenuser'],workspace)+filename)
+            list_paths.append(FS.GetWorkspacePath(params['tokenuser'],workspace)+filename)
 
         zip_creation(list_paths,params['name_package'],destination)
 
@@ -856,7 +740,7 @@ def CreatePackage():
 @app.route('/workspace/delete/<tokenuser>/<workspace>/<filename>', methods=['GET'])
 @token_required
 def delete_userfile(tokenuser,workspace,filename):
-    data_path= GetWorkspacePath(tokenuser,workspace)+filename
+    data_path= FS.GetWorkspacePath(tokenuser,workspace)+filename
 
     file_exist=FileExist(data_path) #verify if data exist
     if file_exist:
@@ -874,75 +758,37 @@ def delete_userfile(tokenuser,workspace,filename):
 ## =========================== RESULTS =========================== ##
 ## =============================================================== ##
 
-@app.route('/ArchiveData/<RN>/<task>', methods = ['POST'])
+@app.route('/ArchiveData/<token_solution>/<task>', methods = ['POST'])
 @API_required
-def upload_file(RN,task):
+def upload_file(token_solution,task):
     #LOGER.debug("INDEX DATA to %s" %RN)
-    tmp_f = createFolderIfNotExist("%s/" % RN,wd=BKP_FOLDER)
-    path_to_archive= createFolderIfNotExist("%s/" % task,wd=tmp_f)
-    f = request.files['file']
-    
-    if 'metadata' in request.cookies:
-        metadata = json.loads(request.cookies['metadata'])
+    metadata = json.loads(request.cookies['metadata']) if 'metadata' in request.cookies else {"product_name":"product"}
 
+    FS.StoreResult(request,token_solution,task)
 
-    else:
-        metadata = {"product_name":"product"}
+    #SAVE LIST OF PRODUCTS IN DB AVOIDING 
+    meta = getMetadataFromPath(task,as_list=False)
+    meta["product_name"] = metadata["product_name"] if 'product_name' in metadata else "dataset/product"
+    meta["id"] = task 
+    meta["token_solution"] = token_solution 
 
-    filename = f.filename
-    data_path= os.path.join(path_to_archive, filename)
-    f.save(data_path)
-    
-    #LOGER.info(request.cookies)
-    if filename == "map_metadata.json":
-        metadata_folder = createFolderIfNotExist("metadata/" ,wd=tmp_f)
-        shutil.copy(data_path, metadata_folder)
+    paxos_response = PROPOSER.DirectRequest(meta,request="INSERT_PRODUCT")
 
-    if 'x-mining-statistics' in request.cookies:
-        name,ext = filename.split(".")
-        description_filename = ".%s_desc" %(name)
-        description_filepath = os.path.join(path_to_archive, description_filename)
-
-        response={"status":"OK","message":"","file_exist":True,"info":{"parent_filename":filename,"list_of_files":[],"files_info":{}}}
-
-        response,file_validation=verify_extentions(data_path,ext,response,filename,delimiter=",")
-        #LOGER.info("SAVING DESC IN %s" % description_filepath)
-        if file_validation: #save in file
-            with open(description_filepath,'w') as f:
-                f.write(json.dumps(response))
-        else:
-            response['status']="ERROR"
-            response['message']="Datafile can't be described. Try with the following file extentions:csv,json, or zip."
-            LOGER.error(response['message'])
-
-    if REMOTE_STORAGE:
-        f.seek(0) 
-        file_metadata ={}
-        file_metadata['content_type'] = M.from_file(data_path, mime=True)
-        LOGER.info(file_metadata)
-
-        #name,ext = f.filename.split(".")
-        #file_metadata['extension'] = ext
-        #file_metadata['name'] = name
-
-        token_data = CreateDataToken(RN,task)
-        res = STORAGE_CLIENT.put(token_data,f.read(),metadata=file_metadata)
-        LOGER.info("SE SUBIO AL STORAGE REMOTO")
-        LOGER.info(res)
-
-    f.close()
-    #save log
-    meta = getMetadataFromPath(task)
-    meta.append(data_path.split(RN)[1]) #path
-    if 'product_name' in metadata:
-        meta.append(metadata["product_name"]) #product_name
-    else:
-        meta.append("dataset/product") #product_name
-
-    append_log_products(meta,filename="%s/%s/list_products.csv" %(BKP_FOLDER,RN))
-
-    del f
     return json.dumps({"status":"OK", "message":"OK"})
+
+
+
+@app.route('/metadata/get/<token_solution>', methods = ['GET'])
+def get_all_metadata_products(token_solution):
+    paxos_response = PROPOSER.DirectRequest({"token_solution":token_solution,"query":{}},request="GETALL_PRODUCTS")
+    
+    log_products = pd.DataFrame.from_records(paxos_response['value']) #data is now a dataframe
+    log_products.to_csv("%s/%s/list_products.csv" %(FS.GetFolder("RESULTS"),token_solution),index=False)
+    if paxos_response['status']=="OK":
+        return make_response(paxos_response,200)   
+    else:
+        return make_response(paxos_response,404)   
+
 
 
 @app.route('/locate/<RN>/<task>', methods = ['GET'])
@@ -978,8 +824,7 @@ def queryDS():
     """
     params = request.get_json()
     ask_list = params['ask']
-    data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
-    LOGER.info("Data must be in %s " % data_path)
+    data_path,name,ext= FS.GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
     file_exist=FileExist(data_path) #verify if data exist
 
     response={"status":"OK","message":"","info":[]}
@@ -987,7 +832,6 @@ def queryDS():
     if file_exist and ext=="csv":
         results = Request2Dataset(data_path,ask_list)
         response['info']=results
-        #LOGER.info(response)
 
     return make_response(response,200) #dump
 
@@ -1014,14 +858,12 @@ def describeDatasetv2():
 
     init = time.time()
     params = request.get_json(force=True)
-    if 'force' in params:
-        force_desc = True
-    else:
-        force_desc= False
+
+    force_desc = True if 'force' in params else False
 
     separator = params['delimiter']
     try:
-        data_path,name,ext= GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
+        data_path,name,ext= FS.GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
     except ValueError as VE:
         return {"status":"ERROR","message":"Invalid filename"}
     LOGER.info("Data must be in %s " % data_path)
@@ -1103,7 +945,7 @@ def GetReference():
 @app.route('/getlog/<RN>', methods=['GET'])
 @token_required
 def getLogFile(RN):
-    return send_file(logs_folder+'LOG_'+RN+'.txt',as_attachment=True)
+    return send_file(FS.GetFolder("LOGS")+'LOG_'+RN+'.txt',as_attachment=True)
 
 if __name__ == '__main__':
     #app.run(host='0.0.0.0', port=5555,debug = True) #for development

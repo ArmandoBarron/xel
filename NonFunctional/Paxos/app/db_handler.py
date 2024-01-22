@@ -5,6 +5,13 @@ import logging
 class Handler:
 
     def __init__(self,db="xelhua"):
+        """
+        for xelhua db
+            structure:: TOKEN_USER(collection) > TOKE_SOLUTION(document) 
+        for xelhua_products::
+            structure:: TOKE_SOLUTION(collection) > Task(document) 
+
+        """
         self.db_host = os.getenv('DATABASE_HOST') #ip for the db service
         self.Log = logging.getLogger()
         self.db_name=db
@@ -30,18 +37,27 @@ class Handler:
         res = col.insert(document)
         self._closeConnection(client)
         return res
+    
+    def Update_one(self,collection_name,filter,update):
+        client= self._openConnection()
+        db = client[self.db_name] #bd
+        col = db[collection_name] #the DS in a collection
+        col.update_one(filter, update, upsert=True)
+        self._closeConnection(client)
 
 ## more specific functions ##
 
-    def Document_exist(self,collection_name,token_solution):
+    def Document_exist(self,collection_name,document,query= None):
         """
         collection name is the token user
         the document is the solution/catalog 
         """
+        find_query = query if query is not None else {'token_solution': document}
+
         exist = False
         client= self._openConnection()
         db = client[self.db_name] #bd
-        if db[collection_name].find({'token_solution': token_solution}).count() > 0:
+        if db[collection_name].find(find_query).count() > 0:
             exist= True
         else:
             exist= False
@@ -49,16 +65,18 @@ class Handler:
         return exist
         
 
-    def Get_document(self,collection_name,token_solution):
+    def Get_document(self,collection_name,document,query= None):
         """
         collection name is the token user
         the document is the solution/catalog 
         """
+        find_query = query if query is not None else {'token_solution':document}
+
         doc = {}
         client= self._openConnection()
         db = client[self.db_name] #bd
-        if self.Document_exist(collection_name,token_solution):
-            doc = db[collection_name].find_one({'token_solution':token_solution},{"_id":0 })
+        if self.Document_exist(collection_name,document,query=query):
+            doc = db[collection_name].find_one(find_query,{"_id":0 })
 
         self._closeConnection(client)
         return doc
@@ -88,23 +106,56 @@ class Handler:
         return list_documents
     
     
-    def Delete_document(self,collection_name,token_solution):
+    def Delete_document(self,collection_name,document,query=None):
         """
         collection name is the token user
         the document is the solution/catalog 
         """
+        find_query = query if query is not None else {'token_solution':document}
+
         client= self._openConnection()
         db = client[self.db_name] #bd
-        if self.Document_exist(collection_name,token_solution):
-            db[collection_name].find_one_and_delete({'token_solution':token_solution})
+        if self.Document_exist(collection_name,document,query=query):
+            db[collection_name].find_one_and_delete(find_query)
         self._closeConnection(client)
 
+    def drop_db(self,db_name=None):
+        try:
+            db_to_drop_name = db_name if db_name is not None else self.db_name
+            client= self._openConnection()
+            db_to_drop = client[db_to_drop_name] #bd
+            client.drop_database(db_to_drop)
+            self._closeConnection(client)
+        except Exception as e:
+            self.Log.error("NO DB FOUND")
 
-    def Update_document(self,collection_name,token_solution,new_document):
+    def Update_document(self,collection_name,document_name,new_document,query=None):
         """
         collection name is the token user
         the document is the solution/catalog 
         insert document if not exist or update if exist
         """
-        self.Delete_document(collection_name,token_solution) #the old one is erased
+        self.Delete_document(collection_name,document_name,query=query) #the old one is erased
         self.Insert_document(collection_name,new_document) #the new one is inserted
+
+    def Insert_many(self,collection_name,list_docs):
+        client= self._openConnection()
+        db = client[self.db_name] #bd
+        col = db[collection_name] #the DS in a collection
+        try:
+            col.insert_many(list_docs, ordered=False)
+        except Exception as e:
+            self.Log.error("SUBTASK IS AN EMPTY []")
+        self._closeConnection(client)
+
+    def Get_many_documents(self,collection_name):
+        """
+        collection name is the token user
+        the document is the solution/catalog 
+        """
+        doc = {}
+        client= self._openConnection()
+        db = client[self.db_name] #bd
+        documents = db[collection_name].find({},{"_id":0 })
+        self._closeConnection(client)
+        return documents

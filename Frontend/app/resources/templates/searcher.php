@@ -58,7 +58,7 @@
 
           <hr>
 
-          <div class="container-fluid" style="width: 100%; height: 40%; overflow-y: auto;overflow-x: hidden; display:None" id="DAG_exe_opt">
+          <div class="container-fluid" style="width: 100%; height: 40%; overflow-y: auto;overflow-x: hidden;" id="DAG_exe_opt"><!--display:None-->
 
           <h5>EXECUTION OPTIONS</h5>
             <div class="form-group row">
@@ -83,6 +83,10 @@
                 <label for="ntype" class="col-5 col-form-label col-form-label-sm">Automatic download results</label>
                 <div class="col-1">
                         <input type="checkbox" class="form-check-input" id="dag_saveresults">
+                </div>
+                <label for="ntype" class="col-5 col-form-label col-form-label-sm">Keep resources</label>
+                <div class="col-1">
+                        <input type="checkbox" class="form-check-input" id="if_keep_resources">
                 </div>
             </div>
             

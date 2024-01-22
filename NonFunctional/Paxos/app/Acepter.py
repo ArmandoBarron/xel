@@ -96,24 +96,6 @@ def Compare_parents(parent1,parent2):
         return False
 
 
-def LookForParams(DAG,task):
-    params = None
-    for bb in DAG:
-        LOG.error(type(bb))
-        LOG.error("encuenta esto %s " %bb['id'])
-        LOG.error("keys: %s " %bb.keys())
-
-        if bb['id'] == task:
-            params = bb
-            break
-        else:
-            if 'childrens' not in bb:
-                bb['childrens']=[]
-            params = LookForParams(bb['childrens'],task) # look  by children
-            if params is not None:
-                break
-    return params
-
 def LookForParamsV2(DAG,task):
     params = None
     for bb in DAG:
@@ -126,7 +108,7 @@ def LookForParamsV2(DAG,task):
             elif 'childrens' in bb:
                 params = LookForParamsV2(bb['childrens'],task) # look  by children
             else:
-                bb['childrens']=[]
+                bb['children']=[]
 
             if params is not None:
                 break
@@ -136,7 +118,8 @@ def Count_Services(DAG,count=0,list_task=[]):
     for bb in DAG:
         count+=1
         list_task.append(bb['id'])
-        count,list_task = Count_Services(bb['childrens'],count,list_task)
+
+        count,list_task = Count_Services(bb['children'],count,list_task)
     return count,list_task
 
 def validate_status_levels(actual_status,new_status):
@@ -175,27 +158,16 @@ def update_data(value): #called on bb report
     global BRANCHES
     RN = value['control_number']
     params = value['params']
+
     time_action = GetCurrentTimeAction()
 
     key_list= validate_key_list(params['task'])
 
     create_service_if_not_exist(RN,params['task'],'','')
-    #if params['task'] not in BRANCHES[RN][key_list]: # if the task is new we register a new record and fingerprint
-    #    BRANCHES[RN][key_list][params['task']]=dict()
-    #    BRANCHES[RN][key_list][params['task']]['historic']=[]
-    #    BRANCHES[RN][key_list][params['task']]['parent']=''
-    #    BRANCHES[RN][key_list][params['task']]['status']='INIT'
-        #Hay que cambiar que los abox envien sus parametros para poder calcular el fingerprint.
-        #y hay que calcular el fingerprint con los parametros, el id del proceso y el parent y los valores de pattern
-        #dag = LookForParams(BRANCHES[RN]["DAG"], params['task']) #look for the params of the task to create a fingerprint (if params are diferent then the task is not the same)
-        #if dag is not None:  # if is not in the dag then is a subtask from the solution
-        #    BRANCHES[RN][key_list][params['task']]['fingerprint']=Create_fingerprint(json.dumps(dag['params']))
 
+    if 'dag' in params: #here are saved ALL the dags from the subtasks in order to recover in case of failure
 
-    if 'dag' in params: #here are saved ALL the dags from the subtask in order to recover in case of failure
-        if "subdags" not in BRANCHES[RN]:
-            BRANCHES[RN]["subdags"] = dict()
-        BRANCHES[RN]["subdags"][params['task']] = params['dag']
+        InsertSubdag(RN,params['task'],params['dag'])
 
         #CALCULATE FINGERPRINT. if dag exist then also parent, but not always pattern
         BRANCHES[RN][key_list][params['task']]['fingerprint']=warp_fingerprint(params['dag'],parent=params['parent'])
@@ -223,6 +195,18 @@ def update_data(value): #called on bb report
     BRANCHES[RN][key_list][params['task']]['last_update'] = time_action
     BRANCHES[RN][key_list][params['task']]['timestamp'] = time.time()
 
+
+    actual_status_task = BRANCHES[RN][key_list][params['task']]['status']
+
+    #AQUI VOY A INSERTAR SUBTASK EN LA BD
+    if key_list == "subtask_list":
+        InsertSubtask(RN,params['task'], BRANCHES[RN][key_list][params['task']])
+
+    if (actual_status_task == "OK" or actual_status_task == "ERROR" or actual_status_task == "FINISHED") and key_list == "task_list": #autosave
+        token_user = params["token_user"]
+        UpdateDAGInDB(RN,token_user)
+        #force monitoring to secure the autosaving and change in solution status
+        get_task_runtime_info({"control_number":RN,"token_project":token_user})
     #LOG.info("STATUS ACTUAL DE %s: %s " % (params['task'],params['status']))
 
 
@@ -232,11 +216,13 @@ def update_solution_status(token_solution,status):
     BRANCHES[token_solution]["status"] = status
 
 def get_solution_status(token_solution):
+    LOG.error( list(BRANCHES[token_solution].keys()))
+
     return {"status": BRANCHES[token_solution]["status"],"last_update":    BRANCHES[token_solution]["last_update"] }
 
-def update_task_status_in_cascade(token_solution,childrens,status,message,parent=''):
+def update_task_status_in_cascade(token_solution,children,status,message,parent=''):
 
-    for child in childrens:
+    for child in children:
         params =json.dumps(child['params'])
         fp_dag = warp_fingerprint(child,parent=parent)
         id_service =child['id']
@@ -244,8 +230,8 @@ def update_task_status_in_cascade(token_solution,childrens,status,message,parent
         if if_exist:
             update_task_status(token_solution,id_service,status,message,fingerprint=fp_dag,parent=parent)
 
-        if 'childrens' in child:
-            update_task_status_in_cascade(token_solution,child['childrens'],status,message,parent=id_service)
+        if 'children' in child:
+            update_task_status_in_cascade(token_solution,child['children'],status,message,parent=id_service)
 
     return 0
 
@@ -281,54 +267,37 @@ def update_task_status(RN,task,status,message,details=None,is_recovered = False,
         BRANCHES[RN][key_list][task]['details']=details
     BRANCHES[RN][key_list][task]['historic'].append({'status':status,'message':message,'timestamp':time_action})
 
-def Get_solution_if_exist(token_solution,auth):
-    global BRANCHES
+def GetSolutionFromDB(token_project,token_solution):
     solution = None
     SDB=Handler()
-    if token_solution in BRANCHES:
-        solution = BRANCHES[token_solution]
-    elif SDB.Document_exist(auth['user'],token_solution):
-        solution = SDB.Get_document(auth['user'],token_solution)
-        solution['DAG'] = [json.loads(solution['DAG'])]
-        BRANCHES[token_solution]=solution
 
-        #read subtask metadata
+    if SDB.Document_exist(token_project,token_solution):
+        LOG.info("==============> recuperando datos de la BD")
+        solution = SDB.Get_document(token_project,token_solution)
+        #solution['DAG'] = solution['DAG']
+        #BRANCHES[token_solution]=solution
+
         try:
-            with open("./METADATA/%s_subtask_info.json"% token_solution, "r") as read_file:
-                temp_metadata = json.load(read_file)
-                BRANCHES[token_solution]['subtask_list'] = temp_metadata['subtask']
-                BRANCHES[token_solution]['subdags'] = temp_metadata['subdags']
+            solution['subtask_list'] = GetSubtask(token_solution)
         except Exception:
             LOG.error("el archivo con la info de subtask no existe.")
-            BRANCHES[token_solution]['subtask_list'] = dict()
-            BRANCHES[token_solution]['subdags'] = dict()
-
-        LOG.info("==============> recuperando datos de la BD")
+            solution['subtask_list'] = {}
     return solution
 
 def GetSolutionData(token_project,token_solution): #this function will replace Get_solution_if_exist() in the future
     global BRANCHES
     solution = None
-    SDB=Handler()
+
     if token_solution in BRANCHES:
         solution = BRANCHES[token_solution]
-    elif SDB.Document_exist(token_project,token_solution):
-        solution = SDB.Get_document(token_project,token_solution)
-        solution['DAG'] = [json.loads(solution['DAG'])]
+    else:
+        solution = GetSolutionFromDB(token_project,token_solution)
+        if solution is None:
+            return solution
+        
+        solution['DAG'] = prepare_dag_for_memory(solution['DAG']) #load list
         BRANCHES[token_solution]=solution
 
-        #read subtask metadata
-        try:
-            with open("./METADATA/%s_subtask_info.json"% token_solution, "r") as read_file:
-                temp_metadata = json.load(read_file)
-                BRANCHES[token_solution]['subtask_list'] = temp_metadata['subtask']
-                BRANCHES[token_solution]['subdags'] = temp_metadata['subdags']
-        except Exception:
-            LOG.error("el archivo con la info de subtask no existe.")
-            BRANCHES[token_solution]['subtask_list'] = dict()
-            BRANCHES[token_solution]['subdags'] = dict()
-
-        LOG.info("==============> recuperando datos de la BD")
     return solution
 
 def create_service_if_not_exist(token_solution,id_service,fp_dag,parent):
@@ -340,6 +309,7 @@ def create_service_if_not_exist(token_solution,id_service,fp_dag,parent):
         return True
     else:
         #must be registred in the task list 
+        LOG.error("CREATING NEW SERVICE IN TASK LIST")
         time_action = GetCurrentTimeAction()
 
         BRANCHES[token_solution][key_list][id_service]=dict()
@@ -378,9 +348,9 @@ def validate_solution(dag, StoredSolution,token_solution,parent=''):
     new_dag=[]
     for taskInDag in dag:
         #LOG.info("%s - solution datatype: %s" % (taskInDag['id'],type(StoredSolution)))
-        if 'childrens' not in taskInDag:
-            taskInDag['childrens']=[]
-        childrens = taskInDag['childrens']
+        if 'children' not in taskInDag:
+            taskInDag['children']=[]
+        children = taskInDag['children']
         id_service =taskInDag['id']
         #params =json.dumps(taskInDag['params'])
 
@@ -400,7 +370,7 @@ def validate_solution(dag, StoredSolution,token_solution,parent=''):
             if 'pattern' in taskInDag:
                 fp_pattern = warp_fingerprint(taskInDag,mode="pattern")
                 
-                temp_dag = LookForParamsV2(StoredSolution['DAG'],id_service) # en la primera ejecucion es children al venir directo de la bd. despues en childrens al estar en memoria
+                temp_dag = LookForParamsV2(StoredSolution['DAG'],id_service) # en la primera ejecucion es children al venir directo de la bd. despues en children al estar en memoria
                 original_fp_pattern = warp_fingerprint(temp_dag,mode="pattern")
                 pattern_comparation = Compare_fingerprints(original_fp_pattern,fp_pattern)
                 is_pattern_diff = not pattern_comparation
@@ -413,7 +383,7 @@ def validate_solution(dag, StoredSolution,token_solution,parent=''):
                 #validate status and fingerprints
                 #update_task_status(token_solution,id_service,"FINISHED","Task has no changes",is_recovered = True)
                 
-                children_dag = validate_solution(childrens,StoredSolution,token_solution,parent=id_service)
+                children_dag = validate_solution(children,StoredSolution,token_solution,parent=id_service)
                 for x in children_dag:
                     new_dag.append(x)
             
@@ -423,17 +393,16 @@ def validate_solution(dag, StoredSolution,token_solution,parent=''):
             else:    
                 taskInDag['validations']={"is_fp_different":is_fp_different,"is_pattern_diff":is_pattern_diff}
                 new_dag.append(taskInDag)
+                LOG.info("LOS FP SON DISTINTOS, SE INICIARA DE NUEVO: %s para la tarea %s con status %s" %(parent_comparation,id_service,taskInSolution['status']))
+
                 update_task_status(token_solution,id_service,"STARTING","Task has changes",fingerprint=fp_dag,parent=parent,is_fp_different=is_fp_different,is_pattern_diff=is_pattern_diff)
-                update_task_status_in_cascade(token_solution,childrens,"STARTING","Parent task has changes",parent=id_service)
+                update_task_status_in_cascade(token_solution,children,"STARTING","Parent task has changes",parent=id_service)
 
 
         else: #the task is not in memory, so it is new
             new_dag.append(taskInDag)
 
     return new_dag
-
-
-
 
 
 def verify_list_abox_process(token_solution,task_list):
@@ -474,122 +443,158 @@ def verify_abox_process(token_solution,task_id):
 
 
 
+def InsertSubdag(token_solution,task,subdag):
+    SDB = Handler(db="xelhua_bucket")  
+    coll = "subdag_%s" % token_solution
+    SDB.Update_document(coll,task,copy.copy(subdag),query={"id":task})
+
+def GetSubdag(token_solution,task):
+    SDB = Handler(db="xelhua_bucket")  
+    coll = "subdag_%s" % token_solution
+    doc =SDB.Get_document(coll,task,query={"id":task})
+    return doc
+
+def InsertSubtask(token_solution,sutbask_id,subtask):
+    SDB = Handler(db="xelhua_bucket")  
+    coll = "subtask_%s" % token_solution
+
+    SDB.Update_one(coll,{'key': sutbask_id},{'$set': {'value': subtask}})
+
+#def Inserttask(token_solution,sutbask_id,subtask):
+#    SDB = Handler(db=)  
+#    coll = "subtask_%s" % token_solution
+#    SDB.Update_one(coll,{'key': sutbask_id},{'$set': {'value': subtask}})
+
+def GetSubtask(token_solution):
+    SDB = Handler(db="xelhua_bucket")  
+    coll = "subtask_%s" % token_solution
+    doc =SDB.Get_many_documents(coll)
+
+    data_subtask_reverso = {'subtask': {item['key']: item['value'] for item in doc}}
+    return data_subtask_reverso["subtask"]
 
 
-
-def save_data(value):
+def save_data(value): #deploy and exec
     """
     Save metadata in memory.
     Prepares everithing for the execution.
     """
     global BRANCHES
     RN = str(value['control_number'])
-    dag = value['DAG']
-    auth = value['auth']
-    options = {}
-    if 'options' in value:
-        options = value['options'] # options: Force
-    
-    # default options
-    force = False
-    just_deploy = False
-    
+    dag = value['DAG'] if "DAG" in value else None
+    auth = value['auth'] if "auth" in value else None
+    meta = value['metadata'] if "metadata" in value else None
+    options = value['options']  if 'options' in value else {}
+    # if dataobject
+    dataobj = value['dataobject'] if 'dataobject' in value else dag #string
+
+    LOG.error("ES DATAOBJECT") if 'dataobject' in value else LOG.error("ES DAG")  #string
+
+
     #custom options
     force = options['force'] if 'force' in options else False
     just_deploy = options['justdeploy'] if 'justdeploy' in options else False
-
-
 
     LOG.info("FORCING EXEC: %s" % force)
     LOG.info("SOLO DESPLEGANDO: %s" % just_deploy)
 
     is_already_running=False
-    solution =  Get_solution_if_exist(RN,auth)
-    #print(solution)
+    solution = GetSolutionData(auth['user'],RN)
+    LOG.error("NO SE PORQUE SOLUTION DEVUELVE ESTO:")
+    
+    if solution is not None:
+        LOG.info(solution.keys())
+
+
     if (force is False) and solution!=None:
         if "status" not in BRANCHES[RN]: #esto es temporal, para que las soliciones que yae sten guardadas no tengan problemas
             BRANCHES[RN]['status']="FINISHED"
 
         LOG.info("====== STATUS DE LA SOLUCION ======")
         if BRANCHES[RN]["status"]!="RUNNING": # if solution is already running
-            
+            update_solution_status(RN, "RUNNING")
             new_dag = validate_solution(dag,solution,RN)
             BRANCHES[RN]["DAG"]=dag        
             dag = new_dag
-            if just_deploy:
-                update_solution_status(RN,"DEPLOYING")
-            else:
-                update_solution_status(RN,"RUNNING")
         else:
             is_already_running=True
     else:
-        LOG.info("EJECUTANDO UN NUEVO GRAFO: %s" % force)
+        LOG.info("CREANDO UN NUEVO GRAFO. Force: %s" % force)
+        create_solution(RN,auth['user'],dag=dataobj,metadata=meta)
 
-        BRANCHES[RN]=dict()
-        BRANCHES[RN]["DAG"]=dag
-        BRANCHES[RN]["token_solution"]=RN
-        BRANCHES[RN]["task_list"]=dict()
-        BRANCHES[RN]["subtask_list"]=dict()
-        BRANCHES[RN]["subdags"]=dict()
-        if just_deploy:
-            update_solution_status(RN,"DEPLOYING")
-        else:
-            update_solution_status(RN,"RUNNING")
+    if not is_already_running and just_deploy: #if is not running yet then run
+        update_solution_status(RN, "DEPLOYING")
+
+    UpdateDAGInDB(RN,auth['user'],metadata=meta,dag=dataobj) #save changes in DB
 
     return {"DAG":dag,"task_list":BRANCHES[RN]["task_list"],"is_already_running":is_already_running}
+
+
+def memory_hierarchy(token_solution,var,var_name,stored,default,ignore_memory = False):
+    if ignore_memory:
+            value =  var if var is not None else (stored[var_name] if stored is not None else default )
+    else:
+        value =  var if var is not None else (BRANCHES[token_solution][var_name] if var_name in BRANCHES[token_solution] else (stored[var_name] if stored is not None else default ))
+    return value
+
+def UpdateDAGInDB(token_solution,token_project,dag=None,metadata=None,task_list=None,subinfo=None,status=None,soft=True):
+    """
+        in memory: DAG,metadata,task_list,last_update, subtask_list,
+        in DB:     DAG,metadata,task_list,last_update
+    """
+    solution = None
+    if soft:
+        solution =GetSolutionFromDB(token_project,token_solution) # get last data saved in DB
+    #solution = GetSolutionData(token_project,token_solution) if solution is None else solution #get from memory if is nonte
+
+    new_solution = dict()
+    new_solution["token_solution"] = token_solution
+    new_solution["last_update"] = GetCurrentTimeAction() 
+    new_solution["DAG"] = prepare_dag_for_db(dag) if dag is not None else solution["DAG"]
+    #new_solution["metadata"] = metadata if metadata is not None else solution["metadata"]
+    new_solution["metadata"] =  memory_hierarchy(token_solution,metadata,"metadata",solution,{},ignore_memory=True)
+    #new_solution["status"] = BRANCHES[token_solution]["status"] if token_solution in BRANCHES else solution["status"]
+    new_solution["status"] = memory_hierarchy(token_solution,status,"status",solution,"OK")
+    #new_solution["task_list"] = task_list if task_list is not None else (BRANCHES[token_solution]["task_list"])
+    new_solution["task_list"] =  memory_hierarchy(token_solution,task_list,"task_list",solution,[])
+
+    #subinfodata = subinfo if subinfo is not None else (BRANCHES[token_solution]['subtask_list'] if 'subtask_list' in BRANCHES[token_solution] else {} )
+
+    #verify if all is the same, then not update
+    SDB = Handler() 
+    SDB.Update_document(token_project,token_solution,new_solution)
+
 
 
 def store_data(value):
     """
     Save metadata in DB.
     """
-    global BRANCHES
-
     RN = str(value['control_number'])
     dag = value['DAG']
     meta =value['metadata'] #{name:"",desc:"",tags:[],frontend:""}
     auth = value['auth'] 
 
-
-
-    if RN in BRANCHES:     #get updated info from memory
-        last_up = BRANCHES[RN]["last_update"]
-        task_l = BRANCHES[RN]["task_list"]
-
-        subtask = BRANCHES[RN]['subtask_list'] 
-        subdags = BRANCHES[RN]['subdags']
-    else: #if not in memory, search in DB
-        last_up = GetCurrentTimeAction() 
-        task_l = {}
-
-    solution = {
-                "token_solution":RN,
-                "last_update":last_up,
-                "DAG":dag,
-                "metadata":meta,
-                "task_list": task_l
-            }
-
-    SDB = Handler() 
-    SDB.Update_document(auth['user'],RN,solution)
-
-    # save subtask and subdags
-    with open("./METADATA/%s_subtask_info.json"% RN, "w") as write_file:
-        json.dump({"subtask":subtask,"subdags":subdags}, write_file, indent=3)
-    
+    create_solution(RN,auth['user'],dag,meta)
+    #UpdateDAGInDB(RN,auth['user'],dag,meta)
 
     return ""
 
 def delete_solution(value):
     auth = value['auth'] 
-    RN = value['control_number']
+    token_solution = value['control_number']
     SDB = Handler() 
-    SDB.Delete_document(auth['user'],RN)
+    SDB.Delete_document(auth['user'],token_solution)
 
-    if SDB.Document_exist(auth['user'],RN):
-        return {"status":"ERROR","message":"Solution could not be removed"}
-    else:
-        return {"status":"OK","message":"Solution removed sucessfully"}
+    db_subtask = "subtask_%s" % token_solution
+    db_subdag = "subdag_%s" % token_solution
+
+    SDB.drop_db(db_name=db_subtask)
+    SDB.drop_db(db_name=db_subdag)
+
+
+
+    return {"status":"OK","message":"Solution removed sucessfully"}
     
 def retrieve_solution(value):
     global BRANCHES
@@ -610,9 +615,7 @@ def list_solutions(value):
     list_solutions_of_user = SDB.List_document(auth['user'],query)
     return list_solutions_of_user
 
-
-
-
+    
 def get_task_runtime_info(value): #new version of consult data
     RN = str(value['control_number'])
     token_project = str(value['token_project'])
@@ -624,6 +627,9 @@ def get_task_runtime_info(value): #new version of consult data
     list_info={}
 
     solution =GetSolutionData(token_project,RN) # solution has a copy of the info in the current timestamp. 
+    #LOG.error("get_task_runtime_info")
+    #LOG.error(solution.keys())
+
     solution_dag = solution['DAG']
     while(True):
         try:
@@ -660,7 +666,7 @@ def get_task_runtime_info(value): #new version of consult data
             update_task_status(RN,task,"CRITICAL","Resource %s is not responding. last message: %s." % (task, val['message']),details="RESOURCE DOWN")
             #temp_dag = LookForParams(solution_dag,task) #si esto es none entonces no esta en el dag original
             ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
-            ToSend['DAG'] = solution["subdags"][task] # {} can be void
+            ToSend['DAG'] = GetSubdag(RN,task) # {} can be void
             ToSend['parent'] =  val['parent'] 
             LOG.info("================================== SE VA A RECUPERAR: %s" % task)
             #LOG.info("el dag es : %s" % val['dag'])
@@ -677,20 +683,19 @@ def get_task_runtime_info(value): #new version of consult data
                 if task in list_original_task:
                     count_error_task+=1
                 else:
-                    count_error_subtask+=1                # since it failed, we need to update all his childrens
+                    count_error_subtask+=1                # since it failed, we need to update all his children
 
 
         elif val['status'] == "OK":
             ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
-            #if kind=="subtask_list":
-            #    del solution["subdags"][task]
+
             update_task_status(RN,task,"FINISHED","Execution completed without errors")
 
         elif val['status']=="ERROR":
             ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
             update_task_status(RN,task,"FAILED",val['message'])
-            tree_task = solution["subdags"][task] #is a subtask
-            update_task_status_in_cascade(RN,tree_task['childrens'],"FAILED","Parent task have failed",parent=task)
+            tree_task = GetSubdag(RN,task)
+            update_task_status_in_cascade(RN,tree_task['children'],"FAILED","Parent task have failed",parent=task)
 
         else:
             pass
@@ -715,7 +720,7 @@ def get_task_runtime_info(value): #new version of consult data
             update_solution_status(RN,"FAILED")
         else:
             update_solution_status(RN,"FINISHED")
-
+        UpdateDAGInDB(RN,token_project)
 
 
     return list_info
@@ -773,6 +778,43 @@ def create_obj_if_not_exist(father_obj,id_element,content={}):
     else:
         return father_obj[id_element]
 
+def prepare_dag_for_memory(dag):
+    try:
+        # Intentar cargar la cadena como JSON
+        dag_json = json.loads(dag)
+        
+        # Verificar si el resultado es una lista
+        if isinstance(dag_json, list):
+            return dag_json
+        else:
+            # Si no es una lista, convertir a lista
+            return [dag_json]
+    except (json.JSONDecodeError,TypeError):
+        # En caso de error al cargar como JSON, asumir que ya es una lista y retornarla
+        return dag
+
+def prepare_dag_for_db(dag):
+    if isinstance(dag, list):        # Si es una lista, convertirla a cadena
+        return json.dumps(dag)
+    else:        # Si ya es una cadena, devolverla sin cambios
+        return dag
+
+
+def create_solution(token_solution,token_project,dag="",metadata={}):
+    global BRANCHES
+    BRANCHES[token_solution]=dict()
+    BRANCHES[token_solution]["DAG"]=prepare_dag_for_memory(dag)
+    BRANCHES[token_solution]["token_solution"]=token_solution
+    BRANCHES[token_solution]["task_list"]=dict()
+    #BRANCHES[token_solution]["metadata"]=metadata
+    BRANCHES[token_solution]["subtask_list"]={}
+    BRANCHES[token_solution]["status"]="DEPLOYING"
+    BRANCHES[token_solution]["last_update"] = GetCurrentTimeAction() 
+
+    UpdateDAGInDB(token_solution,token_project,metadata=metadata,dag=dag,soft=False) #force insert in DB
+
+    return BRANCHES[token_solution]
+
 def init_visual_obj(token_solution,token_dispatcher,data=None):
     global VISUAL
     VISUAL[token_solution] = create_obj_if_not_exist(VISUAL,token_solution,{})
@@ -780,6 +822,21 @@ def init_visual_obj(token_solution,token_dispatcher,data=None):
         VISUAL[token_solution][token_dispatcher] =data
     else:
         VISUAL[token_solution][token_dispatcher] ={"path":"","levels":{},"products":{}}
+
+def BucketProducts(record,operation="INSERT"):
+    return_value = []
+    if operation =="INSERT":
+        SDB = Handler(db="xelhua_bucket") 
+        SDB.Update_document(record['token_solution'],record['id'],record,query={'id':record['id']})
+        LOG.info("Product %s inserted correctly" %record['id'])
+    if operation=="GETALL":
+        """
+            it gets a obj as {token_solution:,query:{}}
+        """
+        SDB = Handler(db="xelhua_bucket") 
+        return_value  = SDB.List_document(record['token_solution'],query=record['query'],filter_obj={"_id":0})
+    return return_value
+
 
 def ManageProductMap(value):
     global VISUAL
@@ -879,6 +936,7 @@ def prepare_request():
     elif action == "DELETE_SOLUTION": #save a new solution
         value = params['value']
         res = delete_solution(value)
+        LOG.error(res)
         return json.dumps({"status":"OK","action":"ACCEPT","value":res})
 
     elif action == "LIST_SOLUTIONS": #save a new solution
@@ -893,7 +951,7 @@ def prepare_request():
     elif action == "UPDATE_TASK":
         value = params['value']
         update_data(value)
-        return json.dumps({"status":"OK","action":"ACCEPT","value":value})
+        return json.dumps({"status":"OK","action":"ACCEPT","value":{}})
 
     elif action == "CONSULT":
         value = params['value']
@@ -918,7 +976,22 @@ def prepare_request():
         value = params['value']
         res = ManageProductMap(value)
         return json.dumps({"status":"OK","action":"ACCEPT","value":res})
-    
+  
+    elif action == "INSERT_PRODUCT":
+        value = params['value']
+        res = BucketProducts(value,operation="INSERT")
+        return json.dumps({"status":"OK","action":"ACCEPT","value":res})
+    elif action == "GET_PRODUCT":
+        value = params['value']
+        res = BucketProducts(value,operation="GET")
+        return json.dumps({"status":"OK","action":"ACCEPT","value":res})
+    elif action == "GETALL_PRODUCTS":
+        value = params['value']
+        res = BucketProducts(value,operation="GETALL")
+        return json.dumps({"status":"OK","action":"ACCEPT","value":res})
+
+
+
     elif action == "VALIDATE_SUBTASK_EXE":
         value = params['value']
         res = verify_list_abox_process(value["token_solution"],value["task_list"])

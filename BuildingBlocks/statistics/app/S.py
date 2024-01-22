@@ -47,7 +47,7 @@ def ClientProcess(metadata,data_acq_time):
     service_name = service
     params = DAG['params']
 
-    children = DAG['childrens'] if 'childrens' in DAG else []
+    children = DAG['children'] if 'children' in DAG else []
     ENV_VARS = metadata['ENV'] if 'ENV' in metadata else {}
 
     id_service =DAG['id']
@@ -133,7 +133,7 @@ def ClientProcess(metadata,data_acq_time):
     ## ============================  Abox LOG  =============================== ##
     ## ======================================================================= ##
     with open(SOLUTIONS_FILE,'a+') as f_records:
-        # id_service, token_solution ,results path, DAG of childrens
+        # id_service, token_solution ,results path, DAG of children
         f_records.write("%s\t%s\t%s\t%s\n" %(id_service,control_number,result['data'],json.dumps(children)))
     ## ======================================================================= ##
 

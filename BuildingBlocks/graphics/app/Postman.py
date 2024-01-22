@@ -340,10 +340,9 @@ class postman(Thread):
         self.status=final_status
         self._running=False
 
-
+        self.LOGER.warning("SENDING A LAST MESSAGE: %s" %(last_message))
         ## send a last message
         self.WarnGateway(last_message)
-        self.LOGER.warning("SENDING A LAST MESSAGE: %s" %(last_message))
 
     def calculate_sha256sum(self,filename):
         h  = hashlib.sha256()
@@ -401,7 +400,7 @@ class postman(Thread):
         if id_service is None:
             id_service = self.id_service
 
-        ToSend = {'control_number':RN, "task":id_service, 'status':status,"message":message,"parent":parent,"label":label,"type":type_data, "index":index_opt}
+        ToSend = {'control_number':RN, "task":id_service, 'status':status,"message":message,"parent":parent,"label":label,"type":type_data, "index":index_opt,"token_user":self.TOKENUSER}
 
         if times is not None:
             ToSend['times']=times

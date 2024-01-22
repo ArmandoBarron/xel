@@ -635,3 +635,31 @@ button[aria-expanded=false] .glyphicon-chevron-down {
   border: none;
   background: transparent;
 } 
+
+
+.serviceLoadingIcon-task{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.serviceLoadingIcon-task img{
+  width: 30% !important;
+  margin-top: -2vh !important;
+  height: auto !important;
+}
+
+
+.serviceLoadingIcon-root{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+
+.serviceLoadingIcon-root img{
+  width: 30% !important;
+  margin-top: -2vh !important;
+  height: auto !important;
+}

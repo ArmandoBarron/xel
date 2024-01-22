@@ -87,7 +87,7 @@ function Upload_graph_data(){
         raw_file= $('#files')[0].files[0];
         if (raw_file==undefined){console.log("select a data source");return 0}
 
-        $("#"+sourceId+" > div.row > div.service-options > #serviceLoadingIcon-root").html("<img style='width:25%; height:100%' src='resources/imgs/loading.gif'></img>")
+        $("#"+sourceId+" > div.row > div.service-options > #serviceLoadingIcon-root").html("<img class='service_loader_img' src='resources/imgs/loading.gif'></img>")
         $("#group-upload").hide();
         //$("#cleandata_button").show();
         //$("#files").hide();
@@ -184,7 +184,7 @@ function Exec_graph(exec_options={}){
     SERVICE_GATEWAY = $("#ip_gateway").val()
     transform_dag(data_obj,DAG)
     console.log("EL DAG ...") ;console.log(DAG);
-    $(".serviceLoadingIcon-task").html("<img style='width:25%; height:100%' src='resources/imgs/loading.gif'></img>")
+    $(".serviceLoadingIcon-task").html("<img class='service_loader_img' src='resources/imgs/loading.gif'></img>")
     $(".showOnMapIcon-task").html("")
     $(".downloadDataIcon-task").html("")
     $(".InspectDataIcon-task").html("")
@@ -194,7 +194,9 @@ function Exec_graph(exec_options={}){
     var data_to_send = {'SERVICE':'deploy',"HOST":SERVICE_GATEWAY, 'REQUEST':{'DAG':JSON.stringify(DAG),
         'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE},
         'options':exec_options,
-        'alias':$("#modal_save-solutions-form-name").val()
+        'metadata':Metadata_collector(),
+        'alias':$("#modal_save-solutions-form-name").val(),
+        'dataobject': JSON.stringify(dataObject)
     }};
 
     if (TOKEN_SOLUTION!=""){data_to_send.REQUEST.token_solution=TOKEN_SOLUTION}
@@ -255,14 +257,18 @@ function pipe_getdata(data_request){ //get RAW data to execute dag
 // either successfully or with errors, anyway, it does the same, reactivates the
 // execute button, and removes the laoding icon from every box on canvas
 // except root.
+function RemoveLoadingIcons(){
+    $('.serviceLoadingIcon-root').html("")
+    $('.serviceLoadingIcon-task').html("");
+}
+
 function postExecutionStop(rn,error=true,message="Execution failed, check the parameters") {
     // reactivate button
     $('#output').prop('disabled', false);
     // remove icons
     // se remueven todos los iconos de carga
-    $('.serviceLoadingIcon-root').html("")
-    $('.serviceLoadingIcon-task').html("");
-    
+    RemoveLoadingIcons()
+
     //console.log('allFootersIcons: ', allFootersIcons);
     //for(let i = 0;i < allFootersIcons.length;i++) {
     //    console.log(`el ${i}: `, allFootersIcons[i]);
@@ -333,7 +339,9 @@ function pipe_dag(data_for_workflow,exec_options={}){ // launch dag
         'data_map':data_for_workflow, 
         'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE},
         'options':exec_options,
-        'alias':$("#modal_save-solutions-form-name").val()
+        'metadata': Metadata_collector(),
+        'alias':$("#modal_save-solutions-form-name").val(),
+        'dataobject': JSON.stringify(dataObject)
     }};
     
     if (TOKEN_SOLUTION!=""){data_to_send.REQUEST.token_solution=TOKEN_SOLUTION}
@@ -664,9 +672,11 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                         
                         // se remueven todos los iconos de carga
                         $('.serviceLoadingIcon-root').html("")
-    
+
                         var tiempo_ejecucion = ((Date.now() -INIT_TIME)/1000) -2 ; // se le quitan los 2 segundos que se agregan
                         notificarUsuario("Solution Complete. Response Time: "+tiempo_ejecucion , 'info')
+                        // trigger autosave
+                        BTN_save_solution()
 
                         if ($("#dag_saveresults").is(":checked")){ //auto download data
                             for (var i = 0; i < LIST_TASK_OVER.length; i++) {
@@ -694,9 +704,24 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                         }
     
                         // para finalizar, se elimina el stack, a menos que se especifique lo contrario (futu wok (future work))
-                        var data_to_send = {'SERVICE':'removestack',"HOST":SERVICE_GATEWAY, 'REQUEST':{'token_solution':TOKEN_SOLUTION,
-                                            'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE}}};
-                    
+                        if ($("#if_keep_resources").is(":checked")){ // keep resources
+                        
+                            notificarUsuario("Resources still up", 'info')
+                            Toggle_run_button()
+
+                            itt = parseInt($("#dag_iterations").val()) // execute again if there are more iterations
+                            if(itt>=2){
+                                $("#dag_iterations").val(itt-1)
+                                setTimeout(Exec_graph({"force":true}),1000)
+                            }
+                            else{console.log("no more iterations")}
+                            
+      
+                        }
+                        else{
+                            var data_to_send = {'SERVICE':'removestack',"HOST":SERVICE_GATEWAY, 'REQUEST':{'token_solution':TOKEN_SOLUTION,
+                            'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE}}};
+    
                             $.ajax({
                                 type: "POST", // la variable type guarda el tipo de la peticion GET,POST,..
                                 url: 'includes/xel_Request.php', //url guarda la ruta hacia donde se hace la peticion
@@ -714,7 +739,7 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                                         setTimeout(Exec_graph({"force":true}),1000)
                                     }
                                     else{console.log("no more iterations")}
-    
+
                                 },
                                 error: function(XMLHttpRequest, textStatus, errorThrown){
                                     error_result = XMLHttpRequest['responseJSON']
@@ -722,8 +747,10 @@ function ServiceMonitor(token_project,token_solution,list_remain_task){
                                 },
                                 dataType: 'json' // El tipo de datos esperados del servidor. Valor predeterminado: Intelligent Guess (xml, json, script, text, html).
                             });
+                            // end remove stack
 
-                        // end remove stacl
+                        }
+
                     }
                     else{
                         console.log(LIST_TASK_OVER)
@@ -1009,7 +1036,7 @@ function transform_dag(parent,dag){ //transform ignora la primera caja (la root)
             id: value.id,
             alias: value.alias,
             service: service_name,
-            childrens: []
+            children: []
         }
         dag.push(new_service)
         if('actions' in value.params){ 		// check if there are actions in params
@@ -1048,7 +1075,7 @@ function transform_dag(parent,dag){ //transform ignora la primera caja (la root)
         new_service['params'] = new_params
         
         //do teh same for all childrens
-        transform_dag(value,new_service.childrens)
+        transform_dag(value,new_service.children)
     });
 }
 
@@ -2049,25 +2076,33 @@ function SetDataOnMap(dataset) {
 
 }
 
-
-// LISTA DE FUNCIONES PARA COMPORTAMIENTOS DE BOTONES 
+function formatDate(date) {
+    let datePart = [
+      date.getMonth() + 1,
+      date.getDate(),
+      date.getFullYear()
+    ].map((n, i) => n.toString().padStart(i === 2 ? 4 : 2, "0")).join("/");
+    let timePart = [
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds()
+    ].map((n, i) => n.toString().padStart(2, "0")).join(":");
+    return datePart + " " + timePart;
+  }
+  
 
 // Guardar solucion en BD
 function BTN_save_solution(){
     //AUTH
     let data_request = {"SERVICE":"solution/store",'REQUEST':{'auth':{'user':MESH_USER,'workspace':MESH_WORKSPACE},'metadata':{},'DAG':[]}}
-    //metadata
-    data_request.REQUEST.metadata = Metadata_collector()
-    //TOKEN
-    if (data_request.REQUEST.metadata.token!=""){data_request.REQUEST.token_solution= token}
-    //DAG
-    DAG=CloneJSON(dataObject)
 
-    //transform_dag(dataObject,DAG)
+    DAG=CloneJSON(dataObject) //DAG
     data_request.REQUEST.DAG = JSON.stringify(DAG) //list of task is sent as a string, not as a dict
 
-
     if(Object.keys(DAG.children).length > 0){
+        data_request.REQUEST.metadata = Metadata_collector()    //metadata
+        if (data_request.REQUEST.metadata.token!=""){data_request.REQUEST.token_solution= data_request.REQUEST.metadata.token}     //TOKEN
+    
         //-------------------------
         $.ajax({
             url: 'includes/xel_Request.php',
@@ -2076,11 +2111,15 @@ function BTN_save_solution(){
             data:data_request,
             beforeSend: function() {
                 $("#modal_save-solutions-icon-load").html("<div style='width:100%; height:10px;'></div><img src='resources/imgs/loader.gif'></img>");
+                $("#span_solution_save_status").html("<img style='width:2vh; height:2vh;' src='resources/imgs/loading-buffering.gif'></img> Saving changes");
             },
             success: function(response) {  
                 $("#modal_save-solutions-icon-load").html("")
-                notificarUsuario("Solution was saved.","success")
-                $("#modal_save-solutions-form-tokensolution").val(response['info']['token_solution'])
+                date = new Date()
+                $("#span_solution_save_status").html('<i class="fas fa-cloud"></i> project saved. Last update: '+formatDate(date));
+                
+                //notificarUsuario("Solution was saved.","success")
+                Set_Tokensolution(response['info']['token_solution'])
             },
             error: function(XMLHttpRequest, textStatus, errorThrown){
                 error_result = XMLHttpRequest['responseJSON']
@@ -2088,7 +2127,9 @@ function BTN_save_solution(){
                     sesionExpirada()
                 }
             }
-        }).fail(function(){console.log("error al conectarse")});
+        }).fail(function(){
+            $("#span_solution_save_status").html('<i class="fas fa-cloud-upload-alt"></i> Unable to save changes. Last update: ')
+        });
 
     }
     else{
@@ -2149,6 +2190,7 @@ function BTN_retrieve_solution(token_solution,as_copy=false){
             toDesign()
 
             $(".block-hoverinfo").hoverIntent( confighover )
+            RemoveLoadingIcons()
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
             error_result = XMLHttpRequest['responseJSON']
