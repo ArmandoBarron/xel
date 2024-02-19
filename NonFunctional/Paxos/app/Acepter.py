@@ -9,6 +9,7 @@ import datetime
 import copy
 from waitress import serve
 import multiprocessing as mp
+import requests
 
 import hashlib
 from datetime import datetime
@@ -615,6 +616,48 @@ def list_solutions(value):
     list_solutions_of_user = SDB.List_document(auth['user'],query)
     return list_solutions_of_user
 
+def get_task_service_name(soluton_dag={}, task_name=''):
+    
+    if(task_name == soluton_dag['id']):
+        service_name = soluton_dag['service']
+        coincident_task = soluton_dag['id']
+        
+        return service_name, coincident_task
+    
+    for child in soluton_dag['children']:
+        
+        service_name, coincident_task = get_task_service_name(child, task_name)
+    
+        if(coincident_task == task_name):
+            return service_name, coincident_task
+    
+    service_name = 'None'
+    coincident_task = 'None'
+    
+    return service_name, coincident_task
+
+def recover_down_tasks(solution_dag, task, RN):
+     
+    service_name, _ = get_task_service_name(solution_dag[0], task)
+    LOAD_B.resources['{}'.format(service_name)] = {}
+            
+    LOG.info("================================== REDESPLEGANDO RECRUSOS")
+    
+    try:
+        data = json.dumps({
+            "DAG": solution_dag,
+            "id_stack": RN,
+            "mode":"compose",
+            "engine":"nez",
+            "replicas": 2
+        })
+    
+        res = requests.post('http://services_creator:2000/start_services', json=data)
+        
+        LOG.info('================================== EL SERVIDOR RESPONDIO CON %s' % res)
+        
+    except Exception as e:
+        LOG.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ERROR AL REDESPLEGAR RECURSOS")
     
 def get_task_runtime_info(value): #new version of consult data
     RN = str(value['control_number'])
@@ -670,6 +713,8 @@ def get_task_runtime_info(value): #new version of consult data
             ToSend['parent'] =  val['parent'] 
             LOG.info("================================== SE VA A RECUPERAR: %s" % task)
             #LOG.info("el dag es : %s" % val['dag'])
+            
+            recover_down_tasks(solution_dag, task, RN)
 
         elif val['status'] == "FINISHED" or val['status'] == "FAILED":
             ToSend = {"status":st,"task":task,"type":data_type,"message":val['message'],"index":idx_opt,"is_recovered":is_recovered }
