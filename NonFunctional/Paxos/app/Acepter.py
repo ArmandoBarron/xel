@@ -15,6 +15,8 @@ import hashlib
 from datetime import datetime
 from db_handler import Handler
 from TwoChoices import loadbalancer
+from random import randint
+
 
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger()
@@ -96,6 +98,13 @@ def Compare_parents(parent1,parent2):
     else:
         return False
 
+def CreateID():
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    id_string=  "%s-%s" %(dt_string, randint(10000,90000)) #random number with 10 digits
+    encoded=id_string.encode()
+    return hashlib.sha256(encoded).hexdigest()
+    
 
 def LookForParamsV2(DAG,task):
     params = None
@@ -868,6 +877,34 @@ def init_visual_obj(token_solution,token_dispatcher,data=None):
     else:
         VISUAL[token_solution][token_dispatcher] ={"path":"","levels":{},"products":{}}
 
+
+def PublishSolution(dataload):
+    """
+    {token_user,token_solution,operation(INSERT)} -> public_token
+    {public_token,operation(GET)} -> {token_user,token_solution}
+
+    """
+    operation = dataload["operation"]
+    SDB = Handler(db="xel_pub_sub") 
+
+    return_value = []
+    if operation =="DELETE":
+
+        SDB.Delete_document("Published",dataload["token_solution"])
+        LOG.info("Solution deleted correctly")
+
+    if operation =="INSERT":
+        public_token = CreateID()
+
+        SDB.Insert_document_if_not_exist("Published",{"public_token":public_token,
+                                                "token_user":dataload["token_user"],
+                                                "token_solution":dataload["token_solution"]},{"token_solution":dataload["token_solution"]} )
+
+    if operation=="GET":
+        return_value  = SDB.Get_document("Published",dataload["public_token"],query= {"public_token":dataload["public_token"]})
+        LOG.info(return_value)
+    return return_value    
+
 def BucketProducts(record,operation="INSERT"):
     return_value = []
     if operation =="INSERT":
@@ -1034,6 +1071,11 @@ def prepare_request():
         value = params['value']
         res = BucketProducts(value,operation="GETALL")
         return json.dumps({"status":"OK","action":"ACCEPT","value":res})
+
+    elif action == "PUBLISH":
+        value = params['value']
+        res = PublishSolution(value)
+        return json.dumps({"status":"OK","action":"ACCEPT","value":res})  
 
 
 

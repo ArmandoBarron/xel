@@ -92,6 +92,7 @@ $google_maps_key = $_ENV["GOOGLE_MAPS_KEY"]
 <script defer type="text/javascript" src="resources/js/myjs/ServicesForms/visualization.js"></script> 
 <script defer type="text/javascript" src="resources/js/myjs/ServicesForms/catalogs.js"></script> 
 <script defer type="text/javascript" src="resources/js/myjs/ServicesForms/datasource.js"></script> 
+<script defer type="text/javascript" src="resources/js/myjs/ServicesForms/custom.js"></script> 
 
 <!--FIN DE LAS SECCIONES-->
 <script defer type="text/javascript" src="resources/js/myjs/designer.js"></script>

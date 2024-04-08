@@ -78,6 +78,7 @@ class FSController():
                     #tmp = os.listdir(path)
                     tmp = [f for f in os.listdir(path) if not f.startswith('.')] #ignore hidden ones
                     path +=tmp[0]
+                    
             elif typeOfData=="PROJECT":
                 if credentials['token_solution'] == "":
                     raise ValueError

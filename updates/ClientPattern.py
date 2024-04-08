@@ -450,7 +450,7 @@ class client_pattern():
 
                 if lvl in level_to_process or "all" in level_to_process: # procesar solo las tareas del nivel correspondiente
                     temp = sub_child.copy()
-                    data_map = {"data":task,"type":"SOLUTION"}
+                    data_map = {"data":{"token":self.TOKEN_SOLUTION,"task":task},"type":"SOLUTION"}
                     data_pointer = open(data_path['data'],"rb")
                     dag_to_send =  self.CloneDict(self.Prepare_subdag_instance([temp],task)[0])
                     ENV_VARS= self.GetSubtaskContextVariables(task)

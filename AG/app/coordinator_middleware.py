@@ -221,6 +221,41 @@ def AddServiceResource():
     paxos_response = PROPOSER.Update_resource(service,service_ID,ToSend,read_action="ADD") # save request in paxos distributed memory
     return json.dumps(paxos_response)
 
+
+@app.route('/publish', methods=['POST'])
+@token_required
+def publish_solution():
+    """
+    {token_solution,token_user}
+    """
+    payload = request.get_json()
+    payload["operation"] = "INSERT"
+    paxos_response = PROPOSER.DirectRequest(payload,request="PUBLISH")
+    return paxos_response
+
+@app.route('/unpublish', methods=['POST'])
+@token_required
+def unpublish_solution():
+    """
+    {token_solution}
+    """
+    payload = request.get_json()
+    payload["operation"] = "DELETE"
+    paxos_response = PROPOSER.DirectRequest(payload,request="PUBLISH")
+    return paxos_response
+
+@app.route('/get_published', methods=['POST'])
+@token_required
+def get_publish_solution():
+    """
+    {public_token}
+    """
+    payload = request.get_json()
+    payload["operation"] = "GET"
+    paxos_response = PROPOSER.DirectRequest(payload,request="PUBLISH")
+    return paxos_response
+
+
 @app.route('/ASK', methods=['POST'])
 @token_required
 def ASK():

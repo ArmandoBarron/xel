@@ -1,0 +1,17 @@
+{
+    "NAME_APPLICATION":"etapa1",
+    "INPUT_DATA_FORMAT":["any"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}top10.py @{SOURCE} @{SINK}",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"resultado.csv",
+            "COMPRESS":false,
+            "ignore_list":[]
+        }
+
+}

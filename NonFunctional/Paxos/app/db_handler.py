@@ -46,6 +46,21 @@ class Handler:
         self._closeConnection(client)
 
 ## more specific functions ##
+    def Insert_document_if_not_exist(self,collection_name,document,query):
+        client= self._openConnection()
+        db = client[self.db_name] #bd
+        col = db[collection_name] #the DS in a collection
+
+        if not self.Document_exist(collection_name,document,query=query):
+            res = col.insert(document)
+            self.Log.info("Not existed, inserted correctly")
+        else:
+            self.Log.info("already exist")
+
+        self._closeConnection(client)
+
+        return res
+
 
     def Document_exist(self,collection_name,document,query= None):
         """

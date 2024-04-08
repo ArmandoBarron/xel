@@ -11,6 +11,7 @@ CONFIG_SECTIONS =
         {id:"sec-preproc",name:"Preprocessing"},
         {id:"sec-proc",name:"Processing"},
         {id:"sec-validation",name:"Validation"},
-        {id:"sec-visualitation",name:"Visualitation"}
+        {id:"sec-visualitation",name:"Visualitation"},
+        {id:"sec-custom",name:"Custom"}
 
 ]
