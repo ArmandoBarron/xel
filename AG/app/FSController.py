@@ -5,6 +5,7 @@ from time import sleep
 from functions import *
 from base64 import b64encode,b64decode
 import magic as M
+import json
 
 class MessageController():
 
@@ -35,7 +36,7 @@ class MessageController():
     
 class FSController():
 
-    def __init__(self,LOGER=None,CLOUD=None,REMOTE_STORAGE=False):
+    def __init__(self,LOGER=None,CLOUD=None,REMOTE_STORAGE=False,clt_paxos = None):
         self.LOGS_FOLDER= "./LOGS/"
         createFolderIfNotExist(self.LOGS_FOLDER)
         #fh = logging.FileHandler(logs_folder+'info.log')
@@ -53,11 +54,12 @@ class FSController():
 
         self.CLOUD = CLOUD
         self.REMOTE_STORAGE = REMOTE_STORAGE
-    
+        self.PROPOSER = clt_paxos
+
     def GetSolutionPath(self,token_solution):
         return "%s%s/" %(self.RESULTS_FOLDER,token_solution)
 
-    def GetDataPath(self,params):
+    def GetDataPath(self,params,clt_paxos = None):
         typeOfData = params['type']
         credentials = params['data']
         try:
@@ -71,14 +73,42 @@ class FSController():
                 #cuando se añada SKYCDS el BKP_FOLDER se remplaza por el token del usuario
                 # BKP_FOLDER = credentials['token_user']
 
-                path = self.GetSolutionPath(credentials['token_solution'])+"/"+ validatePathIfSubtask(credentials['task']) +"/"
+                # {data {token_solution,task} , type}
+                # 1 verificar que el token sea publico
+                # si no es public, es de una solucion, y se pasa directo
+                # 2 si es publico, entonces se obtiene la info 
+                paxos_response = self.PROPOSER.DirectRequest({"public_token":credentials['token_solution'],"operation":"GET"},request="PUBLISH")
+                paxos_response['value']
+
+                try:
+                    self.LOGER.debug(paxos_response['value'])
+                    token_solution = paxos_response['value']["token_solution"]
+                    self.LOGER.debug("SE ENCONTRO UN token publico")
+
+                except:
+                    self.LOGER.info("no es token publico")
+                    token_solution = credentials['token_solution']
+
+                path = self.GetSolutionPath(token_solution)+"/"+ validatePathIfSubtask(credentials['task']) +"/"
+                #se verifica en mixctlan. si la opcion de mictlan esta activa se va a tomar como prioridad descargar el archivo y su metadata
+                token_data = CreateDataToken(token_solution,credentials['task'])
+
+                if self.REMOTE_STORAGE:
+                    createFolderIfNotExist(path)
+                    res = self.CLOUD.get_to_flie(token_solution,token_data,path)
+                    LOG.info(res)
+
                 if 'filename' in credentials:
                     path+=credentials['filename']
                 else:
                     #tmp = os.listdir(path)
                     tmp = [f for f in os.listdir(path) if not f.startswith('.')] #ignore hidden ones
                     path +=tmp[0]
-                    
+
+                #descargar de mictlan
+
+
+
             elif typeOfData=="PROJECT":
                 if credentials['token_solution'] == "":
                     raise ValueError
@@ -266,12 +296,13 @@ class FSController():
 
         if self.REMOTE_STORAGE:
             f.seek(0) 
+            f.close()
             file_metadata ={}
             file_metadata['content_type'] = M.from_file(file_path, mime=True)
             token_data = CreateDataToken(token_solution,task)
-            res = self.CLOUD.put(token_data,f.read(),metadata=file_metadata)
+            res = self.CLOUD.put(token_data,path_to_archive,metadata=file_metadata)
 
-        f.close()
+        
         del f
 
     def clean_results_dir(self,token_solution):

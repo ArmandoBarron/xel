@@ -84,6 +84,7 @@ class CltFunxion: #CltFunxion
         self.log = logging.getLogger()
         self.task_done = []
         self.force = False
+        self.public_token = ''
 
         if config_file is not None:
             #si no esta vacia, osea, que tiene una ruta que cargue los datos desde el archivo txt o json
@@ -113,23 +114,41 @@ class CltFunxion: #CltFunxion
         elif level == 'critical':
             self.log.critical(message, extra=extra)
 
+    def get_publicsolution_info(self,public_token):
+
+        payload = {"public_token":public_token}
+        headers = self.create_headers()
+        url = self.base_url+"/get_published"
+        response = requests.post(url, json=payload,headers=headers)
+
+        if response.status_code == 200:
+            res = response.json()
+            self.log.info(res)
+            return res["value"]
+        else:
+            return response.text
+
     def share(self,opt="publish"):
         """
-        opt :: publish,unpublish
+        opt :: publish,unpublish,get_published
         """
 
         payload = {"token_user":self.token_user,"token_solution":self.token_solution}
 
-        
+
         headers = self.create_headers()
 
         #hacer el post a la url/deploy
         url = self.base_url+"/"+opt
 
         response = requests.post(url, json=payload,headers=headers)
-        self.log.info(response)
 
         if response.status_code == 200:
+            res = response.json()
+            self.public_token = res['value']['public_token']
+
+            self.log.info(res)
+
             return response.json()
         else:
             return response.text
@@ -192,7 +211,8 @@ class CltFunxion: #CltFunxion
             "password" : self.password,
             "base_url": self.base_url,
             "token_solution": self.token_solution,
-            "access_token":self.access_token
+            "access_token":self.access_token,
+            "public_token":self.public_token
         }
 
         # Abre el archivo en modo escritura / esto guarda 
@@ -215,14 +235,14 @@ class CltFunxion: #CltFunxion
         else:
             self.log_message("warning","No context File found")
 
-    def create_datamap(self,filename,source="LAKE",workspace="Default"):
+    def create_datamap(self,filename=None,token="",task="", source="LAKE",workspace="Default"):
         """
         {data_map:{data,type},DAG:{},token_solution(optional),auth}
 
         type:(LAKE,SOLUTION,RECORDS,SHARED,DUMMY)
 
         if SOLUTION: //local transversal, detect data produced by another solution from the same user 
-            {data:{token_user,token_solution,task,filename(optional)},type:SOLUTION} #un catalogo del usuario
+            {data:{token,task,filename(optional)},type:SOLUTION} #un catalogo del usuario
         if RECORDS: //raw data as records 
             {data:[],type:RECORDS}
         if LAKE: //obtained from a catalog in the CDN
@@ -233,6 +253,11 @@ class CltFunxion: #CltFunxion
         self.workspace=workspace
         if source =="LAKE":
             data = {"token_user":self.token_user,"catalog":self.workspace,"filename":filename}
+        if source == "SOLUTION":
+            data = {"token_solution":token,"task":task}
+            if filename is not None:
+                data['filename'] = filename
+
         if source =="DUMMY":
             data = {}
 
@@ -297,6 +322,21 @@ class CltFunxion: #CltFunxion
 
         headers = self.create_headers()
 
+        # CONDICION, si el DATAMAP ES SOLUTION, SE DEBE MONITOREAR LA SOLUCION HASTA QUE SE PUEDA EJECUTAR
+        if data_map['type']=="SOLUTION":
+            #obtener el token_solution
+            public_token = data_map['data']['token_solution']
+            task = data_map['data']['task']
+
+            info = self.get_publicsolution_info(public_token)
+
+            #monitorear
+            self.log_message("info",info['token_solution'])
+
+            self.monitoring(list_task=[task],token_user=info['token_user'],token_solution=info['token_solution'],download_results=False )
+            self.log_message("info","LA SOLUCION TERMINO, YA SE PUEDE COMENZAR")
+
+
         url = self.base_url+"/executeDAG"
         response = requests.post(url, json=datos,headers=headers)
         self.log_message("info","Solution is now running in background")
@@ -309,14 +349,21 @@ class CltFunxion: #CltFunxion
         else:
             return response.text
         
-    def monitoring(self,interval_seg =1,clean_after_complete = False):
+    def monitoring(self,interval_seg =1,clean_after_complete = False,download_results = True,kind_task="task_list",list_task=None,token_solution=None,token_user=None):
         self.task_done = []
         while True:
             time.sleep(1)
-            parametros = {"kind_task":"task_list"}
+            parametros = {"kind_task":kind_task}
+            if list_task is not None:
+                parametros['task'] = list_task
+
+            TOKENS = token_solution if token_solution is not None else self.token_solution 
+            TOKENU = token_user if token_user is not None else self.token_user 
+
             headers = self.create_headers()
 
-            url = "%s/monitor/v2/%s/%s" %(self.base_url,self.token_user,self.token_solution)
+            url = "%s/monitor/v2/%s/%s" %(self.base_url,TOKENU,TOKENS)
+            self.log_message("info",url)
 
             response = requests.post(url, json=parametros,headers=headers)
             
@@ -324,34 +371,48 @@ class CltFunxion: #CltFunxion
 
             r_task_list = response.json()["list_task"]
 
-            for task in self.dag.task_list:
-                task_id = task.id
-
-                if task_id in r_task_list: #
-                    task.SetStatus(r_task_list[task_id]["status"],message = r_task_list[task_id]["message"] )
-
-            #stop conditions
             
-            waiting_task = []
-            for task in self.dag.task_list:
-                if task.status == "FINISHED" or task.status == "FAILED":
-                    
-                    if task.id not in self.task_done and task.status == "FINISHED": #then download results
-                        self.log_message("info","%s finished succesfully!" % task.id)
-                        self.GetResults(task.id)
-                        self.task_done.append(task.id)
-                    #download results if not exist
-                        
-                    #LOG MESSAGE
-                    message = "[TASK %s]: %s" % (task.id,task.message)
-                    self.log.error(message) if task.status =="FAILED" else self.log.info(message)
+            if token_solution is not None: # si se monitorea otro token solution, entonces solo es transversal.
+                n_waiting_for = len(r_task_list)
+                done = 0
+
+                for task, task_value in r_task_list.items():
+                    if task_value['status'] == "FINISHED" or task_value['status'] == "FAILED":
+                        done+=1
+                if done == n_waiting_for:
+                    break
                 else:
-                    waiting_task.append(task.id)
-            
-            if len(waiting_task) == 0:
-                break;
+                    self.log_message("info","waiting the transversal task %s" % r_task_list)
+
             else:
-                self.log_message("info","waiting for the following task: %s" % waiting_task )
+                for task in self.dag.task_list:
+                    task_id = task.id
+                    if task_id in r_task_list: #
+                        task.SetStatus(r_task_list[task_id]["status"],message = r_task_list[task_id]["message"] )
+
+                #stop conditions
+                waiting_task = []
+                for task in self.dag.task_list:
+                    if task.status == "FINISHED" or task.status == "FAILED":
+                        
+                        if task.id not in self.task_done and task.status == "FINISHED": #then download results
+                            self.log_message("info","%s finished succesfully!" % task.id)
+                            
+                            if download_results: #DOWNLOAD
+                                self.GetResults(task.id)
+
+                            self.task_done.append(task.id)
+                            
+                        #LOG MESSAGE
+                        message = "[TASK %s]: %s" % (task.id,task.message)
+                        self.log.error(message) if task.status =="FAILED" else self.log.info(message)
+                    else:
+                        waiting_task.append(task.id)
+                
+                if len(waiting_task) == 0:
+                    break;
+                else:
+                    self.log_message("info","waiting for the following task: %s" % waiting_task )
 
         # clean containers         
         if clean_after_complete:
@@ -388,7 +449,7 @@ class CltFunxion: #CltFunxion
         filepath_dir = self.createFolderIfNotExist("/%s/%s" % (self.token_solution,service_id)) #create solutions and service dir
 
         url = "%s/getfile" %(self.base_url)
-        parametros = {"data":{"token_user":self.token_user,"token_solution":self.token_solution,"task":service_id},"type":"SOLUTION"} #un catalogo del usuario
+        parametros = {"data":{"token_user":self.token_user ,"token_solution":self.token_solution,"task":service_id},"type":"SOLUTION"} #un catalogo del usuario
 
         if filename is not None:
             parametros["filename"] = filename
@@ -415,8 +476,8 @@ class CltFunxion: #CltFunxion
                 f.write(response.content)
             self.log_message("info",f'File saved as {filename}')
         else:
-            print()
             self.log_message("error",'Request error: %s ' % response.status_code)
+            self.log_message("error",'Request error: %s ' % response.json())
 
 
 

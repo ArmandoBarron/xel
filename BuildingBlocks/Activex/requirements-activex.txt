@@ -1,0 +1,6 @@
+cloudpickle==3.0.0
+pyzmq==26.0.3
+--extra-index-url https://test.pypi.org/simple/
+mictlanx==0.0.141
+xolo==0.0.7
+activex==0.0.5

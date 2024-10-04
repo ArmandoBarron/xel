@@ -290,14 +290,11 @@ class client_pattern():
         #================================================================#
         if kind_pattern == "Map":
             output_name = "map_metadata.json";output_datatype="json"
-            self.LOGER.error("----------------------------MAP PROCESS...")
+            self.LOGER.info("----------------------------MAP PROCESS ---------------------------- ")
             vars = pattern_info['spec']['variables']
             original_dataset= pd.read_csv(data_path['data'])
-            self.LOGER.error("----------------------------Se leyo el dataset")
 
-            list_of_task = []
-            list_of_datamap = []
-
+            list_of_task = []; list_of_datamap = []
             del sub_child['pattern'] #se borra pattern
             
             levels = vars.copy()
@@ -450,7 +447,7 @@ class client_pattern():
 
                 if lvl in level_to_process or "all" in level_to_process: # procesar solo las tareas del nivel correspondiente
                     temp = sub_child.copy()
-                    data_map = {"data":task,"type":"SOLUTION"}
+                    data_map = {"data":{"token":self.TOKEN_SOLUTION,"task":task},"type":"SOLUTION"}
                     data_pointer = open(data_path['data'],"rb")
                     dag_to_send =  self.CloneDict(self.Prepare_subdag_instance([temp],task)[0])
                     ENV_VARS= self.GetSubtaskContextVariables(task)

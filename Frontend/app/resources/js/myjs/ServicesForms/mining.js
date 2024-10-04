@@ -3,7 +3,7 @@
 
 /// SERVICOS DE PREPROCESAMIENTO
 SECTION = "sec-mining"
-
+/*
 ServicesArr.push(    {
     id: "s-txt-class",
     process_tag:"text-mining",
@@ -604,3 +604,5 @@ ServicesArr.push(
                             }); 
 
                         </script>`})
+
+*/

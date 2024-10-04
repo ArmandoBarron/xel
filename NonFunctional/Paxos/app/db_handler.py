@@ -56,6 +56,7 @@ class Handler:
             self.Log.info("Not existed, inserted correctly")
         else:
             self.Log.info("already exist")
+            res = self.Get_document(collection_name,document,query=query)
 
         self._closeConnection(client)
 

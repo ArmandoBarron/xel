@@ -4,6 +4,7 @@
 /// SERVICOS DE PREPROCESAMIENTO
 SECTION = "sec-proc"
 
+/*
 ServicesArr.push({
         id: "s-neural-networks",
         name: "deeplearning",
@@ -150,7 +151,7 @@ ServicesArr.push({
 
     }
 )
-
+*/
 ServicesArr.push(
         {
                 id: "clustering-algh",

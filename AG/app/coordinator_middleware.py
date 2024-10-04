@@ -43,7 +43,7 @@ MODE=os.getenv("MODE")
 REMOTE_STORAGE=TranslateBoolStr(os.getenv("REMOTE_STORAGE"))
 if REMOTE_STORAGE:
     from storage.mictlanx_client import mictlanx_client
-    STORAGE_CLIENT = mictlanx_client()
+    STORAGE_CLIENT = mictlanx_client("XEL_DEFAULT")
 else:
     STORAGE_CLIENT = None
 
@@ -61,7 +61,6 @@ REFERENCES_FOLDER="./references/"
 
 TIMES_list = {}
 
-FS = FSController(LOGER=LOGER,CLOUD=STORAGE_CLIENT,REMOTE_STORAGE=REMOTE_STORAGE)
 
 #select load blaancer
 Tolerant_errors=0 #total of errors that can be tolarated
@@ -69,11 +68,14 @@ ACCEPTORS_LIST= dictionary['paxos']["accepters"]
 LOGER.info(ACCEPTORS_LIST)
 PROPOSER = Paxos(ACCEPTORS_LIST)
 
+FS = FSController(LOGER=LOGER,CLOUD=STORAGE_CLIENT,REMOTE_STORAGE=REMOTE_STORAGE,clt_paxos=PROPOSER)
+
 # Garbage collector para backups
 #GarbageColl = GarbageCollector(PROPOSER,BKP_FOLDER,LOGER,stopwatch=120)
 #GarbageColl.start()
 ########## END GLOBAL VARIABLES ##########
 
+LOG.info("CONFIGURATIONS: \n REMOTE STORAGE = {}, \n ALLOW_REGISTER_NEW_USERS = {}, \n MODE = {}, \n DEBUG = {}  ".format(REMOTE_STORAGE,ALLOW_REGISTER_NEW_USERS,MODE,DEBUG_MODE))
 
 def GetPostman(service=None,hash_product=""):
     return postman(PROPOSER,FS.GetFolder("RESULTS"),service=service,LOGER=LOGER,hash_product=hash_product)
@@ -264,7 +266,7 @@ def ASK():
     return postman.AskGateway(params)
 
 @app.route('/STATUS', methods=['GET'])
-@token_required
+#@token_required
 def services_status():
     services = PROPOSER.Read_resource('','','',read_action="STATUS")['value'] #select
     return jsonify(services)
@@ -425,12 +427,15 @@ def execute_DAG():
             if exec_options['force']:#force run
                 FS.clean_results_dir(RN) #clean dir with results
 
+    try:
+        data_path,name,ext= FS.GetDataPath(data) #get data path
+    except ValueError as e:
+        return make_response({"status":"ERROR","message":"406: Data not found."},406)
 
-    data_path,name,ext= FS.GetDataPath(data) #get data path
 
     # verify if data exist
     if not (FileExist(data_path)):
-        return make_response({"status":"ERROR","message":"404: Data not found."},406)
+        return make_response({"status":"ERROR","message":"406: Data not found."},406)
 
     MC = MessageController(DAG,RN,envirioment_params,LOGER=LOGER)
     MC.AssignDataMap(data_path,ext)
@@ -801,7 +806,7 @@ def upload_file(token_solution,task):
 
     FS.StoreResult(request,token_solution,task)
 
-    #SAVE LIST OF PRODUCTS IN DB AVOIDING 
+    #SAVE LIST OF PRODUCTS IN DB 
     meta = getMetadataFromPath(task,as_list=False)
     meta["product_name"] = metadata["product_name"] if 'product_name' in metadata else "dataset/product"
     meta["id"] = task 
@@ -811,7 +816,20 @@ def upload_file(token_solution,task):
 
     return json.dumps({"status":"OK", "message":"OK"})
 
+@app.route('/metadata/insert/<token_solution>/<task>', methods = ['POST'])
+@API_required
+def insert_products(token_solution,task):
+    #LOGER.debug("INDEX DATA to %s" %RN)
+    metadata = json.loads(request.cookies['metadata']) if 'metadata' in request.cookies else {"product_name":"product"}
 
+    #SAVE LIST OF PRODUCTS IN DB 
+    meta = getMetadataFromPath(task,as_list=False)
+    meta["product_name"] = metadata["product_name"] if 'product_name' in metadata else "dataset/product"
+    meta["id"] = task 
+    meta["token_solution"] = token_solution 
+    PROPOSER.DirectRequest(meta,request="INSERT_PRODUCT")
+
+    return json.dumps({"status":"OK", "message":"OK"})
 
 @app.route('/metadata/get/<token_solution>', methods = ['GET'])
 def get_all_metadata_products(token_solution):
@@ -900,7 +918,8 @@ def describeDatasetv2():
     try:
         data_path,name,ext= FS.GetDataPath(params) #Inspect the type of dataset request and get returns the path for the data
     except ValueError as VE:
-        return {"status":"ERROR","message":"Invalid filename"}
+        return make_response({"status":"ERROR","message":"406: Data not found."},406)
+
     LOGER.info("Data must be in %s " % data_path)
 
     file_exist=FileExist(data_path) #verify if data exist

@@ -17,18 +17,25 @@ ACTUAL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 logging.basicConfig(level=logging.INFO)
 LOGER = logging.getLogger()
 
-def call_app(comando):
+def call_app(comando,POSTMAN=None):
     sp = subprocess.Popen(comando, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True,close_fds=True)
     LOGER.debug("==== PID ====== %s" % sp.pid )
+    decoded_log = ""
     while True:
         linea = sp.stdout.readline()
         if not linea:
             break
         linea_decodificada = linea.decode().rstrip()
         LOGER.info("stdout: %s" % linea_decodificada )
+        decoded_log += linea_decodificada
+
 
     sp.wait()
     sp.terminate()
+
+    if POSTMAN is not None:
+        data = POSTMAN.CreateMessage(None,decoded_log,"LOG")
+        POSTMAN.WarnGateway(data)
     return sp.returncode
 
 #############################
@@ -97,7 +104,7 @@ def execute(params,AppConfig,POSTMAN=None):
             command = Transform_config['COMMAND']
             command = utils.FormatCommand(command,params,reserved_params=RESERVED_PARAMS,POSTMAN=POSTMAN) # ==== FORMATING COMMAND ======
             LOGER.info("==== EXECUTING COMMAND ====== %s" % command )
-            execution_status = call_app(command)
+            execution_status = call_app(command,POSTMAN=POSTMAN)
 
             LOGER.info("status code: %s" % execution_status )
 

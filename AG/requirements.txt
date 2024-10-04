@@ -1,5 +1,9 @@
 flask==3.0.0
 pandas==1.2.4
-requests==2.31
+requests==2.31.0
 tqdm==4.60.0
-numpy==1.21.4
+numpy==1.24
+python-magic==0.4.27
+chardet
+--extra-index-url https://test.pypi.org/simple/
+mictlanx==0.0.160

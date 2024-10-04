@@ -1,9 +1,13 @@
-FROM python
+FROM python:3.8.6-slim-buster
+
 WORKDIR home
 
-RUN pip install flask --user 
-RUN pip install pandas --user
-RUN pip install requests --user
+#requierments for the mesh:
+RUN apt-get update && apt-get install libmagic1 -y
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt --user 
+#requierments for the app:
+    
 RUN pip install xlwt --user
 
 COPY ./app app

@@ -34,6 +34,8 @@ class bb_dispatcher():
         ######## ASK #######
         ToSend = {'service':child['service'],'context':self.CONTEXT}
         res = self.POSTMAN.AskGateway(ToSend)
+        self.LOGER.info(res)
+
         #------------------#
         if 'info' in res: #no more nodes
             self.LOGER.error("NO NODES FOUND")

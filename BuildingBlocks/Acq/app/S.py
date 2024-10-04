@@ -40,6 +40,10 @@ def ClientProcess(metadata,data_acq_time):
     data = metadata['data'] #datos {data,type}
     auth = metadata['auth']
 
+    LOGER.error(type(data))
+    LOGER.error(data)
+
+
     AG=postman(GATEWAYS_LIST,SERVICE_NAME,SERVICE_IP,SERVICE_PORT,NETWORK,TPSHOST,API_GATEWAY=API_GATEWAY,LOGER=LOGER,tokenuser=auth['user'])
     os.chdir(BASE_PATH) #in case of error must be set the base path
     
@@ -49,6 +53,8 @@ def ClientProcess(metadata,data_acq_time):
 
     children = DAG['children'] if 'children' in DAG else []
     ENV_VARS = metadata['ENV'] if 'ENV' in metadata else {}
+
+
 
     id_service =DAG['id']
     control_number = DAG['control_number']
@@ -121,9 +127,7 @@ def ClientProcess(metadata,data_acq_time):
     ## ======================================================================= ##
     LOGER.info("Starting indexing process...%s" % result['data'])
     if index_opt and result['status']!="ERROR": #save results 
-        index_time = time.time() #<--- time flag
         label = AG.ArchiveData(result['data'],result['data'].split("/")[-1],metadata=result['metadata'])
-        index_time= time.time() - index_time #<--- time flag
     else:
         label=False
         LOGER.error(result['message'])
@@ -204,6 +208,7 @@ SERVICE_NAME=os.getenv("SERVICE_NAME")
 SERVICE_IP=os.getenv("HOSTNAME") 
 SERVICE_PORT=os.getenv("SERVICE_PORT") 
 TPSHOST = os.getenv("TPS_MANAGER") 
+
 
 Tolerant_errors=10 #total of errors that can be tolarated
 ##### TEMP_AG communication handler

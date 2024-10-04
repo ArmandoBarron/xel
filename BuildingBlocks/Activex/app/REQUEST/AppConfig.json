@@ -1,0 +1,37 @@
+{
+    "NAME_APPLICATION":"GRAPHICS",
+    "INPUT_DATA_FORMAT":["csv"],
+    "EXTRACT":{
+            "COMPRESS":false
+        },
+    "TRANSFORM":{
+        "COMMAND": "python @{CWD}graph.py @{SOURCE} @{SINK} '@{chart}' '@{histo_type}' '@{columns}' '@{label_column}' '@{colorscale_column}' '@{column_x}' '@{column_y}' '@{temporal_column}' '@{subgroup}' '@{size}' '@{if_log_scale}' '@{groups_path}' '@{title}' '@{column_z}' '@{orient}' '@{reference}' ",
+        "CUSTOM_APP":false
+    },
+    "LOAD":{
+            "OUTPUT_NAMEFILE":"chart.html",
+            "COMPRESS":false,
+            "ignore_list":[]
+        },
+    "METADATA":{
+        "key":"@{chart}",
+        "list":{
+            "1":"Density",
+            "2":"Scatter matrix map",
+            "3":"Parallel categories",
+            "4":"Temporal bubble plot",
+            "5":"Line plot",
+            "6":"Sunbrust",
+            "7":"Scatter",
+            "8":"3D Scatter",
+            "9":"3D Scatter",
+            "10":"Bar plot ",
+            "11":"Box plot",
+            "12":"Cumulative bar plot",
+            "13":"TreeMap",
+            "14":"Sorted Barplot",
+            "15":"Custom Heatmap",
+            "16":"Regression"
+        }
+    }
+}

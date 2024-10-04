@@ -9,6 +9,7 @@ RUN apt-get update && apt-get -y install --no-install-recommends build-essential
 RUN Rscript -e "install.packages('sampling')"
 
 RUN pip3 install requests --user
+RUN apt-get update && apt-get install libmagic1 -y
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt --user 

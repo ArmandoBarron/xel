@@ -1,12 +1,11 @@
 
 from Client import CltFunxion,DAG,Service
-print("lib loaded")
 
+
+print("lib loaded")
 Client = CltFunxion()
 #Client.FlushTokenSolution()
-
-#Client.FlushTokenSolution()
-datos_acceso = Client.login()
+Client.login()
 
 #crear servicio
 serv1 = Service("query","transform_ds",{"query_flt":"CAUSA_DEF=='C50'",

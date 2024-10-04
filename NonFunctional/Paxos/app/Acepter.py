@@ -800,6 +800,8 @@ def ResourcesManagment(action,value):
         context = action_params['context']
     if 'context' in data_bin:
         context = data_bin['context']
+    
+    LOG.error("COORDINATOR IS ASKING FOR {}".format(action_params))
 
     ## READ ACTIONS
     if action=="STATUS":#add workload
@@ -887,7 +889,7 @@ def PublishSolution(dataload):
     operation = dataload["operation"]
     SDB = Handler(db="xel_pub_sub") 
 
-    return_value = []
+    return_value = {}
     if operation =="DELETE":
 
         SDB.Delete_document("Published",dataload["token_solution"])
@@ -895,10 +897,10 @@ def PublishSolution(dataload):
 
     if operation =="INSERT":
         public_token = CreateID()
-
-        SDB.Insert_document_if_not_exist("Published",{"public_token":public_token,
+        return_value = {"public_token":public_token,
                                                 "token_user":dataload["token_user"],
-                                                "token_solution":dataload["token_solution"]},{"token_solution":dataload["token_solution"]} )
+                                                "token_solution":dataload["token_solution"]}
+        return_value = SDB.Insert_document_if_not_exist("Published",return_value,{"token_solution":dataload["token_solution"]} )
 
     if operation=="GET":
         return_value  = SDB.Get_document("Published",dataload["public_token"],query= {"public_token":dataload["public_token"]})

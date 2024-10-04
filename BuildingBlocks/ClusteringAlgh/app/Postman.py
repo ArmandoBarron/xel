@@ -11,6 +11,10 @@ import multiprocessing as mp
 from threading import Thread
 import os
 import hashlib
+from storage.mictlanx_client import mictlanx_client
+import magic as M
+from functions import CreateDataToken,DatasetDescription
+import pandas as pd
 
 class postman(Thread):
 
@@ -32,7 +36,15 @@ class postman(Thread):
         self.TPSHOST=TPSHOST
         self.API_KEY=os.getenv("API_KEY")
         self.TOKENUSER=tokenuser
-        ##################
+        ###########################
+        ####### REMOTE STORAGE #
+        self.REMOTE_STORAGE=os.getenv("STORAGE_OPT","LOCAL")
+
+        if self.REMOTE_STORAGE == "MICTLAN":
+            self.STORAGE_CLIENT = mictlanx_client(NETWORK,self.LOGER)
+
+
+        ###########################
         self.status = "STANDBY"
         self.RN=None
         self.id_service = None
@@ -231,8 +243,8 @@ class postman(Thread):
                     break
                 except KeyError as ke:
                     self.LOGER.error("Se generó un error porque los datos de entrada aun no estan listos")
-            
-            time.sleep(5) #el archivo aun no esta listo
+            else:
+                time.sleep(5) #el archivo aun no esta listo
 
 
             
@@ -306,29 +318,61 @@ class postman(Thread):
         
         t = time.time()
         
-        self.LOGER.info("Guardando %s" %id_service)
+        self.LOGER.info("Saving %s" %id_service)
         self.calculate_sha256sum(data_path)
         self.LOGER.info("Hash resultant product: %s" % self.hash_product)
-        try:
-            file_pointer = open(data_path,"rb")
+        self.LOGER.info(self.REMOTE_STORAGE)
+
+        if self.REMOTE_STORAGE!="LOCAL": #remote storage
+            #get basic metadata
+            self.LOGER.error("ALMACENANDO DATOS EN MICTLAN")
+
+            metadata['content_type'] = M.from_file(data_path, mime=True)
+            token_data = CreateDataToken(self.RN,id_service)
+            _,ext = data_path.split(".")
+
+            if ext=="csv":  #describe csv
+                #LOGER.info(enc)
+                #LOGER.info(delimiter)
+                dataset= pd.read_csv(data_path)
+                #LOGER.info(dataset)
+                metadata['info'] = dict()
+                metadata['info']['files_info'] = dict()
+                metadata['info']['list_of_files'] = []
+                metadata['info']['files_info'][namefile] = DatasetDescription(dataset)
+                metadata['info']['list_of_files'].append(namefile)
+
+            #regisrtar el producto ################################################
             headers = {'x-access-token': self.API_KEY}
-            cookies={}
-            if mining_statistics:
-                cookies = {'x-mining-statistics':"True"}
-            cookies["metadata"] = json.dumps(metadata)
-            self.LOGER.info(cookies)
+            cookies={} ;cookies["metadata"] = json.dumps(metadata)
+            url = 'http://%s/metadata/insert/%s/%s' % (self.API_GATEWAY,self.RN,id_service)
+            res = api.post(url, headers=headers,cookies=cookies).json()
+            self.LOGER.info("Producto Registrado")
+            ################################################
 
-            url = 'http://%s/ArchiveData/%s/%s' % (self.API_GATEWAY,self.RN,id_service)
-            res = api.post(url, files={"file":(namefile,file_pointer)},headers=headers,cookies=cookies).json()
-            self.times['idx']+= time.time()-t
-            file_pointer.close()
-            del file_pointer
-            return res
-        except Exception as ex:
-            self.LOGER.error(ex)
-            file_pointer.close()
-            return {"status":"ERROR","info":"ERROR"}
+            res = self.STORAGE_CLIENT.put(token_data,data_path,metadata=metadata)
+            self.LOGER.info("DATOS ALMACENADOS CORRECTAMENTE")
+        else: #LOCAL
+            try:
+                file_pointer = open(data_path,"rb")
+                headers = {'x-access-token': self.API_KEY}
+                cookies={}
+                if mining_statistics:
+                    cookies = {'x-mining-statistics':"True"}
+                cookies["metadata"] = json.dumps(metadata)
 
+                url = 'http://%s/ArchiveData/%s/%s' % (self.API_GATEWAY,self.RN,id_service)
+                res = api.post(url, files={"file":(namefile,file_pointer)},headers=headers,cookies=cookies).json()
+                file_pointer.close()
+                del file_pointer
+                
+            except Exception as ex:
+                self.LOGER.error(ex)
+                file_pointer.close()
+                self.times['idx']+= time.time()-t
+                return {"status":"ERROR","info":"ERROR"}
+        self.times['idx']+= time.time()-t
+        return res
 
     def run(self):
         self.status="RUNNING"
@@ -384,11 +428,19 @@ class postman(Thread):
         if operation=="replace":
             self.times[time_key]=value
 
-        #------------------ TOOLS ---------------#
     def ValidateDataMap(self,data_map,auth):
-        if data_map['type']=="SOLUTION": #se adquieren los datos
-            data_map['data'] = data_map['data'].replace(".SOLUTION","") #se le añadio esta extencion, por lo que hay que quitarla
-            data_map = self.GetResults(self.RN,data_map['data'],auth)
+        """
+        {data:{token,task},map}
+        """
+        dtype = data_map['type']
+
+        if dtype=="SOLUTION": #se adquieren los datos
+            #verificar si es public_token
+
+            task = data_map['data']['task']
+            token =  data_map['data']['token']
+            task = task.replace(".SOLUTION","") #se le añadio esta extencion, por lo que hay que quitarla
+            data_map = self.GetResults(token,task,auth)
             self.calculate_sha256sum(data_map['data'])
             #index hash
             ToSend = self.CreateMessage(self.RN,"indexing input data hash","UPDATE",type_data=data_map['type'],include_hash=True)
@@ -396,9 +448,10 @@ class postman(Thread):
             
         return data_map
     
-    def CreateMessage(self,RN,message,status,id_service=None,type_data='',parent='',label='',index_opt='',times=None,dag=None,include_hash=False):
-        if id_service is None:
-            id_service = self.id_service
+    def CreateMessage(self,RN=None,message='',status='OK',id_service=None,type_data='',parent='',label='',index_opt='',times=None,dag=None,include_hash=False):
+
+        id_service = id_service if id_service is not None else self.id_service
+        RN = RN if RN is not None else self.RN
 
         ToSend = {'control_number':RN, "task":id_service, 'status':status,"message":message,"parent":parent,"label":label,"type":type_data, "index":index_opt,"token_user":self.TOKENUSER}
 

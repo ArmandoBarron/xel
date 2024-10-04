@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, json
-from exe import execute
+from exe import execute,create_docker_image
 from exe2 import remove
 #from flask_cors import CORS
 from waitress import serve
@@ -27,6 +27,15 @@ def remove_services():
         return jsonify({conf['remove_services_response_field']:conf['remove_services_success_response']})
     return jsonify({conf['remove_services_response_field']:conf['remove_services_error_response']})
 
+@app.route("/create_image", methods=['POST','GET'])
+def create_image():
+    """
+    {modules::List[], base_image::String, imagen_name::String, version::String}
+    """
+    data = request.get_json()
+    res = create_docker_image(data['modules'],"./Buildingblocks/"+data["base_image"],data["image_name"])
+
+    return jsonify({"message":res})
 if __name__=="__main__":
     #app.run(host=conf['server_ip'], port=conf['server_port'], debug=True,  use_reloader=True)
     serve(app, host=conf['server_ip'], port=conf['server_port'], threads=4)

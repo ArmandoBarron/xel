@@ -26,7 +26,7 @@ def create_service(parent,data,string,tab):
     return string
 
 
-def create_nez_cfgfile(data2,version,services,resultfile_id, replicate_dictionary):
+def create_nez_cfgfile(data2,version,services,resultfile_id, replicate_dictionary,env):
 
     total_services = len(services)
     string = "#./deployer/app/cfg-files/xelhua.cfg\n"
@@ -55,6 +55,11 @@ def create_nez_cfgfile(data2,version,services,resultfile_id, replicate_dictionar
         for k,v in service_params["environment"].items():
             enviroment_values+="%s=%s;" %(k,v)
         enviroment_values+="API_KEY=%s;" %(API_KEY)
+
+        #add global env
+        for k,v in env.items():
+            enviroment_values+="%s=%s;" %(k,v)
+
         string+="environment  = %s \n[END]\n\n" % enviroment_values
 
         #create pattern
@@ -162,6 +167,60 @@ def create_env_file(alias,env_filename,environment_var_name):
     f.close()
     
 
+def create_docker_image(components, dockerfile_dir, new_image_name,version="v2.0"):
+    dockerfile_path = os.path.join(dockerfile_dir, "Dockerfile")
+    new_dockerfile_name = f"Dockerfile-{os.path.basename(dockerfile_dir)}"
+    new_dockerfile_path = os.path.join(dockerfile_dir, new_dockerfile_name)
+
+    if not os.path.exists(dockerfile_path):
+        print(f"No se encontró el Dockerfile en {dockerfile_path}")
+        return False
+
+    # Leer el contenido del Dockerfile
+    with open(dockerfile_path, "r") as file:
+        dockerfile_content = file.readlines()
+    
+    #Encontrar la última línea COPY
+    copy_indices = [i for i, line in enumerate(dockerfile_content) if line.strip().startswith("COPY")]
+    if not copy_indices:
+        print("No se encontró ninguna línea COPY en el Dockerfile")
+        return False
+    
+    last_copy_index = copy_indices[-1]
+
+    # Crear las líneas de instalación de pip
+    pip_lines = [f"RUN pip install {component}\n" for component in components]
+    
+    # Insertar las líneas de pip antes de la primera línea COPY
+    new_dockerfile_content = dockerfile_content[:last_copy_index] + pip_lines + dockerfile_content[last_copy_index:]
+    
+    # Escribir el nuevo contenido en el nuevo Dockerfile
+    with open(new_dockerfile_path, "w") as file:
+        file.writelines(new_dockerfile_content)
+    
+    # Construir la imagen de Docker utilizando el nuevo Dockerfile
+    build_command = ["docker", "build", "-t", new_image_name+":"+version, "-f", new_dockerfile_path, dockerfile_dir]
+    process = subprocess.run(build_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    
+
+
+    # Mostrar el log de la consola
+    print(process.stdout)
+    print(process.stderr)
+    
+    # Comprobar si se construyó correctamente
+    if process.returncode == 0:
+        print(f"Imagen '{new_image_name}' construida correctamente.")
+
+        # Escribir el comando de construccion en el archivo build.sh
+        with open("build.sh", "a") as file:
+            file.writelines(build_command.join(""))
+
+
+        return True
+    else:
+        print(f"Error al construir la imagen '{new_image_name}'.")
+        return False
 
 def execute(request):    
     resultfile_location = conf['resultfile_location']
@@ -193,6 +252,8 @@ def execute(request):
     f.close()
 
     resources = data[conf['resources_key']]
+    global_env = data["env"]
+
     names = data[conf['names_key']]
     version = data["version"]
 
@@ -213,7 +274,7 @@ def execute(request):
     
 
     if engine=="nez":
-        cfg_content = create_nez_cfgfile(resources, version, childs_list, resultfile_id, replicate_dictionary)
+        cfg_content = create_nez_cfgfile(resources, version, childs_list, resultfile_id, replicate_dictionary,global_env)
         resultfile_filename = os.sep.join([os.getcwd(), 'cfg-files', resultfile_id+ '.cfg'])
 
         f = open(resultfile_filename, "w");f.write(cfg_content);f.close()

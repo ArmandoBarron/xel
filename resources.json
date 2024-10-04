@@ -1,17 +1,28 @@
 {
   "version":"v2.0",
+  "env":{
+    "TPS_MANAGER": "http://tps_manager:5000",
+    "API_GATEWAY": "coordinator:5555",
+    "SERVICE_PORT": "80",
+    
+    "STORAGE_OPT":"MICTLAN",
+    "MICTLANX_PROTOCOL":"http",
+    "MICTLANX_ROUTERS":"mictlanx-router-0:148.247.201.141:60667"
+  },
+
   "resources": {
+    "avx": {
+      "image": "xel_activex",
+      "restart": "always",
+      "networks": ["service_mesh"],
+      "environment": {
+      }
+    },
     "cleanning": {
       "image": "xel_bb_data_clean",
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "imputation": {
@@ -19,12 +30,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "clustering_service": {
@@ -32,12 +37,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "fusion": {
@@ -45,12 +44,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "correlation": {
@@ -58,12 +51,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "join_split": {
@@ -71,12 +58,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "charts": {
@@ -84,12 +65,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "maps": {
@@ -97,12 +72,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "catalogs": {
@@ -110,12 +79,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "regression": {
@@ -123,12 +86,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "statistics": {
@@ -136,12 +93,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "transform_ds": {
@@ -149,64 +100,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
-      }
-    },
-    "deeplearning": {
-      "image": "xel_bb_deeplearning",
-      "restart": "always",
-      "networks": ["service_mesh"],
-      "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
-      }
-    },
-    "text_preprocessing": {
-      "image": "xel_bb_text_preprocessing",
-      "restart": "always",
-      "networks": "service_mesh",
-      "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
-      }
-    },
-    "text_processing": {
-      "image": "xel_bb_text_processing",
-      "restart": "always",
-      "networks": ["service_mesh"],
-      "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
-      }
-    },
-    "text_classification": {
-      "image": "xel_bb_text_classification",
-      "restart": "always",
-      "networks": ["service_mesh"],
-      "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "preprocessing": {
@@ -214,12 +107,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "Converters": {
@@ -227,12 +114,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "Acquisition": {
@@ -241,12 +122,6 @@
       "volumes": ["./localdata/:/home/app/REQUEST/input_data"],
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       },
       "deploy": {
         "placement": {
@@ -259,13 +134,7 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "GROBID_URL": "grobid",
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
+        "GROBID_URL": "grobid"
       }
     },
     "Glove": {
@@ -273,12 +142,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "classificators": {
@@ -286,12 +149,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "advanced_maps": {
@@ -299,12 +156,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     },
     "reports": {
@@ -312,12 +163,6 @@
       "restart": "always",
       "networks": ["service_mesh"],
       "environment": {
-        "TPS_MANAGER": "http://tps_manager:5000",
-        "API_GATEWAY": "coordinator:5555",
-        "NETWORK": "LocalCluster",
-        "SERVICE_NAME": "",
-        "SERVICE_IP": "",
-        "SERVICE_PORT": "80"
       }
     }
   },
@@ -336,10 +181,6 @@
     "regression": "bb_regressions",
     "statistics": "bb_statistics",
     "transform_ds": "bb_transform",
-    "deeplearning": "deep_learning",
-    "text_preprocessing": "text_preprocessing_1",
-    "text_processing": "text_processing_1",
-    "text_classification": "text_classification_1",
     "preprocessing": "preprocessing",
     "Converters": "bb_converters",
     "Acquisition": "bb_acquisition_1",

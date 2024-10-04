@@ -1,0 +1,78 @@
+{
+    "timestamp": "2024-08-16 16:44:45,792",
+    "level": "INFO",
+    "logger_name": "client-0",
+    "thread_name": "waitress",
+    "event": "GET.TO.FILE",
+    "bucket_id": "40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1",
+    "key": "b59baecbe6a94d09976a82a438c6f98f20227c954ebffb186d59c2486c3b74b5",
+    "chunk_size": "1MB",
+    "path": "./BACKUPS/40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1//c1-DST//output.csv",
+    "response_time": 0.6595404148101807
+}
+
+{
+    "timestamp": "2024-08-16 16:46:44,667",
+    "level": "INFO",
+    "logger_name": "client-0",
+    "thread_name": "waitress",
+    "event": "GET.TO.FILE",
+    "bucket_id": "40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1",
+    "key": "b59baecbe6a94d09976a82a438c6f98f20227c954ebffb186d59c2486c3b74b5",
+    "chunk_size": "1MB",
+    "path": "./BACKUPS/40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1//c1-DST//output.csv",
+    "response_time": 0.03276205062866211
+}
+
+{
+    "timestamp": "2024-08-16 16:47:26,646",
+    "level": "INFO",
+    "logger_name": "client-0",
+    "thread_name": "waitress",
+    "event": "GET.TO.FILE",
+    "bucket_id": "40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1",
+    "key": "b59baecbe6a94d09976a82a438c6f98f20227c954ebffb186d59c2486c3b74b5",
+    "chunk_size": "1MB",
+    "path": "./BACKUPS/40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1//c1-DST//output.csv",
+    "response_time": 0.49098730087280273
+}
+
+{
+    "timestamp": "2024-08-16 17:11:03,611",
+    "level": "INFO",
+    "logger_name": "client-0",
+    "thread_name": "waitress",
+    "event": "GET.TO.FILE",
+    "bucket_id": "40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1",
+    "key": "b59baecbe6a94d09976a82a438c6f98f20227c954ebffb186d59c2486c3b74b5",
+    "chunk_size": "1MB",
+    "path": "./BACKUPS/40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1//c1-DST//output.csv",
+    "response_time": 0.14680194854736328
+}
+
+{
+    "timestamp": "2024-08-16 17:11:12,606",
+    "level": "INFO",
+    "logger_name": "client-0",
+    "thread_name": "waitress",
+    "event": "GET.TO.FILE",
+    "bucket_id": "40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1",
+    "key": "b59baecbe6a94d09976a82a438c6f98f20227c954ebffb186d59c2486c3b74b5",
+    "chunk_size": "1MB",
+    "path": "./BACKUPS/40807dba02c4de62454475b63f900d3f1b9d01cbdbdc931060e2be66e922c7a1//c1-DST//output.csv",
+    "response_time": 0.03235149383544922
+}
+
+{
+    "timestamp": "2024-08-16 17:32:00,752",
+    "level": "INFO",
+    "logger_name": "client-0",
+    "thread_name": "waitress",
+    "event": "GET.TO.FILE",
+    "bucket_id": "7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640",
+    "key": "7300deea5e7d54f7f43426fdb46be93ae3efbf22f297221d27b1c9b258c7a158",
+    "chunk_size": "1MB",
+    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//c2-data-catalogs//map_metadata.json",
+    "response_time": 0.1032567024230957
+}
+
