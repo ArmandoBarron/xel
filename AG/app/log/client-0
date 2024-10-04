@@ -1,5 +1,5 @@
 {
-    "timestamp": "2024-08-16 17:42:13,147",
+    "timestamp": "2024-10-04 18:17:08,494",
     "level": "INFO",
     "logger_name": "client-0",
     "thread_name": "waitress",
@@ -8,11 +8,11 @@
     "key": "7300deea5e7d54f7f43426fdb46be93ae3efbf22f297221d27b1c9b258c7a158",
     "chunk_size": "1MB",
     "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//c2-data-catalogs//map_metadata.json",
-    "response_time": 0.5472204685211182
+    "response_time": 0.05319094657897949
 }
 
 {
-    "timestamp": "2024-08-16 17:42:16,986",
+    "timestamp": "2024-10-04 18:17:09,099",
     "level": "INFO",
     "logger_name": "client-0",
     "thread_name": "waitress",
@@ -20,12 +20,12 @@
     "bucket_id": "7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640",
     "key": "4dcc09c31c50c1523982a3b969fdb69a46e7ee7669f609319d56b875af8625bb",
     "chunk_size": "1MB",
-    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//datasets/1/SEXO=Hombres/c2-data-catalogs//SEXO=Hombres-GROUP-ih40rwin.csv",
-    "response_time": 0.3281745910644531
+    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//datasets/1/SEXO=Hombres/c2-data-catalogs//SEXO=Hombres-GROUP-d040ziz6.csv",
+    "response_time": 0.5124194622039795
 }
 
 {
-    "timestamp": "2024-08-16 17:42:23,749",
+    "timestamp": "2024-10-04 18:17:14,088",
     "level": "INFO",
     "logger_name": "client-0",
     "thread_name": "waitress",
@@ -33,12 +33,12 @@
     "bucket_id": "7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640",
     "key": "6b1d2a87b2ddab3a508b81fca9d23fc7260da9aa9de214a255388b669b49ac9a",
     "chunk_size": "1MB",
-    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//datasets/1/SEXO=Mujeres/c2-data-catalogs//SEXO=Mujeres-GROUP-y67srw8f.csv",
-    "response_time": 0.3090858459472656
+    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//datasets/1/SEXO=Mujeres/c2-data-catalogs//SEXO=Mujeres-GROUP-idkkmrrh.csv",
+    "response_time": 0.34215641021728516
 }
 
 {
-    "timestamp": "2024-08-16 17:42:31,763",
+    "timestamp": "2024-10-04 18:17:16,533",
     "level": "INFO",
     "logger_name": "client-0",
     "thread_name": "waitress",
@@ -46,12 +46,12 @@
     "bucket_id": "7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640",
     "key": "d97efa9324b776c12d47bf676fc2e73a5b40aa8453900e072a12add94ee29861",
     "chunk_size": "1MB",
-    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//datasets/1/SEXO=Total/c2-data-catalogs//SEXO=Total-GROUP-zv0so4oi.csv",
-    "response_time": 0.4771876335144043
+    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//datasets/1/SEXO=Total/c2-data-catalogs//SEXO=Total-GROUP-2iwtymiv.csv",
+    "response_time": 0.8356690406799316
 }
 
 {
-    "timestamp": "2024-08-16 17:42:33,164",
+    "timestamp": "2024-10-04 18:17:16,573",
     "level": "INFO",
     "logger_name": "client-0",
     "thread_name": "waitress",
@@ -59,7 +59,33 @@
     "bucket_id": "7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640",
     "key": "e27833612da73c894c7f170df083c9343149acbae69660820bc056104026c451",
     "chunk_size": "1MB",
-    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//c1-DST//tmp54_m6dwr.csv",
-    "response_time": 0.28537440299987793
+    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//c1-DST//tmp4etdukxl.csv",
+    "response_time": 0.04996800422668457
+}
+
+{
+    "timestamp": "2024-10-04 18:18:37,136",
+    "level": "INFO",
+    "logger_name": "client-0",
+    "thread_name": "waitress",
+    "event": "GET.TO.FILE",
+    "bucket_id": "7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640",
+    "key": "e27833612da73c894c7f170df083c9343149acbae69660820bc056104026c451",
+    "chunk_size": "1MB",
+    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//c1-DST//tmp4etdukxl.csv",
+    "response_time": 0.03137540817260742
+}
+
+{
+    "timestamp": "2024-10-04 18:18:53,257",
+    "level": "INFO",
+    "logger_name": "client-0",
+    "thread_name": "waitress",
+    "event": "GET.TO.FILE",
+    "bucket_id": "7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640",
+    "key": "e27833612da73c894c7f170df083c9343149acbae69660820bc056104026c451",
+    "chunk_size": "1MB",
+    "path": "./BACKUPS/7eba17c5ff947d0d23451e17ff3c11e48491f28973f8df6a3a3288fb79647640//c1-DST//tmp4etdukxl.csv",
+    "response_time": 0.02408432960510254
 }
 

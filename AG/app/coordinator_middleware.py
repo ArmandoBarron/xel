@@ -842,17 +842,20 @@ def get_all_metadata_products(token_solution):
     else:
         return make_response(paxos_response,404)   
 
-
-
+#####################
+##### DEPERCATED ####
+#####################
 @app.route('/locate/<RN>/<task>', methods = ['GET'])
 def locate_file_in_remote_storage(RN,task):
     #LOGER.info("LOCALIZANDO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    token_data = CreateDataToken(RN,task)
+    token_data = task #CreateDataToken(RN,task)
     url_data_resouce= ""
     if REMOTE_STORAGE:
         url_data_resouce = STORAGE_CLIENT.locate(token_data)
 
     return json.dumps({"status":"OK", "message":"OK","location":url_data_resouce})
+#####################
+
 
 @app.route('/DatasetQuery', methods=['POST'])
 @token_required

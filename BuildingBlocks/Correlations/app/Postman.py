@@ -328,12 +328,10 @@ class postman(Thread):
             self.LOGER.error("ALMACENANDO DATOS EN MICTLAN")
 
             metadata['content_type'] = M.from_file(data_path, mime=True)
-            token_data = CreateDataToken(self.RN,id_service)
+            token_data = id_service #tokendata sera el id task #CreateDataToken(self.RN,id_service)
             _,ext = data_path.split(".")
 
             if ext=="csv":  #describe csv
-                #LOGER.info(enc)
-                #LOGER.info(delimiter)
                 dataset= pd.read_csv(data_path)
                 #LOGER.info(dataset)
                 metadata['info'] = dict()

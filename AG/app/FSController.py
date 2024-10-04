@@ -91,7 +91,7 @@ class FSController():
 
                 path = self.GetSolutionPath(token_solution)+"/"+ validatePathIfSubtask(credentials['task']) +"/"
                 #se verifica en mixctlan. si la opcion de mictlan esta activa se va a tomar como prioridad descargar el archivo y su metadata
-                token_data = CreateDataToken(token_solution,credentials['task'])
+                token_data = credentials['task'] #CreateDataToken(token_solution,credentials['task'])
 
                 if self.REMOTE_STORAGE:
                     createFolderIfNotExist(path)
@@ -299,7 +299,7 @@ class FSController():
             f.close()
             file_metadata ={}
             file_metadata['content_type'] = M.from_file(file_path, mime=True)
-            token_data = CreateDataToken(token_solution,task)
+            token_data = task #CreateDataToken(token_solution,task)
             res = self.CLOUD.put(token_data,path_to_archive,metadata=file_metadata)
 
         
