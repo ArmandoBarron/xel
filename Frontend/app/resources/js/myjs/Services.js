@@ -2954,11 +2954,11 @@ function SelectWorkspace(){
     val = $("#user_workspace").val()
     if (val==null || val == undefined){
         MESH_WORKSPACE= "Default"
-        setCookie("workspace",MESH_WORKSPACE,60)
+        setCookie("workspace",MESH_WORKSPACE,1440)
     }
     else{
         MESH_WORKSPACE= $("#user_workspace").val()
-        setCookie("workspace",$("#user_workspace").val(),60)
+        setCookie("workspace",$("#user_workspace").val(),1440)
     }
     console.log("Workspace actual: " + MESH_WORKSPACE)
     //notificarUsuario("")
@@ -3046,10 +3046,10 @@ $('#loginuserform').submit(function (event) {
 function LoginUser(username,password){
 
     if (username=="test"){
-        setCookie("username","Geoportal",60)
-        setCookie("tokenuser","Geoportal",60) 
+        setCookie("username","Geoportal",1440)
+        setCookie("tokenuser","Geoportal",1440) 
         setCookie("access_token","none") // este usuario solo sirve para probar cuando no hay seguridad
-        setCookie("workspace","Default",60)
+        setCookie("workspace","Default",1440)
     }
 
 
@@ -3063,20 +3063,20 @@ function LoginUser(username,password){
         success: function(result) {  
             console.log(result)
             if ('data' in result){
-                setCookie("username",username,60)
-                setCookie("tokenuser",result.data.tokenuser,60)
-                setCookie("access_token",result.data.access_token,60)
-                setCookie("workspace","Default",60)
+                setCookie("username",username,1440)
+                setCookie("tokenuser",result.data.tokenuser,1440)
+                setCookie("access_token",result.data.access_token,1440)
+                setCookie("workspace","Default",1440)
     
                 $.ajax({ //OBTIENE LA IP Y DATOS DE LOCALIZACION COMPLEMENTARIOS
                     url: "http://ipinfo.io",
                     dataType: "jsonp",
                     success: function(response) {
-                        setCookie("ip",response.ip,60)
+                        setCookie("ip",response.ip,1440)
                         location.href = "index.php?lang=" + lang;
                     },
                     error: function(response) {
-                        setCookie("ip","-",60)
+                        setCookie("ip","-",1440)
                         location.href = "index.php?lang=" + lang;
                     }
                 });
